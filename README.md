@@ -8,5 +8,6 @@ Goals:
 - CSS 3 compliant CSS parser.
 - Calculation of CSS properties for a given node in a HTML document.
 - Extraction of HTML "runs"
-  - CSS properties + text
+  - CSS properties + text strings (array of strings with leading space when
+    there is leading space, strings separate at break points)
   - Include before/after content from CSS
