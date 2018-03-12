@@ -29,7 +29,16 @@ extern "C" {
 
 typedef struct _css_prop_s
 {
-} css_prop_t;
+} _css_prop_t;
+
+typedef struct _css_rule_s
+{
+} _css_rule_t;
+
+struct _css_s
+{
+  css_media_t	media;			/* Base media definition */
+};
 
 
 /*
