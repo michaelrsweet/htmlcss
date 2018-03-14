@@ -23,6 +23,35 @@
 extern "C" {
 #  endif /* __cplusplus */
 
+typedef struct _html_attr_s
+{
+  char			*name,		/* Attribute name */
+			*value;		/* Attribute value */
+} _html_attr_t;
+
+struct _html_node_s
+{
+  html_element_t	element;	/* Element type */
+  html_node_t		*parent,	/* Parent node */
+			*child,		/* Child node */
+			*prev,		/* Previous (sibling) node */
+			*next;		/* Next (sibling) node */
+  union
+  {
+    char		*string;	/*** String value */
+    struct
+    {
+      int		num_attrs;	/***** Number of attributes */
+      _html_attr_t	*attrs;		/***** Attributes */
+    }			element;	/*** Element value */
+  }			value;		/* Node value */
+};
+
+struct _html_s
+{
+  css_t			*css;		/* Stylesheet */
+  html_node_t		*root;		/* Root node */
+};
 
 #  ifdef __cplusplus
 }

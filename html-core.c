@@ -155,3 +155,33 @@ const char * const	htmlElements[] =
   "video",
   "wbr"
 };
+
+
+/*
+ * 'htmlDelete()' - Free the memory used by a HTML document.
+ */
+
+void
+htmlDelete(html_t *html)		/* I - HTML document */
+{
+}
+
+
+/*
+ * 'htmlGetCSS()' - Get the stylesheet for a HTML document.
+ */
+
+css_t *					/* O - Stylesheet */
+htmlGetCSS(html_t *html)		/* I - HTML document */
+{
+}
+
+
+/*
+ * 'htmlNew()' - Create a new HTML document.
+ */
+
+html_t *				/* O - HTML document */
+htmlNew(css_t *css)			/* I - Base stylesheet */
+{
+}

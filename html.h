@@ -184,6 +184,8 @@ extern const char * const	htmlElements[];
  */
 
 extern void		htmlDelete(html_t *html);
+extern const char	*htmlDeleteAttr(html_node_t *node, const char *name);
+extern void		htmlDeleteNode(html_t *html, html_node_t *node);
 extern html_node_t	*htmlFindNode(html_t *html, html_element_t element, const char *id);
 extern html_node_t	*htmlFindNextNode(html_t *html, html_node_t *current, html_element_t element, const char *id);
 extern const char	*htmlGetAttr(html_node_t *node, const char *name);
@@ -198,11 +200,10 @@ extern const char	*htmlGetString(html_node_t *node);
 extern int		htmlLoad(html_t *html, const char *filename);
 extern int		htmlLoadFile(html_t *html, FILE *fp);
 extern html_t		*htmlNew(css_t *css);
+extern void		htmlNewAttr(html_node_t *node, const char *name, const char *value);
 extern html_node_t	*htmlNewNode(html_node_t *parent, html_element_t element);
 extern html_node_t	*htmlNewRoot(html_t *html, const char *doctype);
 extern html_node_t	*htmlNewString(html_node_t *parent, const char *s);
-extern void		htmlSetAttr(html_node_t *node, const char *name, const char *value);
-extern void		htmlSetCSS(html_t *html, css_t *css);
 
 #  ifdef __cplusplus
 }
