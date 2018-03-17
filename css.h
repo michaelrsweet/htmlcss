@@ -343,7 +343,7 @@ extern css_t	*cssNew(void);
 extern int	cssImport(css_t *css, const char *filename);
 extern int	cssImportFile(css_t *css, FILE *fp);
 extern int	cssImportString(css_t *css, const char *s);
-extern int	cssSetMedia(const char *media, float width, float height);
+extern int	cssSetMedia(css_t *css, const char *media, float width, float height);
 
 extern int	cssComputeBox(css_t *css, html_node_t *node, css_box_t *box);
 extern int	cssComputeDisplay(css_t *css, html_node_t *node, css_display_t *display);
