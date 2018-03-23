@@ -17,7 +17,9 @@
  */
 
 #  include "html.h"
-
+#  include <stdlib.h>
+#  include <errno.h>
+#  include <string.h>
 
 #  ifdef __cplusplus
 extern "C" {

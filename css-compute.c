@@ -25,6 +25,7 @@ cssComputeBox(css_t       *css,		/* I - Stylesheet */
               html_node_t *node,	/* I - HTML node */
               css_box_t   *box)		/* O - Box properties */
 {
+  return (0);
 }
 
 
@@ -38,6 +39,7 @@ cssComputeDisplay(
     html_node_t   *node,		/* I - HTML node */
     css_display_t *display)		/* O - Display property */
 {
+  return (0);
 }
 
 
@@ -50,6 +52,7 @@ cssComputeMedia(css_t       *css,	/* I - Stylesheet */
                 html_node_t *node,	/* I - HTML node */
                 css_media_t *media)	/* O - Media properties */
 {
+  return (0);
 }
 
 
@@ -62,6 +65,7 @@ cssComputeTable(css_t       *css,	/* I - Stylesheet */
                 html_node_t *node,	/* I - HTML node */
                 css_table_t *table)	/* O - Table properties */
 {
+  return (0);
 }
 
 
@@ -74,6 +78,7 @@ cssComputeText(css_t       *css,	/* I - Stylesheet */
                html_node_t *node,	/* I - HTML node */
                css_text_t  *text)	/* O - Text properties */
 {
+  return (0);
 }
 
 

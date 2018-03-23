@@ -17,6 +17,7 @@
  */
 
 #  include "css.h"
+#  include "html-private.h"
 
 #  ifdef __cplusplus
 extern "C" {

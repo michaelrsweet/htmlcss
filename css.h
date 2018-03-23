@@ -130,7 +130,7 @@ typedef enum
   CSS_FONT_WEIGHT_400 = 400,
   CSS_FONT_WEIGHT_500 = 500,
   CSS_FONT_WEIGHT_600 = 600,
-  CSS_FONT_WEIGHT_400 = 700,
+  CSS_FONT_WEIGHT_700 = 700,
   CSS_FONT_WEIGHT_800 = 800,
   CSS_FONT_WEIGHT_900 = 900
 } css_font_weight_t;
@@ -223,6 +223,14 @@ typedef enum
   CSS_WHITE_SPACE_PRE_WRAP
 } css_white_space_t;
 
+typedef struct css_color_s		/* sRGBA color */
+{
+  float			red;		/* Red, 0.0 to 1.0 */
+  float			green;		/* Green, 0.0 to 1.0 */
+  float			blue;		/* Blue, 0.0 to 1.0 */
+  float			alpha;		/* Alpha, 0.0 (transparent) to 1.0 (opaque) */
+} css_color_t;
+
 typedef struct css_border_props_s	/* CSS border properties */
 {
   css_color_t		color;		/* Border color */
@@ -236,7 +244,7 @@ typedef struct css_border_s		/* All CSS border properties */
   css_border_props_t	top;
   css_border_props_t	right;
   css_border_props_t	bottom;
-}
+} css_border_t;
 
 typedef struct css_rect_s		/* Rectangle */
 {
@@ -245,15 +253,6 @@ typedef struct css_rect_s		/* Rectangle */
   float			right;		/* Right offset */
   float			bottom;		/* Bottom offset */
 } css_rect_t;
-
-
-typedef struct css_color_s		/* sRGBA color */
-{
-  float			red;		/* Red, 0.0 to 1.0 */
-  float			green;		/* Green, 0.0 to 1.0 */
-  float			blue;		/* Blue, 0.0 to 1.0 */
-  float			alpha;		/* Alpha, 0.0 (transparent) to 1.0 (opaque) */
-} css_color_t;
 
 typedef struct css_point_s		/* Point/coordinate */
 {
@@ -301,7 +300,7 @@ typedef struct css_media_s		/* CSS media properties */
 {
   css_rect_t		margin;
   css_size_t		size;
-}
+} css_media_t;
 
 typedef struct css_table_s		/* CSS table properties */
 {
@@ -347,7 +346,7 @@ extern int	cssSetMedia(css_t *css, const char *media, float width, float height)
 
 extern int	cssComputeBox(css_t *css, html_node_t *node, css_box_t *box);
 extern int	cssComputeDisplay(css_t *css, html_node_t *node, css_display_t *display);
-extern int	cssComputeMedia(css_t *css, html_node_t *node, css_display_t *media);
+extern int	cssComputeMedia(css_t *css, html_node_t *node, css_media_t *media);
 extern int	cssComputeTable(css_t *css, html_node_t *node, css_table_t *table);
 extern int	cssComputeText(css_t *css, html_node_t *node, css_text_t *text);
 

@@ -184,7 +184,7 @@ extern const char * const	htmlElements[];
  */
 
 extern void		htmlDelete(html_t *html);
-extern const char	*htmlDeleteAttr(html_node_t *node, const char *name);
+extern void		htmlDeleteAttr(html_node_t *node, const char *name);
 extern void		htmlDeleteNode(html_t *html, html_node_t *node);
 extern html_node_t	*htmlFindNode(html_t *html, html_element_t element, const char *id);
 extern html_node_t	*htmlFindNextNode(html_t *html, html_node_t *current, html_element_t element, const char *id);

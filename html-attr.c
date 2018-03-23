@@ -35,6 +35,7 @@ const char *				/* O - Value or `NULL` if not present */
 htmlGetAttr(html_node_t *node,		/* I - Element node */
             const char  *name)		/* I - Attribute name */
 {
+  return (NULL);
 }
 
 
