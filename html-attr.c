@@ -28,7 +28,7 @@ htmlDeleteAttr(html_node_t *node,	/* I - Element node */
   _html_attr_t	*attr;			/* Current attribute */
 
 
-  if (!node || node->element <= HTML_ELEMENT_DOCTYPE || !name)
+  if (!node || node->element < HTML_ELEMENT_DOCTYPE || !name)
     return;
 
   for (i = node->value.element.num_attrs, attr = node->value.element.attrs; i > 0; i --, attr ++)
@@ -66,7 +66,7 @@ htmlGetAttr(html_node_t *node,		/* I - Element node */
   _html_attr_t	*attr;			/* Current attribute */
 
 
-  if (!node || node->element <= HTML_ELEMENT_DOCTYPE || !name)
+  if (!node || node->element < HTML_ELEMENT_DOCTYPE || !name)
     return (NULL);
 
   for (i = node->value.element.num_attrs, attr = node->value.element.attrs; i > 0; i --, attr ++)
@@ -93,7 +93,7 @@ htmlNewAttr(html_node_t *node,		/* I - Element node */
 		alloc_attrs;		/* New allocated attributes */
 
 
-  if (!node || node->element <= HTML_ELEMENT_DOCTYPE || !name || !value)
+  if (!node || node->element < HTML_ELEMENT_DOCTYPE || !name || !value)
     return;
 
  /*
