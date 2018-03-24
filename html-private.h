@@ -35,17 +35,20 @@ struct _html_node_s
 {
   html_element_t	element;	/* Element type */
   html_node_t		*parent,	/* Parent node */
-			*child,		/* Child node */
-			*prev,		/* Previous (sibling) node */
-			*next;		/* Next (sibling) node */
+			*first_child,	/* First child node */
+			*last_child,	/* Last child node */
+			*prev_sibling,	/* Previous (sibling) node */
+			*next_sibling;	/* Next (sibling) node */
   union
   {
-    char		*string;	/*** String value */
+    char		*comment;	/*** Comment value */
+    char		*doctype;	/*** DOCTYPE value */
     struct
     {
       int		num_attrs;	/***** Number of attributes */
       _html_attr_t	*attrs;		/***** Attributes */
     }			element;	/*** Element value */
+    char		*string;	/*** String value */
   }			value;		/* Node value */
 };
 

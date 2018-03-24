@@ -162,7 +162,8 @@ typedef enum				/* HTML element enum */
   HTML_ELEMENT_UL,
   HTML_ELEMENT_VAR,
   HTML_ELEMENT_VIDEO,
-  HTML_ELEMENT_WBR
+  HTML_ELEMENT_WBR,
+  HTML_ELEMENT_MAX
 } html_element_t;
 
 typedef struct _css_s css_t;		/* CSS data */
@@ -189,19 +190,23 @@ extern void		htmlDeleteNode(html_t *html, html_node_t *node);
 extern html_node_t	*htmlFindNode(html_t *html, html_element_t element, const char *id);
 extern html_node_t	*htmlFindNextNode(html_t *html, html_node_t *current, html_element_t element, const char *id);
 extern const char	*htmlGetAttr(html_node_t *node, const char *name);
+extern const char	*htmlGetComment(html_node_t *node);
 extern css_t		*htmlGetCSS(html_t *html);
-extern html_node_t	*htmlGetChildNode(html_node_t *current);
+extern const char	*htmlGetDOCTYPE(html_t *html);
 extern html_element_t	htmlGetElement(html_node_t *node);
-extern html_node_t	*htmlGetNextNode(html_node_t *current);
-extern html_node_t	*htmlGetParentNode(html_node_t *current);
-extern html_node_t	*htmlGetPrevNode(html_node_t *current);
+extern html_node_t	*htmlGetFirstChildNode(html_node_t *node);
+extern html_node_t	*htmlGetLastChildNode(html_node_t *node);
+extern html_node_t	*htmlGetNextSiblingNode(html_node_t *node);
+extern html_node_t	*htmlGetParentNode(html_node_t *node);
+extern html_node_t	*htmlGetPrevSiblingNode(html_node_t *node);
 extern html_node_t	*htmlGetRootNode(html_t *html);
 extern const char	*htmlGetString(html_node_t *node);
 extern int		htmlLoad(html_t *html, const char *filename);
 extern int		htmlLoadFile(html_t *html, FILE *fp);
 extern html_t		*htmlNew(css_t *css);
 extern void		htmlNewAttr(html_node_t *node, const char *name, const char *value);
-extern html_node_t	*htmlNewNode(html_node_t *parent, html_element_t element);
+extern html_node_t	*htmlNewComment(html_node_t *parent, const char *c);
+extern html_node_t	*htmlNewElement(html_node_t *parent, html_element_t element);
 extern html_node_t	*htmlNewRoot(html_t *html, const char *doctype);
 extern html_node_t	*htmlNewString(html_node_t *parent, const char *s);
 
