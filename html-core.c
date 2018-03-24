@@ -164,6 +164,11 @@ const char * const	htmlElements[] =
 void
 htmlDelete(html_t *html)		/* I - HTML document */
 {
+  if (html)
+  {
+    htmlDeleteNode(html, html->root);
+    free(html);
+  }
 }
 
 
@@ -174,6 +179,7 @@ htmlDelete(html_t *html)		/* I - HTML document */
 css_t *					/* O - Stylesheet */
 htmlGetCSS(html_t *html)		/* I - HTML document */
 {
+  return (html ? html->css : NULL);
 }
 
 
@@ -184,4 +190,11 @@ htmlGetCSS(html_t *html)		/* I - HTML document */
 html_t *				/* O - HTML document */
 htmlNew(css_t *css)			/* I - Base stylesheet */
 {
+  html_t *html;				/* New HTML document */
+
+
+  if ((html = (html_t *)calloc(1, sizeof(html_t))) != NULL)
+    html->css = css;
+
+  return (html);
 }
