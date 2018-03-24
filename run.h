@@ -1,5 +1,5 @@
 /*
- * CSS header file for HTMLCSS library.
+ * Block run header file for HTMLCSS library.
  *
  *     https://github.com/michaelrsweet/htmlcss
  *

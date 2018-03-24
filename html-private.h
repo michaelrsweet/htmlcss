@@ -35,20 +35,19 @@ struct _html_node_s
 {
   html_element_t	element;	/* Element type */
   html_node_t		*parent,	/* Parent node */
-			*first_child,	/* First child node */
-			*last_child,	/* Last child node */
 			*prev_sibling,	/* Previous (sibling) node */
 			*next_sibling;	/* Next (sibling) node */
   union
   {
-    char		*comment;	/*** Comment value */
-    char		*doctype;	/*** DOCTYPE value */
+    char		comment[1];	/*** Comment value */
     struct
     {
+      html_node_t	*first_child,	/***** First child node */
+			*last_child;	/***** Last child node */
       int		num_attrs;	/***** Number of attributes */
       _html_attr_t	*attrs;		/***** Attributes */
     }			element;	/*** Element value */
-    char		*string;	/*** String value */
+    char		string[1];	/*** String value */
   }			value;		/* Node value */
 };
 

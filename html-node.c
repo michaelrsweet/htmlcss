@@ -21,7 +21,7 @@
  */
 
 static void		html_delete(html_node_t *node);
-static html_node_t	*html_new(html_node_t *parent, html_element_t element);
+static html_node_t	*html_new(html_node_t *parent, html_element_t element, const char *s);
 static void		html_remove(html_node_t *node);
 
 
@@ -45,19 +45,19 @@ htmlDeleteNode(html_t      *html,	/* I - HTML document */
 
   html_remove(node);
 
-  for (current = node->first_child; current; current = next)
+  for (current = node->value.element.first_child; current; current = next)
   {
    /*
     * Get the next node...
     */
 
-    if ((next = current->first_child) != NULL)
+    if ((next = htmlGetFirstChildNode(current)) != NULL)
     {
      /*
       * Free parent nodes after child nodes have been freed...
       */
 
-      current->first_child = NULL;
+      current->value.element.first_child = NULL;
       continue;
     }
 
@@ -104,7 +104,7 @@ htmlGetComment(html_node_t *node)	/* I - HTML node */
 const char *				/* O - DOCTYPE value */
 htmlGetDOCTYPE(html_t *html)		/* I - HTML document */
 {
-  return (html && html->root ? html->root->value.doctype : NULL);
+  return (html && html->root ? htmlGetAttr(html->root, "") : NULL);
 }
 
 
@@ -126,7 +126,7 @@ htmlGetElement(html_node_t *node)	/* I - HTML node */
 html_node_t *				/* O - First child node or `NULL` if none */
 htmlGetFirstChildNode(html_node_t *node)/* I - HTML node */
 {
-  return (node ? node->first_child : NULL);
+  return (node && node->element >= HTML_ELEMENT_DOCTYPE ? node->value.element.first_child : NULL);
 }
 
 
@@ -137,7 +137,7 @@ htmlGetFirstChildNode(html_node_t *node)/* I - HTML node */
 html_node_t *				/* O - Last child node or `NULL` if none */
 htmlGetLastChildNode(html_node_t *node)	/* I - HTML node */
 {
-  return (node ? node->last_child : NULL);
+  return (node && node->element >= HTML_ELEMENT_DOCTYPE ? node->value.element.last_child : NULL);
 }
 
 
@@ -212,10 +212,7 @@ htmlNewComment(html_node_t *parent,	/* I - Parent node */
   if (!parent || !c)
     return (NULL);
 
-  if ((node = html_new(parent, HTML_ELEMENT_COMMENT)) != NULL)
-    node->value.comment = strdup(c);
-
-  return (node);
+  return (html_new(parent, HTML_ELEMENT_COMMENT, c));
 }
 
 
@@ -230,7 +227,7 @@ htmlNewElement(html_node_t    *parent,	/* I - Parent node */
   if (!parent || element <= HTML_ELEMENT_DOCTYPE || element >= HTML_ELEMENT_MAX)
     return (NULL);
 
-  return (html_new(parent, element));
+  return (html_new(parent, element, NULL));
 }
 
 
@@ -248,10 +245,10 @@ htmlNewRoot(html_t     *html,		/* I - HTML document */
   if (!html || html->root || !doctype)
     return (NULL);
 
-  if ((node = html_new(NULL, HTML_ELEMENT_DOCTYPE)) != NULL)
+  if ((node = html_new(NULL, HTML_ELEMENT_DOCTYPE, NULL)) != NULL)
   {
-    html->root          = node;
-    node->value.doctype = strdup(doctype);
+    html->root = node;
+    htmlNewAttr(node, "", doctype);
   }
 
   return (node);
@@ -272,10 +269,7 @@ htmlNewString(html_node_t *parent,	/* I - Parent node */
   if (!parent || !s)
     return (NULL);
 
-  if ((node = html_new(parent, HTML_ELEMENT_STRING)) != NULL)
-    node->value.string = strdup(s);
-
-  return (node);
+  return (html_new(parent, HTML_ELEMENT_STRING, s));
 }
 
 
@@ -286,19 +280,7 @@ htmlNewString(html_node_t *parent,	/* I - Parent node */
 static void
 html_delete(html_node_t *node)		/* I - HTML node */
 {
-  if (node->element == HTML_ELEMENT_STRING)
-  {
-    free(node->value.string);
-  }
-  else if (node->element == HTML_ELEMENT_COMMENT)
-  {
-    free(node->value.comment);
-  }
-  else if (node->element == HTML_ELEMENT_DOCTYPE)
-  {
-    free(node->value.doctype);
-  }
-  else if (node->value.element.num_attrs > 0)
+  if (node->element >= HTML_ELEMENT_DOCTYPE && node->value.element.num_attrs > 0)
   {
     int			i;		/* Looping var */
     _html_attr_t	*attr;		/* Current attribute */
@@ -323,28 +305,45 @@ html_delete(html_node_t *node)		/* I - HTML node */
 
 static html_node_t *			/* O - New node or `NULL` on error */
 html_new(html_node_t    *parent,	/* I - Parent node or `NULL` if root node */
-         html_element_t element)	/* I - Element/node type */
+         html_element_t element,	/* I - Element/node type */
+         const char     *s)		/* I - String, if any */
 {
   html_node_t	*node;			/* New node */
+  size_t	nodesize;		/* Node size */
+  size_t	slen = s ? strlen(s) : 0;
+					/* Length of string */
 
 
-  if ((node = (html_node_t *)calloc(1, sizeof(html_node_t *))) != NULL)
+  if (parent && parent->element < HTML_ELEMENT_DOCTYPE)
+    return (NULL);
+
+  if (element < HTML_ELEMENT_DOCTYPE)
+    nodesize = sizeof(html_node_t) - sizeof(node->value) + strlen(s) + 1;
+  else
+    nodesize = sizeof(html_node_t);
+
+  if ((node = (html_node_t *)calloc(1, nodesize)) != NULL)
   {
     node->element = element;
     node->parent  = parent;
 
+    if (element == HTML_ELEMENT_STRING)
+      memcpy(node->value.string, s, slen);
+    else if (element == HTML_ELEMENT_COMMENT)
+      memcpy(node->value.comment, s, slen);
+
     if (parent)
     {
-      if (parent->last_child)
+      if (parent->value.element.last_child)
       {
-        node->prev_sibling               = parent->last_child;
-        parent->last_child->next_sibling = node;
-        parent->last_child               = node;
+        node->prev_sibling                             = parent->value.element.last_child;
+        parent->value.element.last_child->next_sibling = node;
+        parent->value.element.last_child               = node;
       }
       else
       {
-        parent->first_child = node;
-        parent->last_child  = node;
+        parent->value.element.first_child = node;
+        parent->value.element.last_child  = node;
       }
     }
   }
@@ -365,12 +364,12 @@ html_remove(html_node_t *node)		/* I - HTML node */
     if (node->prev_sibling)
       node->prev_sibling->next_sibling = node->next_sibling;
     else
-      node->parent->first_child = node->next_sibling;
+      node->parent->value.element.first_child = node->next_sibling;
 
     if (node->next_sibling)
       node->next_sibling->prev_sibling = node->prev_sibling;
     else
-      node->parent->last_child = node->prev_sibling;
+      node->parent->value.element.last_child = node->prev_sibling;
 
     node->parent       = NULL;
     node->prev_sibling = NULL;
