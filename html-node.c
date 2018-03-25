@@ -13,7 +13,7 @@
  * Include necessary headers...
  */
 
-#  include "html-private.h"
+#include "html-private.h"
 
 
 /*
@@ -263,13 +263,26 @@ html_node_t *				/* O - New HTML string node */
 htmlNewString(html_node_t *parent,	/* I - Parent node */
               const char  *s)		/* I - String value */
 {
-  html_node_t	*node;			/* New node */
-
-
   if (!parent || !s)
     return (NULL);
 
   return (html_new(parent, HTML_ELEMENT_STRING, s));
+}
+
+
+/*
+ * '_htmlNewUnknown()' - Create a new unknown HTML element or processing
+ *                       directive node.
+ */
+
+html_node_t *				/* O - New HTML unknown node */
+htmlNewUnknown(html_node_t *parent,	/* I - Parent node */
+               const char  *unk)	/* I - Unknown value (excluding "<>") */
+{
+  if (!parent || !unk)
+    return (NULL);
+
+  return (html_new(parent, HTML_ELEMENT_UNKNOWN, unk));
 }
 
 
@@ -331,6 +344,8 @@ html_new(html_node_t    *parent,	/* I - Parent node or `NULL` if root node */
       memcpy(node->value.string, s, slen);
     else if (element == HTML_ELEMENT_COMMENT)
       memcpy(node->value.comment, s, slen);
+    else if (element == HTML_ELEMENT_UNKNOWN)
+      memcpy(node->value.unknown, s, slen);
 
     if (parent)
     {

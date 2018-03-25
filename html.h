@@ -30,6 +30,7 @@ extern "C" {
 
 typedef enum				/* HTML element enum */
 {
+  HTML_ELEMENT_UNKNOWN = -3,		/* Unknown element/directive */
   HTML_ELEMENT_WILDCARD = -2,		/* Wildcard (*) */
   HTML_ELEMENT_STRING = -1,		/* String */
   HTML_ELEMENT_COMMENT,			/* !-- */
@@ -170,6 +171,8 @@ typedef struct _css_s css_t;		/* CSS data */
 
 typedef struct _html_node_s html_node_t;/* HTML node */
 
+typedef int (*html_error_cb_t)(const char *message, int linenum, void *ctx);
+
 typedef struct _html_s html_t;		/* HTML document */
 
 
@@ -177,7 +180,7 @@ typedef struct _html_s html_t;		/* HTML document */
  * Globals...
  */
 
-extern const char * const	htmlElements[];
+extern const char * const	htmlElements[HTML_ELEMENT_MAX];
 
 
 /*
@@ -200,14 +203,14 @@ extern html_node_t	*htmlGetParentNode(html_node_t *node);
 extern html_node_t	*htmlGetPrevSiblingNode(html_node_t *node);
 extern html_node_t	*htmlGetRootNode(html_t *html);
 extern const char	*htmlGetString(html_node_t *node);
-extern int		htmlLoad(html_t *html, const char *filename);
-extern int		htmlLoadFile(html_t *html, FILE *fp);
+extern int		htmlLoad(html_t *html, const char *filename, FILE *fp);
 extern html_t		*htmlNew(css_t *css);
 extern void		htmlNewAttr(html_node_t *node, const char *name, const char *value);
 extern html_node_t	*htmlNewComment(html_node_t *parent, const char *c);
 extern html_node_t	*htmlNewElement(html_node_t *parent, html_element_t element);
 extern html_node_t	*htmlNewRoot(html_t *html, const char *doctype);
 extern html_node_t	*htmlNewString(html_node_t *parent, const char *s);
+extern void		htmlSetErrorCallback(html_t *html, html_error_cb_t cb, void *ctx);
 
 #  ifdef __cplusplus
 }

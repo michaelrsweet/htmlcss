@@ -25,6 +25,11 @@
 extern "C" {
 #  endif /* __cplusplus */
 
+
+/*
+ * Private types...
+ */
+
 typedef struct _html_attr_s
 {
   char			*name,		/* Attribute name */
@@ -48,6 +53,7 @@ struct _html_node_s
       _html_attr_t	*attrs;		/***** Attributes */
     }			element;	/*** Element value */
     char		string[1];	/*** String value */
+    char		unknown[1];	/*** Unknown element/directive value */
   }			value;		/* Node value */
 };
 
@@ -55,7 +61,17 @@ struct _html_s
 {
   css_t			*css;		/* Stylesheet */
   html_node_t		*root;		/* Root node */
+  html_error_cb_t	error_cb;	/* Error callback */
+  void			*error_ctx;	/* Error callback context pointer */
 };
+
+
+/*
+ * Private functions...
+ */
+
+extern int		_htmlError(html_t *html, const char *filename, int linenum, const char *message, ...);
+extern html_node_t	*_htmlNewUnknown(html_node_t *parent, const char *unk);
 
 #  ifdef __cplusplus
 }

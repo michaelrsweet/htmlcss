@@ -24,8 +24,18 @@ int					/* O - Exit status */
 main(int  argc,				/* I - Number of command-line arguments */
      char *argv[])			/* I - Command-line arguments */
 {
-  (void)argc;
-  (void)argv;
+  int		i;			/* Looping var */
+  html_t	*html;			/* HTML document */
+  html_node_t	*node,			/* Current node */
+		*next;			/* Next node */
+  int		level;			/* Indentation level */
+
+
+  for (i = 1; i < argc; i ++)
+  {
+    html = htmlNew(NULL);
+
+  }
 
   return (0);
 }
