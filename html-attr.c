@@ -80,6 +80,38 @@ htmlGetAttr(html_node_t *node,		/* I - Element node */
 
 
 /*
+ * 'htmlGetAttrCount()' - Get the number of attributes for an element.
+ */
+
+int					/* O - Number of attributes */
+htmlGetAttrCount(html_node_t *node)	/* I - Element node */
+{
+  if (!node || node->element < HTML_ELEMENT_DOCTYPE)
+    return (0);
+  else
+    return (node->value.element.num_attrs);
+}
+
+
+/*
+ * 'htmlGetAttrIndex()' - Get the name and value of a specified attribute.
+ */
+
+const char *				/* O - Attribute value or `NULL` */
+htmlGetAttrIndex(html_node_t *node,	/* I - Element node */
+                 int         idx,	/* I - Attribute index (0-based) */
+                 const char  **name)	/* O - Attribute name */
+{
+  if (!node || node->element < HTML_ELEMENT_DOCTYPE || idx < 0 || idx >= node->value.element.num_attrs || !name)
+    return (NULL);
+
+  *name = node->value.element.attrs[idx].name;
+
+  return (node->value.element.attrs[idx].value);
+}
+
+
+/*
  * 'htmlNewAttr()' - Add an element attribute.
  */
 

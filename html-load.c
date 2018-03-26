@@ -155,7 +155,7 @@ htmlLoad(html_t     *html,		/* I - HTML document */
 	  else
 	  {
 	    status = 0;
-	    _htmlError(f.html, f.filename, f.linenum, "Text without HTML element.");
+	    _htmlError(f.html, f.filename, f.linenum, "Text without leading element or directive.");
 	    break;
 	  }
         }
@@ -189,13 +189,36 @@ htmlLoad(html_t     *html,		/* I - HTML document */
 	  else
 	  {
 	    status = 0;
-	    _htmlError(f.html, f.filename, f.linenum, "Text without <!DOCTYPE ...> directive.");
+	    _htmlError(f.html, f.filename, f.linenum, "Text without leading element or directive.");
 	    break;
 	  }
 	}
 
 	if (!(status = html_parse_element(&f, ch)))
 	  break;
+      }
+    }
+    else
+    {
+      if (bufptr < bufend)
+        *bufptr++ = ch;
+
+      if (ch == '\n')
+	f.linenum ++;
+
+      if (ch == '\n' || bufptr >= bufend)
+      {
+	if (f.parent)
+	{
+	  *bufptr = '\0';
+	  htmlNewString(f.parent, buffer);
+	  bufptr = buffer;
+	}
+	else
+	{
+	  status = 0;
+	  _htmlError(f.html, f.filename, f.linenum, "Text without leading element or directive.");
+	}
       }
     }
 
@@ -215,7 +238,7 @@ htmlLoad(html_t     *html,		/* I - HTML document */
     else
     {
       status = 0;
-      _htmlError(f.html, f.filename, f.linenum, "Text without <!DOCTYPE ...> directive.");
+      _htmlError(f.html, f.filename, f.linenum, "Text without leading element or directive.");
     }
   }
 
@@ -271,7 +294,7 @@ html_parse_attr(_html_file_t *f,	/* I - HTML file info */
   do
   {
     if (ptr < end)
-      *ptr++ = ch;
+      *ptr++ = tolower(ch);
     else
       break;
   }

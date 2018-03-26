@@ -206,9 +206,6 @@ html_node_t *				/* O - New HTML comment node */
 htmlNewComment(html_node_t *parent,	/* I - Parent node */
                const char  *c)		/* I - Comment value */
 {
-  html_node_t	*node;			/* New node */
-
-
   if (!parent || !c)
     return (NULL);
 
@@ -276,8 +273,8 @@ htmlNewString(html_node_t *parent,	/* I - Parent node */
  */
 
 html_node_t *				/* O - New HTML unknown node */
-htmlNewUnknown(html_node_t *parent,	/* I - Parent node */
-               const char  *unk)	/* I - Unknown value (excluding "<>") */
+_htmlNewUnknown(html_node_t *parent,	/* I - Parent node */
+                const char  *unk)	/* I - Unknown value (excluding "<>") */
 {
   if (!parent || !unk)
     return (NULL);

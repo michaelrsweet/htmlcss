@@ -30,8 +30,8 @@ extern "C" {
 
 typedef enum				/* HTML element enum */
 {
-  HTML_ELEMENT_UNKNOWN = -3,		/* Unknown element/directive */
-  HTML_ELEMENT_WILDCARD = -2,		/* Wildcard (*) */
+  HTML_ELEMENT_WILDCARD = -3,		/* Wildcard (*) */
+  HTML_ELEMENT_UNKNOWN = -2,		/* Unknown element/directive */
   HTML_ELEMENT_STRING = -1,		/* String */
   HTML_ELEMENT_COMMENT,			/* !-- */
   HTML_ELEMENT_DOCTYPE,			/* !DOCTYPE */
@@ -192,6 +192,8 @@ extern void		htmlDeleteAttr(html_node_t *node, const char *name);
 extern void		htmlDeleteNode(html_t *html, html_node_t *node);
 extern html_node_t	*htmlFindNode(html_t *html, html_node_t *current, html_element_t element, const char *id);
 extern const char	*htmlGetAttr(html_node_t *node, const char *name);
+extern int		htmlGetAttrCount(html_node_t *node);
+extern const char	*htmlGetAttrIndex(html_node_t *node, int idx, const char **name);
 extern const char	*htmlGetComment(html_node_t *node);
 extern css_t		*htmlGetCSS(html_t *html);
 extern const char	*htmlGetDOCTYPE(html_t *html);
