@@ -18,13 +18,6 @@
 
 
 /*
- * Local functions...
- */
-
-static int	html_default_error_cb(const char *message, int linenum, void *ctx);
-
-
-/*
  * HTML element strings...
  */
 
@@ -180,41 +173,6 @@ htmlDelete(html_t *html)		/* I - HTML document */
 
 
 /*
- * '_htmlError()' - Display an error message.
- */
-
-int					/* O - 1 to continue, 0 to stop */
-_htmlError(html_t     *html,		/* I - HTML document */
-           const char *filename,	/* I - Filename or `NULL` */
-           int        linenum,		/* I - Line number in file or 0 */
-           const char *message,		/* I - Printf-style message string */
-           ...)				/* I - Additional arguments as needed */
-{
-  char		temp[1024],		/* Temporary format string buffer */
-		buffer[8192];		/* Message buffer */
-  va_list	ap;			/* Pointer to additional arguments */
-
-
-  if (filename && linenum)
-  {
-    snprintf(temp, sizeof(temp), "%s:%d: %s", filename, linenum, message);
-    message = temp;
-  }
-  else if (filename)
-  {
-    snprintf(temp, sizeof(temp), "%s: %s", filename, message);
-    message = temp;
-  }
-
-  va_start(ap, message);
-  vsnprintf(buffer, sizeof(buffer), message, ap);
-  va_end(ap);
-
-  return ((html->error_cb)(buffer, linenum, html->error_ctx));
-}
-
-
-/*
  * 'htmlGetCSS()' - Get the stylesheet for a HTML document.
  */
 
@@ -238,7 +196,8 @@ htmlNew(css_t *css)			/* I - Base stylesheet */
   if ((html = (html_t *)calloc(1, sizeof(html_t))) != NULL)
   {
     html->css      = css;
-    html->error_cb = html_default_error_cb;
+    html->error_cb = _htmlcssDefaultErrorCB;
+    html->url_cb   = _htmlcssDefaultURLCB;
   }
 
   return (html);
@@ -255,33 +214,36 @@ htmlNew(css_t *css)			/* I - Base stylesheet */
 
 void
 htmlSetErrorCallback(
-    html_t          *html,		/* I - HTML document */
-    html_error_cb_t cb,			/* I - Error callback or `NULL` for the default */
-    void            *ctx)		/* I - Context pointer for callback */
+    html_t             *html,		/* I - HTML document */
+    htmlcss_error_cb_t cb,		/* I - Error callback or `NULL` for the default */
+    void               *ctx)		/* I - Context pointer for callback */
 {
   if (!html)
     return;
 
-  html->error_cb  = cb ? cb : html_default_error_cb;
+  html->error_cb  = cb ? cb : _htmlcssDefaultErrorCB;
   html->error_ctx = ctx;
 }
 
 
 /*
- * 'html_default_error_cb()' - Default error callback.
+ * 'htmlSetURLCallback()' - Set the URL callback.
+ *
+ * The default URL callback supports local files (only).
+ *
+ * The URL callback returns a local pathname (copied to the specified buffer)
+ * or `NULL` if the URL cannot be loaded/found.
  */
 
-static int				/* O - 1 to continue, 0 to stop */
-html_default_error_cb(
-    const char *message,		/* I - Message string */
-    int        linenum,			/* I - Line number (unused) */
-    void       *ctx)			/* I - Context pointer (unused) */
+void
+htmlSetURLCallback(
+    html_t           *html,		/* I - HTML document */
+    htmlcss_url_cb_t cb,		/* I - URL callback or `NULL` for the default */
+    void             *ctx)		/* I - Context pointer for callback */
 {
-  (void)linenum;
-  (void)ctx;
+  if (!html)
+    return;
 
-  fputs(message, stderr);
-  putc('\n', stderr);
-
-  return (1);
+  html->url_cb  = cb ? cb : _htmlcssDefaultURLCB;
+  html->url_ctx = ctx;
 }

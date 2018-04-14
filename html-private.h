@@ -17,9 +17,7 @@
  */
 
 #  include "html.h"
-#  include <stdlib.h>
-#  include <errno.h>
-#  include <string.h>
+#  include "common-private.h"
 
 #  ifdef __cplusplus
 extern "C" {
@@ -61,8 +59,10 @@ struct _html_s
 {
   css_t			*css;		/* Stylesheet */
   html_node_t		*root;		/* Root node */
-  html_error_cb_t	error_cb;	/* Error callback */
+  htmlcss_error_cb_t	error_cb;	/* Error callback */
   void			*error_ctx;	/* Error callback context pointer */
+  htmlcss_url_cb_t	url_cb;		/* URL callback */
+  void			*url_ctx;	/* URL callback context pointer */
 };
 
 
@@ -70,7 +70,6 @@ struct _html_s
  * Private functions...
  */
 
-extern int		_htmlError(html_t *html, const char *filename, int linenum, const char *message, ...);
 extern html_node_t	*_htmlNewUnknown(html_node_t *parent, const char *unk);
 
 #  ifdef __cplusplus

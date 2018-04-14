@@ -339,9 +339,11 @@ typedef struct _css_s css_t;		/* CSS data */
 
 extern void	cssDelete(css_t *css);
 extern css_t	*cssNew(void);
-extern int	cssImport(css_t *css, const char *filename);
-extern int	cssImportFile(css_t *css, FILE *fp);
-extern int	cssImportString(css_t *css, const char *s);
+extern int	cssImport(css_t *css, const char *filename, const char *base);
+extern int	cssImportFile(css_t *css, FILE *fp, const char *base);
+extern int	cssImportString(css_t *css, const char *s, const char *base);
+extern void	cssSetErrorCallback(css_t *css, htmlcss_error_cb_t cb, void *ctx);
+extern void	cssSetURLCallback(css_t *css, htmlcss_url_cb_t cb, void *ctx);
 extern int	cssSetMedia(css_t *css, const char *media, float width, float height);
 
 extern int	cssComputeBox(css_t *css, html_node_t *node, css_box_t *box);

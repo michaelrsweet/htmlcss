@@ -20,11 +20,13 @@ CC	=	gcc
 CFLAGS	=	-Os -g -Wall '-DVERSION="$(VERSION)"'
 LIBS	=	-lm
 HEADERS	=	\
+		common.h \
 		css.h \
 		html.h \
 		htmlcss.h \
 		run.h
 LIBOBJS	=	\
+		common.o \
 		css-compute.o \
 		css-core.o \
 		css-import.o \
@@ -60,4 +62,4 @@ libhtmlcss.a:	$(LIBOBJS)
 	ar -rcv libhtmlcss.a $(LIBOBJS)
 	ranlib libhtmlcss.a
 
-$(OBJS):	Makefile $(HEADERS) css-private.h html-private.h
+$(OBJS):	Makefile $(HEADERS) common-private.h css-private.h html-private.h

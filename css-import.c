@@ -22,7 +22,8 @@
 
 int					/* O - 1 on success, 0 on error */
 cssImport(css_t      *css,		/* I - Stylesheet */
-          const char *filename)		/* I - Filename */
+          const char *filename,		/* I - Filename */
+          const char *base)		/* I - Base directory */
 {
   FILE	*fp;				/* File pointer */
   int	ret;				/* Return value */
@@ -37,7 +38,7 @@ cssImport(css_t      *css,		/* I - Stylesheet */
   if ((fp = fopen(filename, "r")) == NULL)
     return (0);
 
-  ret = cssImportFile(css, fp);
+  ret = cssImportFile(css, fp, base);
 
   fclose(fp);
 
@@ -50,8 +51,9 @@ cssImport(css_t      *css,		/* I - Stylesheet */
  */
 
 int					/* O - 1 on success, 0 on error */
-cssImportFile(css_t *css,		/* I - Stylesheet */
-              FILE  *fp)		/* I - File pointer */
+cssImportFile(css_t      *css,		/* I - Stylesheet */
+              FILE       *fp,		/* I - File pointer */
+              const char *base)		/* I - Base directory */
 {
   if (!css || !fp)
   {
@@ -70,7 +72,8 @@ cssImportFile(css_t *css,		/* I - Stylesheet */
 
 int					/* O - 1 on success, 0 on error */
 cssImportString(css_t      *css,	/* I - Stylesheet */
-                const char *s)		/* I - String */
+                const char *s,		/* I - String */
+                const char *base)	/* I - Base directory */
 {
   if (!css || !s)
   {

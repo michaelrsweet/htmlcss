@@ -16,7 +16,7 @@
  * Include necessary headers...
  */
 
-#  include <stdio.h>
+#  include "common.h"
 
 
 #  ifdef __cplusplus
@@ -171,8 +171,6 @@ typedef struct _css_s css_t;		/* CSS data */
 
 typedef struct _html_node_s html_node_t;/* HTML node */
 
-typedef int (*html_error_cb_t)(const char *message, int linenum, void *ctx);
-
 typedef struct _html_s html_t;		/* HTML document */
 
 
@@ -212,7 +210,8 @@ extern html_node_t	*htmlNewComment(html_node_t *parent, const char *c);
 extern html_node_t	*htmlNewElement(html_node_t *parent, html_element_t element);
 extern html_node_t	*htmlNewRoot(html_t *html, const char *doctype);
 extern html_node_t	*htmlNewString(html_node_t *parent, const char *s);
-extern void		htmlSetErrorCallback(html_t *html, html_error_cb_t cb, void *ctx);
+extern void		htmlSetErrorCallback(html_t *html, htmlcss_error_cb_t cb, void *ctx);
+extern void		htmlSetURLCallback(html_t *html, htmlcss_url_cb_t cb, void *ctx);
 
 #  ifdef __cplusplus
 }
