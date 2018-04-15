@@ -17,69 +17,72 @@
 
 
 /*
- * 'cssImport()' - Import CSS definitions from a named file.
+ * Local types...
+ */
+
+typedef struct _css_file_s
+{
+  css_t			*css;		/* Stylesheet */
+  _htmlcss_file_t	file;		/* File information */
+} _css_file_t;
+
+
+/*
+ * Local functions...
+ */
+
+
+/* TBD */
+
+
+/*
+ * 'cssImport()' - Import CSS definitions from a URL, file, or string.
  */
 
 int					/* O - 1 on success, 0 on error */
 cssImport(css_t      *css,		/* I - Stylesheet */
-          const char *filename,		/* I - Filename */
-          const char *base)		/* I - Base directory */
+          const char *url,		/* I - URL or filename */
+          FILE       *fp,		/* I - File pointer or `NULL` */
+          const char *s)		/* I - String or `NULL` */
 {
-  FILE	*fp;				/* File pointer */
-  int	ret;				/* Return value */
+  int		ret = 1;		/* Return value */
+  _css_file_t	f;			/* Local file info */
 
 
-  if (!css || !filename)
+  if (!css || (!url && !fp && !s))
   {
     errno = EINVAL;
     return (0);
   }
 
-  if ((fp = fopen(filename, "r")) == NULL)
-    return (0);
+  f.css          = css;
+  f.file.url     = url;
+  f.file.fp      = fp;
+  f.file.s       = s;
+  f.file.sptr    = s;
+  f.file.linenum = 1;
 
-  ret = cssImportFile(css, fp, base);
+  if (url && !fp && !s)
+  {
+    char	filename[1024];		/* Local filename buffer */
 
-  fclose(fp);
+    if (!(css->url_cb)(url, filename, sizeof(filename), css->url_ctx))
+    {
+      _htmlcssError(css->error_cb, css->error_ctx, url, 0, "Unable to open: %s", strerror(errno));
+      return (0);
+    }
+
+    if ((f.file.fp = fopen(filename, "rb")) == NULL)
+    {
+      _htmlcssError(css->error_cb, css->error_ctx, url, 0, "Unable to open: %s", strerror(errno));
+      return (0);
+    }
+  }
+
+//  ret = cssImportFile(css, fp, base);
+
+  if (f.file.fp != fp)
+    fclose(f.file.fp);
 
   return (ret);
-}
-
-
-/*
- * 'cssImportFile()' - Import CSS definitions from a file.
- */
-
-int					/* O - 1 on success, 0 on error */
-cssImportFile(css_t      *css,		/* I - Stylesheet */
-              FILE       *fp,		/* I - File pointer */
-              const char *base)		/* I - Base directory */
-{
-  if (!css || !fp)
-  {
-    errno = EINVAL;
-    return (0);
-  }
-
-
-  return (0);
-}
-
-
-/*
- * 'cssImportString()' - Import CSS definitions from a string.
- */
-
-int					/* O - 1 on success, 0 on error */
-cssImportString(css_t      *css,	/* I - Stylesheet */
-                const char *s,		/* I - String */
-                const char *base)	/* I - Base directory */
-{
-  if (!css || !s)
-  {
-    errno = EINVAL;
-    return (0);
-  }
-
-  return (0);
 }

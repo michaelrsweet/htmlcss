@@ -38,7 +38,11 @@ typedef struct _css_rule_s
 
 struct _css_s
 {
-  css_media_t	media;			/* Base media definition */
+  css_media_t		media;		/* Base media definition */
+  htmlcss_error_cb_t	error_cb;	/* Error callback */
+  void			*error_ctx;	/* Error callback context pointer */
+  htmlcss_url_cb_t	url_cb;		/* URL callback */
+  void			*url_ctx;	/* URL callback context pointer */
 };
 
 

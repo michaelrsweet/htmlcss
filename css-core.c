@@ -37,7 +37,17 @@ cssDelete(css_t *css)			/* I - Stylesheet */
 css_t *					/* O - Stylesheet */
 cssNew(void)
 {
-  return (NULL);
+  css_t	*css = (css_t *)calloc(1, sizeof(css_t));
+					/* Stylesheet */
+
+
+  if (css)
+  {
+    css->error_cb = _htmlcssDefaultErrorCB;
+    css->url_cb   = _htmlcssDefaultURLCB;
+  }
+
+  return (css);
 }
 
 

@@ -68,12 +68,54 @@ extern "C" {
 
 
 /*
+ * Types...
+ */
+
+typedef struct _htmlcss_file_s
+{
+  const char	*url;			/* URL or filename */
+  FILE		*fp;			/* File pointer */
+  const char	*s,			/* String */
+		*sptr;			/* Pointer into string */
+  int		linenum;		/* Current line number */
+} _htmlcss_file_t;
+
+
+/*
  * Functions...
  */
 
 extern int	_htmlcssDefaultErrorCB(const char *message, int linenum, void *ctx);
 extern char	*_htmlcssDefaultURLCB(const char *url, char *buffer, size_t bufsize, void *ctx);
 extern int	_htmlcssError(htmlcss_error_cb_t error_cb, void *ctx, const char *url, int linenum, const char *message, ...);
+
+static inline int _htmlcssFileGetc(_htmlcss_file_t *f)
+{
+  int	ch;				/* Current character */
+
+  if (f->sptr && *(f->sptr))
+    ch = *(f->sptr)++;
+  else if (f->sptr)
+    ch = EOF;
+  else
+    ch = getc(f->fp);
+
+  if (ch == '\n')
+    f->linenum ++;
+
+  return (ch);
+}
+static inline void _htmlcssFileUngetc(int ch, _htmlcss_file_t *f)
+{
+  if (f->sptr && f->sptr > f->s)
+    (f->sptr) --;
+  else if (f->fp)
+    ungetc(ch, f->fp);
+
+  if (ch == '\n')
+    f->linenum --;
+}
+
 
 #  ifdef __cplusplus
 }
