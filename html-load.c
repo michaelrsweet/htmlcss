@@ -37,7 +37,7 @@
 typedef struct _html_file_s
 {
   html_t	*html;			/* HTML document */
-  const char	*filename;		/* Filename */
+  const char	*url;			/* URL or filename */
   FILE		*fp;			/* File pointer */
   int		linenum;		/* Current line number */
   html_node_t	*parent;		/* Parent node */
@@ -62,7 +62,7 @@ static int	html_parse_unknown(_html_file_t *f, const char *unk);
 
 int					/* O - 1 on success, 0 on failure */
 htmlLoad(html_t     *html,		/* I - HTML document */
-         const char *filename,		/* I - Filename or `NULL` */
+         const char *url,		/* I - URL or `NULL` */
          FILE       *fp)		/* I - File pointer or `NULL` */
 {
   _html_file_t	f;			/* File data */
@@ -77,33 +77,39 @@ htmlLoad(html_t     *html,		/* I - HTML document */
   * Range check input...
   */
 
-  if (!html || html->root || (!filename && !fp))
+  if (!html || html->root || (!url && !fp))
     return (0);
 
  /*
   * Open file as needed...
   */
 
-  f.html     = html;
-  f.filename = filename;
-  f.fp       = fp;
-  f.linenum  = 1;
-  f.parent   = NULL;
+  f.html    = html;
+  f.url     = url;
+  f.fp      = fp;
+  f.linenum = 1;
+  f.parent  = NULL;
 
   if (!fp)
   {
-    if ((f.fp = fopen(filename, "rb")) == NULL)
+    if (!(html->url_cb)(url, buffer, sizeof(buffer), html->url_ctx))
     {
-      _htmlcssError(f.html->error_cb, f.html->error_ctx, f.filename, 0, "Unable to open: %s", strerror(errno));
+      _htmlcssError(f.html->error_cb, f.html->error_ctx, f.url, 0, "Unable to open: %s", strerror(errno));
+      return (0);
+    }
+
+    if ((f.fp = fopen(buffer, "rb")) == NULL)
+    {
+      _htmlcssError(f.html->error_cb, f.html->error_ctx, f.url, 0, "Unable to open: %s", strerror(errno));
       return (0);
     }
   }
-  else if (!filename)
+  else if (!url)
   {
     if (fp == stdin)
-      f.filename = "<stdin>";
+      f.url = "<stdin>";
     else
-      f.filename = "<unknown>";
+      f.url = "<unknown>";
   }
 
  /*
@@ -131,7 +137,7 @@ htmlLoad(html_t     *html,		/* I - HTML document */
         * callback says to...
 	*/
 
-        if (!_htmlcssError(f.html->error_cb, f.html->error_ctx, f.filename, f.linenum, "Unquoted '<'."))
+        if (!_htmlcssError(f.html->error_cb, f.html->error_ctx, f.url, f.linenum, "Unquoted '<'."))
         {
           status = 0;
           break;
@@ -155,7 +161,7 @@ htmlLoad(html_t     *html,		/* I - HTML document */
 	  else
 	  {
 	    status = 0;
-	    _htmlcssError(f.html->error_cb, f.html->error_ctx, f.filename, f.linenum, "Text without leading element or directive.");
+	    _htmlcssError(f.html->error_cb, f.html->error_ctx, f.url, f.linenum, "Text without leading element or directive.");
 	    break;
 	  }
         }
@@ -189,7 +195,7 @@ htmlLoad(html_t     *html,		/* I - HTML document */
 	  else
 	  {
 	    status = 0;
-	    _htmlcssError(f.html->error_cb, f.html->error_ctx, f.filename, f.linenum, "Text without leading element or directive.");
+	    _htmlcssError(f.html->error_cb, f.html->error_ctx, f.url, f.linenum, "Text without leading element or directive.");
 	    break;
 	  }
 	}
@@ -217,7 +223,7 @@ htmlLoad(html_t     *html,		/* I - HTML document */
 	else
 	{
 	  status = 0;
-	  _htmlcssError(f.html->error_cb, f.html->error_ctx, f.filename, f.linenum, "Text without leading element or directive.");
+	  _htmlcssError(f.html->error_cb, f.html->error_ctx, f.url, f.linenum, "Text without leading element or directive.");
 	}
       }
     }
@@ -238,7 +244,7 @@ htmlLoad(html_t     *html,		/* I - HTML document */
     else
     {
       status = 0;
-      _htmlcssError(f.html->error_cb, f.html->error_ctx, f.filename, f.linenum, "Text without leading element or directive.");
+      _htmlcssError(f.html->error_cb, f.html->error_ctx, f.url, f.linenum, "Text without leading element or directive.");
     }
   }
 
@@ -391,7 +397,7 @@ html_parse_comment(_html_file_t *f)	/* I - HTML file info */
     }
     else if (bufptr < bufend)
       *bufptr++ = ch;
-    else if (!_htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "Comment too long."))
+    else if (!_htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "Comment too long."))
       return (0);
     else
       break;
@@ -402,9 +408,9 @@ html_parse_comment(_html_file_t *f)	/* I - HTML file info */
   htmlNewComment(f->parent, buffer);
 
   if (ch == EOF)
-    return (_htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "Unexpected end-of-file."));
+    return (_htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "Unexpected end-of-file."));
   else if (ch != '>')
-    return (_htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "Comment too long."));
+    return (_htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "Comment too long."));
   else
     return (1);
 }
@@ -464,11 +470,11 @@ html_parse_doctype(_html_file_t *f)	/* I - HTML file info */
 
   if (ch == EOF)
   {
-    _htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "Unexpected end-of-file.");
+    _htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "Unexpected end-of-file.");
     return (0);
   }
   else if (ch != '>')
-    _htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "<!DOCTYPE ...> too long.");
+    _htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "<!DOCTYPE ...> too long.");
 
   return ((f->parent = htmlNewRoot(f->html, buffer)) != NULL);
 }
@@ -506,7 +512,7 @@ html_parse_element(_html_file_t *f,	/* I - HTML file info */
       break;
     else if (bufptr < bufend)
       *bufptr++ = ch;
-    else if (!_htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "Element name too long."))
+    else if (!_htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "Element name too long."))
       return (0);
     else
       break;
@@ -524,7 +530,7 @@ html_parse_element(_html_file_t *f,	/* I - HTML file info */
 
   if (ch == EOF)
   {
-    _htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "Unexpected end-of-file.");
+    _htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "Unexpected end-of-file.");
     return (0);
   }
   else if (ch == '\n')
@@ -543,7 +549,7 @@ html_parse_element(_html_file_t *f,	/* I - HTML file info */
 
     if (match)
       element = (html_element_t)(match - htmlElements);
-    else if (!_htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "Unknown element '%s'.", buffer))
+    else if (!_htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "Unknown element '%s'.", buffer))
       return (0);
     else
       element = HTML_ELEMENT_UNKNOWN;
@@ -562,12 +568,12 @@ html_parse_element(_html_file_t *f,	/* I - HTML file info */
   {
     if (close_el)
     {
-      _htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "Invalid </!DOCTYPE> seem.");
+      _htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "Invalid </!DOCTYPE> seem.");
       return (0);
     }
     else if (f->html->root)
     {
-      _htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "Duplicate <!DOCTYPE> seen.");
+      _htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "Duplicate <!DOCTYPE> seen.");
       return (0);
     }
 
@@ -575,7 +581,7 @@ html_parse_element(_html_file_t *f,	/* I - HTML file info */
   }
   else if (!f->parent)
   {
-    if (!_htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "Missing <!DOCTYPE html> directive."))
+    if (!_htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "Missing <!DOCTYPE html> directive."))
       return (0);
 
     f->parent = htmlNewRoot(f->html, "html");
@@ -609,7 +615,7 @@ html_parse_element(_html_file_t *f,	/* I - HTML file info */
     * Close the specified element...
     */
 
-    if (ch != '>' && !_htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "Invalid </%s> element.", buffer))
+    if (ch != '>' && !_htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "Invalid </%s> element.", buffer))
       return (0);
 
     for (node = f->parent; node; node = node->parent)
@@ -620,7 +626,7 @@ html_parse_element(_html_file_t *f,	/* I - HTML file info */
 
     if (node)
       f->parent = node->parent;
-    else if (!_htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "Missing <%s> for </%s> element.", buffer, buffer))
+    else if (!_htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "Missing <%s> for </%s> element.", buffer, buffer))
       return (0);
 
     return (1);
@@ -693,7 +699,7 @@ html_parse_element(_html_file_t *f,	/* I - HTML file info */
       }
       else if (node->element == HTML_ELEMENT_TABLE || html_istable(node->element))
       {
-        if (!_htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "No <tr> element before <%s> element.", buffer))
+        if (!_htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "No <tr> element before <%s> element.", buffer))
           return (0);
 
         node = htmlNewElement(f->parent, HTML_ELEMENT_TR);
@@ -795,11 +801,11 @@ html_parse_unknown(_html_file_t *f,	/* I - HTML file info */
 
   if (ch == EOF)
   {
-    _htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "Unexpected end-of-file.");
+    _htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "Unexpected end-of-file.");
     return (0);
   }
   else if (ch != '>')
-    _htmlcssError(f->html->error_cb, f->html->error_ctx, f->filename, f->linenum, "Element too long.");
+    _htmlcssError(f->html->error_cb, f->html->error_ctx, f->url, f->linenum, "Element too long.");
 
   return (_htmlNewUnknown(f->parent, buffer) != NULL);
 }

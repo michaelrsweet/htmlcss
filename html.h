@@ -203,7 +203,7 @@ extern html_node_t	*htmlGetParentNode(html_node_t *node);
 extern html_node_t	*htmlGetPrevSiblingNode(html_node_t *node);
 extern html_node_t	*htmlGetRootNode(html_t *html);
 extern const char	*htmlGetString(html_node_t *node);
-extern int		htmlLoad(html_t *html, const char *filename, FILE *fp);
+extern int		htmlLoad(html_t *html, const char *url, FILE *fp);
 extern html_t		*htmlNew(css_t *css);
 extern void		htmlNewAttr(html_node_t *node, const char *name, const char *value);
 extern html_node_t	*htmlNewComment(html_node_t *parent, const char *c);
