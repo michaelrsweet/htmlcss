@@ -87,21 +87,11 @@ _htmlcssDefaultURLCB(
 {
   (void)ctx;
 
-  if (*url == '/')
+  if (!access(url, R_OK))
   {
    /*
-    * Local file path...
+    * Local file we can read...
     */
-
-    if (access(url, R_OK))
-    {
-     /*
-      * File not readable/found...
-      */
-
-      *buffer = '\0';
-      return (NULL);
-    }
 
     strncpy(buffer, url, bufsize - 1);
     buffer[bufsize - 1] = '\0';
