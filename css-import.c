@@ -31,7 +31,7 @@ typedef struct _css_file_s
  * Local functions...
  */
 
-
+static char	*css_read_token(_css_file_t *f, char *buffer, size_t bufsize);
 /* TBD */
 
 
@@ -85,4 +85,89 @@ cssImport(css_t      *css,		/* I - Stylesheet */
     fclose(f.file.fp);
 
   return (ret);
+}
+
+
+/*
+ * 'css_read_token()' - Read a token from the CSS file.
+ */
+
+static char *				/* O - Token or `NULL` on EOF */
+css_read_token(_css_file_t *f,		/* I - CSS file */
+               char        *buffer,	/* I - Buffer */
+               size_t      bufsize)	/* I - Size of buffer */
+{
+  int	ch;				/* Current character */
+  char	*bufptr,			/* Pointer into buffer */
+	*bufend;			/* End of buffer */
+  static const char *reserved = "{}[])";
+					/* Reserved characters */
+
+  bufptr = buffer;
+  bufend = buffer + bufsize - 1;
+
+  while ((ch = _htmlcssFileGetc(&f->file)) != EOF)
+  {
+    if (!isspace(ch & 255))
+      break;
+  }
+
+  if (ch == EOF)
+    return (NULL);
+
+  if (strchr(reserved, ch))
+  {
+   /*
+    * Single character token...
+    */
+
+    *bufptr++ = (char)ch;
+  }
+  else if (ch == '\'' || ch == '\"')
+  {
+   /*
+    * Quoted string...
+    */
+
+    int quote = ch;			/* Quote character */
+
+    while ((ch = _htmlcssFileGetc(&f->file)) != EOF)
+    {
+      if (ch == quote)
+	break;
+
+      if (bufptr < bufend)
+        *bufptr++ = (char)ch;
+      else
+        break;
+    }
+  }
+  else
+  {
+   /*
+    * Identifier or number...
+    */
+
+    do
+    {
+      if (isspace(ch & 255) || strchr(reserved, ch))
+	break;
+
+      if (bufptr < bufend)
+	*bufptr++ = (char)ch;
+      else
+        break;
+
+      if (ch == '(')
+        break;
+    }
+    while ((ch = _htmlcssFileGetc(&f->file)) != EOF);
+
+    if (ch != EOF && !isspace(ch & 255) && ch != '(')
+      _htmlcssFileUngetc(ch, &f->file);
+  }
+
+  *bufptr = '\0';
+
+  return (buffer);
 }
