@@ -32,7 +32,6 @@ typedef struct _css_file_s
  */
 
 static char	*css_read_token(_css_file_t *f, char *buffer, size_t bufsize);
-/* TBD */
 
 
 /*
@@ -47,6 +46,7 @@ cssImport(css_t      *css,		/* I - Stylesheet */
 {
   int		ret = 1;		/* Return value */
   _css_file_t	f;			/* Local file info */
+  char		token[256];		/* Current token */
 
 
   if (!css || (!url && !fp && !s))
@@ -79,7 +79,9 @@ cssImport(css_t      *css,		/* I - Stylesheet */
     }
   }
 
-//  ret = cssImportFile(css, fp, base);
+  while (css_read_token(&f, token, sizeof(token)))
+  {
+  }
 
   if (f.file.fp != fp)
     fclose(f.file.fp);
@@ -100,7 +102,7 @@ css_read_token(_css_file_t *f,		/* I - CSS file */
   int	ch;				/* Current character */
   char	*bufptr,			/* Pointer into buffer */
 	*bufend;			/* End of buffer */
-  static const char *reserved = "{}[])";
+  static const char *reserved = ":;{}[])";
 					/* Reserved characters */
 
   bufptr = buffer;

@@ -63,6 +63,15 @@ typedef enum
 
 typedef enum
 {
+  CSS_BREAK_AVOID,			/* Avoid a break */
+  CSS_BREAK_AUTO,			/* Break as needed */
+  CSS_BREAK_ALWAYS,			/* Always break */
+  CSS_BREAK_LEFT,			/* Break to the next left-hand page */
+  CSS_BREAK_RIGHT			/* Break to the next right-hand page */
+} css_break_t;
+
+typedef enum
+{
   CSS_CAPTION_SIDE_TOP,
   CSS_CAPTION_SIDE_BOTTOM
 } css_caption_side_t;
@@ -170,15 +179,6 @@ typedef enum
 
 typedef enum
 {
-  CSS_PAGE_BREAK_AVOID,			/* Avoid a page break */
-  CSS_PAGE_BREAK_AUTO,			/* Break as needed */
-  CSS_PAGE_BREAK_ALWAYS,		/* Always break */
-  CSS_PAGE_BREAK_LEFT,			/* Break to the next left-hand page */
-  CSS_PAGE_BREAK_RIGHT			/* Break to the next right-hand page */
-} css_page_break_t;
-
-typedef enum
-{
   CSS_TABLE_LAYOUT_AUTO,
   CSS_TABLE_LAYOUT_FIXED
 } css_table_layout_t;
@@ -273,25 +273,28 @@ typedef struct css_box_s		/* CSS box properties */
   css_rect_t		clip;		/* Clip bounds */
   css_size_t		max_size;
   css_size_t		min_size;
-  css_background_attachment_t background_attachment;
+  css_background_attachment_t
+			background_attachment;
   css_color_t		background_color;
   char			*background_image;
   css_point_t		background_position;
-  css_background_repeat_t background_repeat;
+  css_background_repeat_t
+			background_repeat;
   css_border_collapse_t	border_collapse;
   css_color_t		border_color;
   css_size_t		border_spacing;
   css_border_t		border;
+  css_break_t		break_after;
+  css_break_t		break_before;
+  css_break_t		break_inside;
   css_float_t		float_value;
   char			*list_style_image;
-  css_list_style_position_t list_style_position;
+  css_list_style_position_t
+			list_style_position;
   css_rect_t		margin;
   int			orphans;
   css_overflow_t	overflow;
   css_rect_t		padding;
-  css_page_break_t	page_break_after;
-  css_page_break_t	page_break_before;
-  css_page_break_t	page_break_inside;
   int			widows;
   int			z_index;
 } css_box_t;
