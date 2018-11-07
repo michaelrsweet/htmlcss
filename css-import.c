@@ -26,12 +26,21 @@ typedef struct _css_file_s
   _htmlcss_file_t	file;		/* File information */
 } _css_file_t;
 
+typedef enum _css_type_e
+{
+  _CSS_TYPE_ERROR,
+  _CSS_TYPE_RESERVED,
+  _CSS_TYPE_IDENT,
+  _CSS_TYPE_STRING,
+  _CSS_TYPE_NUMBER
+} _css_type_t;
+
 
 /*
  * Local functions...
  */
 
-static char	*css_read_token(_css_file_t *f, char *buffer, size_t bufsize);
+static char	*css_read(_css_file_t *f, _css_type_t *type, char *buffer, size_t bufsize);
 
 
 /*
@@ -46,8 +55,19 @@ cssImport(css_t      *css,		/* I - Stylesheet */
 {
   int		ret = 1;		/* Return value */
   _css_file_t	f;			/* Local file info */
-  char		token[256];		/* Current token */
+  char		buffer[256];		/* Current value */
+  _css_type_t	type;			/* Value type */
+  static const char * const types[] =	/* Types */
+  {
+    "ERROR",
+    "RESERVED",
+    "IDENT",
+    "STRING",
+    "NUMBER"
+  };
 
+
+  printf("cssImport(css=%p, url=\"%s\", fp=%p, s=\"%s\")\n", css, url, fp, s);
 
   if (!css || (!url && !fp && !s))
   {
@@ -66,7 +86,12 @@ cssImport(css_t      *css,		/* I - Stylesheet */
   {
     char	filename[1024];		/* Local filename buffer */
 
-    if (!(css->url_cb)(url, filename, sizeof(filename), css->url_ctx))
+    if (!strchr(url, ':'))
+    {
+      strncpy(filename, url, sizeof(filename) - 1);
+      filename[sizeof(filename) - 1] = '\0';
+    }
+    else if (!(css->url_cb)(url, filename, sizeof(filename), css->url_ctx))
     {
       _htmlcssError(css->error_cb, css->error_ctx, url, 0, "Unable to open: %s", strerror(errno));
       return (0);
@@ -77,10 +102,13 @@ cssImport(css_t      *css,		/* I - Stylesheet */
       _htmlcssError(css->error_cb, css->error_ctx, url, 0, "Unable to open: %s", strerror(errno));
       return (0);
     }
+
+    printf("Reading CSS from \"%s\"...\n", filename);
   }
 
-  while (css_read_token(&f, token, sizeof(token)))
+  while (css_read(&f, &type, buffer, sizeof(buffer)))
   {
+    printf("CSS: %s %s\n", types[type], buffer);
   }
 
   if (f.file.fp != fp)
@@ -95,9 +123,10 @@ cssImport(css_t      *css,		/* I - Stylesheet */
  */
 
 static char *				/* O - Token or `NULL` on EOF */
-css_read_token(_css_file_t *f,		/* I - CSS file */
-               char        *buffer,	/* I - Buffer */
-               size_t      bufsize)	/* I - Size of buffer */
+css_read(_css_file_t *f,		/* I - CSS file */
+	 _css_type_t *type,		/* O - Tokem type */
+	 char        *buffer,		/* I - Buffer */
+	 size_t      bufsize)		/* I - Size of buffer */
 {
   int	ch;				/* Current character */
   char	*bufptr,			/* Pointer into buffer */
@@ -107,69 +136,116 @@ css_read_token(_css_file_t *f,		/* I - CSS file */
 
   bufptr = buffer;
   bufend = buffer + bufsize - 1;
+  *type  = _CSS_TYPE_ERROR;
 
-  while ((ch = _htmlcssFileGetc(&f->file)) != EOF)
+  for (;;)
   {
-    if (!isspace(ch & 255))
-      break;
-  }
-
-  if (ch == EOF)
-    return (NULL);
-
-  if (strchr(reserved, ch))
-  {
-   /*
-    * Single character token...
-    */
-
-    *bufptr++ = (char)ch;
-  }
-  else if (ch == '\'' || ch == '\"')
-  {
-   /*
-    * Quoted string...
-    */
-
-    int quote = ch;			/* Quote character */
-
     while ((ch = _htmlcssFileGetc(&f->file)) != EOF)
     {
-      if (ch == quote)
+      if (!isspace(ch & 255))
 	break;
-
-      if (bufptr < bufend)
-        *bufptr++ = (char)ch;
-      else
-        break;
     }
-  }
-  else
-  {
-   /*
-    * Identifier or number...
-    */
 
-    do
+    if (ch == EOF)
+      return (NULL);
+
+    if (strchr(reserved, ch))
     {
-      if (isspace(ch & 255) || strchr(reserved, ch))
-	break;
+     /*
+      * Single character token...
+      */
 
-      if (bufptr < bufend)
-	*bufptr++ = (char)ch;
-      else
-        break;
+      *bufptr++ = (char)ch;
+      *type     = _CSS_TYPE_RESERVED;
 
-      if (ch == '(')
-        break;
+      if (ch == ':')
+      {
+        if ((ch = _htmlcssFileGetc(&f->file)) == ':')
+          *bufptr++ = (char)ch;
+        else
+	  _htmlcssFileUngetc(ch, &f->file);
+      }
     }
-    while ((ch = _htmlcssFileGetc(&f->file)) != EOF);
+    else if (ch == '\'' || ch == '\"')
+    {
+     /*
+      * Quoted string...
+      */
 
-    if (ch != EOF && !isspace(ch & 255) && ch != '(')
-      _htmlcssFileUngetc(ch, &f->file);
+      int quote = ch;			/* Quote character */
+
+      while ((ch = _htmlcssFileGetc(&f->file)) != EOF)
+      {
+	if (ch == quote)
+	  break;
+
+	if (bufptr < bufend)
+	  *bufptr++ = (char)ch;
+	else
+	  break;
+      }
+
+      *type = _CSS_TYPE_STRING;
+    }
+    else
+    {
+     /*
+      * Identifier or number...
+      */
+
+      do
+      {
+	if (isspace(ch & 255) || strchr(reserved, ch))
+	  break;
+	else if (ch == '*' && bufptr > buffer && bufptr[-1] == '/')
+	{
+	 /*
+	  * Skip C-style comment...
+	  */
+
+	  int	asterisk = 0;		/* Did we see the closing asterisk? */
+
+	  bufptr --;
+
+	  while ((ch = _htmlcssFileGetc(&f->file)) != EOF)
+	  {
+	    if (ch == '/' && asterisk)
+	      break;
+	    else
+	      asterisk = ch == '*';
+	  }
+
+	  if (bufptr == buffer)
+	  {
+	    if (ch == EOF)
+	      return (NULL);
+	    else
+	      break;
+	  }
+	}
+	else if (bufptr < bufend)
+	  *bufptr++ = (char)ch;
+	else
+	  break;
+
+	if (ch == '(')
+	  break;
+      }
+      while ((ch = _htmlcssFileGetc(&f->file)) != EOF);
+
+      if (bufptr == buffer)
+        continue;
+      else if (ch != EOF && !isspace(ch & 255) && ch != '(')
+	_htmlcssFileUngetc(ch, &f->file);
+
+      if (isdigit(*buffer & 255) || (*buffer == '.' && isdigit(buffer[1] & 255)))
+        *type = _CSS_TYPE_NUMBER;
+      else
+        *type = _CSS_TYPE_IDENT;
+    }
+
+    *bufptr = '\0';
+
+    return (buffer);
   }
-
-  *bufptr = '\0';
-
-  return (buffer);
 }
