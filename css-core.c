@@ -17,6 +17,13 @@
 
 
 /*
+ * Local functions...
+ */
+
+static int	compare_strings(char **a, char **b);
+
+
+/*
  * 'cssDelete()' - Free memory associated with a stylesheet.
  */
 
@@ -67,4 +74,61 @@ cssSetMedia(css_t      *css,		/* I - Stylesheet */
   (void)height;
 
   return (0);
+}
+
+
+/*
+ * '_cssString()' - Find or copy a string.
+ *
+ * This function makes a copy of the passed string that will be freed when the
+ * corresponding stylesheet is also freed.  It allows for more efficient memory
+ * usage when tracking the various CSS property names and values.
+ */
+
+char *					/* O - New string pointer */
+_cssString(css_t      *css,		/* I - Stylesheet */
+           const char *s)		/* I - String to find/copy */
+{
+  char	**temp;				/* Temporary string pointer */
+
+
+  if (css->num_strings > 0)
+  {
+    if ((temp = bsearch(&s, css->strings, css->num_strings, sizeof(char *), (int (*)(const void *, const void *))compare_strings)) != NULL)
+      return (*temp);
+  }
+
+  if (css->num_strings >= css->alloc_strings)
+  {
+    if ((temp = realloc(css->strings, (css->alloc_strings + 32) * sizeof(char *))) == NULL)
+      return (NULL);
+
+    css->alloc_strings += 32;
+    css->strings       = temp;
+  }
+
+  temp  = css->strings + css->num_strings;
+  *temp = strdup(s);
+  css->num_strings ++;
+
+  if (css->num_strings > 1)
+    qsort(css->strings, css->num_strings, sizeof(char *), (int (*)(const void *, const void *))compare_strings);
+
+  return (*temp);
+}
+
+
+/*
+ * 'compare_strings()' - Compare two strings...
+ */
+
+static int				/* O - Result of comparison */
+compare_strings(char **a,		/* I - First string */
+                char **b)		/* I - Second string */
+{
+#ifdef _WIN32
+  return (_stricmp(*a, *b));
+#else
+  return (strcasecmp(*a, *b));
+#endif /* _WIN32 */
 }

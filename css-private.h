@@ -109,6 +109,9 @@ struct _css_s
 					/* Number of rules for each element */
   _css_rule_t		*rules[HTML_ELEMENT_MAX];
 					/* Rules for each element */
+  size_t		num_strings,	/* Number of strings in pool */
+			alloc_strings;	/* Allocated slots in string pool */
+  char			**strings;	/* Strings in the string pool */
 };
 
 
@@ -116,7 +119,7 @@ struct _css_s
  * Functions...
  */
 
-
+extern char	*_cssString(css_t *css, const char *s);
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
