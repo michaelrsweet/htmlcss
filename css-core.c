@@ -30,8 +30,21 @@ static int	compare_strings(char **a, char **b);
 void
 cssDelete(css_t *css)			/* I - Stylesheet */
 {
+  size_t	i;			/* Looping var */
+
+
   if (!css)
     return;
+
+  if (css->num_strings)
+  {
+    char	**temp;			/* Current string */
+
+    for (i = css->num_strings, temp = css->strings; i > 0; i --, temp ++)
+      free(*temp);
+
+    free(css->strings);
+  }
 
   free(css);
 }
