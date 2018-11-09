@@ -231,21 +231,6 @@ typedef struct css_color_s		/* sRGBA color */
   float			alpha;		/* Alpha, 0.0 (transparent) to 1.0 (opaque) */
 } css_color_t;
 
-typedef struct css_border_props_s	/* CSS border properties */
-{
-  css_color_t		color;		/* Border color */
-  css_border_style_t	style;		/* Border style */
-  float			width;		/* Border width */
-} css_border_props_t;
-
-typedef struct css_border_s		/* All CSS border properties */
-{
-  css_border_props_t	left;
-  css_border_props_t	top;
-  css_border_props_t	right;
-  css_border_props_t	bottom;
-} css_border_t;
-
 typedef struct css_rect_s		/* Rectangle */
 {
   float			left;		/* Left offset */
@@ -265,6 +250,34 @@ typedef struct css_size_s		/* Point/coordinate */
   float			width;		/* Width */
   float			height;		/* Height */
 } css_size_t;
+
+typedef struct css_border_props_s	/* CSS border properties */
+{
+  css_color_t		color;		/* Border color */
+  css_border_style_t	style;		/* Border style */
+  float			width;		/* Border width */
+} css_border_props_t;
+
+
+/* Higher-level types */
+
+
+typedef enum				/* What to compute */
+{
+  CSS_COMPUTE_NORMAL,
+  CSS_COMPUTE_BEFORE,
+  CSS_COMPUTE_AFTER,
+  CSS_COMPUTE_FIRST_LINE,
+  CSS_COMPUTE_FIRST_LETTER
+} css_compute_t;
+
+typedef struct css_border_s		/* All CSS border properties */
+{
+  css_border_props_t	left;
+  css_border_props_t	top;
+  css_border_props_t	right;
+  css_border_props_t	bottom;
+} css_border_t;
 
 typedef struct css_box_s		/* CSS box properties */
 {
@@ -310,7 +323,6 @@ typedef struct css_table_s		/* CSS table properties */
   css_caption_side_t	caption_side;
   css_empty_cells_t	empty_cells;
   css_table_layout_t	table_layout;
-
 } css_table_t;
 
 typedef struct css_text_s		/* CSS text properties */
@@ -347,11 +359,12 @@ extern void	cssSetErrorCallback(css_t *css, htmlcss_error_cb_t cb, void *ctx);
 extern void	cssSetURLCallback(css_t *css, htmlcss_url_cb_t cb, void *ctx);
 extern int	cssSetMedia(css_t *css, const char *media, float width, float height);
 
-extern int	cssComputeBox(css_t *css, html_node_t *node, css_box_t *box);
-extern int	cssComputeDisplay(css_t *css, html_node_t *node, css_display_t *display);
-extern int	cssComputeMedia(css_t *css, html_node_t *node, css_media_t *media);
-extern int	cssComputeTable(css_t *css, html_node_t *node, css_table_t *table);
-extern int	cssComputeText(css_t *css, html_node_t *node, css_text_t *text);
+extern int	cssComputeBox(css_t *css, html_node_t *node, css_compute_t compute, css_box_t *box);
+extern char	*cssComputeContent(css_t *css, html_node_t *node, css_compute_t compute);
+extern int	cssComputeDisplay(css_t *css, html_node_t *node, css_compute_t compute, css_display_t *display);
+extern int	cssComputeMedia(css_t *css, html_node_t *node, css_compute_t compute, css_media_t *media);
+extern int	cssComputeTable(css_t *css, html_node_t *node, css_compute_t compute, css_table_t *table);
+extern int	cssComputeText(css_t *css, html_node_t *node, css_compute_t compute, css_text_t *text);
 
 #  ifdef __cplusplus
 }

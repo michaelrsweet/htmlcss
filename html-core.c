@@ -23,6 +23,7 @@
 
 const char * const	htmlElements[HTML_ELEMENT_MAX] =
 {
+  "" /* "*" */
   "!--",
   "!DOCTYPE",
   "a",

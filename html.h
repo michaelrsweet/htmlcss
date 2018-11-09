@@ -30,9 +30,9 @@ extern "C" {
 
 typedef enum				/* HTML element enum */
 {
-  HTML_ELEMENT_WILDCARD = -3,		/* Wildcard (*) */
   HTML_ELEMENT_UNKNOWN = -2,		/* Unknown element/directive */
   HTML_ELEMENT_STRING = -1,		/* String */
+  HTML_ELEMENT_WILDCARD,		/* Wildcard (*) */
   HTML_ELEMENT_COMMENT,			/* !-- */
   HTML_ELEMENT_DOCTYPE,			/* !DOCTYPE */
   HTML_ELEMENT_A,

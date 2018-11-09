@@ -21,11 +21,27 @@
  */
 
 int					/* O - 1 on success, 0 on failure */
-cssComputeBox(css_t       *css,		/* I - Stylesheet */
-              html_node_t *node,	/* I - HTML node */
-              css_box_t   *box)		/* O - Box properties */
+cssComputeBox(css_t         *css,	/* I - Stylesheet */
+              html_node_t   *node,	/* I - HTML node */
+	      css_compute_t compute,	/* I - Pseudo-class, if any */
+              css_box_t     *box)	/* O - Box properties */
 {
   return (0);
+}
+
+
+/*
+ * 'cssComputeContent()' - Compute the content: value for the given HTML node.
+ *
+ * The returned string must be freed using `free()`.
+ */
+
+char *					/* O - Content string or `NULL` if none/error */
+cssComputeContent(css_t         *css,	/* I - Stylesheet */
+                  html_node_t   *node,	/* I - HTML node */
+                  css_compute_t compute)/* I - Pseudo-class, if any */
+{
+  return (NULL);
 }
 
 
@@ -37,6 +53,7 @@ int					/* O - 1 on success, 0 on failure */
 cssComputeDisplay(
     css_t         *css,			/* I - Stylesheet */
     html_node_t   *node,		/* I - HTML node */
+    css_compute_t compute,		/* I - Pseudo-class, if any */
     css_display_t *display)		/* O - Display property */
 {
   return (0);
@@ -48,9 +65,10 @@ cssComputeDisplay(
  */
 
 int					/* O - 1 on success, 0 on failure */
-cssComputeMedia(css_t       *css,	/* I - Stylesheet */
-                html_node_t *node,	/* I - HTML node */
-                css_media_t *media)	/* O - Media properties */
+cssComputeMedia(css_t         *css,	/* I - Stylesheet */
+                html_node_t   *node,	/* I - HTML node */
+		css_compute_t compute,	/* I - Pseudo-class, if any */
+                css_media_t   *media)	/* O - Media properties */
 {
   return (0);
 }
@@ -61,9 +79,10 @@ cssComputeMedia(css_t       *css,	/* I - Stylesheet */
  */
 
 int					/* O - 1 on success, 0 on failure */
-cssComputeTable(css_t       *css,	/* I - Stylesheet */
-                html_node_t *node,	/* I - HTML node */
-                css_table_t *table)	/* O - Table properties */
+cssComputeTable(css_t         *css,	/* I - Stylesheet */
+                html_node_t   *node,	/* I - HTML node */
+		css_compute_t compute,	/* I - Pseudo-class, if any */
+                css_table_t   *table)	/* O - Table properties */
 {
   return (0);
 }
@@ -74,11 +93,10 @@ cssComputeTable(css_t       *css,	/* I - Stylesheet */
  */
 
 int					/* O - 1 on success, 0 on failure */
-cssComputeText(css_t       *css,	/* I - Stylesheet */
-               html_node_t *node,	/* I - HTML node */
-               css_text_t  *text)	/* O - Text properties */
+cssComputeText(css_t         *css,	/* I - Stylesheet */
+               html_node_t   *node,	/* I - HTML node */
+	       css_compute_t compute,	/* I - Pseudo-class, if any */
+               css_text_t    *text)	/* O - Text properties */
 {
   return (0);
 }
-
-

@@ -28,11 +28,11 @@ typedef struct _css_file_s
 
 typedef enum _css_type_e
 {
-  _CSS_TYPE_ERROR,
-  _CSS_TYPE_RESERVED,
-  _CSS_TYPE_IDENT,
-  _CSS_TYPE_STRING,
-  _CSS_TYPE_NUMBER
+  _CSS_TYPE_ERROR,			/* Error */
+  _CSS_TYPE_RESERVED,			/* Reserved character(s) */
+  _CSS_TYPE_STRING,			/* Unquoted string */
+  _CSS_TYPE_QSTRING,			/* Quoted string */
+  _CSS_TYPE_NUMBER			/* Number */
 } _css_type_t;
 
 
@@ -61,8 +61,8 @@ cssImport(css_t      *css,		/* I - Stylesheet */
   {
     "ERROR",
     "RESERVED",
-    "IDENT",
     "STRING",
+    "QSTRING",
     "NUMBER"
   };
 
@@ -117,6 +117,17 @@ cssImport(css_t      *css,		/* I - Stylesheet */
   return (ret);
 }
 
+/*
+
+Strategy for reading CSS:
+
+1. Read selector or @rule up to the opening brace.
+2a. For @rule: read selectors up to the opening brace, then read property:value; pairs until the closing brace.
+2b. For selector, read property:value; pairs up to the closing brace.
+3. Back to 1.
+
+*/
+
 
 /*
  * 'css_read_token()' - Read a token from the CSS file.
@@ -131,7 +142,7 @@ css_read(_css_file_t *f,		/* I - CSS file */
   int	ch;				/* Current character */
   char	*bufptr,			/* Pointer into buffer */
 	*bufend;			/* End of buffer */
-  static const char *reserved = ":;{}[])";
+  static const char *reserved = ",:;{}[])";
 					/* Reserved characters */
 
   bufptr = buffer;
@@ -185,7 +196,7 @@ css_read(_css_file_t *f,		/* I - CSS file */
 	  break;
       }
 
-      *type = _CSS_TYPE_STRING;
+      *type = _CSS_TYPE_QSTRING;
     }
     else
     {
@@ -228,7 +239,7 @@ css_read(_css_file_t *f,		/* I - CSS file */
 	else
 	  break;
 
-	if (ch == '(')
+	if (ch == '(' || (ch == '-' && (bufptr - buffer) == 4 && !memcmp(buffer, "<!--", 4)) || (ch == '>' && (bufptr - buffer) == 3 && !memcmp(buffer, "-->", 3)))
 	  break;
       }
       while ((ch = _htmlcssFileGetc(&f->file)) != EOF);
@@ -241,7 +252,7 @@ css_read(_css_file_t *f,		/* I - CSS file */
       if (isdigit(*buffer & 255) || (*buffer == '.' && isdigit(buffer[1] & 255)))
         *type = _CSS_TYPE_NUMBER;
       else
-        *type = _CSS_TYPE_IDENT;
+        *type = _CSS_TYPE_STRING;
     }
 
     *bufptr = '\0';
