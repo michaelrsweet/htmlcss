@@ -290,20 +290,8 @@ _htmlNewUnknown(html_node_t *parent,	/* I - Parent node */
 static void
 html_delete(html_node_t *node)		/* I - HTML node */
 {
-  if (node->element >= HTML_ELEMENT_DOCTYPE && node->value.element.num_attrs > 0)
-  {
-    int			i;		/* Looping var */
-    _html_attr_t	*attr;		/* Current attribute */
-
-    for (i = node->value.element.num_attrs, attr = node->value.element.attrs; i > 0; i --, attr ++)
-    {
-      free(attr->name);
-      free(attr->value);
-    }
-
-    if (node->value.element.attrs)
-      free(node->value.element.attrs);
-  }
+  if (node->element >= HTML_ELEMENT_DOCTYPE)
+    htmlcssDictDelete(node->value.element.attrs);
 
   free(node);
 }

@@ -24,33 +24,10 @@ void
 htmlDeleteAttr(html_node_t *node,	/* I - Element node */
                const char  *name)	/* I - Attribute name */
 {
-  int		i;			/* Looping var */
-  _html_attr_t	*attr;			/* Current attribute */
-
-
   if (!node || node->element < HTML_ELEMENT_DOCTYPE || !name)
     return;
 
-  for (i = node->value.element.num_attrs, attr = node->value.element.attrs; i > 0; i --, attr ++)
-  {
-    if (!strcmp(name, attr->name))
-    {
-      free(attr->name);
-      free(attr->value);
-
-      if (i > 1)
-        memmove(attr, attr + 1, (i - 1) * sizeof(_html_attr_t));
-
-      node->value.element.num_attrs --;
-
-      if (node->value.element.num_attrs == 0)
-      {
-        free(node->value.element.attrs);
-        node->value.element.attrs = NULL;
-      }
-      return;
-    }
-  }
+  htmlcssDictRemove(node->value.element.attrs, name);
 }
 
 
@@ -62,20 +39,10 @@ const char *				/* O - Value or `NULL` if not present */
 htmlGetAttr(html_node_t *node,		/* I - Element node */
             const char  *name)		/* I - Attribute name */
 {
-  int		i;			/* Looping var */
-  _html_attr_t	*attr;			/* Current attribute */
-
-
   if (!node || node->element < HTML_ELEMENT_DOCTYPE || !name)
     return (NULL);
 
-  for (i = node->value.element.num_attrs, attr = node->value.element.attrs; i > 0; i --, attr ++)
-  {
-    if (!strcmp(name, attr->name))
-      return (attr->value);
-  }
-
-  return (NULL);
+  return (htmlcssDictGet(node->value.element.attrs, name));
 }
 
 
@@ -83,13 +50,13 @@ htmlGetAttr(html_node_t *node,		/* I - Element node */
  * 'htmlGetAttrCount()' - Get the number of attributes for an element.
  */
 
-int					/* O - Number of attributes */
+size_t					/* O - Number of attributes */
 htmlGetAttrCount(html_node_t *node)	/* I - Element node */
 {
   if (!node || node->element < HTML_ELEMENT_DOCTYPE)
     return (0);
   else
-    return (node->value.element.num_attrs);
+    return (htmlcssDictCount(node->value.element.attrs));
 }
 
 
@@ -99,15 +66,13 @@ htmlGetAttrCount(html_node_t *node)	/* I - Element node */
 
 const char *				/* O - Attribute value or `NULL` */
 htmlGetAttrIndex(html_node_t *node,	/* I - Element node */
-                 int         idx,	/* I - Attribute index (0-based) */
+                 size_t      idx,	/* I - Attribute index (0-based) */
                  const char  **name)	/* O - Attribute name */
 {
-  if (!node || node->element < HTML_ELEMENT_DOCTYPE || idx < 0 || idx >= node->value.element.num_attrs || !name)
+  if (!node || node->element < HTML_ELEMENT_DOCTYPE || !name)
     return (NULL);
 
-  *name = node->value.element.attrs[idx].name;
-
-  return (node->value.element.attrs[idx].value);
+  return (htmlcssDictIndex(node->value.element.attrs, idx, name));
 }
 
 
@@ -120,34 +85,8 @@ htmlNewAttr(html_node_t *node,		/* I - Element node */
             const char  *name,		/* I - Attribute name */
             const char  *value)		/* I - Attribute value */
 {
-  _html_attr_t	*attr;			/* Current attribute */
-  int		current_attrs,		/* Currently allocated attributes */
-		alloc_attrs;		/* New allocated attributes */
-
-
   if (!node || node->element < HTML_ELEMENT_DOCTYPE || !name || !value)
     return;
 
- /*
-  * Compute the number of attributes that are allocated - 0, 1, 4, 8, ...
-  */
-
-  if ((current_attrs = node->value.element.num_attrs) > 1)
-    current_attrs = (current_attrs + 3) & ~3;
-  if ((alloc_attrs = node->value.element.num_attrs + 1) > 1)
-    alloc_attrs = (alloc_attrs + 3) & ~3;
-
-  if (current_attrs != alloc_attrs)
-  {
-    if ((attr = realloc(node->value.element.attrs, alloc_attrs * sizeof(_html_attr_t))) == NULL)
-      return;
-
-    node->value.element.attrs = attr;
-  }
-
-  attr = node->value.element.attrs + node->value.element.num_attrs;
-  node->value.element.num_attrs ++;
-
-  attr->name  = strdup(name);
-  attr->value = strdup(value);
+  htmlcssDictSet(node->value.element.attrs, name, value);
 }

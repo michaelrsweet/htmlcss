@@ -353,7 +353,7 @@ typedef struct _css_s css_t;		/* CSS data */
  */
 
 extern void	cssDelete(css_t *css);
-extern css_t	*cssNew(void);
+extern css_t	*cssNew(htmlcss_pool_t *pool);
 extern int	cssImport(css_t *css, const char *url, FILE *fp, const char *s);
 extern void	cssSetErrorCallback(css_t *css, htmlcss_error_cb_t cb, void *ctx);
 extern void	cssSetURLCallback(css_t *css, htmlcss_url_cb_t cb, void *ctx);

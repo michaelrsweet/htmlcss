@@ -26,6 +26,7 @@ main(int  argc,				/* I - Number of command-line arguments */
 {
   int		i;			/* Looping var */
   const char	*ext;			/* Filename extension */
+  htmlcss_pool_t *pool;			/* Memory pool */
   css_t		*css;			/* Stylesheet */
   html_t	*html;			/* HTML document */
   html_node_t	*node,			/* Current node */
@@ -33,8 +34,9 @@ main(int  argc,				/* I - Number of command-line arguments */
   int		level;			/* Indentation level */
 
 
-  css  = cssNew();
-  html = htmlNew(NULL);
+  pool = htmlcssNewPool();
+  css  = cssNew(pool);
+  html = htmlNew(pool, css);
 
   for (i = 1; i < argc; i ++)
   {
@@ -105,6 +107,8 @@ main(int  argc,				/* I - Number of command-line arguments */
   }
 
   htmlDelete(html);
+  cssDelete(css);
+  htmlcssPoolDelete(pool);
 
   return (0);
 }

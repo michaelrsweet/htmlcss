@@ -18,6 +18,7 @@
 
 #  include "html.h"
 #  include "common-private.h"
+#  include "dict.h"
 
 #  ifdef __cplusplus
 extern "C" {
@@ -28,27 +29,20 @@ extern "C" {
  * Private types...
  */
 
-typedef struct _html_attr_s
-{
-  char			*name,		/* Attribute name */
-			*value;		/* Attribute value */
-} _html_attr_t;
-
 struct _html_node_s
 {
   html_element_t	element;	/* Element type */
-  html_node_t		*parent,	/* Parent node */
-			*prev_sibling,	/* Previous (sibling) node */
-			*next_sibling;	/* Next (sibling) node */
+  html_node_t		*parent;	/* Parent node */
+  html_node_t		*prev_sibling;	/* Previous (sibling) node */
+  html_node_t		*next_sibling;	/* Next (sibling) node */
   union
   {
     char		comment[1];	/*** Comment value */
     struct
     {
-      html_node_t	*first_child,	/***** First child node */
-			*last_child;	/***** Last child node */
-      int		num_attrs;	/***** Number of attributes */
-      _html_attr_t	*attrs;		/***** Attributes */
+      html_node_t	*first_child;	/***** First child node */
+      html_node_t	*last_child;	/***** Last child node */
+      htmlcss_dict_t	*attrs;		/***** Attributes dictionary */
     }			element;	/*** Element value */
     char		string[1];	/*** String value */
     char		unknown[1];	/*** Unknown element/directive value */
@@ -57,6 +51,7 @@ struct _html_node_s
 
 struct _html_s
 {
+  htmlcss_pool_t	*pool;		/* Memory pool */
   css_t			*css;		/* Stylesheet */
   html_node_t		*root;		/* Root node */
   htmlcss_error_cb_t	error_cb;	/* Error callback */

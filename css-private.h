@@ -28,6 +28,23 @@ extern "C" {
  * Types...
  */
 
+/*
+ * CSS selectors are linked lists starting at the leaf node to speed lookups.
+ * Each selector is a sequence of matching statements starting with an
+ * associated element (* wildcard, P, etc.) followed by zero or more additional
+ * matching statements (".classname", "#identifier", ":link", etc.)
+ *
+ * A list of selectors is associated with an array of properties, each of which
+ * is a simple key/value pair.  This association is called a rule set.
+ *
+ * For convenience and lookup efficiency, rule sets with compound selectors,
+ * e.g.:
+ *
+ *     h1, h2, h3 { font-weight: bold; }
+ *
+ * are split into three separate rule sets using each of the selector lists.
+ */
+
 typedef enum _css_match_e
 {
   _CSS_MATCH_ACTIVE,			/* :active pseudo-class */
@@ -71,47 +88,48 @@ typedef enum _css_match_e
   _CSS_MATCH_VISITED,			/* :visited pseudo-class */
 } _css_match_t;
 
-typedef struct _css_prop_s		/* CSS property */
+typedef enum _css_relation_e		/* Relationship to previous selector */
 {
-  char			*name,		/* Property name */
-			*value;		/* Property value */
-} _css_prop_t;
+  _CSS_RELATION_CHILD,			/* Child of previous */
+  _CSS_RELATION_IMMED_CHILD,		/* Immediate child of previous */
+  _CSS_RELATION_SIBLING,		/* Sibling of previous */
+  _CSS_RELATION_IMMED_SIBLING		/* Immediate sibling of previous */
+} _css_relation_t;
 
-typedef struct _css_sel_s		/* CSS selector */
+typedef struct _css_selstmt_s		/* CSS selector matching statements */
 {
   _css_match_t		match;		/* Matching rule */
   char			*name,		/* Name, if needed */
 			*value;		/* Value, if needed */
+} _css_selstmt_t;
+
+typedef struct _css_sel_s		/* CSS selector */
+{
+  struct _css_sel_s	*prev;		/* Previous selector */
+  html_element_t	element;	/* Element */
+  _css_relation_t	relation;	/* Relation to previous */
+  size_t		num_stmts;	/* Number of selector matching statements */
+  _css_selstmt_t	*stmts;		/* Matching statements */
 } _css_sel_t;
 
-/* CSS rules are linked lists starting at the leaf node (to speed lookups) */
-typedef struct _css_rule_s		/* CSS selector rule */
+typedef struct _css_rule_s		/* CSS rule set */
 {
-  struct _css_rule_s	*prev;		/* Previous selector */
-  html_element_t	element;	/* Element */
-  char			child_of_prev,	/* Is immediate child of previous */
-			follows_prev,	/* Is immediate sibling of previous */
-			sibling_prev;	/* Is sibling of previous */
-  int			num_sels;	/* Number of selectors */
-  _css_sel_t		*sels;		/* Selectors */
-  int			num_props;	/* Number of properties */
-  _css_prop_t		*props;		/* Properties */
+  _css_sel_t		*sel;		/* Leaf selector */
+  htmlcss_dict_t	*props;		/* Properties */
 } _css_rule_t;
 
 struct _css_s
 {
+  htmlcss_pool_t	*pool;		/* Memory pool */
   css_media_t		media;		/* Base media definition */
   htmlcss_error_cb_t	error_cb;	/* Error callback */
   void			*error_ctx;	/* Error callback context pointer */
   htmlcss_url_cb_t	url_cb;		/* URL callback */
   void			*url_ctx;	/* URL callback context pointer */
-  int			num_rules[HTML_ELEMENT_MAX];
-					/* Number of rules for each element */
+  size_t		num_rules[HTML_ELEMENT_MAX];
+					/* Number of rule sets for each element */
   _css_rule_t		*rules[HTML_ELEMENT_MAX];
-					/* Rules for each element */
-  size_t		num_strings,	/* Number of strings in pool */
-			alloc_strings;	/* Allocated slots in string pool */
-  char			**strings;	/* Strings in the string pool */
+					/* Rule sets for each element */
 };
 
 
@@ -119,7 +137,6 @@ struct _css_s
  * Functions...
  */
 
-extern char	*_cssString(css_t *css, const char *s);
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */

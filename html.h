@@ -17,7 +17,7 @@
  */
 
 #  include "common.h"
-
+#  include "pool.h"
 
 #  ifdef __cplusplus
 extern "C" {
@@ -190,8 +190,8 @@ extern void		htmlDeleteAttr(html_node_t *node, const char *name);
 extern void		htmlDeleteNode(html_t *html, html_node_t *node);
 extern html_node_t	*htmlFindNode(html_t *html, html_node_t *current, html_element_t element, const char *id);
 extern const char	*htmlGetAttr(html_node_t *node, const char *name);
-extern int		htmlGetAttrCount(html_node_t *node);
-extern const char	*htmlGetAttrIndex(html_node_t *node, int idx, const char **name);
+extern size_t		htmlGetAttrCount(html_node_t *node);
+extern const char	*htmlGetAttrIndex(html_node_t *node, size_t idx, const char **name);
 extern const char	*htmlGetComment(html_node_t *node);
 extern css_t		*htmlGetCSS(html_t *html);
 extern const char	*htmlGetDOCTYPE(html_t *html);
@@ -204,7 +204,7 @@ extern html_node_t	*htmlGetPrevSiblingNode(html_node_t *node);
 extern html_node_t	*htmlGetRootNode(html_t *html);
 extern const char	*htmlGetString(html_node_t *node);
 extern int		htmlLoad(html_t *html, const char *url, FILE *fp);
-extern html_t		*htmlNew(css_t *css);
+extern html_t		*htmlNew(htmlcss_pool_t *pool, css_t *css);
 extern void		htmlNewAttr(html_node_t *node, const char *name, const char *value);
 extern html_node_t	*htmlNewComment(html_node_t *parent, const char *c);
 extern html_node_t	*htmlNewElement(html_node_t *parent, html_element_t element);

@@ -189,13 +189,15 @@ htmlGetCSS(html_t *html)		/* I - HTML document */
  */
 
 html_t *				/* O - HTML document */
-htmlNew(css_t *css)			/* I - Base stylesheet */
+htmlNew(htmlcss_pool_t *pool,		/* I - Memory pool */
+        css_t          *css)		/* I - Base stylesheet */
 {
   html_t *html;				/* New HTML document */
 
 
   if ((html = (html_t *)calloc(1, sizeof(html_t))) != NULL)
   {
+    html->pool     = pool;
     html->css      = css;
     html->error_cb = _htmlcssDefaultErrorCB;
     html->url_cb   = _htmlcssDefaultURLCB;

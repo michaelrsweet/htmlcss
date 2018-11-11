@@ -22,19 +22,23 @@ LIBS	=	-lm
 HEADERS	=	\
 		common.h \
 		css.h \
+		dict.h \
 		html.h \
 		htmlcss.h \
+		pool.h \
 		run.h
 LIBOBJS	=	\
 		common.o \
 		css-compute.o \
 		css-core.o \
 		css-import.o \
+		dict.o \
 		html-attr.o \
 		html-core.o \
 		html-find.o \
 		html-load.o \
-		html-node.o
+		html-node.o \
+		pool.o
 OBJS	=	testhtmlcss.o $(LIBOBJS)
 TARGETS	=	libhtmlcss.a testhtmlcss
 

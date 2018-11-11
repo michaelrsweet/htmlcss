@@ -40,7 +40,10 @@ typedef enum _css_type_e
  * Local functions...
  */
 
-static char	*css_read(_css_file_t *f, _css_type_t *type, char *buffer, size_t bufsize);
+static void		css_add_rule(css_t *css, _css_sel_t *sel, htmlcss_dict_t *props);
+static void		css_add_selstmt(_css_sel_t *sel, _css_match_t match, const char *name, const char *value);
+static _css_sel_t	*css_new_sel(_css_sel_t *prev, html_element_t element);
+static char		*css_read(_css_file_t *f, _css_type_t *type, char *buffer, size_t bufsize);
 
 
 /*
@@ -106,6 +109,18 @@ cssImport(css_t      *css,		/* I - Stylesheet */
     printf("Reading CSS from \"%s\"...\n", filename);
   }
 
+/*
+
+Strategy for reading CSS:
+
+1. Read selector or @rule up to the opening brace.
+2a. For @rule: read selectors up to the opening brace, then read property:value; pairs until the closing brace.
+2b. For selector, read property:value; pairs up to the closing brace.
+3. Back to 1.
+
+*/
+
+
   while (css_read(&f, &type, buffer, sizeof(buffer)))
   {
     printf("CSS: %s %s\n", types[type], buffer);
@@ -117,16 +132,52 @@ cssImport(css_t      *css,		/* I - Stylesheet */
   return (ret);
 }
 
+
 /*
+ * 'css_add_rule()' - Add a rule set to a stylesheet.
+ */
 
-Strategy for reading CSS:
+static void
+css_add_rule(css_t          *css,	/* I - Stylesheet */
+             _css_sel_t     *sel,	/* I - Selectors */
+             htmlcss_dict_t *props)	/* I - Properties */
+{
+}
 
-1. Read selector or @rule up to the opening brace.
-2a. For @rule: read selectors up to the opening brace, then read property:value; pairs until the closing brace.
-2b. For selector, read property:value; pairs up to the closing brace.
-3. Back to 1.
 
-*/
+/*
+ * 'css_add_selstmt()' - Add a matching statement to a selector.
+ */
+
+static void
+css_add_selstmt(_css_sel_t   *sel,	/* I - Selector */
+                _css_match_t match,	/* I - Matching statement type */
+                const char   *name,	/* I - Name, if any */
+                const char   *value)	/* I - Value, if any */
+{
+}
+
+
+/*
+ * 'css_new_sel()' - Create a new selector.
+ */
+
+static _css_sel_t *			/* O - New selector */
+css_new_sel(_css_sel_t     *prev,	/* I - Previous selector in list */
+            html_element_t element)	/* I - Element */
+{
+  _css_sel_t	*sel;			/* New selector */
+
+
+  if ((sel = (_css_sel_t *)calloc(1, sizeof(_css_sel_t))) != NULL)
+  {
+    sel->prev    = prev;
+    sel->element = element;
+  }
+
+  return (sel);
+}
+
 
 
 /*
