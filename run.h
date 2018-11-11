@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLHC_RUN_H
-#  define HTMLHC_RUN_H
+#ifndef HTMLCSS_RUN_H
+#  define HTMLCSS_RUN_H
 
 /*
  * Include necessary headers...
@@ -38,4 +38,4 @@ extern "C" {
 }
 #  endif /* __cplusplus */
 
-#endif /* !HTMLHC_RUN_H */
+#endif /* !HTMLCSS_RUN_H */

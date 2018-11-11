@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLHC_CSS_H
-#  define HTMLHC_CSS_H
+#ifndef HTMLCSS_CSS_H
+#  define HTMLCSS_CSS_H
 
 /*
  * Include necessary headers...
@@ -352,22 +352,22 @@ typedef struct _hc_css_s hc_css_t;		/* CSS data */
  * Functions...
  */
 
-extern void	hcCSSDelete(hc_css_t *css);
-extern hc_css_t	*hcNewCSS(hc_pool_t *pool);
-extern int	hcCSSImport(hc_css_t *css, const char *url, FILE *fp, const char *s);
-extern void	hcCSSSetErrorCallback(hc_css_t *css, hc_error_cb_t cb, void *ctx);
-extern void	hcCSSSetURLCallback(hc_css_t *css, hc_url_cb_t cb, void *ctx);
-extern int	hcCSSSetMedia(hc_css_t *css, const char *media, float width, float height);
-
 extern int	hcCSSComputeBox(hc_css_t *css, hc_node_t *node, hc_compute_t compute, hc_box_t *box);
 extern char	*hcCSSComputeContent(hc_css_t *css, hc_node_t *node, hc_compute_t compute);
 extern int	hcCSSComputeDisplay(hc_css_t *css, hc_node_t *node, hc_compute_t compute, hc_display_t *display);
 extern int	hcCSSComputeMedia(hc_css_t *css, hc_node_t *node, hc_compute_t compute, hc_media_t *media);
 extern int	hcCSSComputeTable(hc_css_t *css, hc_node_t *node, hc_compute_t compute, hc_table_t *table);
 extern int	hcCSSComputeText(hc_css_t *css, hc_node_t *node, hc_compute_t compute, hc_text_t *text);
+extern void	hcCSSDelete(hc_css_t *css);
+extern hc_css_t	*hcCSSNew(hc_pool_t *pool);
+extern int	hcCSSImport(hc_css_t *css, const char *url, FILE *fp, const char *s);
+extern void	hcCSSSetErrorCallback(hc_css_t *css, hc_error_cb_t cb, void *ctx);
+extern void	hcCSSSetURLCallback(hc_css_t *css, hc_url_cb_t cb, void *ctx);
+extern int	hcCSSSetMedia(hc_css_t *css, const char *media, float width, float height);
+
 
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
 
-#endif /* !HTMLHC_CSS_H */
+#endif /* !HTMLCSS_CSS_H */

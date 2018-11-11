@@ -52,7 +52,7 @@ hcHTMLFindNode(hc_html_t         *html,	/* I - HTML document */
       if (!id)
         break;
 
-      if ((current_id = hcNodeAttrGet(current, "id")) != NULL && !strcmp(current_id, id))
+      if ((current_id = hcNodeAttrGetNameValue(current, "id")) != NULL && !strcmp(current_id, id))
         break;
     }
 

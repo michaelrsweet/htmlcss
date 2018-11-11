@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLHC_H
-#  define HTMLHC_H
+#ifndef HTMLCSS_H
+#  define HTMLCSS_H
 
 /*
  * Include necessary headers...
@@ -20,4 +20,4 @@
 #  include "html.h"
 #  include "run.h"
 
-#endif /* !HTMLHC_H */
+#endif /* !HTMLCSS_H */

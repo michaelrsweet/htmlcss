@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLHC_COMMON_H
-#  define HTMLHC_COMMON_H
+#ifndef HTMLCSS_COMMON_H
+#  define HTMLCSS_COMMON_H
 
 /*
  * Include necessary headers...
@@ -38,4 +38,4 @@ typedef char *(*hc_url_cb_t)(const char *url, char *buffer, size_t bufsize, void
 }
 #  endif /* __cplusplus */
 
-#endif /* !HTMLHC_COMMON_H */
+#endif /* !HTMLCSS_COMMON_H */

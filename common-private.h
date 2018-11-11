@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLHC_COMMON_PRIVATE_H
-#  define HTMLHC_COMMON_PRIVATE_H
+#ifndef HTMLCSS_COMMON_PRIVATE_H
+#  define HTMLCSS_COMMON_PRIVATE_H
 
 /*
  * Include necessary headers...
@@ -121,4 +121,4 @@ static inline void _hcFileUngetc(int ch, _hc_file_t *f)
 }
 #  endif /* __cplusplus */
 
-#endif /* !HTMLHC_COMMON_PRIVATE_H */
+#endif /* !HTMLCSS_COMMON_PRIVATE_H */

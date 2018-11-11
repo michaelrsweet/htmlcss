@@ -36,11 +36,11 @@ hcCSSDelete(hc_css_t *css)			/* I - Stylesheet */
 
 
 /*
- * 'hcNewCSS()' - Allocate a new stylesheet.
+ * 'hcCSSNew()' - Allocate a new stylesheet.
  */
 
 hc_css_t *					/* O - Stylesheet */
-hcNewCSS(hc_pool_t *pool)		/* I - Memory pool */
+hcCSSNew(hc_pool_t *pool)		/* I - Memory pool */
 {
   hc_css_t	*css = (hc_css_t *)calloc(1, sizeof(hc_css_t));
 					/* Stylesheet */

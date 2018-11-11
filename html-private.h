@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLHC_HTML_PRIVATE_H
-#  define HTMLHC_HTML_PRIVATE_H
+#ifndef HTMLCSS_HTML_PRIVATE_H
+#  define HTMLCSS_HTML_PRIVATE_H
 
 /*
  * Include necessary headers...
@@ -71,4 +71,4 @@ extern hc_node_t	*_hcNodeNewUnknown(hc_node_t *parent, const char *unk);
 }
 #  endif /* __cplusplus */
 
-#endif /* !HTMLHC_HTML_PRIVATE_H */
+#endif /* !HTMLCSS_HTML_PRIVATE_H */

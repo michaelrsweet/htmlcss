@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLHC_POOL_H
-#  define HTMLHC_POOL_H
+#ifndef HTMLCSS_POOL_H
+#  define HTMLCSS_POOL_H
 
 /*
  * Include necessary headers...
@@ -28,20 +28,19 @@ extern "C" {
  * Types...
  */
 
-typedef struct _hc_pool_s hc_pool_t;
-					/* Memory allocation pool */
+typedef struct _hc_pool_s hc_pool_t;	/* Memory allocation pool */
 
 
 /*
  * Functions...
  */
 
-extern hc_pool_t	*hcNewPool(void);
-extern const char	*hcPoolAllocString(hc_pool_t *pool, const char *s);
 extern void		hcPoolDelete(hc_pool_t *pool);
+extern const char	*hcPollGetString(hc_pool_t *pool, const char *s);
+extern hc_pool_t	*hcPoolNew(void);
 
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
 
-#endif /* !HTMLHC_HTML_H */
+#endif /* !HTMLCSS_HTML_H */

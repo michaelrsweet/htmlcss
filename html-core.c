@@ -189,7 +189,7 @@ hcHTMLGetCSS(hc_html_t *html)		/* I - HTML document */
  */
 
 hc_html_t *				/* O - HTML document */
-hcNewHTML(hc_pool_t *pool,		/* I - Memory pool */
+hcHTMLNew(hc_pool_t *pool,		/* I - Memory pool */
           hc_css_t  *css)		/* I - Base stylesheet */
 {
   hc_html_t *html;			/* New HTML document */

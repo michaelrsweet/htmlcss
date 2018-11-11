@@ -44,11 +44,11 @@ static int	compare_pairs(_hc_pair_t *a, _hc_pair_t *b);
 
 
 /*
- * 'hcDictCount()' - Return the number of key/value pairs in a dictionary.
+ * 'hcDictGetCount()' - Return the number of key/value pairs in a dictionary.
  */
 
 size_t					/* O - Number of key/value pairs */
-hcDictCount(hc_dict_t *dict)	/* I - Dictionary */
+hcDictGetCount(hc_dict_t *dict)	/* I - Dictionary */
 {
   return (dict ? dict->num_pairs : 0);
 }
@@ -72,11 +72,11 @@ hcDictDelete(hc_dict_t *dict)	/* I - Dictionary */
 
 
 /*
- * 'hcDictGet()' - Get the value for a key in a dictionary.
+ * 'hcdictGetKeyValue()' - Get the value for a key in a dictionary.
  */
 
 const char *				/* O - Value or `NULL` if not found. */
-hcDictGet(hc_dict_t *dict,	/* I - Dictionary */
+hcdictGetKeyValue(hc_dict_t *dict,	/* I - Dictionary */
                const char     *key)	/* I - Key string */
 {
   _hc_pair_t	temp,		/* Temporary search key */
@@ -96,11 +96,11 @@ hcDictGet(hc_dict_t *dict,	/* I - Dictionary */
 
 
 /*
- * 'hcDictIndex()' - Return the key and value for the specified pair.
+ * 'hcDictGetIndexKeyValue()' - Return the key and value for the specified pair.
  */
 
 const char *				/* O - Value or `NULL` if `idx` is invalid. */
-hcDictIndex(hc_dict_t *dict,	/* I - Dictionary */
+hcDictGetIndexKeyValue(hc_dict_t *dict,	/* I - Dictionary */
                  size_t         idx,	/* I - Index (0-based) */
                  const char     **key)	/* O - Key or `NULL` if `idx` is invalid. */
 {
@@ -114,11 +114,11 @@ hcDictIndex(hc_dict_t *dict,	/* I - Dictionary */
 
 
 /*
- * 'hcDictRemove()' - Remove a key/value pair from a dictionary.
+ * 'hcDictRemoveKey()' - Remove a key/value pair from a dictionary.
  */
 
 void
-hcDictRemove(hc_dict_t *dict,	/* I - Dictionary */
+hcDictRemoveKey(hc_dict_t *dict,	/* I - Dictionary */
                   const char     *key)	/* I - Key string */
 {
   _hc_pair_t	temp,		/* Temporary search key */
@@ -144,11 +144,11 @@ hcDictRemove(hc_dict_t *dict,	/* I - Dictionary */
 
 
 /*
- * 'hcDictSet()' - Set a key/value pair in a dictionary.
+ * 'hcDictSetKeyValue()' - Set a key/value pair in a dictionary.
  */
 
 void
-hcDictSet(hc_dict_t *dict,	/* I - Dictionary */
+hcDictSetKeyValue(hc_dict_t *dict,	/* I - Dictionary */
 	       const char     *key,	/* I - Key string */
 	       const char     *value)	/* I - Value string */
 {
@@ -173,7 +173,7 @@ hcDictSet(hc_dict_t *dict,	/* I - Dictionary */
 
   if (ptr)
   {
-    ptr->value = hcPoolAllocString(dict->pool, value);
+    ptr->value = hcPollGetString(dict->pool, value);
     return;
   }
 
@@ -189,19 +189,19 @@ hcDictSet(hc_dict_t *dict,	/* I - Dictionary */
   ptr = dict->pairs + dict->num_pairs;
   dict->num_pairs ++;
 
-  ptr->key   = hcPoolAllocString(dict->pool, key);
-  ptr->value = hcPoolAllocString(dict->pool, value);
+  ptr->key   = hcPollGetString(dict->pool, key);
+  ptr->value = hcPollGetString(dict->pool, value);
 
   qsort(dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (int (*)(const void *, const void *))compare_pairs);
 }
 
 
 /*
- * 'hcNewDict()' - Create a new dictionary.
+ * 'hcDictNew()' - Create a new dictionary.
  */
 
 hc_dict_t *			/* O - New dictionary */
-hcNewDict(hc_pool_t *pool)	/* I - Memory pool */
+hcDictNew(hc_pool_t *pool)	/* I - Memory pool */
 {
   hc_dict_t	*dict;		/* New dictionary */
 

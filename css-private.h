@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLHC_CSS_PRIVATE_H
-#  define HTMLHC_CSS_PRIVATE_H
+#ifndef HTMLCSS_CSS_PRIVATE_H
+#  define HTMLCSS_CSS_PRIVATE_H
 
 /*
  * Include necessary headers...
@@ -141,4 +141,4 @@ struct _hc_css_s
 }
 #  endif /* __cplusplus */
 
-#endif /* !HTMLHC_CSS_PRIVATE_H */
+#endif /* !HTMLCSS_CSS_PRIVATE_H */

@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLHC_DICT_H
-#  define HTMLHC_DICT_H
+#ifndef HTMLCSS_DICT_H
+#  define HTMLCSS_DICT_H
 
 /*
  * Include necessary headers...
@@ -35,17 +35,17 @@ typedef struct _hc_dict_s hc_dict_t;
  * Functions...
  */
 
-extern size_t		hcDictCount(hc_dict_t *dict);
 extern void		hcDictDelete(hc_dict_t *dict);
-extern const char	*hcDictGet(hc_dict_t *dict, const char *key);
-extern const char	*hcDictIndex(hc_dict_t *dict, size_t idx, const char **key);
-extern void		hcDictRemove(hc_dict_t *dict, const char *key);
-extern void		hcDictSet(hc_dict_t *dict, const char *key, const char *value);
-extern hc_dict_t	*hcNewDict(hc_pool_t *pool);
+extern size_t		hcDictGetCount(hc_dict_t *dict);
+extern const char	*hcDictGetIndexKeyValue(hc_dict_t *dict, size_t idx, const char **key);
+extern const char	*hcdictGetKeyValue(hc_dict_t *dict, const char *key);
+extern hc_dict_t	*hcDictNew(hc_pool_t *pool);
+extern void		hcDictRemoveKey(hc_dict_t *dict, const char *key);
+extern void		hcDictSetKeyValue(hc_dict_t *dict, const char *key, const char *value);
 
 
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
 
-#endif /* !HTMLHC_DICT_H */
+#endif /* !HTMLCSS_DICT_H */

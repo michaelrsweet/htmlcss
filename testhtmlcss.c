@@ -34,9 +34,9 @@ main(int  argc,				/* I - Number of command-line arguments */
   int		level;			/* Indentation level */
 
 
-  pool = hcNewPool();
-  css  = hcNewCSS(pool);
-  html = hcNewHTML(pool, css);
+  pool = hcPoolNew();
+  css  = hcCSSNew(pool);
+  html = hcHTMLNew(pool, css);
 
   for (i = 1; i < argc; i ++)
   {
@@ -71,15 +71,15 @@ main(int  argc,				/* I - Number of command-line arguments */
     else if (element == HC_ELEMENT_COMMENT)
       printf("<!-- %s -->\n", hcNodeGetComment(node));
     else if (element == HC_ELEMENT_DOCTYPE)
-      printf("<!DOCTYPE %s>\n", hcNodeAttrGet(node, ""));
+      printf("<!DOCTYPE %s>\n", hcNodeAttrGetNameValue(node, ""));
     else
     {
-      int idx, count = hcNodeAttrCount(node);
+      int idx, count = hcNodeAttrGetCount(node);
 
       printf("<%s", hcElements[element]);
       for (idx = 0; idx < count; idx ++)
       {
-	const char *name, *value = hcNodeAttrIndex(node, idx, &name);
+	const char *name, *value = hcNodeAttrGetIndexNameValue(node, idx, &name);
 	printf(" %s=\"%s\"", name, value);
       }
       puts(">");

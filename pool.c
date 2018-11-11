@@ -37,18 +37,18 @@ static int	compare_strings(char **a, char **b);
 
 
 /*
- * 'hcNewPool()' - Create a new memory pool.
+ * 'hcPoolNew()' - Create a new memory pool.
  */
 
 hc_pool_t *			/* O - New memory pool */
-hcNewPool(void)
+hcPoolNew(void)
 {
   return ((hc_pool_t *)calloc(1, sizeof(hc_pool_t)));
 }
 
 
 /*
- * 'hcPoolAllocString()' - Find or copy a string.
+ * 'hcPollGetString()' - Find or copy a string.
  *
  * This function finds or makes a copy of the passed string that will be freed
  * when the corresponding memory pool is deleted.  Since the memory pool only
@@ -56,7 +56,7 @@ hcNewPool(void)
  */
 
 const char *				/* O - New string pointer */
-hcPoolAllocString(
+hcPollGetString(
     hc_pool_t *pool,		/* I - Memory pool */
     const char     *s)			/* I - String to find/copy */
 {

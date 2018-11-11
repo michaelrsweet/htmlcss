@@ -336,7 +336,7 @@ html_parse_attr(_html_file_t *f,	/* I - HTML file info */
     }
 
     *ptr = '\0';
-    hcNodeAttrSet(node, name, value);
+    hcNodeAttrSetNameValue(node, name, value);
   }
   else if (ch != EOF)
   {
@@ -344,7 +344,7 @@ html_parse_attr(_html_file_t *f,	/* I - HTML file info */
     * Add "name=name"...
     */
 
-    hcNodeAttrSet(node, name, name);
+    hcNodeAttrSetNameValue(node, name, name);
   }
 
   return (ch);
@@ -454,7 +454,7 @@ html_parse_doctype(_html_file_t *f)	/* I - HTML file info */
   else if (ch != '>')
     _hcError(f->html->error_cb, f->html->error_ctx, f->file.url, f->file.linenum, "<!DOCTYPE ...> too long.");
 
-  return ((f->parent = hcHTMLNewRoot(f->html, buffer)) != NULL);
+  return ((f->parent = hcHTMLNewRootNode(f->html, buffer)) != NULL);
 }
 
 
@@ -560,7 +560,7 @@ html_parse_element(_html_file_t *f,	/* I - HTML file info */
     if (!_hcError(f->html->error_cb, f->html->error_ctx, f->file.url, f->file.linenum, "Missing <!DOCTYPE html> directive."))
       return (0);
 
-    f->parent = hcHTMLNewRoot(f->html, "html");
+    f->parent = hcHTMLNewRootNode(f->html, "html");
   }
   else if (element == HC_ELEMENT_UNKNOWN)
   {

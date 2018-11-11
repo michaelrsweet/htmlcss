@@ -98,13 +98,13 @@ hcNodeGetComment(hc_node_t *node)	/* I - HTML node */
 
 
 /*
- * 'hcNodeGetDOCTYPE()' - Get a HTML document's DOCTYPE value, if any.
+ * 'hcHTMLGetDOCTYPE()' - Get a HTML document's DOCTYPE value, if any.
  */
 
 const char *				/* O - DOCTYPE value */
-hcNodeGetDOCTYPE(hc_html_t *html)		/* I - HTML document */
+hcHTMLGetDOCTYPE(hc_html_t *html)		/* I - HTML document */
 {
-  return (html && html->root ? hcNodeAttrGet(html->root, "") : NULL);
+  return (html && html->root ? hcNodeAttrGetNameValue(html->root, "") : NULL);
 }
 
 
@@ -229,11 +229,11 @@ hcNodeNewElement(hc_node_t    *parent,	/* I - Parent node */
 
 
 /*
- * 'hcHTMLNewRoot()' - Create a new root node.
+ * 'hcHTMLNewRootNode()' - Create a new root node.
  */
 
 hc_node_t *				/* O - New root node */
-hcHTMLNewRoot(hc_html_t     *html,		/* I - HTML document */
+hcHTMLNewRootNode(hc_html_t     *html,		/* I - HTML document */
             const char *doctype)	/* I - DOCTYPE value */
 {
   hc_node_t	*node;			/* New node */
@@ -245,7 +245,7 @@ hcHTMLNewRoot(hc_html_t     *html,		/* I - HTML document */
   if ((node = html_new(NULL, HC_ELEMENT_DOCTYPE, NULL)) != NULL)
   {
     html->root = node;
-    hcNodeAttrSet(node, "", doctype);
+    hcNodeAttrSetNameValue(node, "", doctype);
   }
 
   return (node);

@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLHC_HTML_H
-#  define HTMLHC_HTML_H
+#ifndef HTMLCSS_HTML_H
+#  define HTMLCSS_HTML_H
 
 /*
  * Include necessary headers...
@@ -186,35 +186,38 @@ extern const char * const	hcElements[HC_ELEMENT_MAX];
  */
 
 extern void		hcHTMLDelete(hc_html_t *html);
-extern void		hcNodeAttrRemove(hc_node_t *node, const char *name);
-extern void		hcNodeDelete(hc_html_t *html, hc_node_t *node);
 extern hc_node_t	*hcHTMLFindNode(hc_html_t *html, hc_node_t *current, hc_element_t element, const char *id);
-extern const char	*hcNodeAttrGet(hc_node_t *node, const char *name);
-extern size_t		hcNodeAttrCount(hc_node_t *node);
-extern const char	*hcNodeAttrIndex(hc_node_t *node, size_t idx, const char **name);
-extern const char	*hcNodeGetComment(hc_node_t *node);
 extern hc_css_t		*hcHTMLGetCSS(hc_html_t *html);
-extern const char	*hcNodeGetDOCTYPE(hc_html_t *html);
+extern const char	*hcHTMLGetDOCTYPE(hc_html_t *html);
+extern hc_node_t	*hcHTMLGetRootNode(hc_html_t *html);
+extern int		hcHTMLLoad(hc_html_t *html, const char *url, FILE *fp);
+extern hc_html_t	*hcHTMLNew(hc_pool_t *pool, hc_css_t *css);
+extern hc_node_t	*hcHTMLNewRootNode(hc_html_t *html, const char *doctype);
+extern void		hcHTMLSetErrorCallback(hc_html_t *html, hc_error_cb_t cb, void *ctx);
+extern void		hcHTMLSetURLCallback(hc_html_t *html, hc_url_cb_t cb, void *ctx);
+
+extern size_t		hcNodeAttrGetCount(hc_node_t *node);
+extern const char	*hcNodeAttrGetIndexNameValue(hc_node_t *node, size_t idx, const char **name);
+extern const char	*hcNodeAttrGetNameValue(hc_node_t *node, const char *name);
+extern void		hcNodeAttrRemove(hc_node_t *node, const char *name);
+extern void		hcNodeAttrSetNameValue(hc_node_t *node, const char *name, const char *value);
+
+extern void		hcNodeDelete(hc_html_t *html, hc_node_t *node);
+extern const char	*hcNodeGetComment(hc_node_t *node);
 extern hc_element_t	hcNodeGetElement(hc_node_t *node);
 extern hc_node_t	*hcNodeGetFirstChildNode(hc_node_t *node);
 extern hc_node_t	*hcNodeGetLastChildNode(hc_node_t *node);
 extern hc_node_t	*hcNodeGetNextSiblingNode(hc_node_t *node);
 extern hc_node_t	*hcNodeGetParentNode(hc_node_t *node);
 extern hc_node_t	*hcNodeGetPrevSiblingNode(hc_node_t *node);
-extern hc_node_t	*hcHTMLGetRootNode(hc_html_t *html);
 extern const char	*hcNodeGetString(hc_node_t *node);
-extern int		hcHTMLLoad(hc_html_t *html, const char *url, FILE *fp);
-extern hc_html_t	*hcNewHTML(hc_pool_t *pool, hc_css_t *css);
-extern void		hcNodeAttrSet(hc_node_t *node, const char *name, const char *value);
 extern hc_node_t	*hcNodeNewComment(hc_node_t *parent, const char *c);
 extern hc_node_t	*hcNodeNewElement(hc_node_t *parent, hc_element_t element);
-extern hc_node_t	*hcHTMLNewRoot(hc_html_t *html, const char *doctype);
 extern hc_node_t	*hcNodeNewString(hc_node_t *parent, const char *s);
-extern void		hcHTMLSetErrorCallback(hc_html_t *html, hc_error_cb_t cb, void *ctx);
-extern void		hcHTMLSetURLCallback(hc_html_t *html, hc_url_cb_t cb, void *ctx);
+
 
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
 
-#endif /* !HTMLHC_HTML_H */
+#endif /* !HTMLCSS_HTML_H */
