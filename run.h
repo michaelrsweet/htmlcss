@@ -1,7 +1,7 @@
 /*
  * Block run header file for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/htmlcss
+ *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2018 by Michael R Sweet.
  *
@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLCSS_RUN_H
-#  define HTMLCSS_RUN_H
+#ifndef HTMLHC_RUN_H
+#  define HTMLHC_RUN_H
 
 /*
  * Include necessary headers...
@@ -38,4 +38,4 @@ extern "C" {
 }
 #  endif /* __cplusplus */
 
-#endif /* !HTMLCSS_RUN_H */
+#endif /* !HTMLHC_RUN_H */

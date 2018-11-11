@@ -1,7 +1,7 @@
 /*
  * CSS import functions for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/htmlcss
+ *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2018 by Michael R Sweet.
  *
@@ -22,11 +22,11 @@
 
 
 /*
- * 'cssDelete()' - Free memory associated with a stylesheet.
+ * 'hcCSSDelete()' - Free memory associated with a stylesheet.
  */
 
 void
-cssDelete(css_t *css)			/* I - Stylesheet */
+hcCSSDelete(hc_css_t *css)			/* I - Stylesheet */
 {
   if (!css)
     return;
@@ -36,21 +36,21 @@ cssDelete(css_t *css)			/* I - Stylesheet */
 
 
 /*
- * 'cssNew()' - Allocate a new stylesheet.
+ * 'hcNewCSS()' - Allocate a new stylesheet.
  */
 
-css_t *					/* O - Stylesheet */
-cssNew(htmlcss_pool_t *pool)		/* I - Memory pool */
+hc_css_t *					/* O - Stylesheet */
+hcNewCSS(hc_pool_t *pool)		/* I - Memory pool */
 {
-  css_t	*css = (css_t *)calloc(1, sizeof(css_t));
+  hc_css_t	*css = (hc_css_t *)calloc(1, sizeof(hc_css_t));
 					/* Stylesheet */
 
 
   if (css)
   {
     css->pool     = pool;
-    css->error_cb = _htmlcssDefaultErrorCB;
-    css->url_cb   = _htmlcssDefaultURLCB;
+    css->error_cb = _hcDefaultErrorCB;
+    css->url_cb   = _hcDefaultURLCB;
   }
 
   return (css);
@@ -58,11 +58,11 @@ cssNew(htmlcss_pool_t *pool)		/* I - Memory pool */
 
 
 /*
- * 'cssSetMedia()' - Set the base media settings.
+ * 'hcCSSSetMedia()' - Set the base media settings.
  */
 
 int					/* O - 1 on success, 0 on failure */
-cssSetMedia(css_t      *css,		/* I - Stylesheet */
+hcCSSSetMedia(hc_css_t      *css,		/* I - Stylesheet */
             const char *media,		/* I - Media name ("print', etc.) */
             float      width,		/* I - Device width */
             float      height)		/* I - Device height */

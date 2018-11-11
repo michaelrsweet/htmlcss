@@ -1,7 +1,7 @@
 /*
  * CSS import functions for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/htmlcss
+ *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2018 by Michael R Sweet.
  *
@@ -20,46 +20,46 @@
  * Local types...
  */
 
-typedef struct _css_file_s
+typedef struct _hc_css_file_s
 {
-  css_t			*css;		/* Stylesheet */
-  _htmlcss_file_t	file;		/* File information */
-} _css_file_t;
+  hc_css_t	*css;			/* Stylesheet */
+  _hc_file_t	file;			/* File information */
+} _hc_css_file_t;
 
-typedef enum _css_type_e
+typedef enum _hc_type_e
 {
-  _CSS_TYPE_ERROR,			/* Error */
-  _CSS_TYPE_RESERVED,			/* Reserved character(s) */
-  _CSS_TYPE_STRING,			/* Unquoted string */
-  _CSS_TYPE_QSTRING,			/* Quoted string */
-  _CSS_TYPE_NUMBER			/* Number */
-} _css_type_t;
+  _HC_TYPE_ERROR,			/* Error */
+  _HC_TYPE_RESERVED,			/* Reserved character(s) */
+  _HC_TYPE_STRING,			/* Unquoted string */
+  _HC_TYPE_QSTRING,			/* Quoted string */
+  _HC_TYPE_NUMBER			/* Number */
+} _hc_type_t;
 
 
 /*
  * Local functions...
  */
 
-static void		css_add_rule(css_t *css, _css_sel_t *sel, htmlcss_dict_t *props);
-static void		css_add_selstmt(_css_sel_t *sel, _css_match_t match, const char *name, const char *value);
-static _css_sel_t	*css_new_sel(_css_sel_t *prev, html_element_t element);
-static char		*css_read(_css_file_t *f, _css_type_t *type, char *buffer, size_t bufsize);
+static void		hc_add_rule(hc_css_t *css, _hc_css_sel_t *sel, hc_dict_t *props);
+static void		hc_add_selstmt(_hc_css_sel_t *sel, _hc_match_t match, const char *name, const char *value);
+static _hc_css_sel_t	*hc_new_sel(_hc_css_sel_t *prev, hc_element_t element);
+static char		*hc_read(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
 
 
 /*
- * 'cssImport()' - Import CSS definitions from a URL, file, or string.
+ * 'hcCSSImport()' - Import CSS definitions from a URL, file, or string.
  */
 
 int					/* O - 1 on success, 0 on error */
-cssImport(css_t      *css,		/* I - Stylesheet */
-          const char *url,		/* I - URL or filename */
-          FILE       *fp,		/* I - File pointer or `NULL` */
-          const char *s)		/* I - String or `NULL` */
+hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
+            const char *url,		/* I - URL or filename */
+            FILE       *fp,		/* I - File pointer or `NULL` */
+            const char *s)		/* I - String or `NULL` */
 {
   int		ret = 1;		/* Return value */
-  _css_file_t	f;			/* Local file info */
+  _hc_css_file_t f;			/* Local file info */
   char		buffer[256];		/* Current value */
-  _css_type_t	type;			/* Value type */
+  _hc_type_t	type;			/* Value type */
   static const char * const types[] =	/* Types */
   {
     "ERROR",
@@ -70,7 +70,7 @@ cssImport(css_t      *css,		/* I - Stylesheet */
   };
 
 
-  printf("cssImport(css=%p, url=\"%s\", fp=%p, s=\"%s\")\n", css, url, fp, s);
+  printf("hcCSSImport(css=%p, url=\"%s\", fp=%p, s=\"%s\")\n", css, url, fp, s);
 
   if (!css || (!url && !fp && !s))
   {
@@ -96,13 +96,13 @@ cssImport(css_t      *css,		/* I - Stylesheet */
     }
     else if (!(css->url_cb)(url, filename, sizeof(filename), css->url_ctx))
     {
-      _htmlcssError(css->error_cb, css->error_ctx, url, 0, "Unable to open: %s", strerror(errno));
+      _hcError(css->error_cb, css->error_ctx, url, 0, "Unable to open: %s", strerror(errno));
       return (0);
     }
 
     if ((f.file.fp = fopen(filename, "rb")) == NULL)
     {
-      _htmlcssError(css->error_cb, css->error_ctx, url, 0, "Unable to open: %s", strerror(errno));
+      _hcError(css->error_cb, css->error_ctx, url, 0, "Unable to open: %s", strerror(errno));
       return (0);
     }
 
@@ -121,7 +121,7 @@ Strategy for reading CSS:
 */
 
 
-  while (css_read(&f, &type, buffer, sizeof(buffer)))
+  while (hc_read(&f, &type, buffer, sizeof(buffer)))
   {
     printf("CSS: %s %s\n", types[type], buffer);
   }
@@ -134,42 +134,42 @@ Strategy for reading CSS:
 
 
 /*
- * 'css_add_rule()' - Add a rule set to a stylesheet.
+ * 'hc_add_rule()' - Add a rule set to a stylesheet.
  */
 
 static void
-css_add_rule(css_t          *css,	/* I - Stylesheet */
-             _css_sel_t     *sel,	/* I - Selectors */
-             htmlcss_dict_t *props)	/* I - Properties */
+hc_add_rule(hc_css_t       *css,	/* I - Stylesheet */
+	    _hc_css_sel_t *sel,		/* I - Selectors */
+	    hc_dict_t     *props)	/* I - Properties */
 {
 }
 
 
 /*
- * 'css_add_selstmt()' - Add a matching statement to a selector.
+ * 'hc_add_selstmt()' - Add a matching statement to a selector.
  */
 
 static void
-css_add_selstmt(_css_sel_t   *sel,	/* I - Selector */
-                _css_match_t match,	/* I - Matching statement type */
-                const char   *name,	/* I - Name, if any */
-                const char   *value)	/* I - Value, if any */
+hc_add_selstmt(_hc_css_sel_t   *sel,	/* I - Selector */
+	       _hc_match_t match,	/* I - Matching statement type */
+	       const char   *name,	/* I - Name, if any */
+	       const char   *value)	/* I - Value, if any */
 {
 }
 
 
 /*
- * 'css_new_sel()' - Create a new selector.
+ * 'hc_new_sel()' - Create a new selector.
  */
 
-static _css_sel_t *			/* O - New selector */
-css_new_sel(_css_sel_t     *prev,	/* I - Previous selector in list */
-            html_element_t element)	/* I - Element */
+static _hc_css_sel_t *			/* O - New selector */
+hc_new_sel(_hc_css_sel_t *prev,		/* I - Previous selector in list */
+	   hc_element_t element)	/* I - Element */
 {
-  _css_sel_t	*sel;			/* New selector */
+  _hc_css_sel_t	*sel;			/* New selector */
 
 
-  if ((sel = (_css_sel_t *)calloc(1, sizeof(_css_sel_t))) != NULL)
+  if ((sel = (_hc_css_sel_t *)calloc(1, sizeof(_hc_css_sel_t))) != NULL)
   {
     sel->prev    = prev;
     sel->element = element;
@@ -181,14 +181,14 @@ css_new_sel(_css_sel_t     *prev,	/* I - Previous selector in list */
 
 
 /*
- * 'css_read_token()' - Read a token from the CSS file.
+ * 'hc_read_token()' - Read a token from the CSS file.
  */
 
 static char *				/* O - Token or `NULL` on EOF */
-css_read(_css_file_t *f,		/* I - CSS file */
-	 _css_type_t *type,		/* O - Tokem type */
-	 char        *buffer,		/* I - Buffer */
-	 size_t      bufsize)		/* I - Size of buffer */
+hc_read(_hc_css_file_t *f,		/* I - CSS file */
+	_hc_type_t     *type,		/* O - Tokem type */
+	char           *buffer,		/* I - Buffer */
+	size_t         bufsize)		/* I - Size of buffer */
 {
   int	ch;				/* Current character */
   char	*bufptr,			/* Pointer into buffer */
@@ -198,11 +198,11 @@ css_read(_css_file_t *f,		/* I - CSS file */
 
   bufptr = buffer;
   bufend = buffer + bufsize - 1;
-  *type  = _CSS_TYPE_ERROR;
+  *type  = _HC_TYPE_ERROR;
 
   for (;;)
   {
-    while ((ch = _htmlcssFileGetc(&f->file)) != EOF)
+    while ((ch = _hcFileGetc(&f->file)) != EOF)
     {
       if (!isspace(ch & 255))
 	break;
@@ -218,14 +218,14 @@ css_read(_css_file_t *f,		/* I - CSS file */
       */
 
       *bufptr++ = (char)ch;
-      *type     = _CSS_TYPE_RESERVED;
+      *type     = _HC_TYPE_RESERVED;
 
       if (ch == ':')
       {
-        if ((ch = _htmlcssFileGetc(&f->file)) == ':')
+        if ((ch = _hcFileGetc(&f->file)) == ':')
           *bufptr++ = (char)ch;
         else
-	  _htmlcssFileUngetc(ch, &f->file);
+	  _hcFileUngetc(ch, &f->file);
       }
     }
     else if (ch == '\'' || ch == '\"')
@@ -236,7 +236,7 @@ css_read(_css_file_t *f,		/* I - CSS file */
 
       int quote = ch;			/* Quote character */
 
-      while ((ch = _htmlcssFileGetc(&f->file)) != EOF)
+      while ((ch = _hcFileGetc(&f->file)) != EOF)
       {
 	if (ch == quote)
 	  break;
@@ -247,7 +247,7 @@ css_read(_css_file_t *f,		/* I - CSS file */
 	  break;
       }
 
-      *type = _CSS_TYPE_QSTRING;
+      *type = _HC_TYPE_QSTRING;
     }
     else
     {
@@ -269,7 +269,7 @@ css_read(_css_file_t *f,		/* I - CSS file */
 
 	  bufptr --;
 
-	  while ((ch = _htmlcssFileGetc(&f->file)) != EOF)
+	  while ((ch = _hcFileGetc(&f->file)) != EOF)
 	  {
 	    if (ch == '/' && asterisk)
 	      break;
@@ -293,17 +293,17 @@ css_read(_css_file_t *f,		/* I - CSS file */
 	if (ch == '(' || (ch == '-' && (bufptr - buffer) == 4 && !memcmp(buffer, "<!--", 4)) || (ch == '>' && (bufptr - buffer) == 3 && !memcmp(buffer, "-->", 3)))
 	  break;
       }
-      while ((ch = _htmlcssFileGetc(&f->file)) != EOF);
+      while ((ch = _hcFileGetc(&f->file)) != EOF);
 
       if (bufptr == buffer)
         continue;
       else if (ch != EOF && !isspace(ch & 255) && ch != '(')
-	_htmlcssFileUngetc(ch, &f->file);
+	_hcFileUngetc(ch, &f->file);
 
       if (isdigit(*buffer & 255) || (*buffer == '.' && isdigit(buffer[1] & 255)))
-        *type = _CSS_TYPE_NUMBER;
+        *type = _HC_TYPE_NUMBER;
       else
-        *type = _CSS_TYPE_STRING;
+        *type = _HC_TYPE_STRING;
     }
 
     *bufptr = '\0';

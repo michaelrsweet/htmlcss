@@ -1,7 +1,7 @@
 /*
  * HTML header file for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/htmlcss
+ *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2018 by Michael R Sweet.
  *
@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLCSS_HTML_H
-#  define HTMLCSS_HTML_H
+#ifndef HTMLHC_HTML_H
+#  define HTMLHC_HTML_H
 
 /*
  * Include necessary headers...
@@ -30,191 +30,191 @@ extern "C" {
 
 typedef enum				/* HTML element enum */
 {
-  HTML_ELEMENT_UNKNOWN = -2,		/* Unknown element/directive */
-  HTML_ELEMENT_STRING = -1,		/* String */
-  HTML_ELEMENT_WILDCARD,		/* Wildcard (*) */
-  HTML_ELEMENT_COMMENT,			/* !-- */
-  HTML_ELEMENT_DOCTYPE,			/* !DOCTYPE */
-  HTML_ELEMENT_A,
-  HTML_ELEMENT_ABBR,
-  HTML_ELEMENT_ACRONYM,
-  HTML_ELEMENT_ADDRESS,
-  HTML_ELEMENT_APPLET,
-  HTML_ELEMENT_AREA,
-  HTML_ELEMENT_ARTICLE,
-  HTML_ELEMENT_ASIDE,
-  HTML_ELEMENT_AUDIO,
-  HTML_ELEMENT_B,
-  HTML_ELEMENT_BASE,
-  HTML_ELEMENT_BASEFONT,
-  HTML_ELEMENT_BDI,
-  HTML_ELEMENT_BDO,
-  HTML_ELEMENT_BIG,
-  HTML_ELEMENT_BLINK,
-  HTML_ELEMENT_BLOCKQUOTE,
-  HTML_ELEMENT_BODY,
-  HTML_ELEMENT_BR,
-  HTML_ELEMENT_BUTTON,
-  HTML_ELEMENT_CANVAS,
-  HTML_ELEMENT_CAPTION,
-  HTML_ELEMENT_CENTER,
-  HTML_ELEMENT_CITE,
-  HTML_ELEMENT_CODE,
-  HTML_ELEMENT_COL,
-  HTML_ELEMENT_COLGROUP,
-  HTML_ELEMENT_DATA,
-  HTML_ELEMENT_DATALIST,
-  HTML_ELEMENT_DD,
-  HTML_ELEMENT_DEL,
-  HTML_ELEMENT_DETAILS,
-  HTML_ELEMENT_DFN,
-  HTML_ELEMENT_DIALOG,
-  HTML_ELEMENT_DIR,
-  HTML_ELEMENT_DIV,
-  HTML_ELEMENT_DL,
-  HTML_ELEMENT_DT,
-  HTML_ELEMENT_EM,
-  HTML_ELEMENT_EMBED,
-  HTML_ELEMENT_FIELDSET,
-  HTML_ELEMENT_FIGCAPTION,
-  HTML_ELEMENT_FIGURE,
-  HTML_ELEMENT_FONT,
-  HTML_ELEMENT_FOOTER,
-  HTML_ELEMENT_FORM,
-  HTML_ELEMENT_FRAME,
-  HTML_ELEMENT_FRAMESET,
-  HTML_ELEMENT_H1,
-  HTML_ELEMENT_H2,
-  HTML_ELEMENT_H3,
-  HTML_ELEMENT_H4,
-  HTML_ELEMENT_H5,
-  HTML_ELEMENT_H6,
-  HTML_ELEMENT_HEAD,
-  HTML_ELEMENT_HEADER,
-  HTML_ELEMENT_HR,
-  HTML_ELEMENT_HTML,
-  HTML_ELEMENT_I,
-  HTML_ELEMENT_IFRAME,
-  HTML_ELEMENT_IMG,
-  HTML_ELEMENT_INPUT,
-  HTML_ELEMENT_INS,
-  HTML_ELEMENT_ISINDEX,
-  HTML_ELEMENT_KBD,
-  HTML_ELEMENT_LABEL,
-  HTML_ELEMENT_LEGEND,
-  HTML_ELEMENT_LI,
-  HTML_ELEMENT_LINK,
-  HTML_ELEMENT_MAIN,
-  HTML_ELEMENT_MAP,
-  HTML_ELEMENT_MARK,
-  HTML_ELEMENT_MENU,
-  HTML_ELEMENT_META,
-  HTML_ELEMENT_METER,
-  HTML_ELEMENT_MULTICOL,
-  HTML_ELEMENT_NAV,
-  HTML_ELEMENT_NOBR,
-  HTML_ELEMENT_NOFRAMES,
-  HTML_ELEMENT_NOSCRIPT,
-  HTML_ELEMENT_OBJECT,
-  HTML_ELEMENT_OL,
-  HTML_ELEMENT_OPTGROUP,
-  HTML_ELEMENT_OPTION,
-  HTML_ELEMENT_OUTPUT,
-  HTML_ELEMENT_P,
-  HTML_ELEMENT_PARAM,
-  HTML_ELEMENT_PICTURE,
-  HTML_ELEMENT_PRE,
-  HTML_ELEMENT_PROGRESS,
-  HTML_ELEMENT_Q,
-  HTML_ELEMENT_RB,
-  HTML_ELEMENT_RP,
-  HTML_ELEMENT_RT,
-  HTML_ELEMENT_RTC,
-  HTML_ELEMENT_RUBY,
-  HTML_ELEMENT_S,
-  HTML_ELEMENT_SAMP,
-  HTML_ELEMENT_SCRIPT,
-  HTML_ELEMENT_SECTION,
-  HTML_ELEMENT_SELECT,
-  HTML_ELEMENT_SMALL,
-  HTML_ELEMENT_SOURCE,
-  HTML_ELEMENT_SPACER,
-  HTML_ELEMENT_SPAN,
-  HTML_ELEMENT_STRIKE,
-  HTML_ELEMENT_STRONG,
-  HTML_ELEMENT_STYLE,
-  HTML_ELEMENT_SUB,
-  HTML_ELEMENT_SUMMARY,
-  HTML_ELEMENT_SUP,
-  HTML_ELEMENT_TABLE,
-  HTML_ELEMENT_TBODY,
-  HTML_ELEMENT_TD,
-  HTML_ELEMENT_TEMPLATE,
-  HTML_ELEMENT_TEXTAREA,
-  HTML_ELEMENT_TFOOT,
-  HTML_ELEMENT_TH,
-  HTML_ELEMENT_THEAD,
-  HTML_ELEMENT_TIME,
-  HTML_ELEMENT_TITLE,
-  HTML_ELEMENT_TR,
-  HTML_ELEMENT_TRACK,
-  HTML_ELEMENT_TT,
-  HTML_ELEMENT_U,
-  HTML_ELEMENT_UL,
-  HTML_ELEMENT_VAR,
-  HTML_ELEMENT_VIDEO,
-  HTML_ELEMENT_WBR,
-  HTML_ELEMENT_MAX
-} html_element_t;
+  HC_ELEMENT_UNKNOWN = -2,		/* Unknown element/directive */
+  HC_ELEMENT_STRING = -1,		/* String */
+  HC_ELEMENT_WILDCARD,			/* Wildcard (*) */
+  HC_ELEMENT_COMMENT,			/* !-- */
+  HC_ELEMENT_DOCTYPE,			/* !DOCTYPE */
+  HC_ELEMENT_A,
+  HC_ELEMENT_ABBR,
+  HC_ELEMENT_ACRONYM,
+  HC_ELEMENT_ADDRESS,
+  HC_ELEMENT_APPLET,
+  HC_ELEMENT_AREA,
+  HC_ELEMENT_ARTICLE,
+  HC_ELEMENT_ASIDE,
+  HC_ELEMENT_AUDIO,
+  HC_ELEMENT_B,
+  HC_ELEMENT_BASE,
+  HC_ELEMENT_BASEFONT,
+  HC_ELEMENT_BDI,
+  HC_ELEMENT_BDO,
+  HC_ELEMENT_BIG,
+  HC_ELEMENT_BLINK,
+  HC_ELEMENT_BLOCKQUOTE,
+  HC_ELEMENT_BODY,
+  HC_ELEMENT_BR,
+  HC_ELEMENT_BUTTON,
+  HC_ELEMENT_CANVAS,
+  HC_ELEMENT_CAPTION,
+  HC_ELEMENT_CENTER,
+  HC_ELEMENT_CITE,
+  HC_ELEMENT_CODE,
+  HC_ELEMENT_COL,
+  HC_ELEMENT_COLGROUP,
+  HC_ELEMENT_DATA,
+  HC_ELEMENT_DATALIST,
+  HC_ELEMENT_DD,
+  HC_ELEMENT_DEL,
+  HC_ELEMENT_DETAILS,
+  HC_ELEMENT_DFN,
+  HC_ELEMENT_DIALOG,
+  HC_ELEMENT_DIR,
+  HC_ELEMENT_DIV,
+  HC_ELEMENT_DL,
+  HC_ELEMENT_DT,
+  HC_ELEMENT_EM,
+  HC_ELEMENT_EMBED,
+  HC_ELEMENT_FIELDSET,
+  HC_ELEMENT_FIGCAPTION,
+  HC_ELEMENT_FIGURE,
+  HC_ELEMENT_FONT,
+  HC_ELEMENT_FOOTER,
+  HC_ELEMENT_FORM,
+  HC_ELEMENT_FRAME,
+  HC_ELEMENT_FRAMESET,
+  HC_ELEMENT_H1,
+  HC_ELEMENT_H2,
+  HC_ELEMENT_H3,
+  HC_ELEMENT_H4,
+  HC_ELEMENT_H5,
+  HC_ELEMENT_H6,
+  HC_ELEMENT_HEAD,
+  HC_ELEMENT_HEADER,
+  HC_ELEMENT_HR,
+  HC_ELEMENT_HTML,
+  HC_ELEMENT_I,
+  HC_ELEMENT_IFRAME,
+  HC_ELEMENT_IMG,
+  HC_ELEMENT_INPUT,
+  HC_ELEMENT_INS,
+  HC_ELEMENT_ISINDEX,
+  HC_ELEMENT_KBD,
+  HC_ELEMENT_LABEL,
+  HC_ELEMENT_LEGEND,
+  HC_ELEMENT_LI,
+  HC_ELEMENT_LINK,
+  HC_ELEMENT_MAIN,
+  HC_ELEMENT_MAP,
+  HC_ELEMENT_MARK,
+  HC_ELEMENT_MENU,
+  HC_ELEMENT_META,
+  HC_ELEMENT_METER,
+  HC_ELEMENT_MULTICOL,
+  HC_ELEMENT_NAV,
+  HC_ELEMENT_NOBR,
+  HC_ELEMENT_NOFRAMES,
+  HC_ELEMENT_NOSCRIPT,
+  HC_ELEMENT_OBJECT,
+  HC_ELEMENT_OL,
+  HC_ELEMENT_OPTGROUP,
+  HC_ELEMENT_OPTION,
+  HC_ELEMENT_OUTPUT,
+  HC_ELEMENT_P,
+  HC_ELEMENT_PARAM,
+  HC_ELEMENT_PICTURE,
+  HC_ELEMENT_PRE,
+  HC_ELEMENT_PROGRESS,
+  HC_ELEMENT_Q,
+  HC_ELEMENT_RB,
+  HC_ELEMENT_RP,
+  HC_ELEMENT_RT,
+  HC_ELEMENT_RTC,
+  HC_ELEMENT_RUBY,
+  HC_ELEMENT_S,
+  HC_ELEMENT_SAMP,
+  HC_ELEMENT_SCRIPT,
+  HC_ELEMENT_SECTION,
+  HC_ELEMENT_SELECT,
+  HC_ELEMENT_SMALL,
+  HC_ELEMENT_SOURCE,
+  HC_ELEMENT_SPACER,
+  HC_ELEMENT_SPAN,
+  HC_ELEMENT_STRIKE,
+  HC_ELEMENT_STRONG,
+  HC_ELEMENT_STYLE,
+  HC_ELEMENT_SUB,
+  HC_ELEMENT_SUMMARY,
+  HC_ELEMENT_SUP,
+  HC_ELEMENT_TABLE,
+  HC_ELEMENT_TBODY,
+  HC_ELEMENT_TD,
+  HC_ELEMENT_TEMPLATE,
+  HC_ELEMENT_TEXTAREA,
+  HC_ELEMENT_TFOOT,
+  HC_ELEMENT_TH,
+  HC_ELEMENT_THEAD,
+  HC_ELEMENT_TIME,
+  HC_ELEMENT_TITLE,
+  HC_ELEMENT_TR,
+  HC_ELEMENT_TRACK,
+  HC_ELEMENT_TT,
+  HC_ELEMENT_U,
+  HC_ELEMENT_UL,
+  HC_ELEMENT_VAR,
+  HC_ELEMENT_VIDEO,
+  HC_ELEMENT_WBR,
+  HC_ELEMENT_MAX
+} hc_element_t;
 
-typedef struct _css_s css_t;		/* CSS data */
+typedef struct _hc_css_s hc_css_t;	/* CSS data */
 
-typedef struct _html_node_s html_node_t;/* HTML node */
+typedef struct _hc_node_s hc_node_t;	/* HTML node */
 
-typedef struct _html_s html_t;		/* HTML document */
+typedef struct _hc_html_s hc_html_t;	/* HTML document */
 
 
 /*
  * Globals...
  */
 
-extern const char * const	htmlElements[HTML_ELEMENT_MAX];
+extern const char * const	hcElements[HC_ELEMENT_MAX];
 
 
 /*
  * Functions...
  */
 
-extern void		htmlDelete(html_t *html);
-extern void		htmlDeleteAttr(html_node_t *node, const char *name);
-extern void		htmlDeleteNode(html_t *html, html_node_t *node);
-extern html_node_t	*htmlFindNode(html_t *html, html_node_t *current, html_element_t element, const char *id);
-extern const char	*htmlGetAttr(html_node_t *node, const char *name);
-extern size_t		htmlGetAttrCount(html_node_t *node);
-extern const char	*htmlGetAttrIndex(html_node_t *node, size_t idx, const char **name);
-extern const char	*htmlGetComment(html_node_t *node);
-extern css_t		*htmlGetCSS(html_t *html);
-extern const char	*htmlGetDOCTYPE(html_t *html);
-extern html_element_t	htmlGetElement(html_node_t *node);
-extern html_node_t	*htmlGetFirstChildNode(html_node_t *node);
-extern html_node_t	*htmlGetLastChildNode(html_node_t *node);
-extern html_node_t	*htmlGetNextSiblingNode(html_node_t *node);
-extern html_node_t	*htmlGetParentNode(html_node_t *node);
-extern html_node_t	*htmlGetPrevSiblingNode(html_node_t *node);
-extern html_node_t	*htmlGetRootNode(html_t *html);
-extern const char	*htmlGetString(html_node_t *node);
-extern int		htmlLoad(html_t *html, const char *url, FILE *fp);
-extern html_t		*htmlNew(htmlcss_pool_t *pool, css_t *css);
-extern void		htmlNewAttr(html_node_t *node, const char *name, const char *value);
-extern html_node_t	*htmlNewComment(html_node_t *parent, const char *c);
-extern html_node_t	*htmlNewElement(html_node_t *parent, html_element_t element);
-extern html_node_t	*htmlNewRoot(html_t *html, const char *doctype);
-extern html_node_t	*htmlNewString(html_node_t *parent, const char *s);
-extern void		htmlSetErrorCallback(html_t *html, htmlcss_error_cb_t cb, void *ctx);
-extern void		htmlSetURLCallback(html_t *html, htmlcss_url_cb_t cb, void *ctx);
+extern void		hcHTMLDelete(hc_html_t *html);
+extern void		hcNodeAttrRemove(hc_node_t *node, const char *name);
+extern void		hcNodeDelete(hc_html_t *html, hc_node_t *node);
+extern hc_node_t	*hcHTMLFindNode(hc_html_t *html, hc_node_t *current, hc_element_t element, const char *id);
+extern const char	*hcNodeAttrGet(hc_node_t *node, const char *name);
+extern size_t		hcNodeAttrCount(hc_node_t *node);
+extern const char	*hcNodeAttrIndex(hc_node_t *node, size_t idx, const char **name);
+extern const char	*hcNodeGetComment(hc_node_t *node);
+extern hc_css_t		*hcHTMLGetCSS(hc_html_t *html);
+extern const char	*hcNodeGetDOCTYPE(hc_html_t *html);
+extern hc_element_t	hcNodeGetElement(hc_node_t *node);
+extern hc_node_t	*hcNodeGetFirstChildNode(hc_node_t *node);
+extern hc_node_t	*hcNodeGetLastChildNode(hc_node_t *node);
+extern hc_node_t	*hcNodeGetNextSiblingNode(hc_node_t *node);
+extern hc_node_t	*hcNodeGetParentNode(hc_node_t *node);
+extern hc_node_t	*hcNodeGetPrevSiblingNode(hc_node_t *node);
+extern hc_node_t	*hcHTMLGetRootNode(hc_html_t *html);
+extern const char	*hcNodeGetString(hc_node_t *node);
+extern int		hcHTMLLoad(hc_html_t *html, const char *url, FILE *fp);
+extern hc_html_t	*hcNewHTML(hc_pool_t *pool, hc_css_t *css);
+extern void		hcNodeAttrSet(hc_node_t *node, const char *name, const char *value);
+extern hc_node_t	*hcNodeNewComment(hc_node_t *parent, const char *c);
+extern hc_node_t	*hcNodeNewElement(hc_node_t *parent, hc_element_t element);
+extern hc_node_t	*hcHTMLNewRoot(hc_html_t *html, const char *doctype);
+extern hc_node_t	*hcNodeNewString(hc_node_t *parent, const char *s);
+extern void		hcHTMLSetErrorCallback(hc_html_t *html, hc_error_cb_t cb, void *ctx);
+extern void		hcHTMLSetURLCallback(hc_html_t *html, hc_url_cb_t cb, void *ctx);
 
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
 
-#endif /* !HTMLCSS_HTML_H */
+#endif /* !HTMLHC_HTML_H */

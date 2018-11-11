@@ -1,7 +1,7 @@
 /*
  * HTML core functions for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/htmlcss
+ *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2018 by Michael R Sweet.
  *
@@ -21,7 +21,7 @@
  * HTML element strings...
  */
 
-const char * const	htmlElements[HTML_ELEMENT_MAX] =
+const char * const	hcElements[HC_ELEMENT_MAX] =
 {
   "" /* "*" */
   "!--",
@@ -159,48 +159,48 @@ const char * const	htmlElements[HTML_ELEMENT_MAX] =
 
 
 /*
- * 'htmlDelete()' - Free the memory used by a HTML document.
+ * 'hcHTMLDelete()' - Free the memory used by a HTML document.
  */
 
 void
-htmlDelete(html_t *html)		/* I - HTML document */
+hcHTMLDelete(hc_html_t *html)		/* I - HTML document */
 {
   if (html)
   {
-    htmlDeleteNode(html, html->root);
+    hcNodeDelete(html, html->root);
     free(html);
   }
 }
 
 
 /*
- * 'htmlGetCSS()' - Get the stylesheet for a HTML document.
+ * 'hcHTMLGetCSS()' - Get the stylesheet for a HTML document.
  */
 
-css_t *					/* O - Stylesheet */
-htmlGetCSS(html_t *html)		/* I - HTML document */
+hc_css_t *					/* O - Stylesheet */
+hcHTMLGetCSS(hc_html_t *html)		/* I - HTML document */
 {
   return (html ? html->css : NULL);
 }
 
 
 /*
- * 'htmlNew()' - Create a new HTML document.
+ * 'hcNodeNew()' - Create a new HTML document.
  */
 
-html_t *				/* O - HTML document */
-htmlNew(htmlcss_pool_t *pool,		/* I - Memory pool */
-        css_t          *css)		/* I - Base stylesheet */
+hc_html_t *				/* O - HTML document */
+hcNewHTML(hc_pool_t *pool,		/* I - Memory pool */
+          hc_css_t  *css)		/* I - Base stylesheet */
 {
-  html_t *html;				/* New HTML document */
+  hc_html_t *html;			/* New HTML document */
 
 
-  if ((html = (html_t *)calloc(1, sizeof(html_t))) != NULL)
+  if ((html = (hc_html_t *)calloc(1, sizeof(hc_html_t))) != NULL)
   {
     html->pool     = pool;
     html->css      = css;
-    html->error_cb = _htmlcssDefaultErrorCB;
-    html->url_cb   = _htmlcssDefaultURLCB;
+    html->error_cb = _hcDefaultErrorCB;
+    html->url_cb   = _hcDefaultURLCB;
   }
 
   return (html);
@@ -208,7 +208,7 @@ htmlNew(htmlcss_pool_t *pool,		/* I - Memory pool */
 
 
 /*
- * 'htmlSetErrorCallback()' - Set the error reporting callback.
+ * 'hcHTMLSetErrorCallback()' - Set the error reporting callback.
  *
  * The default error callback writes the message to `stderr`.
  *
@@ -216,21 +216,21 @@ htmlNew(htmlcss_pool_t *pool,		/* I - Memory pool */
  */
 
 void
-htmlSetErrorCallback(
-    html_t             *html,		/* I - HTML document */
-    htmlcss_error_cb_t cb,		/* I - Error callback or `NULL` for the default */
+hcHTMLSetErrorCallback(
+    hc_html_t             *html,		/* I - HTML document */
+    hc_error_cb_t cb,		/* I - Error callback or `NULL` for the default */
     void               *ctx)		/* I - Context pointer for callback */
 {
   if (!html)
     return;
 
-  html->error_cb  = cb ? cb : _htmlcssDefaultErrorCB;
+  html->error_cb  = cb ? cb : _hcDefaultErrorCB;
   html->error_ctx = ctx;
 }
 
 
 /*
- * 'htmlSetURLCallback()' - Set the URL callback.
+ * 'hcHTMLSetURLCallback()' - Set the URL callback.
  *
  * The default URL callback supports local files (only).
  *
@@ -239,14 +239,14 @@ htmlSetErrorCallback(
  */
 
 void
-htmlSetURLCallback(
-    html_t           *html,		/* I - HTML document */
-    htmlcss_url_cb_t cb,		/* I - URL callback or `NULL` for the default */
+hcHTMLSetURLCallback(
+    hc_html_t           *html,		/* I - HTML document */
+    hc_url_cb_t cb,		/* I - URL callback or `NULL` for the default */
     void             *ctx)		/* I - Context pointer for callback */
 {
   if (!html)
     return;
 
-  html->url_cb  = cb ? cb : _htmlcssDefaultURLCB;
+  html->url_cb  = cb ? cb : _hcDefaultURLCB;
   html->url_ctx = ctx;
 }

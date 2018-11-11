@@ -1,7 +1,7 @@
 /*
  * Common header file for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/htmlcss
+ *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2018 by Michael R Sweet.
  *
@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLCSS_COMMON_H
-#  define HTMLCSS_COMMON_H
+#ifndef HTMLHC_COMMON_H
+#  define HTMLHC_COMMON_H
 
 /*
  * Include necessary headers...
@@ -31,11 +31,11 @@ extern "C" {
  * Types...
  */
 
-typedef int (*htmlcss_error_cb_t)(const char *message, int linenum, void *ctx);
-typedef char *(*htmlcss_url_cb_t)(const char *url, char *buffer, size_t bufsize, void *ctx);
+typedef int (*hc_error_cb_t)(const char *message, int linenum, void *ctx);
+typedef char *(*hc_url_cb_t)(const char *url, char *buffer, size_t bufsize, void *ctx);
 
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
 
-#endif /* !HTMLCSS_COMMON_H */
+#endif /* !HTMLHC_COMMON_H */

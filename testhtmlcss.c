@@ -1,7 +1,7 @@
 /*
  * Unit test program for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/htmlcss
+ *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2018 by Michael R Sweet.
  *
@@ -26,35 +26,35 @@ main(int  argc,				/* I - Number of command-line arguments */
 {
   int		i;			/* Looping var */
   const char	*ext;			/* Filename extension */
-  htmlcss_pool_t *pool;			/* Memory pool */
-  css_t		*css;			/* Stylesheet */
-  html_t	*html;			/* HTML document */
-  html_node_t	*node,			/* Current node */
+  hc_pool_t	*pool;			/* Memory pool */
+  hc_css_t	*css;			/* Stylesheet */
+  hc_html_t	*html;			/* HTML document */
+  hc_node_t	*node,			/* Current node */
 		*next;			/* Next node */
   int		level;			/* Indentation level */
 
 
-  pool = htmlcssNewPool();
-  css  = cssNew(pool);
-  html = htmlNew(pool, css);
+  pool = hcNewPool();
+  css  = hcNewCSS(pool);
+  html = hcNewHTML(pool, css);
 
   for (i = 1; i < argc; i ++)
   {
     if ((ext = strrchr(argv[i], '.')) == NULL || strcmp(ext, ".css"))
-      htmlLoad(html, argv[i], NULL);
+      hcHTMLLoad(html, argv[i], NULL);
     else
-      cssImport(css, argv[i], NULL, NULL);
+      hcCSSImport(css, argv[i], NULL, NULL);
   }
 
-  for (node = htmlGetRootNode(html), level = 0; node; node = next)
+  for (node = hcHTMLGetRootNode(html), level = 0; node; node = next)
   {
-    html_element_t element = htmlGetElement(node);
+    hc_element_t element = hcNodeGetElement(node);
 
     printf("%*s", level * 2, "");
 
-    if (element == HTML_ELEMENT_STRING)
+    if (element == HC_ELEMENT_STRING)
     {
-      const char *s = htmlGetString(node);
+      const char *s = hcNodeGetString(node);
 
       while (*s)
       {
@@ -68,47 +68,47 @@ main(int  argc,				/* I - Number of command-line arguments */
 
       putchar('\n');
     }
-    else if (element == HTML_ELEMENT_COMMENT)
-      printf("<!-- %s -->\n", htmlGetComment(node));
-    else if (element == HTML_ELEMENT_DOCTYPE)
-      printf("<!DOCTYPE %s>\n", htmlGetAttr(node, ""));
+    else if (element == HC_ELEMENT_COMMENT)
+      printf("<!-- %s -->\n", hcNodeGetComment(node));
+    else if (element == HC_ELEMENT_DOCTYPE)
+      printf("<!DOCTYPE %s>\n", hcNodeAttrGet(node, ""));
     else
     {
-      int idx, count = htmlGetAttrCount(node);
+      int idx, count = hcNodeAttrCount(node);
 
-      printf("<%s", htmlElements[element]);
+      printf("<%s", hcElements[element]);
       for (idx = 0; idx < count; idx ++)
       {
-	const char *name, *value = htmlGetAttrIndex(node, idx, &name);
+	const char *name, *value = hcNodeAttrIndex(node, idx, &name);
 	printf(" %s=\"%s\"", name, value);
       }
       puts(">");
     }
 
-    if ((next = htmlGetFirstChildNode(node)) != NULL)
+    if ((next = hcNodeGetFirstChildNode(node)) != NULL)
       level += 2;
     else
     {
-      if ((next = htmlGetNextSiblingNode(node)) == NULL)
+      if ((next = hcNodeGetNextSiblingNode(node)) == NULL)
       {
-	next = htmlGetParentNode(node);
+	next = hcNodeGetParentNode(node);
 	level -= 2;
 
-	while (next && !htmlGetNextSiblingNode(next))
+	while (next && !hcNodeGetNextSiblingNode(next))
 	{
-	  next = htmlGetParentNode(next);
+	  next = hcNodeGetParentNode(next);
 	  level -= 2;
 	}
 
 	if (next)
-	  next = htmlGetNextSiblingNode(next);
+	  next = hcNodeGetNextSiblingNode(next);
       }
     }
   }
 
-  htmlDelete(html);
-  cssDelete(css);
-  htmlcssPoolDelete(pool);
+  hcHTMLDelete(html);
+  hcCSSDelete(css);
+  hcPoolDelete(pool);
 
   return (0);
 }

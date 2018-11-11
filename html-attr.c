@@ -1,7 +1,7 @@
 /*
  * HTML attribute functions for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/htmlcss
+ *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2018 by Michael R Sweet.
  *
@@ -17,76 +17,76 @@
 
 
 /*
- * 'htmlDeleteAttr()' - Delete an element attribute.
+ * 'hcNodeAttrRemove()' - Delete an element attribute.
  */
 
 void
-htmlDeleteAttr(html_node_t *node,	/* I - Element node */
+hcNodeAttrRemove(hc_node_t *node,	/* I - Element node */
                const char  *name)	/* I - Attribute name */
 {
-  if (!node || node->element < HTML_ELEMENT_DOCTYPE || !name)
+  if (!node || node->element < HC_ELEMENT_DOCTYPE || !name)
     return;
 
-  htmlcssDictRemove(node->value.element.attrs, name);
+  hcDictRemove(node->value.element.attrs, name);
 }
 
 
 /*
- * 'htmlGetAttr()' - Get the value of an element attribute.
+ * 'hcNodeAttrGet()' - Get the value of an element attribute.
  */
 
 const char *				/* O - Value or `NULL` if not present */
-htmlGetAttr(html_node_t *node,		/* I - Element node */
+hcNodeAttrGet(hc_node_t *node,		/* I - Element node */
             const char  *name)		/* I - Attribute name */
 {
-  if (!node || node->element < HTML_ELEMENT_DOCTYPE || !name)
+  if (!node || node->element < HC_ELEMENT_DOCTYPE || !name)
     return (NULL);
 
-  return (htmlcssDictGet(node->value.element.attrs, name));
+  return (hcDictGet(node->value.element.attrs, name));
 }
 
 
 /*
- * 'htmlGetAttrCount()' - Get the number of attributes for an element.
+ * 'hcNodeAttrCount()' - Get the number of attributes for an element.
  */
 
 size_t					/* O - Number of attributes */
-htmlGetAttrCount(html_node_t *node)	/* I - Element node */
+hcNodeAttrCount(hc_node_t *node)	/* I - Element node */
 {
-  if (!node || node->element < HTML_ELEMENT_DOCTYPE)
+  if (!node || node->element < HC_ELEMENT_DOCTYPE)
     return (0);
   else
-    return (htmlcssDictCount(node->value.element.attrs));
+    return (hcDictCount(node->value.element.attrs));
 }
 
 
 /*
- * 'htmlGetAttrIndex()' - Get the name and value of a specified attribute.
+ * 'hcNodeAttrIndex()' - Get the name and value of a specified attribute.
  */
 
 const char *				/* O - Attribute value or `NULL` */
-htmlGetAttrIndex(html_node_t *node,	/* I - Element node */
+hcNodeAttrIndex(hc_node_t *node,	/* I - Element node */
                  size_t      idx,	/* I - Attribute index (0-based) */
                  const char  **name)	/* O - Attribute name */
 {
-  if (!node || node->element < HTML_ELEMENT_DOCTYPE || !name)
+  if (!node || node->element < HC_ELEMENT_DOCTYPE || !name)
     return (NULL);
 
-  return (htmlcssDictIndex(node->value.element.attrs, idx, name));
+  return (hcDictIndex(node->value.element.attrs, idx, name));
 }
 
 
 /*
- * 'htmlNewAttr()' - Add an element attribute.
+ * 'hcNodeAttrSet()' - Add an element attribute.
  */
 
 void
-htmlNewAttr(html_node_t *node,		/* I - Element node */
+hcNodeAttrSet(hc_node_t *node,		/* I - Element node */
             const char  *name,		/* I - Attribute name */
             const char  *value)		/* I - Attribute value */
 {
-  if (!node || node->element < HTML_ELEMENT_DOCTYPE || !name || !value)
+  if (!node || node->element < HC_ELEMENT_DOCTYPE || !name || !value)
     return;
 
-  htmlcssDictSet(node->value.element.attrs, name, value);
+  hcDictSet(node->value.element.attrs, name, value);
 }

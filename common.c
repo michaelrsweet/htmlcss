@@ -1,7 +1,7 @@
 /*
  * Common functions for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/htmlcss
+ *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2018 by Michael R Sweet.
  *
@@ -18,12 +18,12 @@
 
 
 /*
- * '_htmlcssError()' - Display an error message.
+ * '_hcError()' - Display an error message.
  */
 
 int					/* O - 1 to continue, 0 to stop */
-_htmlcssError(
-    htmlcss_error_cb_t error_cb,	/* I - Error callback */
+_hcError(
+    hc_error_cb_t error_cb,	/* I - Error callback */
     void               *ctx,		/* I - Context pointer */
     const char         *url,		/* I - Filename/URL or `NULL` */
     int                linenum,		/* I - Line number in file or 0 */
@@ -55,11 +55,11 @@ _htmlcssError(
 
 
 /*
- * '_htmlcssDefaultErrorCB()' - Default error callback.
+ * '_hcDefaultErrorCB()' - Default error callback.
  */
 
 int					/* O - 1 to continue, 0 to stop */
-_htmlcssDefaultErrorCB(
+_hcDefaultErrorCB(
     const char *message,		/* I - Message string */
     int        linenum,			/* I - Line number (unused) */
     void       *ctx)			/* I - Context pointer (unused) */
@@ -75,11 +75,11 @@ _htmlcssDefaultErrorCB(
 
 
 /*
- * '_htmlcssDefaultURLCB()' - Default URL callback.
+ * '_hcDefaultURLCB()' - Default URL callback.
  */
 
 char *					/* O - Local path to URL or `NULL` */
-_htmlcssDefaultURLCB(
+_hcDefaultURLCB(
     const char *url,			/* I - URL or filename */
     char       *buffer,			/* I - Filename buffer */
     size_t     bufsize,			/* I - Size of filename buffer */

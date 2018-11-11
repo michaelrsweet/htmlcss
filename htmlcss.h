@@ -1,7 +1,7 @@
 /*
  * Main header file for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/htmlcss
+ *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2018 by Michael R Sweet.
  *
@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLCSS_H
-#  define HTMLCSS_H
+#ifndef HTMLHC_H
+#  define HTMLHC_H
 
 /*
  * Include necessary headers...
@@ -20,4 +20,4 @@
 #  include "html.h"
 #  include "run.h"
 
-#endif /* !HTMLCSS_H */
+#endif /* !HTMLHC_H */

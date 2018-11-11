@@ -1,7 +1,7 @@
 /*
  * Common private header file for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/htmlcss
+ *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2018 by Michael R Sweet.
  *
@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLCSS_COMMON_PRIVATE_H
-#  define HTMLCSS_COMMON_PRIVATE_H
+#ifndef HTMLHC_COMMON_PRIVATE_H
+#  define HTMLHC_COMMON_PRIVATE_H
 
 /*
  * Include necessary headers...
@@ -71,25 +71,25 @@ extern "C" {
  * Types...
  */
 
-typedef struct _htmlcss_file_s
+typedef struct _hc_file_s
 {
   const char	*url;			/* URL or filename */
   FILE		*fp;			/* File pointer */
   const char	*s,			/* String */
 		*sptr;			/* Pointer into string */
   int		linenum;		/* Current line number */
-} _htmlcss_file_t;
+} _hc_file_t;
 
 
 /*
  * Functions...
  */
 
-extern int	_htmlcssDefaultErrorCB(const char *message, int linenum, void *ctx);
-extern char	*_htmlcssDefaultURLCB(const char *url, char *buffer, size_t bufsize, void *ctx);
-extern int	_htmlcssError(htmlcss_error_cb_t error_cb, void *ctx, const char *url, int linenum, const char *message, ...);
+extern int	_hcDefaultErrorCB(const char *message, int linenum, void *ctx);
+extern char	*_hcDefaultURLCB(const char *url, char *buffer, size_t bufsize, void *ctx);
+extern int	_hcError(hc_error_cb_t error_cb, void *ctx, const char *url, int linenum, const char *message, ...);
 
-static inline int _htmlcssFileGetc(_htmlcss_file_t *f)
+static inline int _hcFileGetc(_hc_file_t *f)
 {
   int	ch;				/* Current character */
 
@@ -105,7 +105,7 @@ static inline int _htmlcssFileGetc(_htmlcss_file_t *f)
 
   return (ch);
 }
-static inline void _htmlcssFileUngetc(int ch, _htmlcss_file_t *f)
+static inline void _hcFileUngetc(int ch, _hc_file_t *f)
 {
   if (f->sptr && f->sptr > f->s)
     (f->sptr) --;
@@ -121,4 +121,4 @@ static inline void _htmlcssFileUngetc(int ch, _htmlcss_file_t *f)
 }
 #  endif /* __cplusplus */
 
-#endif /* !HTMLCSS_COMMON_PRIVATE_H */
+#endif /* !HTMLHC_COMMON_PRIVATE_H */

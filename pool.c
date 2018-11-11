@@ -1,7 +1,7 @@
 /*
  * Memory pool functions for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/htmlcss
+ *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2018 by Michael R Sweet.
  *
@@ -21,7 +21,7 @@
  * Local types...
  */
 
-struct _htmlcss_pool_s			/* Memory pool */
+struct _hc_pool_s			/* Memory pool */
 {
   size_t	num_strings;		/* Number of strings in pool */
   size_t	alloc_strings;		/* Allocated size of strings array */
@@ -37,18 +37,18 @@ static int	compare_strings(char **a, char **b);
 
 
 /*
- * 'htmlcssNewPool()' - Create a new memory pool.
+ * 'hcNewPool()' - Create a new memory pool.
  */
 
-htmlcss_pool_t *			/* O - New memory pool */
-htmlcssNewPool(void)
+hc_pool_t *			/* O - New memory pool */
+hcNewPool(void)
 {
-  return ((htmlcss_pool_t *)calloc(1, sizeof(htmlcss_pool_t)));
+  return ((hc_pool_t *)calloc(1, sizeof(hc_pool_t)));
 }
 
 
 /*
- * 'htmlcssPoolAllocString()' - Find or copy a string.
+ * 'hcPoolAllocString()' - Find or copy a string.
  *
  * This function finds or makes a copy of the passed string that will be freed
  * when the corresponding memory pool is deleted.  Since the memory pool only
@@ -56,8 +56,8 @@ htmlcssNewPool(void)
  */
 
 const char *				/* O - New string pointer */
-htmlcssPoolAllocString(
-    htmlcss_pool_t *pool,		/* I - Memory pool */
+hcPoolAllocString(
+    hc_pool_t *pool,		/* I - Memory pool */
     const char     *s)			/* I - String to find/copy */
 {
   char	**temp;				/* Temporary string pointer */
@@ -95,11 +95,11 @@ htmlcssPoolAllocString(
 
 
 /*
- * 'htmlcssPoolDelete()' - Free the memory used by a pool.
+ * 'hcPoolDelete()' - Free the memory used by a pool.
  */
 
 void
-htmlcssPoolDelete(htmlcss_pool_t *pool)	/* I - Memory pool */
+hcPoolDelete(hc_pool_t *pool)	/* I - Memory pool */
 {
   if (pool)
   {

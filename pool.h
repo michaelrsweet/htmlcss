@@ -1,7 +1,7 @@
 /*
  * Memory pool header file for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/htmlcss
+ *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2018 by Michael R Sweet.
  *
@@ -9,8 +9,8 @@
  * information.
  */
 
-#ifndef HTMLCSS_POOL_H
-#  define HTMLCSS_POOL_H
+#ifndef HTMLHC_POOL_H
+#  define HTMLHC_POOL_H
 
 /*
  * Include necessary headers...
@@ -28,7 +28,7 @@ extern "C" {
  * Types...
  */
 
-typedef struct _htmlcss_pool_s htmlcss_pool_t;
+typedef struct _hc_pool_s hc_pool_t;
 					/* Memory allocation pool */
 
 
@@ -36,12 +36,12 @@ typedef struct _htmlcss_pool_s htmlcss_pool_t;
  * Functions...
  */
 
-extern htmlcss_pool_t	*htmlcssNewPool(void);
-extern const char	*htmlcssPoolAllocString(htmlcss_pool_t *pool, const char *s);
-extern void		htmlcssPoolDelete(htmlcss_pool_t *pool);
+extern hc_pool_t	*hcNewPool(void);
+extern const char	*hcPoolAllocString(hc_pool_t *pool, const char *s);
+extern void		hcPoolDelete(hc_pool_t *pool);
 
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */
 
-#endif /* !HTMLCSS_HTML_H */
+#endif /* !HTMLHC_HTML_H */

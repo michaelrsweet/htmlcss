@@ -1,7 +1,7 @@
 /*
  * HTML node functions for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/htmlcss
+ *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2018 by Michael R Sweet.
  *
@@ -20,20 +20,20 @@
  * Local functions...
  */
 
-static void		html_delete(html_node_t *node);
-static html_node_t	*html_new(html_node_t *parent, html_element_t element, const char *s);
-static void		html_remove(html_node_t *node);
+static void		html_delete(hc_node_t *node);
+static hc_node_t	*html_new(hc_node_t *parent, hc_element_t element, const char *s);
+static void		html_remove(hc_node_t *node);
 
 
 /*
- * 'htmlDeleteNode()' - Delete a HTML node from a document.
+ * 'hcNodeDelete()' - Delete a HTML node from a document.
  */
 
 void
-htmlDeleteNode(html_t      *html,	/* I - HTML document */
-               html_node_t *node)	/* I - HTML node */
+hcNodeDelete(hc_html_t      *html,	/* I - HTML document */
+               hc_node_t *node)	/* I - HTML node */
 {
-  html_node_t	*current,		/* Current node */
+  hc_node_t	*current,		/* Current node */
 		*next;			/* Next node */
 
 
@@ -51,7 +51,7 @@ htmlDeleteNode(html_t      *html,	/* I - HTML document */
     * Get the next node...
     */
 
-    if ((next = htmlGetFirstChildNode(current)) != NULL)
+    if ((next = hcNodeGetFirstChildNode(current)) != NULL)
     {
      /*
       * Free parent nodes after child nodes have been freed...
@@ -87,141 +87,141 @@ htmlDeleteNode(html_t      *html,	/* I - HTML document */
 
 
 /*
- * 'htmlGetComment()' - Get a HTML node's comment value, if any.
+ * 'hcNodeGetComment()' - Get a HTML node's comment value, if any.
  */
 
 const char *				/* O - Comment value */
-htmlGetComment(html_node_t *node)	/* I - HTML node */
+hcNodeGetComment(hc_node_t *node)	/* I - HTML node */
 {
-  return (node && node->element == HTML_ELEMENT_COMMENT ? node->value.comment : NULL);
+  return (node && node->element == HC_ELEMENT_COMMENT ? node->value.comment : NULL);
 }
 
 
 /*
- * 'htmlGetDOCTYPE()' - Get a HTML document's DOCTYPE value, if any.
+ * 'hcNodeGetDOCTYPE()' - Get a HTML document's DOCTYPE value, if any.
  */
 
 const char *				/* O - DOCTYPE value */
-htmlGetDOCTYPE(html_t *html)		/* I - HTML document */
+hcNodeGetDOCTYPE(hc_html_t *html)		/* I - HTML document */
 {
-  return (html && html->root ? htmlGetAttr(html->root, "") : NULL);
+  return (html && html->root ? hcNodeAttrGet(html->root, "") : NULL);
 }
 
 
 /*
- * 'htmlGetElement()' - Get a HTML node's element/type.
+ * 'hcNodeGetElement()' - Get a HTML node's element/type.
  */
 
-html_element_t				/* O - Node element/type */
-htmlGetElement(html_node_t *node)	/* I - HTML node */
+hc_element_t				/* O - Node element/type */
+hcNodeGetElement(hc_node_t *node)	/* I - HTML node */
 {
-  return (node ? node->element : HTML_ELEMENT_WILDCARD);
+  return (node ? node->element : HC_ELEMENT_WILDCARD);
 }
 
 
 /*
- * 'htmlGetFirstChildNode()' - Get a HTML node's first child node, if any.
+ * 'hcNodeGetFirstChildNode()' - Get a HTML node's first child node, if any.
  */
 
-html_node_t *				/* O - First child node or `NULL` if none */
-htmlGetFirstChildNode(html_node_t *node)/* I - HTML node */
+hc_node_t *				/* O - First child node or `NULL` if none */
+hcNodeGetFirstChildNode(hc_node_t *node)/* I - HTML node */
 {
-  return (node && node->element >= HTML_ELEMENT_DOCTYPE ? node->value.element.first_child : NULL);
+  return (node && node->element >= HC_ELEMENT_DOCTYPE ? node->value.element.first_child : NULL);
 }
 
 
 /*
- * 'htmlGetLastChildNode()' - Get a HTML node's last child node, if any.
+ * 'hcNodeGetLastChildNode()' - Get a HTML node's last child node, if any.
  */
 
-html_node_t *				/* O - Last child node or `NULL` if none */
-htmlGetLastChildNode(html_node_t *node)	/* I - HTML node */
+hc_node_t *				/* O - Last child node or `NULL` if none */
+hcNodeGetLastChildNode(hc_node_t *node)	/* I - HTML node */
 {
-  return (node && node->element >= HTML_ELEMENT_DOCTYPE ? node->value.element.last_child : NULL);
+  return (node && node->element >= HC_ELEMENT_DOCTYPE ? node->value.element.last_child : NULL);
 }
 
 
 /*
- * 'htmlGetNextSiblingNode()' - Get a HTML node's next sibling node, if any.
+ * 'hcNodeGetNextSiblingNode()' - Get a HTML node's next sibling node, if any.
  */
 
-html_node_t *				/* O - Next sibling node or `NULL` if none */
-htmlGetNextSiblingNode(
-    html_node_t *node)			/* I - HTML node */
+hc_node_t *				/* O - Next sibling node or `NULL` if none */
+hcNodeGetNextSiblingNode(
+    hc_node_t *node)			/* I - HTML node */
 {
   return (node ? node->next_sibling : NULL);
 }
 
 
 /*
- * 'htmlGetParentNode()' - Get a HTML node's parent node, if any.
+ * 'hcNodeGetParentNode()' - Get a HTML node's parent node, if any.
  */
 
-html_node_t *				/* O - Parent node or `NULL` if none */
-htmlGetParentNode(html_node_t *node)	/* I - HTML node */
+hc_node_t *				/* O - Parent node or `NULL` if none */
+hcNodeGetParentNode(hc_node_t *node)	/* I - HTML node */
 {
   return (node ? node->parent : NULL);
 }
 
 
 /*
- * 'htmlGetPrevSiblingNode()' - Get a HTML node's previous sibling node, if any.
+ * 'hcNodeGetPrevSiblingNode()' - Get a HTML node's previous sibling node, if any.
  */
 
-html_node_t *				/* O - Previous sibling node or `NULL` if none */
-htmlGetPrevSiblingNode(
-    html_node_t *node)			/* I - HTML node */
+hc_node_t *				/* O - Previous sibling node or `NULL` if none */
+hcNodeGetPrevSiblingNode(
+    hc_node_t *node)			/* I - HTML node */
 {
   return (node ? node->prev_sibling : NULL);
 }
 
 
 /*
- * 'htmlGetRootNode()' - Get the root node for a document.
+ * 'hcHTMLGetRootNode()' - Get the root node for a document.
  */
 
-html_node_t *				/* O - Root node or `NULL` if none */
-htmlGetRootNode(html_t *html)		/* I - HTML document */
+hc_node_t *				/* O - Root node or `NULL` if none */
+hcHTMLGetRootNode(hc_html_t *html)		/* I - HTML document */
 {
   return (html ? html->root : NULL);
 }
 
 
 /*
- * 'htmlGetString()' - Get a HTML node's string value, if any.
+ * 'hcNodeGetString()' - Get a HTML node's string value, if any.
  */
 
 const char *				/* O - String value */
-htmlGetString(html_node_t *node)	/* I - HTML node */
+hcNodeGetString(hc_node_t *node)	/* I - HTML node */
 {
-  return (node && node->element == HTML_ELEMENT_STRING ? node->value.string : NULL);
+  return (node && node->element == HC_ELEMENT_STRING ? node->value.string : NULL);
 }
 
 
 /*
- * 'htmlNewComment()' - Create a new HTML comment node.
+ * 'hcNodeNewComment()' - Create a new HTML comment node.
  */
 
-html_node_t *				/* O - New HTML comment node */
-htmlNewComment(html_node_t *parent,	/* I - Parent node */
+hc_node_t *				/* O - New HTML comment node */
+hcNodeNewComment(hc_node_t *parent,	/* I - Parent node */
                const char  *c)		/* I - Comment value */
 {
   if (!parent || !c)
     return (NULL);
 
-  return (html_new(parent, HTML_ELEMENT_COMMENT, c));
+  return (html_new(parent, HC_ELEMENT_COMMENT, c));
 }
 
 
 /*
- * 'htmlNewElement()' - Create a new HTML element node.
+ * 'hcNodeNewElement()' - Create a new HTML element node.
  */
 
-html_node_t *				/* O - New HTML element node */
-htmlNewElement(html_node_t    *parent,	/* I - Parent node */
-               html_element_t element)	/* I - HTML element */
+hc_node_t *				/* O - New HTML element node */
+hcNodeNewElement(hc_node_t    *parent,	/* I - Parent node */
+               hc_element_t element)	/* I - HTML element */
 {
-  if (!parent || element <= HTML_ELEMENT_DOCTYPE || element >= HTML_ELEMENT_MAX)
+  if (!parent || element <= HC_ELEMENT_DOCTYPE || element >= HC_ELEMENT_MAX)
     return (NULL);
 
   return (html_new(parent, element, NULL));
@@ -229,23 +229,23 @@ htmlNewElement(html_node_t    *parent,	/* I - Parent node */
 
 
 /*
- * 'htmlNewRoot()' - Create a new root node.
+ * 'hcHTMLNewRoot()' - Create a new root node.
  */
 
-html_node_t *				/* O - New root node */
-htmlNewRoot(html_t     *html,		/* I - HTML document */
+hc_node_t *				/* O - New root node */
+hcHTMLNewRoot(hc_html_t     *html,		/* I - HTML document */
             const char *doctype)	/* I - DOCTYPE value */
 {
-  html_node_t	*node;			/* New node */
+  hc_node_t	*node;			/* New node */
 
 
   if (!html || html->root || !doctype)
     return (NULL);
 
-  if ((node = html_new(NULL, HTML_ELEMENT_DOCTYPE, NULL)) != NULL)
+  if ((node = html_new(NULL, HC_ELEMENT_DOCTYPE, NULL)) != NULL)
   {
     html->root = node;
-    htmlNewAttr(node, "", doctype);
+    hcNodeAttrSet(node, "", doctype);
   }
 
   return (node);
@@ -253,33 +253,33 @@ htmlNewRoot(html_t     *html,		/* I - HTML document */
 
 
 /*
- * 'htmlNewString()' - Create a new HTML string node.
+ * 'hcNodeNewString()' - Create a new HTML string node.
  */
 
-html_node_t *				/* O - New HTML string node */
-htmlNewString(html_node_t *parent,	/* I - Parent node */
+hc_node_t *				/* O - New HTML string node */
+hcNodeNewString(hc_node_t *parent,	/* I - Parent node */
               const char  *s)		/* I - String value */
 {
   if (!parent || !s)
     return (NULL);
 
-  return (html_new(parent, HTML_ELEMENT_STRING, s));
+  return (html_new(parent, HC_ELEMENT_STRING, s));
 }
 
 
 /*
- * '_htmlNewUnknown()' - Create a new unknown HTML element or processing
+ * '_hcNodeNewUnknown()' - Create a new unknown HTML element or processing
  *                       directive node.
  */
 
-html_node_t *				/* O - New HTML unknown node */
-_htmlNewUnknown(html_node_t *parent,	/* I - Parent node */
+hc_node_t *				/* O - New HTML unknown node */
+_hcNodeNewUnknown(hc_node_t *parent,	/* I - Parent node */
                 const char  *unk)	/* I - Unknown value (excluding "<>") */
 {
   if (!parent || !unk)
     return (NULL);
 
-  return (html_new(parent, HTML_ELEMENT_UNKNOWN, unk));
+  return (html_new(parent, HC_ELEMENT_UNKNOWN, unk));
 }
 
 
@@ -288,10 +288,10 @@ _htmlNewUnknown(html_node_t *parent,	/* I - Parent node */
  */
 
 static void
-html_delete(html_node_t *node)		/* I - HTML node */
+html_delete(hc_node_t *node)		/* I - HTML node */
 {
-  if (node->element >= HTML_ELEMENT_DOCTYPE)
-    htmlcssDictDelete(node->value.element.attrs);
+  if (node->element >= HC_ELEMENT_DOCTYPE)
+    hcDictDelete(node->value.element.attrs);
 
   free(node);
 }
@@ -301,35 +301,35 @@ html_delete(html_node_t *node)		/* I - HTML node */
  * 'html_new()' - Create a new HTML node.
  */
 
-static html_node_t *			/* O - New node or `NULL` on error */
-html_new(html_node_t    *parent,	/* I - Parent node or `NULL` if root node */
-         html_element_t element,	/* I - Element/node type */
+static hc_node_t *			/* O - New node or `NULL` on error */
+html_new(hc_node_t    *parent,	/* I - Parent node or `NULL` if root node */
+         hc_element_t element,	/* I - Element/node type */
          const char     *s)		/* I - String, if any */
 {
-  html_node_t	*node;			/* New node */
+  hc_node_t	*node;			/* New node */
   size_t	nodesize;		/* Node size */
   size_t	slen = s ? strlen(s) : 0;
 					/* Length of string */
 
 
-  if (parent && parent->element < HTML_ELEMENT_DOCTYPE)
+  if (parent && parent->element < HC_ELEMENT_DOCTYPE)
     return (NULL);
 
-  if (element < HTML_ELEMENT_DOCTYPE)
-    nodesize = sizeof(html_node_t) - sizeof(node->value) + strlen(s) + 1;
+  if (element < HC_ELEMENT_DOCTYPE)
+    nodesize = sizeof(hc_node_t) - sizeof(node->value) + strlen(s) + 1;
   else
-    nodesize = sizeof(html_node_t);
+    nodesize = sizeof(hc_node_t);
 
-  if ((node = (html_node_t *)calloc(1, nodesize)) != NULL)
+  if ((node = (hc_node_t *)calloc(1, nodesize)) != NULL)
   {
     node->element = element;
     node->parent  = parent;
 
-    if (element == HTML_ELEMENT_STRING)
+    if (element == HC_ELEMENT_STRING)
       memcpy(node->value.string, s, slen);
-    else if (element == HTML_ELEMENT_COMMENT)
+    else if (element == HC_ELEMENT_COMMENT)
       memcpy(node->value.comment, s, slen);
-    else if (element == HTML_ELEMENT_UNKNOWN)
+    else if (element == HC_ELEMENT_UNKNOWN)
       memcpy(node->value.unknown, s, slen);
 
     if (parent)
@@ -357,7 +357,7 @@ html_new(html_node_t    *parent,	/* I - Parent node or `NULL` if root node */
  */
 
 static void
-html_remove(html_node_t *node)		/* I - HTML node */
+html_remove(hc_node_t *node)		/* I - HTML node */
 {
   if (node->parent)
   {
