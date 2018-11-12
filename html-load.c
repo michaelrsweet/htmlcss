@@ -36,9 +36,9 @@
 
 typedef struct _html_file_s
 {
-  hc_html_t	*html;			/* HTML document */
+  hc_html_t  *html;			/* HTML document */
   _hc_file_t file;			/* File info */
-  hc_node_t	*parent;		/* Parent node */
+  hc_node_t  *parent;			/* Parent node */
 } _html_file_t;
 
 
@@ -59,9 +59,9 @@ static int	html_parse_unknown(_html_file_t *f, const char *unk);
  */
 
 int					/* O - 1 on success, 0 on failure */
-hcHTMLLoad(hc_html_t     *html,		/* I - HTML document */
-         const char *url,		/* I - URL or `NULL` */
-         FILE       *fp)		/* I - File pointer or `NULL` */
+hcHTMLLoad(hc_html_t  *html,		/* I - HTML document */
+	   const char *url,		/* I - URL or `NULL` */
+	   FILE       *fp)		/* I - File pointer or `NULL` */
 {
   _html_file_t	f;			/* File data */
   int		status = 1,		/* Load status */
@@ -275,7 +275,7 @@ html_compare_elements(const char **a,	/* I - First string */
 
 static int				/* O - Character or `EOF` to stop */
 html_parse_attr(_html_file_t *f,	/* I - HTML file info */
-                hc_node_t  *node,	/* I - HTML element node */
+                hc_node_t    *node,	/* I - HTML element node */
                 int          ch)	/* I - Initial character */
 {
   char	name[256],			/* Name string */

@@ -25,14 +25,14 @@ static hc_node_t	*html_walk_next(hc_node_t *current);
 
 /*
  * 'hcHTMLFindNode()' - Find the first node in a document that matches the given
- *                    element and/or ID string.
+ *                      element and/or ID string.
  */
 
 hc_node_t *				/* O - First matching node or `NULL` */
-hcHTMLFindNode(hc_html_t         *html,	/* I - HTML document */
-             hc_node_t    *current,	/* I - Current node or `NULL` */
-             hc_element_t element,	/* I - Element or `HC_ELEMENT_WILDCARD` for any */
-             const char     *id)	/* I - ID string or `NULL` for any */
+hcHTMLFindNode(hc_html_t    *html,	/* I - HTML document */
+	       hc_node_t    *current,	/* I - Current node or `NULL` */
+	       hc_element_t element,	/* I - Element or `HC_ELEMENT_WILDCARD` for any */
+	       const char   *id)	/* I - ID string or `NULL` for any */
 {
   const char	*current_id;		/* Current ID attribute */
 

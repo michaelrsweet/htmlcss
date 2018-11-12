@@ -30,8 +30,8 @@ static void		html_remove(hc_node_t *node);
  */
 
 void
-hcNodeDelete(hc_html_t      *html,	/* I - HTML document */
-               hc_node_t *node)	/* I - HTML node */
+hcNodeDelete(hc_html_t *html,		/* I - HTML document */
+             hc_node_t *node)		/* I - HTML node */
 {
   hc_node_t	*current,		/* Current node */
 		*next;			/* Next node */
@@ -102,7 +102,7 @@ hcNodeGetComment(hc_node_t *node)	/* I - HTML node */
  */
 
 const char *				/* O - DOCTYPE value */
-hcHTMLGetDOCTYPE(hc_html_t *html)		/* I - HTML document */
+hcHTMLGetDOCTYPE(hc_html_t *html)	/* I - HTML document */
 {
   return (html && html->root ? hcNodeAttrGetNameValue(html->root, "") : NULL);
 }
@@ -181,7 +181,7 @@ hcNodeGetPrevSiblingNode(
  */
 
 hc_node_t *				/* O - Root node or `NULL` if none */
-hcHTMLGetRootNode(hc_html_t *html)		/* I - HTML document */
+hcHTMLGetRootNode(hc_html_t *html)	/* I - HTML document */
 {
   return (html ? html->root : NULL);
 }
@@ -233,8 +233,8 @@ hcNodeNewElement(hc_node_t    *parent,	/* I - Parent node */
  */
 
 hc_node_t *				/* O - New root node */
-hcHTMLNewRootNode(hc_html_t     *html,		/* I - HTML document */
-            const char *doctype)	/* I - DOCTYPE value */
+hcHTMLNewRootNode(hc_html_t  *html,	/* I - HTML document */
+                  const char *doctype)	/* I - DOCTYPE value */
 {
   hc_node_t	*node;			/* New node */
 
@@ -257,8 +257,8 @@ hcHTMLNewRootNode(hc_html_t     *html,		/* I - HTML document */
  */
 
 hc_node_t *				/* O - New HTML string node */
-hcNodeNewString(hc_node_t *parent,	/* I - Parent node */
-              const char  *s)		/* I - String value */
+hcNodeNewString(hc_node_t  *parent,	/* I - Parent node */
+                const char *s)		/* I - String value */
 {
   if (!parent || !s)
     return (NULL);
@@ -273,8 +273,8 @@ hcNodeNewString(hc_node_t *parent,	/* I - Parent node */
  */
 
 hc_node_t *				/* O - New HTML unknown node */
-_hcNodeNewUnknown(hc_node_t *parent,	/* I - Parent node */
-                const char  *unk)	/* I - Unknown value (excluding "<>") */
+_hcNodeNewUnknown(hc_node_t  *parent,	/* I - Parent node */
+                  const char *unk)	/* I - Unknown value (excluding "<>") */
 {
   if (!parent || !unk)
     return (NULL);
@@ -302,9 +302,9 @@ html_delete(hc_node_t *node)		/* I - HTML node */
  */
 
 static hc_node_t *			/* O - New node or `NULL` on error */
-html_new(hc_node_t    *parent,	/* I - Parent node or `NULL` if root node */
-         hc_element_t element,	/* I - Element/node type */
-         const char     *s)		/* I - String, if any */
+html_new(hc_node_t    *parent,		/* I - Parent node or `NULL` if root node */
+         hc_element_t element,		/* I - Element/node type */
+         const char   *s)		/* I - String, if any */
 {
   hc_node_t	*node;			/* New node */
   size_t	nodesize;		/* Node size */

@@ -17,36 +17,6 @@
 
 
 /*
- * 'hcNodeAttrRemove()' - Delete an element attribute.
- */
-
-void
-hcNodeAttrRemove(hc_node_t *node,	/* I - Element node */
-               const char  *name)	/* I - Attribute name */
-{
-  if (!node || node->element < HC_ELEMENT_DOCTYPE || !name)
-    return;
-
-  hcDictRemoveKey(node->value.element.attrs, name);
-}
-
-
-/*
- * 'hcNodeAttrGetNameValue()' - Get the value of an element attribute.
- */
-
-const char *				/* O - Value or `NULL` if not present */
-hcNodeAttrGetNameValue(hc_node_t *node,		/* I - Element node */
-            const char  *name)		/* I - Attribute name */
-{
-  if (!node || node->element < HC_ELEMENT_DOCTYPE || !name)
-    return (NULL);
-
-  return (hcdictGetKeyValue(node->value.element.attrs, name));
-}
-
-
-/*
  * 'hcNodeAttrGetCount()' - Get the number of attributes for an element.
  */
 
@@ -65,9 +35,10 @@ hcNodeAttrGetCount(hc_node_t *node)	/* I - Element node */
  */
 
 const char *				/* O - Attribute value or `NULL` */
-hcNodeAttrGetIndexNameValue(hc_node_t *node,	/* I - Element node */
-                 size_t      idx,	/* I - Attribute index (0-based) */
-                 const char  **name)	/* O - Attribute name */
+hcNodeAttrGetIndexNameValue(
+    hc_node_t  *node,			/* I - Element node */
+    size_t     idx,			/* I - Attribute index (0-based) */
+    const char **name)			/* O - Attribute name */
 {
   if (!node || node->element < HC_ELEMENT_DOCTYPE || !name)
     return (NULL);
@@ -77,13 +48,45 @@ hcNodeAttrGetIndexNameValue(hc_node_t *node,	/* I - Element node */
 
 
 /*
+ * 'hcNodeAttrGetNameValue()' - Get the value of an element attribute.
+ */
+
+const char *				/* O - Value or `NULL` if not present */
+hcNodeAttrGetNameValue(
+    hc_node_t  *node,			/* I - Element node */
+    const char *name)			/* I - Attribute name */
+{
+  if (!node || node->element < HC_ELEMENT_DOCTYPE || !name)
+    return (NULL);
+
+  return (hcdictGetKeyValue(node->value.element.attrs, name));
+}
+
+
+/*
+ * 'hcNodeAttrRemove()' - Delete an element attribute.
+ */
+
+void
+hcNodeAttrRemove(hc_node_t  *node,	/* I - Element node */
+                 const char *name)	/* I - Attribute name */
+{
+  if (!node || node->element < HC_ELEMENT_DOCTYPE || !name)
+    return;
+
+  hcDictRemoveKey(node->value.element.attrs, name);
+}
+
+
+/*
  * 'hcNodeAttrSetNameValue()' - Add an element attribute.
  */
 
 void
-hcNodeAttrSetNameValue(hc_node_t *node,		/* I - Element node */
-            const char  *name,		/* I - Attribute name */
-            const char  *value)		/* I - Attribute value */
+hcNodeAttrSetNameValue(
+    hc_node_t  *node,			/* I - Element node */
+    const char *name,			/* I - Attribute name */
+    const char *value)			/* I - Attribute value */
 {
   if (!node || node->element < HC_ELEMENT_DOCTYPE || !name || !value)
     return;

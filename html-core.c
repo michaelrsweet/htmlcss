@@ -217,9 +217,9 @@ hcHTMLNew(hc_pool_t *pool,		/* I - Memory pool */
 
 void
 hcHTMLSetErrorCallback(
-    hc_html_t             *html,		/* I - HTML document */
-    hc_error_cb_t cb,		/* I - Error callback or `NULL` for the default */
-    void               *ctx)		/* I - Context pointer for callback */
+    hc_html_t     *html,		/* I - HTML document */
+    hc_error_cb_t cb,			/* I - Error callback or `NULL` for the default */
+    void          *ctx)			/* I - Context pointer for callback */
 {
   if (!html)
     return;
@@ -240,9 +240,9 @@ hcHTMLSetErrorCallback(
 
 void
 hcHTMLSetURLCallback(
-    hc_html_t           *html,		/* I - HTML document */
-    hc_url_cb_t cb,		/* I - URL callback or `NULL` for the default */
-    void             *ctx)		/* I - Context pointer for callback */
+    hc_html_t   *html,			/* I - HTML document */
+    hc_url_cb_t cb,			/* I - URL callback or `NULL` for the default */
+    void        *ctx)			/* I - Context pointer for callback */
 {
   if (!html)
     return;
