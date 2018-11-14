@@ -200,6 +200,7 @@ hc_eval_media(hc_css_t       *css,	/* I - Stylesheet */
         }
 
 	media_current = 0;
+	and_next      = 0;
       }
       else if (!strcmp(buffer, ","))
       {
