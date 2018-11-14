@@ -36,7 +36,7 @@ typedef struct _hc_pool_s hc_pool_t;	/* Memory allocation pool */
  */
 
 extern void		hcPoolDelete(hc_pool_t *pool);
-extern const char	*hcPollGetString(hc_pool_t *pool, const char *s);
+extern const char	*hcPoolGetString(hc_pool_t *pool, const char *s);
 extern hc_pool_t	*hcPoolNew(void);
 
 #  ifdef __cplusplus

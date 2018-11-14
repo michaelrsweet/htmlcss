@@ -289,7 +289,7 @@ typedef struct hc_box_s		/* CSS box properties */
   hc_background_attachment_t
 			background_attachment;
   hc_color_t		background_color;
-  char			*background_image;
+  const char		*background_image;
   hc_point_t		background_position;
   hc_background_repeat_t
 			background_repeat;
@@ -301,7 +301,7 @@ typedef struct hc_box_s		/* CSS box properties */
   hc_break_t		break_before;
   hc_break_t		break_inside;
   hc_float_t		float_value;
-  char			*list_style_image;
+  const char		*list_style_image;
   hc_list_style_position_t
 			list_style_position;
   hc_rect_t		margin;
@@ -314,8 +314,11 @@ typedef struct hc_box_s		/* CSS box properties */
 
 typedef struct hc_media_s		/* CSS media properties */
 {
-  hc_rect_t		margin;
-  hc_css_size_t		size;
+  const char		*type;		/* "print", "screen", etc. */
+  int			color_bits;	/* Color bits */
+  int			monochrome_bits;/* Grayscale bits */
+  hc_rect_t		margin;		/* Margins */
+  hc_css_size_t		size;		/* Dimensions */
 } hc_media_t;
 
 typedef struct hc_table_s		/* CSS table properties */
@@ -328,14 +331,14 @@ typedef struct hc_table_s		/* CSS table properties */
 typedef struct hc_text_s		/* CSS text properties */
 {
   hc_direction_t	direction;
-  char			*font_family;
+  const char		*font_family;
   float			font_size;
   hc_font_style_t	font_style;
   hc_font_variant_t	font_variant;
   hc_font_weight_t	font_weight;
   float			letter_spacing;
   float			line_height;
-  char			*quotes[4];
+  const char		*quotes[4];
   hc_text_align_t	text_align;
   hc_text_decoration_t	text_decoration;
   float			text_indent;
@@ -363,7 +366,7 @@ extern hc_css_t	*hcCSSNew(hc_pool_t *pool);
 extern int	hcCSSImport(hc_css_t *css, const char *url, FILE *fp, const char *s);
 extern void	hcCSSSetErrorCallback(hc_css_t *css, hc_error_cb_t cb, void *ctx);
 extern void	hcCSSSetURLCallback(hc_css_t *css, hc_url_cb_t cb, void *ctx);
-extern int	hcCSSSetMedia(hc_css_t *css, const char *media, float width, float height);
+extern int	hcCSSSetMedia(hc_css_t *css, const char *type, int color_bits, int grayscale_bits, float width, float height);
 
 
 #  ifdef __cplusplus

@@ -48,7 +48,7 @@ hcPoolNew(void)
 
 
 /*
- * 'hcPollGetString()' - Find or copy a string.
+ * 'hcPoolGetString()' - Find or copy a string.
  *
  * This function finds or makes a copy of the passed string that will be freed
  * when the corresponding memory pool is deleted.  Since the memory pool only
@@ -56,7 +56,7 @@ hcPoolNew(void)
  */
 
 const char *				/* O - New string pointer */
-hcPollGetString(
+hcPoolGetString(
     hc_pool_t *pool,		/* I - Memory pool */
     const char     *s)			/* I - String to find/copy */
 {

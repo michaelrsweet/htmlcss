@@ -23,16 +23,16 @@
 
 typedef struct _hc_pair_s		/* Key/value pair */
 {
-  const char		*key;		/* Key */
-  const char		*value;		/* Value */
+  const char	*key;			/* Key */
+  const char	*value;			/* Value */
 } _hc_pair_t;
 
 struct _hc_dict_s			/* Dictionary */
 {
-  hc_pool_t	*pool;		/* Memory pool */
-  size_t		num_pairs;	/* Number of pairs */
-  size_t		alloc_pairs;	/* Allocated pairs */
-  _hc_pair_t	*pairs;		/* Key/value pairs */
+  hc_pool_t	*pool;			/* Memory pool */
+  size_t	num_pairs;		/* Number of pairs */
+  size_t	alloc_pairs;		/* Allocated pairs */
+  _hc_pair_t	*pairs;			/* Key/value pairs */
 };
 
 
@@ -48,7 +48,7 @@ static int	compare_pairs(_hc_pair_t *a, _hc_pair_t *b);
  */
 
 size_t					/* O - Number of key/value pairs */
-hcDictGetCount(hc_dict_t *dict)	/* I - Dictionary */
+hcDictGetCount(hc_dict_t *dict)		/* I - Dictionary */
 {
   return (dict ? dict->num_pairs : 0);
 }
@@ -59,7 +59,7 @@ hcDictGetCount(hc_dict_t *dict)	/* I - Dictionary */
  */
 
 void
-hcDictDelete(hc_dict_t *dict)	/* I - Dictionary */
+hcDictDelete(hc_dict_t *dict)		/* I - Dictionary */
 {
   if (dict)
   {
@@ -76,11 +76,11 @@ hcDictDelete(hc_dict_t *dict)	/* I - Dictionary */
  */
 
 const char *				/* O - Value or `NULL` if not found. */
-hcdictGetKeyValue(hc_dict_t *dict,	/* I - Dictionary */
-               const char     *key)	/* I - Key string */
+hcdictGetKeyValue(hc_dict_t  *dict,	/* I - Dictionary */
+                  const char *key)	/* I - Key string */
 {
-  _hc_pair_t	temp,		/* Temporary search key */
-			*ptr;		/* Pointer to match */
+  _hc_pair_t	temp,			/* Temporary search key */
+		*ptr;			/* Pointer to match */
 
 
   if (!dict || dict->num_pairs == 0)
@@ -100,9 +100,10 @@ hcdictGetKeyValue(hc_dict_t *dict,	/* I - Dictionary */
  */
 
 const char *				/* O - Value or `NULL` if `idx` is invalid. */
-hcDictGetIndexKeyValue(hc_dict_t *dict,	/* I - Dictionary */
-                 size_t         idx,	/* I - Index (0-based) */
-                 const char     **key)	/* O - Key or `NULL` if `idx` is invalid. */
+hcDictGetIndexKeyValue(
+    hc_dict_t  *dict,			/* I - Dictionary */
+    size_t     idx,			/* I - Index (0-based) */
+    const char **key)			/* O - Key or `NULL` if `idx` is invalid. */
 {
   if (!dict || idx >= dict->num_pairs || !key)
     return (NULL);
@@ -118,12 +119,12 @@ hcDictGetIndexKeyValue(hc_dict_t *dict,	/* I - Dictionary */
  */
 
 void
-hcDictRemoveKey(hc_dict_t *dict,	/* I - Dictionary */
-                  const char     *key)	/* I - Key string */
+hcDictRemoveKey(hc_dict_t  *dict,	/* I - Dictionary */
+                const char *key)	/* I - Key string */
 {
-  _hc_pair_t	temp,		/* Temporary search key */
-			*ptr;		/* Pointer to match */
-  size_t		idx;		/* Index into dictionary */
+  _hc_pair_t	temp,			/* Temporary search key */
+		*ptr;			/* Pointer to match */
+  size_t	idx;			/* Index into dictionary */
 
 
   if (!dict || dict->num_pairs == 0)
@@ -148,12 +149,12 @@ hcDictRemoveKey(hc_dict_t *dict,	/* I - Dictionary */
  */
 
 void
-hcDictSetKeyValue(hc_dict_t *dict,	/* I - Dictionary */
-	       const char     *key,	/* I - Key string */
-	       const char     *value)	/* I - Value string */
+hcDictSetKeyValue(hc_dict_t  *dict,	/* I - Dictionary */
+	          const char *key,	/* I - Key string */
+	          const char *value)	/* I - Value string */
 {
-  _hc_pair_t	temp,		/* Search key */
-			*ptr = NULL;	/* New key/value pair */
+  _hc_pair_t	temp,			/* Search key */
+		*ptr = NULL;		/* New key/value pair */
 
 
   if (!dict)
@@ -173,7 +174,7 @@ hcDictSetKeyValue(hc_dict_t *dict,	/* I - Dictionary */
 
   if (ptr)
   {
-    ptr->value = hcPollGetString(dict->pool, value);
+    ptr->value = hcPoolGetString(dict->pool, value);
     return;
   }
 
@@ -189,8 +190,8 @@ hcDictSetKeyValue(hc_dict_t *dict,	/* I - Dictionary */
   ptr = dict->pairs + dict->num_pairs;
   dict->num_pairs ++;
 
-  ptr->key   = hcPollGetString(dict->pool, key);
-  ptr->value = hcPollGetString(dict->pool, value);
+  ptr->key   = hcPoolGetString(dict->pool, key);
+  ptr->value = hcPoolGetString(dict->pool, value);
 
   qsort(dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (int (*)(const void *, const void *))compare_pairs);
 }
@@ -200,10 +201,10 @@ hcDictSetKeyValue(hc_dict_t *dict,	/* I - Dictionary */
  * 'hcDictNew()' - Create a new dictionary.
  */
 
-hc_dict_t *			/* O - New dictionary */
-hcDictNew(hc_pool_t *pool)	/* I - Memory pool */
+hc_dict_t *				/* O - New dictionary */
+hcDictNew(hc_pool_t *pool)		/* I - Memory pool */
 {
-  hc_dict_t	*dict;		/* New dictionary */
+  hc_dict_t	*dict;			/* New dictionary */
 
 
   if ((dict = (hc_dict_t *)calloc(1, sizeof(hc_dict_t))) != NULL)
@@ -218,8 +219,8 @@ hcDictNew(hc_pool_t *pool)	/* I - Memory pool */
  */
 
 static int				/* O - Result of comparison */
-compare_pairs(_hc_pair_t *a,	/* I - First pair */
-              _hc_pair_t *b)	/* I - Second pair */
+compare_pairs(_hc_pair_t *a,		/* I - First pair */
+              _hc_pair_t *b)		/* I - Second pair */
 {
 #ifdef _WIN32
   return (_stricmp(a->key, b->key));

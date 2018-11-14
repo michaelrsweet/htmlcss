@@ -42,6 +42,7 @@ typedef enum _hc_type_e
 
 static void		hc_add_rule(hc_css_t *css, _hc_css_sel_t *sel, hc_dict_t *props);
 static void		hc_add_selstmt(_hc_css_sel_t *sel, _hc_match_t match, const char *name, const char *value);
+static int		hc_eval_media(hc_css_t *css, _hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
 static _hc_css_sel_t	*hc_new_sel(_hc_css_sel_t *prev, hc_element_t element);
 static char		*hc_read(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
 
@@ -159,6 +160,117 @@ hc_add_selstmt(_hc_css_sel_t   *sel,	/* I - Selector */
 
 
 /*
+ * 'hc_eval_media()' - Read and evaluate a media rule.
+ */
+
+static int				/* O - 1 if media rule matches, 0 otherwise */
+hc_eval_media(hc_css_t       *css,	/* I - Stylesheet */
+              _hc_css_file_t *f,	/* I - File to read from */
+              _hc_type_t     *type,	/* O - Token type */
+              char           *buffer,	/* I - Buffer */
+              size_t         bufsize)	/* I - Size of buffer */
+{
+  int	media_result = -1;		/* Result of evaluation */
+  int	media_current = -1;		/* Result of current expression */
+  int	and_next = 0;			/* Was "and" seen? */
+
+
+  while (hc_read(f, type, buffer, bufsize))
+  {
+    if (*type == _HC_TYPE_RESERVED)
+    {
+      if (!strcmp(buffer, "{") || !strcmp(buffer, ";"))
+        break;
+      else if (!strcmp(buffer, "("))
+      {
+       /*
+        * Skip subexpression...
+        */
+
+	while (hc_read(f, type, buffer, bufsize))
+	{
+	  if (*type == _HC_TYPE_RESERVED && !strcmp(buffer, ")"))
+	    break;
+	}
+
+        if (*type != _HC_TYPE_RESERVED)
+        {
+	  _hcError(css->error_cb, css->error_ctx, f->file.url, f->file.linenum, "Unexpected end-of-file.", buffer);
+	  return (0);
+        }
+
+	media_current = 0;
+      }
+      else if (!strcmp(buffer, ","))
+      {
+       /*
+        * Separate expression...
+        */
+
+        if (media_current > 0 || media_result < 0)
+          media_result = media_current;
+
+        media_current = -1;
+      }
+      else
+        goto unexpected;
+    }
+    else if (*type == _HC_TYPE_STRING)
+    {
+      if (!strcmp(buffer, "and"))
+      {
+        if (media_current < 0)
+        {
+          goto unexpected;
+        }
+        else
+	{
+	  and_next = 1;
+	  continue;
+	}
+      }
+      else if (strcmp(buffer, css->media.type))
+      {
+        media_current = 0;
+        and_next      = 0;
+      }
+      else if (!and_next || media_current)
+      {
+        media_current = 1;
+        and_next      = 0;
+      }
+    }
+    else
+      goto unexpected;
+  }
+
+  if (media_result < 0)
+  {
+   /*
+    * Assign the overall result to the current result.  If the expression is empty,
+    * evaluate to true...
+    */
+
+    if (media_current < 0)
+      media_result = 1;			/* Empty expression */
+    else
+      media_result = media_current;	/* Single expression */
+  }
+
+  return (media_result);
+
+ /*
+  * If we get here we got something unexpected in the media matching expression...
+  */
+
+  unexpected:
+
+  _hcError(css->error_cb, css->error_ctx, f->file.url, f->file.linenum, "Unexpected token \"%s\" seen.", buffer);
+  return (0);
+}
+
+
+/*
  * 'hc_new_sel()' - Create a new selector.
  */
 
@@ -186,7 +298,7 @@ hc_new_sel(_hc_css_sel_t *prev,		/* I - Previous selector in list */
 
 static char *				/* O - Token or `NULL` on EOF */
 hc_read(_hc_css_file_t *f,		/* I - CSS file */
-	_hc_type_t     *type,		/* O - Tokem type */
+	_hc_type_t     *type,		/* O - Token type */
 	char           *buffer,		/* I - Buffer */
 	size_t         bufsize)		/* I - Size of buffer */
 {
@@ -302,6 +414,8 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
 
       if (isdigit(*buffer & 255) || (*buffer == '.' && isdigit(buffer[1] & 255)))
         *type = _HC_TYPE_NUMBER;
+      else if (!strcmp(buffer, "("))
+        *type = _HC_TYPE_RESERVED;
       else
         *type = _HC_TYPE_STRING;
     }
