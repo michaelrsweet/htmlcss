@@ -24,6 +24,13 @@ extern "C" {
 
 
 /*
+ * Constants...
+ */
+
+#  define HC_MAX_BOX_SHADOW	4	/* Maximum number of box shadow values */
+
+
+/*
  * Types...
  */
 
@@ -32,6 +39,13 @@ typedef enum
   HC_BACKGROUND_ATTACHMENT_SCROLL,
   HC_BACKGROUND_ATTACHMENT_FIXED
 } hc_background_attachment_t;
+
+typedef enum
+{
+  HX_BACKGROUND_BOX_BORDER_BOX,
+  HX_BACKGROUND_BOX_PADDING_BOX,
+  HX_BACKGROUND_BOX_CONTENT_BOX
+} hc_background_box_t;
 
 typedef enum
 {
@@ -258,6 +272,15 @@ typedef struct hc_border_props_s	/* CSS border properties */
   float			width;		/* Border width */
 } hc_border_props_t;
 
+typedef struct hc_box_shadow_s		/* Box shadow values */
+{
+  float			horizontal_offset;
+  float			vertical_offset;
+  float			blur_radius;
+  float			spread_distance;
+  hc_color_t		color;
+  int			inset;
+} hc_box_shadow_t;
 
 /* Higher-level types */
 
@@ -279,7 +302,15 @@ typedef struct hc_border_s		/* All CSS border properties */
   hc_border_props_t	bottom;
 } hc_border_t;
 
-typedef struct hc_box_s		/* CSS box properties */
+typedef struct hc_border_radius_s	/* CSS border-xxx-radius properties */
+{
+  hc_size_t		bottom_left;	/* Bottom-left border radius */
+  hc_size_t		bottom_right;	/* Bottom-right border radius */
+  hc_size_t		top_left;	/* Top-left border radius */
+  hc_size_t		top_right;	/* Top-right border radius */
+} hc_border_radius_t;
+
+typedef struct hc_box_s			/* CSS box properties */
 {
   hc_rect_t		bounds;		/* Computed bounds */
   hc_css_size_t		size;		/* Computed size */
@@ -288,15 +319,19 @@ typedef struct hc_box_s		/* CSS box properties */
   hc_css_size_t		min_size;
   hc_background_attachment_t
 			background_attachment;
+  hc_background_box_t	background_clip;
   hc_color_t		background_color;
   const char		*background_image;
+  hc_background_box_t	background_origin;
   hc_point_t		background_position;
-  hc_background_repeat_t
-			background_repeat;
+  hc_background_repeat_t background_repeat;
+  hc_css_size_t		background_size;
   hc_border_collapse_t	border_collapse;
-  hc_color_t		border_color;
+  hc_border_radius_t	border_radius;
   hc_css_size_t		border_spacing;
   hc_border_t		border;
+  hc_box_shadow_t	box_shadow[HC_MAX_BOX_SHADOW];
+  int			box_shadow_count;
   hc_break_t		break_after;
   hc_break_t		break_before;
   hc_break_t		break_inside;
@@ -306,7 +341,7 @@ typedef struct hc_box_s		/* CSS box properties */
 			list_style_position;
   hc_rect_t		margin;
   int			orphans;
-  hc_overflow_t	overflow;
+  hc_overflow_t		overflow;
   hc_rect_t		padding;
   int			widows;
   int			z_index;

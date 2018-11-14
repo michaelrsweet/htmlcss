@@ -326,7 +326,7 @@ hc_new_sel(_hc_css_sel_t *prev,		/* I - Previous selector in list */
 
 
 /*
- * 'hc_read_token()' - Read a token from the CSS file.
+ * 'hc_read()' - Read a string from the CSS file.
  */
 
 static char *				/* O - Token or `NULL` on EOF */
