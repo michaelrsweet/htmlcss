@@ -304,10 +304,10 @@ typedef struct hc_border_s		/* All CSS border properties */
 
 typedef struct hc_border_radius_s	/* CSS border-xxx-radius properties */
 {
-  hc_size_t		bottom_left;	/* Bottom-left border radius */
-  hc_size_t		bottom_right;	/* Bottom-right border radius */
-  hc_size_t		top_left;	/* Top-left border radius */
-  hc_size_t		top_right;	/* Top-right border radius */
+  hc_css_size_t		bottom_left;	/* Bottom-left border radius */
+  hc_css_size_t		bottom_right;	/* Bottom-right border radius */
+  hc_css_size_t		top_left;	/* Top-left border radius */
+  hc_css_size_t		top_right;	/* Top-right border radius */
 } hc_border_radius_t;
 
 typedef struct hc_box_s			/* CSS box properties */
