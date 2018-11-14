@@ -26,7 +26,14 @@ typedef struct _hc_css_file_s
   _hc_file_t	file;			/* File information */
 } _hc_css_file_t;
 
-typedef enum _hc_type_e
+typedef enum _hc_logop_e		/* Logical operation */
+{
+  _HC_LOGOP_NONE,
+  _HC_LOGOP_OR,
+  _HC_LOGOP_AND
+} _hc_logop_t;
+
+typedef enum _hc_type_e			/* Token type */
 {
   _HC_TYPE_ERROR,			/* Error */
   _HC_TYPE_RESERVED,			/* Reserved character(s) */
@@ -170,9 +177,10 @@ hc_eval_media(hc_css_t       *css,	/* I - Stylesheet */
               char           *buffer,	/* I - Buffer */
               size_t         bufsize)	/* I - Size of buffer */
 {
-  int	media_result = -1;		/* Result of evaluation */
-  int	media_current = -1;		/* Result of current expression */
-  int	and_next = 0;			/* Was "and" seen? */
+  int		media_result = -1;	/* Result of evaluation */
+  int		media_current = -1;	/* Result of current expression */
+  _hc_logop_t	logop = _HC_LOGOP_NONE;	/* Logical operation seen, if any */
+  int		invert = 0;		/* Was "not" seen? */
 
 
   while (hc_read(f, type, buffer, bufsize))
@@ -200,7 +208,8 @@ hc_eval_media(hc_css_t       *css,	/* I - Stylesheet */
         }
 
 	media_current = 0;
-	and_next      = 0;
+	logop         = _HC_LOGOP_NONE;
+	invert        = 0;
       }
       else if (!strcmp(buffer, ","))
       {
@@ -212,6 +221,8 @@ hc_eval_media(hc_css_t       *css,	/* I - Stylesheet */
           media_result = media_current;
 
         media_current = -1;
+	logop         = _HC_LOGOP_NONE;
+	invert        = 0;
       }
       else
         goto unexpected;
@@ -220,25 +231,46 @@ hc_eval_media(hc_css_t       *css,	/* I - Stylesheet */
     {
       if (!strcmp(buffer, "and"))
       {
-        if (media_current < 0)
+        if (media_current < 0 || logop != _HC_LOGOP_NONE)
         {
           goto unexpected;
         }
         else
 	{
-	  and_next = 1;
+	  logop = _HC_LOGOP_AND;
 	  continue;
 	}
       }
-      else if (strcmp(buffer, css->media.type))
+      else if (!strcmp(buffer, "or"))
       {
-        media_current = 0;
-        and_next      = 0;
+        if (media_current < 0 || logop != _HC_LOGOP_NONE)
+        {
+          goto unexpected;
+        }
+        else
+	{
+	  logop = _HC_LOGOP_OR;
+	  continue;
+	}
       }
-      else if (!and_next || media_current)
+      else if ((!strcmp(buffer, css->media.type) || !strcmp(buffer, "all")) != invert)
+      {
+        if (media_current < 0 || logop != _HC_LOGOP_OR)
+	  media_current = 0;
+
+	logop  = _HC_LOGOP_NONE;
+	invert = 0;
+      }
+      else if (logop != _HC_LOGOP_AND || media_current)
       {
         media_current = 1;
-        and_next      = 0;
+	logop         = _HC_LOGOP_NONE;
+	invert        = 0;
+      }
+      else
+      {
+	logop  = _HC_LOGOP_NONE;
+	invert = 0;
       }
     }
     else
