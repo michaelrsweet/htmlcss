@@ -49,9 +49,10 @@ typedef enum _hc_type_e			/* Token type */
 
 static void		hc_add_rule(hc_css_t *css, _hc_css_sel_t *sel, hc_dict_t *props);
 static void		hc_add_selstmt(_hc_css_sel_t *sel, _hc_match_t match, const char *name, const char *value);
-static int		hc_eval_media(hc_css_t *css, _hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
+static int		hc_eval_media(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
 static _hc_css_sel_t	*hc_new_sel(_hc_css_sel_t *prev, hc_element_t element);
 static char		*hc_read(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
+static _hc_css_sel_t	*hc_read_sel(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
 
 
 /*
@@ -68,6 +69,11 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
   _hc_css_file_t f;			/* Local file info */
   char		buffer[256];		/* Current value */
   _hc_type_t	type;			/* Value type */
+  int		skip = 0;		/* Skip current definitions */
+  int		in_media = 0;		/* In a media grouping? */
+  int		num_sels = 0;		/* Number of selectors */
+  _hc_css_sel_t	*sels[1000];		/* Selectors */
+  hc_dict_t	*props = NULL;		/* Properties */
   static const char * const types[] =	/* Types */
   {
     "ERROR",
@@ -131,7 +137,143 @@ Strategy for reading CSS:
 
   while (hc_read(&f, &type, buffer, sizeof(buffer)))
   {
-    printf("CSS: %s %s\n", types[type], buffer);
+    printf("%s:%d: %s %s\n", f.file.url, f.file.linenum, types[type], buffer);
+
+    if (!strcmp(buffer, "@import"))
+    {
+      int	in_url = 0;		/* In a URL? */
+      char	path[256] = "";		/* Path to import */
+
+      while (hc_read(&f, &type, buffer, sizeof(buffer)))
+      {
+        if (type == _HC_TYPE_QSTRING)
+        {
+          strncpy(path, buffer, sizeof(path) - 1);
+          path[sizeof(path) - 1] = '\0';
+          if (!in_url)
+            break;
+        }
+        else if (type == _HC_TYPE_STRING && !strcmp(buffer, "url("))
+          in_url = 1;
+        else if (type == _HC_TYPE_RESERVED && !strcmp(buffer, ")") && in_url)
+          break;
+        else
+        {
+	  _hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unexpected %s token seen.", buffer);
+	  ret = 0;
+	  break;
+        }
+      }
+
+      if (!path[0])
+        break;
+
+      if (hc_eval_media(&f, &type, buffer, sizeof(buffer)))
+      {
+        if (!hcCSSImport(css, path, NULL, NULL))
+        {
+          ret = 0;
+          break;
+        }
+      }
+
+      if (strcmp(buffer, ";"))
+      {
+	_hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unexpected %s token seen.", buffer);
+	ret = 0;
+	break;
+      }
+    }
+    else if (!strcmp(buffer, "@media"))
+    {
+      if (in_media)
+      {
+	_hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unexpected nested @media.");
+        break;
+      }
+
+      skip     = !hc_eval_media(&f, &type, buffer, sizeof(buffer));
+      in_media = !strcmp(buffer, "{");
+    }
+    else if (buffer[0] == '@')
+    {
+      _hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unknown %s seen.", buffer);
+      ret = 0;
+      break;
+    }
+    else if (!strcmp(buffer, "}"))
+    {
+      if (props)
+      {
+	int	i;			/* Looping var */
+
+        if (skip)
+        {
+          _hc_css_sel_t	*current,	/* Current selector */
+			*prev;		/* Previous selector */
+
+          for (i = 0; i < num_sels; i ++)
+          {
+            for (current = sels[i]; current; current = prev)
+            {
+              prev = current->prev;
+
+              if (current->num_stmts > 0)
+                free(current->stmts);
+
+              free(current);
+            }
+          }
+        }
+        else
+        {
+          for (i = 0; i < num_sels; i ++)
+            hc_add_rule(css, sels[i], props);
+        }
+
+        hcDictDelete(props);
+        props    = NULL;
+        num_sels = 0;
+      }
+      else if (in_media)
+      {
+        in_media = 0;
+        skip     = 0;
+      }
+      else
+      {
+	_hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unexpected %s seen.", buffer);
+	ret = 0;
+	break;
+      }
+    }
+    else if (props)
+    {
+    }
+    else if (num_sels < (int)(sizeof(sels) / sizeof(sels[0])))
+    {
+      if ((sels[num_sels] = hc_read_sel(&f, &type, buffer, sizeof(buffer))) == NULL)
+      {
+	ret = 0;
+	break;
+      }
+      else if (!strcmp(buffer, "{"))
+      {
+        props = hcDictNew(css->pool);
+      }
+      else
+      {
+	_hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unexpected %s seen.", buffer);
+	ret = 0;
+	break;
+      }
+    }
+    else
+    {
+      _hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Too many selectors seen.", buffer);
+      ret = 0;
+      break;
+    }
   }
 
   if (f.file.fp != fp)
@@ -146,7 +288,7 @@ Strategy for reading CSS:
  */
 
 static void
-hc_add_rule(hc_css_t       *css,	/* I - Stylesheet */
+hc_add_rule(hc_css_t      *css,		/* I - Stylesheet */
 	    _hc_css_sel_t *sel,		/* I - Selectors */
 	    hc_dict_t     *props)	/* I - Properties */
 {
@@ -158,10 +300,10 @@ hc_add_rule(hc_css_t       *css,	/* I - Stylesheet */
  */
 
 static void
-hc_add_selstmt(_hc_css_sel_t   *sel,	/* I - Selector */
-	       _hc_match_t match,	/* I - Matching statement type */
-	       const char   *name,	/* I - Name, if any */
-	       const char   *value)	/* I - Value, if any */
+hc_add_selstmt(_hc_css_sel_t *sel,	/* I - Selector */
+	       _hc_match_t   match,	/* I - Matching statement type */
+	       const char    *name,	/* I - Name, if any */
+	       const char    *value)	/* I - Value, if any */
 {
 }
 
@@ -171,8 +313,7 @@ hc_add_selstmt(_hc_css_sel_t   *sel,	/* I - Selector */
  */
 
 static int				/* O - 1 if media rule matches, 0 otherwise */
-hc_eval_media(hc_css_t       *css,	/* I - Stylesheet */
-              _hc_css_file_t *f,	/* I - File to read from */
+hc_eval_media(_hc_css_file_t *f,	/* I - File to read from */
               _hc_type_t     *type,	/* O - Token type */
               char           *buffer,	/* I - Buffer */
               size_t         bufsize)	/* I - Size of buffer */
@@ -203,7 +344,7 @@ hc_eval_media(hc_css_t       *css,	/* I - Stylesheet */
 
         if (*type != _HC_TYPE_RESERVED)
         {
-	  _hcError(css->error_cb, css->error_ctx, f->file.url, f->file.linenum, "Unexpected end-of-file.", buffer);
+	  _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Unexpected end-of-file.", buffer);
 	  return (0);
         }
 
@@ -253,7 +394,7 @@ hc_eval_media(hc_css_t       *css,	/* I - Stylesheet */
 	  continue;
 	}
       }
-      else if ((!strcmp(buffer, css->media.type) || !strcmp(buffer, "all")) != invert)
+      else if ((!strcmp(buffer, f->css->media.type) || !strcmp(buffer, "all")) != invert)
       {
         if (media_current < 0 || logop != _HC_LOGOP_OR)
 	  media_current = 0;
@@ -298,7 +439,7 @@ hc_eval_media(hc_css_t       *css,	/* I - Stylesheet */
 
   unexpected:
 
-  _hcError(css->error_cb, css->error_ctx, f->file.url, f->file.linenum, "Unexpected token \"%s\" seen.", buffer);
+  _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Unexpected token \"%s\" seen.", buffer);
   return (0);
 }
 
@@ -329,16 +470,16 @@ hc_new_sel(_hc_css_sel_t *prev,		/* I - Previous selector in list */
  * 'hc_read()' - Read a string from the CSS file.
  */
 
-static char *				/* O - Token or `NULL` on EOF */
+static char *				/* O - String or `NULL` on EOF */
 hc_read(_hc_css_file_t *f,		/* I - CSS file */
-	_hc_type_t     *type,		/* O - Token type */
+	_hc_type_t     *type,		/* O - String type */
 	char           *buffer,		/* I - Buffer */
 	size_t         bufsize)		/* I - Size of buffer */
 {
   int	ch;				/* Current character */
   char	*bufptr,			/* Pointer into buffer */
 	*bufend;			/* End of buffer */
-  static const char *reserved = ",:;{}[])";
+  static const char *reserved = ",:;{}[])/";
 					/* Reserved characters */
 
   bufptr = buffer;
@@ -457,4 +598,21 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
 
     return (buffer);
   }
+}
+
+
+/*
+ * 'hc_read_sel()' - Read a CSS selector.
+ *
+ * On entry, "type" and "buffer" contain the initial selector string.  On exit
+ * they contain the terminating token (typically "," or "{").
+ */
+
+static _hc_css_sel_t *			/* O  - Selector or `NULL` on error */
+hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
+            _hc_type_t     *type,	/* IO - String type */
+            char           *buffer,	/* I  - String buffer */
+            size_t         bufsize)	/* I  - Size of string buffer */
+{
+  return (NULL);
 }

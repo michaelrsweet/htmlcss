@@ -259,11 +259,11 @@ typedef struct hc_point_s		/* Point/coordinate */
   float			top;		/* Vertical position */
 } hc_point_t;
 
-typedef struct hc_css_size_s		/* Point/coordinate */
+typedef struct hc_size_s		/* Point/coordinate */
 {
   float			width;		/* Width */
   float			height;		/* Height */
-} hc_css_size_t;
+} hc_size_t;
 
 typedef struct hc_border_props_s	/* CSS border properties */
 {
@@ -304,19 +304,19 @@ typedef struct hc_border_s		/* All CSS border properties */
 
 typedef struct hc_border_radius_s	/* CSS border-xxx-radius properties */
 {
-  hc_css_size_t		bottom_left;	/* Bottom-left border radius */
-  hc_css_size_t		bottom_right;	/* Bottom-right border radius */
-  hc_css_size_t		top_left;	/* Top-left border radius */
-  hc_css_size_t		top_right;	/* Top-right border radius */
+  hc_size_t		bottom_left;	/* Bottom-left border radius */
+  hc_size_t		bottom_right;	/* Bottom-right border radius */
+  hc_size_t		top_left;	/* Top-left border radius */
+  hc_size_t		top_right;	/* Top-right border radius */
 } hc_border_radius_t;
 
 typedef struct hc_box_s			/* CSS box properties */
 {
   hc_rect_t		bounds;		/* Computed bounds */
-  hc_css_size_t		size;		/* Computed size */
+  hc_size_t		size;		/* Computed size */
   hc_rect_t		clip;		/* Clip bounds */
-  hc_css_size_t		max_size;
-  hc_css_size_t		min_size;
+  hc_size_t		max_size;
+  hc_size_t		min_size;
   hc_background_attachment_t
 			background_attachment;
   hc_background_box_t	background_clip;
@@ -325,10 +325,10 @@ typedef struct hc_box_s			/* CSS box properties */
   hc_background_box_t	background_origin;
   hc_point_t		background_position;
   hc_background_repeat_t background_repeat;
-  hc_css_size_t		background_size;
+  hc_size_t		background_size;
   hc_border_collapse_t	border_collapse;
   hc_border_radius_t	border_radius;
-  hc_css_size_t		border_spacing;
+  hc_size_t		border_spacing;
   hc_border_t		border;
   hc_box_shadow_t	box_shadow[HC_MAX_BOX_SHADOW];
   int			box_shadow_count;
@@ -353,7 +353,7 @@ typedef struct hc_media_s		/* CSS media properties */
   int			color_bits;	/* Color bits */
   int			monochrome_bits;/* Grayscale bits */
   hc_rect_t		margin;		/* Margins */
-  hc_css_size_t		size;		/* Dimensions */
+  hc_size_t		size;		/* Dimensions */
 } hc_media_t;
 
 typedef struct hc_table_s		/* CSS table properties */
