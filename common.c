@@ -23,11 +23,11 @@
 
 int					/* O - 1 to continue, 0 to stop */
 _hcError(
-    hc_error_cb_t error_cb,	/* I - Error callback */
-    void               *ctx,		/* I - Context pointer */
-    const char         *url,		/* I - Filename/URL or `NULL` */
-    int                linenum,		/* I - Line number in file or 0 */
-    const char         *message,	/* I - Printf-style message string */
+    hc_error_cb_t error_cb,		/* I - Error callback */
+    void          *ctx,			/* I - Context pointer */
+    const char    *url,			/* I - Filename/URL or `NULL` */
+    int           linenum,		/* I - Line number in file or 0 */
+    const char    *message,		/* I - Printf-style message string */
     ...)				/* I - Additional arguments as needed */
 {
   char		temp[1024],		/* Temporary format string buffer */
