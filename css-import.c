@@ -52,6 +52,7 @@ static void		hc_add_selstmt(_hc_css_sel_t *sel, _hc_match_t match, const char *n
 static int		hc_eval_media(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
 static _hc_css_sel_t	*hc_new_sel(_hc_css_sel_t *prev, hc_element_t element);
 static char		*hc_read(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
+static char		*hc_read_all(_hc_css_file_t *f, const char *terms, char *buffer, size_t bufsize);
 static _hc_css_sel_t	*hc_read_sel(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
 
 
@@ -249,6 +250,25 @@ Strategy for reading CSS:
     }
     else if (props)
     {
+      char	*ptr,			/* Pointer into buffer */
+		value[1024];		/* Value string */
+
+      ptr = buffer + strlen(buffer) - 1;
+      if (type != _HC_TYPE_STRING || ptr <= buffer || *ptr != ':')
+      {
+	_hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unexpected %s seen.", buffer);
+	ret = 0;
+	break;
+      }
+
+      *ptr = '\0';
+
+      if (!hc_read_all(&f, ";}", value, sizeof(value)))
+      {
+	_hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Missing property value.");
+	ret = 0;
+	break;
+      }
     }
     else if (num_sels < (int)(sizeof(sels) / sizeof(sels[0])))
     {
@@ -615,4 +635,57 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
             size_t         bufsize)	/* I  - Size of string buffer */
 {
   return (NULL);
+}
+
+
+/*
+ * 'hc_read_value()' - Read a value string.
+ */
+
+static char *				/* O - String or `NULL` on error */
+hc_read_value(_hc_css_file_t *f,	/* I - File to read from */
+              const char     *terms,	/* I - Terminating characters */
+              char           *buffer,	/* I - String buffer */
+              size_t         bufsize)	/* I - Size of string buffer */
+{
+  int	ch,				/* Character from file */
+	paren = 0;			/* Parenthesis */
+  char	*bufptr = buffer,		/* Pointer into string buffer */
+	*bufend = buffer + bufsize - 1,	/* End of string buffer */
+	quote = '\0';			/* Quote character (if any) */
+
+
+ /*
+  * Skip leading whitespace...
+  */
+
+  while ((ch = _hcFileGetc(f)) != EOF)
+    if (!isspace(ch & 255) || strchr(terms, ch))
+      break;
+
+  do
+  {
+    if (!paren && strchr(terms, ch))
+    {
+      _hcFileUngetc(f, ch);
+      break;
+    }
+
+    if (bufptr < bufend)
+      *bufptr++ = ch;
+
+    if (ch == '(')
+      paren ++;
+    else if (ch == ')')
+      paren --;
+    else if (ch == '\"' || ch == '\'')
+    {
+      quote = ch;
+    }    
+  }
+  while ((ch = _hcFileGetc(f)) != EOF)
+
+  *bufptr = '\0';
+
+  return (bufptr == buffer ? NULL : buffer);
 }
