@@ -52,6 +52,7 @@ static void		hc_add_selstmt(_hc_css_sel_t *sel, _hc_match_t match, const char *n
 static int		hc_eval_media(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
 static _hc_css_sel_t	*hc_new_sel(_hc_css_sel_t *prev, hc_element_t element);
 static char		*hc_read(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
+static hc_dict_t	*hc_read_props(_hc_css_file_t *f, hc_dict_t *props);
 static _hc_css_sel_t	*hc_read_sel(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
 static char		*hc_read_value(_hc_css_file_t *f, char *buffer, size_t bufsize);
 
@@ -74,7 +75,6 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
   int		in_media = 0;		/* In a media grouping? */
   int		num_sels = 0;		/* Number of selectors */
   _hc_css_sel_t	*sels[1000];		/* Selectors */
-  hc_dict_t	*props = NULL;		/* Properties */
   static const char * const types[] =	/* Types */
   {
     "ERROR",
@@ -204,39 +204,7 @@ Strategy for reading CSS:
     }
     else if (!strcmp(buffer, "}"))
     {
-      if (props)
-      {
-	int	i;			/* Looping var */
-
-        if (skip)
-        {
-          _hc_css_sel_t	*current,	/* Current selector */
-			*prev;		/* Previous selector */
-
-          for (i = 0; i < num_sels; i ++)
-          {
-            for (current = sels[i]; current; current = prev)
-            {
-              prev = current->prev;
-
-              if (current->num_stmts > 0)
-                free(current->stmts);
-
-              free(current);
-            }
-          }
-        }
-        else
-        {
-          for (i = 0; i < num_sels; i ++)
-            hc_add_rule(css, sels[i], props);
-        }
-
-        hcDictDelete(props);
-        props    = NULL;
-        num_sels = 0;
-      }
-      else if (in_media)
+      if (in_media)
       {
         in_media = 0;
         skip     = 0;
@@ -248,33 +216,6 @@ Strategy for reading CSS:
 	break;
       }
     }
-    else if (props)
-    {
-      char	value[1024];		/* Value string */
-
-      if (type != _HC_TYPE_STRING)
-      {
-	_hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unexpected %s seen.", buffer);
-	ret = 0;
-	break;
-      }
-
-      if (!hc_read(&f, &type, value, sizeof(value)) || type != _HC_TYPE_RESERVED || strcmp(value, ":"))
-      {
-	_hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Missing colon.");
-	ret = 0;
-	break;
-      }
-
-      if (!hc_read_value(&f, value, sizeof(value)))
-      {
-	_hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Missing property value.");
-	ret = 0;
-	break;
-      }
-
-      hcDictSetKeyValue(props, buffer, value);
-    }
     else if (num_sels < (int)(sizeof(sels) / sizeof(sels[0])))
     {
       if ((sels[num_sels] = hc_read_sel(&f, &type, buffer, sizeof(buffer))) == NULL)
@@ -284,9 +225,41 @@ Strategy for reading CSS:
       }
       else if (!strcmp(buffer, "{"))
       {
-        props = hcDictNew(css->pool);
+        hc_dict_t	*props;		/* Properties */
+
+        if ((props = hc_read_props(&f, NULL)) != NULL)
+        {
+	  int	i;			/* Looping var */
+
+	  if (skip)
+	  {
+	    _hc_css_sel_t *current,	/* Current selector */
+			*prev;		/* Previous selector */
+
+	    for (i = 0; i < num_sels; i ++)
+	    {
+	      for (current = sels[i]; current; current = prev)
+	      {
+		prev = current->prev;
+
+		if (current->num_stmts > 0)
+		  free(current->stmts);
+
+		free(current);
+	      }
+	    }
+	  }
+	  else
+	  {
+	    for (i = 0; i < num_sels; i ++)
+	      hc_add_rule(css, sels[i], props);
+	  }
+
+	  hcDictDelete(props);
+	  num_sels = 0;
+        }
       }
-      else
+      else if (strcmp(buffer, ","))
       {
 	_hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unexpected %s seen.", buffer);
 	ret = 0;
@@ -627,6 +600,67 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
 
 
 /*
+ * 'hc_read_props()' - Read properties in a group or string.
+ */
+
+static hc_dict_t *			/* O - Properties or `NULL` on error */
+hc_read_props(_hc_css_file_t *f,	/* I - file to read from */
+              hc_dict_t      *props)	/* I - Existing properties */
+{
+  _hc_type_t	type;			/* String type */
+  char		buffer[256],		/* String buffer */
+		name[256],		/* Name string */
+		value[2048];		/* Value string */
+  int		skip_remainder = 0;	/* Skip the remainder? */
+
+
+  while (hc_read(f, &type, buffer, sizeof(buffer)))
+  {
+    if (type == _HC_TYPE_RESERVED && !strcmp(buffer, "}"))
+      break;
+    else if (skip_remainder)
+      continue;
+    else if (type != _HC_TYPE_STRING)
+    {
+      _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Unexpected %s seen.", buffer);
+      skip_remainder = 1;
+      continue;
+    }
+
+    strncpy(name, buffer, sizeof(name) - 1);
+    name[sizeof(name) - 1] = '\0';
+
+    if (!hc_read(f, &type, buffer, sizeof(buffer)) || type != _HC_TYPE_RESERVED || strcmp(buffer, ":"))
+    {
+      _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing colon, saw %s instead.", buffer);
+      skip_remainder = 1;
+      continue;
+    }
+
+    if (!hc_read_value(f, value, sizeof(value)))
+    {
+      _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing property value.");
+      break;
+    }
+
+    if (!hc_read(f, &type, buffer, sizeof(buffer)) || type != _HC_TYPE_RESERVED || strcmp(buffer, ";"))
+    {
+      _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing semi-colon, saw %s instead.", buffer);
+      skip_remainder = 1;
+      continue;
+    }
+
+    if (!props)
+      props = hcDictNew(f->css->pool);
+
+    hcDictSetKeyValue(props, name, value);
+  }
+
+  return (props);
+}
+
+
+/*
  * 'hc_read_sel()' - Read a CSS selector.
  *
  * On entry, "type" and "buffer" contain the initial selector string.  On exit
@@ -671,8 +705,7 @@ hc_read_value(_hc_css_file_t *f,	/* I - File to read from */
   {
     if (!paren && (ch == ';' || ch == '}'))
     {
-      if (ch == '}')
-        _hcFileUngetc(ch, &f->file);
+      _hcFileUngetc(ch, &f->file);
       break;
     }
 
@@ -689,6 +722,13 @@ hc_read_value(_hc_css_file_t *f,	/* I - File to read from */
     }
   }
   while ((ch = _hcFileGetc(&f->file)) != EOF);
+
+ /*
+  * Remove trailing whitespace...
+  */
+
+  while (bufptr > buffer && isspace(bufptr[-1] & 255))
+    bufptr --;
 
   *bufptr = '\0';
 
