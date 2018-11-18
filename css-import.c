@@ -48,9 +48,9 @@ typedef enum _hc_type_e			/* Token type */
  */
 
 static void		hc_add_rule(hc_css_t *css, _hc_css_sel_t *sel, hc_dict_t *props);
-static void		hc_add_selstmt(_hc_css_sel_t *sel, _hc_match_t match, const char *name, const char *value);
+static void		hc_add_selstmt(hc_css_t *css, _hc_css_sel_t *sel, _hc_match_t match, const char *name, const char *value);
 static int		hc_eval_media(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
-static _hc_css_sel_t	*hc_new_sel(_hc_css_sel_t *prev, hc_element_t element);
+static _hc_css_sel_t	*hc_new_sel(_hc_css_sel_t *prev, hc_element_t element, _hc_relation_t rel);
 static char		*hc_read(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
 static hc_dict_t	*hc_read_props(_hc_css_file_t *f, hc_dict_t *props);
 static _hc_css_sel_t	*hc_read_sel(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
@@ -225,29 +225,15 @@ Strategy for reading CSS:
       }
       else if (!strcmp(buffer, "{"))
       {
+	int		i;		/* Looping var */
         hc_dict_t	*props;		/* Properties */
 
         if ((props = hc_read_props(&f, NULL)) != NULL)
         {
-	  int	i;			/* Looping var */
-
 	  if (skip)
 	  {
-	    _hc_css_sel_t *current,	/* Current selector */
-			*prev;		/* Previous selector */
-
 	    for (i = 0; i < num_sels; i ++)
-	    {
-	      for (current = sels[i]; current; current = prev)
-	      {
-		prev = current->prev;
-
-		if (current->num_stmts > 0)
-		  free(current->stmts);
-
-		free(current);
-	      }
-	    }
+	      _hcCSSSelDelete(sels[i]);
 	  }
 	  else
 	  {
@@ -298,11 +284,25 @@ hc_add_rule(hc_css_t      *css,		/* I - Stylesheet */
  */
 
 static void
-hc_add_selstmt(_hc_css_sel_t *sel,	/* I - Selector */
+hc_add_selstmt(hc_css_t      *css,	/* I - Stylesheet */
+               _hc_css_sel_t *sel,	/* I - Selector */
 	       _hc_match_t   match,	/* I - Matching statement type */
 	       const char    *name,	/* I - Name, if any */
 	       const char    *value)	/* I - Value, if any */
 {
+  _hc_css_selstmt_t	*temp;		/* Current statement */
+
+
+  if ((temp = realloc(sel->stmts, (sel->num_stmts + 1) * sizeof(_hc_css_selstmt_t))) != NULL)
+  {
+    sel->stmts = temp;
+    temp += sel->num_stmts;
+    sel->num_stmts ++;
+
+    temp->match = match;
+    temp->name  = hcPoolGetString(css->pool, name);
+    temp->value = hcPoolGetString(css->pool, value);
+  }
 }
 
 
@@ -447,16 +447,18 @@ hc_eval_media(_hc_css_file_t *f,	/* I - File to read from */
  */
 
 static _hc_css_sel_t *			/* O - New selector */
-hc_new_sel(_hc_css_sel_t *prev,		/* I - Previous selector in list */
-	   hc_element_t element)	/* I - Element */
+hc_new_sel(_hc_css_sel_t  *prev,	/* I - Previous selector in list */
+	   hc_element_t   element,	/* I - Element */
+	   _hc_relation_t rel)		/* I - Relationship to previous */
 {
   _hc_css_sel_t	*sel;			/* New selector */
 
 
   if ((sel = (_hc_css_sel_t *)calloc(1, sizeof(_hc_css_sel_t))) != NULL)
   {
-    sel->prev    = prev;
-    sel->element = element;
+    sel->prev     = prev;
+    sel->element  = element;
+    sel->relation = rel;
   }
 
   return (sel);
@@ -576,6 +578,24 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
 
 	if (ch == '(' || (ch == '-' && (bufptr - buffer) == 4 && !memcmp(buffer, "<!--", 4)) || (ch == '>' && (bufptr - buffer) == 3 && !memcmp(buffer, "-->", 3)))
 	  break;
+
+        if (ch == '=')
+        {
+         /*
+          * Comparison operator or FOO=...
+          */
+
+          if ((bufptr - buffer) == 1 || ((bufptr - buffer) == 2 && strchr("<>*^$|-", buffer[0])))
+            break;
+
+         /*
+          * Return FOO and save "=" for later...
+          */
+
+          _hcFileUngetc('=', &f->file);
+          ch = *--bufptr;
+          break;
+        }
       }
       while ((ch = _hcFileGetc(&f->file)) != EOF);
 
@@ -586,7 +606,7 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
 
       if (isdigit(*buffer & 255) || (*buffer == '.' && isdigit(buffer[1] & 255)))
         *type = _HC_TYPE_NUMBER;
-      else if (!strcmp(buffer, "("))
+      else if (ch == '=' || !strcmp(buffer, "("))
         *type = _HC_TYPE_RESERVED;
       else
         *type = _HC_TYPE_STRING;
@@ -673,6 +693,146 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
             char           *buffer,	/* I  - String buffer */
             size_t         bufsize)	/* I  - Size of string buffer */
 {
+  _hc_css_sel_t *sel = NULL;		/* Current selector */
+  _hc_relation_t rel = _HC_RELATION_CHILD;
+					/* Relationship with next selector */
+  char		*ptr,			/* Pointer into buffer/value */
+		name[256],		/* Attribute/pseudo-class name */
+		value[256];		/* Value in selector */
+
+
+  do
+  {
+    if (!strcmp(buffer, ":"))
+    {
+     /*
+      * Match pseudo-class...
+      */
+
+      if (!hc_read(f, type, name, sizeof(name)) || *type != _HC_TYPE_STRING)
+      {
+        _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing/bad pseudo-class.");
+        goto error;
+      }
+
+      ptr = name + strlen(name) - 1;
+      if (ptr > name && *ptr == '(')
+      {
+       /*
+        * :NAME(VALUE) syntax...
+        */
+
+        *ptr = '\0';
+        if (!hc_read(f, type, value, sizeof(value)) || *type != _HC_TYPE_STRING)
+        {
+	  _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing/bad value for ':%s'.", name);
+	  goto error;
+        }
+
+        if (!hc_read(f, type, buffer, bufsize) || *type != _HC_TYPE_RESERVED || strcmp(buffer, ")"))
+        {
+	  _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing/bad parenthesis after ':%s(%s'.", name, value);
+	  goto error;
+        }
+      }
+      else
+        value[0] = '\0';
+
+      if (!sel)
+        sel = hc_new_sel(NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+
+      hc_add_selstmt(f->css, sel, _HC_MATCH_PSEUDO_CLASS, name, value[0] ? value : NULL);
+    }
+    else if (buffer[0] == '.')
+    {
+     /*
+      * Match class name...
+      */
+
+      if (!sel)
+        sel = hc_new_sel(NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+
+      hc_add_selstmt(f->css, sel, _HC_MATCH_CLASS, buffer + 1, NULL);
+    }
+    else if (buffer[0] == '#')
+    {
+     /*
+      * Match ID string...
+      */
+
+      if (!sel)
+        sel = hc_new_sel(NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+
+      hc_add_selstmt(f->css, sel, _HC_MATCH_ID, buffer + 1, NULL);
+    }
+    else if (*type == _HC_TYPE_STRING)
+    {
+     /*
+      * Match element name...
+      */
+
+      hc_element_t	element;	/* Element for selector */
+
+      if (!strcmp(buffer, "*"))
+        element = HC_ELEMENT_WILDCARD;
+      else if ((element = _hcElementLookup(buffer)) == HC_ELEMENT_UNKNOWN)
+      {
+	_hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Unknown selector '%s'.", buffer);
+	goto error;
+      }
+
+      sel = hc_new_sel(sel, element, rel);
+      rel = _HC_RELATION_CHILD;
+    }
+    else if (!strcmp(buffer, "["))
+    {
+     /*
+      * Match attribute...
+      */
+    }
+    else if (!strcmp(buffer, ">") && sel)
+    {
+     /*
+      * Match immediate child...
+      */
+
+      rel = _HC_RELATION_IMMED_CHILD;
+    }
+    else if (!strcmp(buffer, "+") && sel)
+    {
+     /*
+      * Match immediate sibling...
+      */
+
+      rel = _HC_RELATION_IMMED_SIBLING;
+    }
+    else if (!strcmp(buffer, "~") && sel)
+    {
+     /*
+      * Match (subsequent) sibling...
+      */
+
+      rel = _HC_RELATION_SIBLING;
+    }
+    else
+    {
+      _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Unknown selector '%s'.", buffer);
+      goto error;
+    }
+
+  }
+  while (hc_read(f, type, buffer, bufsize));
+
+  return (sel);
+
+ /*
+  * If we get here there was a hard error...
+  */
+
+  error:
+
+  _hcCSSSelDelete(sel);
+
   return (NULL);
 }
 

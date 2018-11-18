@@ -65,6 +65,7 @@ struct _hc_html_s
  * Private functions...
  */
 
+extern hc_element_t	_hcElementLookup(const char *s);
 extern hc_node_t	*_hcNodeNewUnknown(hc_node_t *parent, const char *unk);
 
 #  ifdef __cplusplus

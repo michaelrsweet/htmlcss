@@ -55,6 +55,25 @@ static int	html_parse_unknown(_html_file_t *f, const char *unk);
 
 
 /*
+ * '_hcElementLookup() - Lookup an element enum from a string.
+ */
+
+hc_element_t				/* O - Element */
+_hcElementLookup(const char *s)		/* I - String */
+{
+  const char	**match;		/* Matching element */
+
+
+  match  = bsearch(&s, hcElements + 1, sizeof(hcElements) / sizeof(hcElements[0]) - 1, sizeof(hcElements[0]), (int (*)(const void *, const void *))html_compare_elements);
+
+  if (match)
+    return ((hc_element_t)(match - hcElements));
+  else
+    return (HC_ELEMENT_UNKNOWN);
+}
+
+
+/*
  * 'hcHTMLLoad()' - Load a HTML file into a document.
  */
 
@@ -469,8 +488,7 @@ html_parse_element(_html_file_t *f,	/* I - HTML file info */
   char		buffer[256],		/* String buffer */
 		*bufptr,		/* Pointer into buffer */
 		*bufend;		/* End of buffer */
-  const char	**match;		/* Matching element */
-  hc_element_t element;		/* Element index */
+  hc_element_t	element;		/* Element index */
   hc_node_t	*node;			/* New node */
   int		close_el = ch == '/';	/* Close element? */
 
@@ -520,15 +538,10 @@ html_parse_element(_html_file_t *f,	/* I - HTML file info */
 
   if (isspace(ch) || ch == '>' || ch == '/')
   {
-    bufptr = buffer;
-    match  = bsearch(&bufptr, hcElements, sizeof(hcElements) / sizeof(hcElements[0]), sizeof(hcElements[0]), (int (*)(const void *, const void *))html_compare_elements);
+    element = _hcElementLookup(buffer);
 
-    if (match)
-      element = (hc_element_t)(match - hcElements);
-    else if (!_hcError(f->html->error_cb, f->html->error_ctx, f->file.url, f->file.linenum, "Unknown element '%s'.", buffer))
+    if (element == HC_ELEMENT_UNKNOWN && !_hcError(f->html->error_cb, f->html->error_ctx, f->file.url, f->file.linenum, "Unknown element '%s'.", buffer))
       return (0);
-    else
-      element = HC_ELEMENT_UNKNOWN;
   }
   else
   {

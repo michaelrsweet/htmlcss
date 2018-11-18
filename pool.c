@@ -57,13 +57,13 @@ hcPoolNew(void)
 
 const char *				/* O - New string pointer */
 hcPoolGetString(
-    hc_pool_t *pool,		/* I - Memory pool */
-    const char     *s)			/* I - String to find/copy */
+    hc_pool_t  *pool,			/* I - Memory pool */
+    const char *s)			/* I - String to find/copy */
 {
   char	**temp;				/* Temporary string pointer */
 
 
-  if (!pool)
+  if (!pool || !s)
     return (NULL);
 
   if (pool->num_strings == 1 && !strcmp(pool->strings[0], s))

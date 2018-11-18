@@ -47,8 +47,6 @@ extern "C" {
 
 typedef enum _hc_match_e
 {
-  _HC_MATCH_ACTIVE,			/* :active pseudo-class */
-  _HC_MATCH_AFTER,			/* :after pseudo-element */
   _HC_MATCH_ATTR_EXIST,			/* [NAME] */
   _HC_MATCH_ATTR_EQUALS,		/* [NAME=VALUE] */
   _HC_MATCH_ATTR_CONTAINS,		/* [NAME*=VALUE] */
@@ -56,50 +54,23 @@ typedef enum _hc_match_e
   _HC_MATCH_ATTR_ENDS,			/* [NAME$=VALUE] */
   _HC_MATCH_ATTR_LANG,			/* [NAME|=VALUE] (language/prefix match) */
   _HC_MATCH_ATTR_SPACE,			/* [NAME~=VALUE] (space-delimited value match) */
-  _HC_MATCH_BEFORE,			/* :before pseudo-element */
-  _HC_MATCH_CHECKED,			/* :checked pseudo-class */
   _HC_MATCH_CLASS,			/* .NAME */
-  _HC_MATCH_DISABLED,			/* :disabled pseudo-class */
-  _HC_MATCH_EMPTY,			/* :empty pseudo-class */
-  _HC_MATCH_ENABLED,			/* :enabled pseudo-class */
-  _HC_MATCH_FIRST,			/* :first pseudo-class */
-  _HC_MATCH_FIRST_CHILD,		/* :first-child pseudo-class */
-  _HC_MATCH_FIRST_LINE,			/* :first-line pseudo-element */
-  _HC_MATCH_FIRST_LETTER,		/* :first-letter pseudo-element */
-  _HC_MATCH_FIRST_OF_TYPE,		/* :first-of-type pseudo-element */
-  _HC_MATCH_FOCUS,			/* :focus pseudo-class */
-  _HC_MATCH_HOVER,			/* :hover pseudo-class */
-  _HC_MATCH_LAST_CHILD,			/* :last-child pseudo-class */
-  _HC_MATCH_LAST_OF_TYPE,		/* :last-of-type pseudo-class */
-  _HC_MATCH_LEFT,			/* :left pseudo-class */
   _HC_MATCH_ID,				/* #NAME */
-  _HC_MATCH_LANG,			/* :lang(NAME) pseudo-class */
-  _HC_MATCH_LINK,			/* :link pseudo-class */
-/*  _HC_MATCH_NOT,*/			/* :not(SEL) pseudo-class (NOT CURRENTLY SUPPORTED) */
-  _HC_MATCH_NTH_CHILD,			/* :nth-child(NAME) pseudo-class */
-  _HC_MATCH_NTH_LAST_CHILD,		/* :nth-last-child(NAME) pseudo-class */
-  _HC_MATCH_NTH_LAST_OF_TYPE,		/* :nth-last-of-type(NAME) pseudo-class */
-  _HC_MATCH_NTH_OF_TYPE,		/* :nth-of-type(NAME) pseudo-class */
-  _HC_MATCH_ONLY_CHILD,			/* :only-child pseudo-class */
-  _HC_MATCH_ONLY_OF_TYPE,		/* :only-of-type pseudo-class */
-  _HC_MATCH_RIGHT,			/* :right pseudo-class */
-  _HC_MATCH_ROOT,			/* :root pseudo-class */
-  _HC_MATCH_TARGET,			/* :target pseudo-class */
-  _HC_MATCH_VISITED,			/* :visited pseudo-class */
+  _HC_MATCH_PSEUDO_CLASS		/* :NAME or :NANE(VALUE) pseudo-class */
 } _hc_match_t;
 
 typedef enum _hc_relation_e		/* Relationship to previous selector */
 {
-  _HC_RELATION_CHILD,			/* Child of previous */
-  _HC_RELATION_IMMED_CHILD,		/* Immediate child of previous */
-  _HC_RELATION_SIBLING,			/* Sibling of previous */
-  _HC_RELATION_IMMED_SIBLING		/* Immediate sibling of previous */
+  _HC_RELATION_CHILD,			/* Child (descendent) of previous (E F) */
+  _HC_RELATION_IMMED_CHILD,		/* Immediate child of previous (E > F) */
+  _HC_RELATION_SIBLING,			/* Sibling of previous (E ~ F) */
+  _HC_RELATION_IMMED_SIBLING		/* Immediate sibling of previous (E + F) */
 } _hc_relation_t;
 
 typedef struct _hc_css_selstmt_s	/* CSS selector matching statements */
 {
   _hc_match_t		match;		/* Matching rule */
-  char			*name,		/* Name, if needed */
+  const char		*name,		/* Name, if needed */
 			*value;		/* Value, if needed */
 } _hc_css_selstmt_t;
 
@@ -136,6 +107,8 @@ struct _hc_css_s
 /*
  * Functions...
  */
+
+extern void	_hcCSSSelDelete(_hc_css_sel_t *sel);
 
 #  ifdef __cplusplus
 }

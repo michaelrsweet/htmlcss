@@ -66,6 +66,30 @@ hcCSSNew(hc_pool_t *pool)		/* I - Memory pool */
 
 
 /*
+ * '_hcCSSSelDelete()' - Delete a CSS selector.
+ */
+
+void
+_hcCSSSelDelete(_hc_css_sel_t *sel)	/* I - Selector to delete */
+{
+  _hc_css_sel_t *prev;			/* Previous selector */
+
+
+  while (sel)
+  {
+    prev = sel->prev;
+
+    if (sel->stmts)
+      free(sel->stmts);
+
+    free(sel);
+
+    sel = prev;
+  }
+}
+
+
+/*
  * 'hcCSSSetMedia()' - Set the base media settings.
  */
 
