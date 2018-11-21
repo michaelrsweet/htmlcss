@@ -44,6 +44,38 @@ static int	compare_pairs(_hc_pair_t *a, _hc_pair_t *b);
 
 
 /*
+ * 'hcDictCopy()' - Make a copy of a dictionary.
+ */
+
+hc_dict_t *				/* O - New dictionary */
+hcDictCopy(hc_dict_t *dict)		/* I - Dictionary to copy */
+{
+  hc_dict_t	*newdict;		/* New dictionary */
+
+
+  if (!dict)
+    return (NULL);
+
+  if ((newdict = calloc(1, sizeof(hc_dict_t))) == NULL)
+    return (NULL);
+
+  newdict->pool        = dict->pool;
+  newdict->num_pairs   = dict->num_pairs;
+  newdict->alloc_pairs = dict->num_pairs;
+
+  if ((newdict->pairs = calloc(newdict->num_pairs, sizeof(_hc_pair_t))) == NULL)
+  {
+    free(newdict);
+    return (NULL);
+  }
+
+  memcpy(newdict->pairs, dict->pairs, newdict->num_pairs * sizeof(_hc_pair_t));
+
+  return (newdict);
+}
+
+
+/*
  * 'hcDictGetCount()' - Return the number of key/value pairs in a dictionary.
  */
 

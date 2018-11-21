@@ -276,6 +276,18 @@ hc_add_rule(hc_css_t      *css,		/* I - Stylesheet */
 	    _hc_css_sel_t *sel,		/* I - Selectors */
 	    hc_dict_t     *props)	/* I - Properties */
 {
+  _hc_rule_t	*rule;			/* New rule */
+
+
+  if ((rule = realloc(css->rules[sel->element], (css->num_rules[sel->element] + 1) * sizeof(_hc_rule_t))) != NULL)
+  {
+    css->rules[sel->element] = rule;
+    rule += css->num_rules[sel->element];
+    css->num_rules[sel->element] ++;
+
+    rule->sel   = sel;
+    rule->props = hcDictCopy(props);
+  }
 }
 
 

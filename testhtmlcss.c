@@ -14,6 +14,7 @@
  */
 
 #include "htmlcss.h"
+#include "css-private.h"
 
 
 /*
@@ -32,6 +33,14 @@ main(int  argc,				/* I - Number of command-line arguments */
   hc_node_t	*node,			/* Current node */
 		*next;			/* Next node */
   int		level;			/* Indentation level */
+  hc_element_t	element;		/* Current element */
+  _hc_rule_t	*rule;			/* CSS rule */
+  size_t	rcount;			/* Rule count */
+  _hc_css_sel_t	*sel;			/* CSS selector */
+  size_t	pindex,			/* Property index */
+		pcount;			/* Property count */
+  const char	*pname,			/* Property name */
+		*pvalue;		/* Property value */
 
 
   pool = hcPoolNew();
@@ -103,6 +112,35 @@ main(int  argc,				/* I - Number of command-line arguments */
 	if (next)
 	  next = hcNodeGetNextSiblingNode(next);
       }
+    }
+  }
+
+  puts("CSS:");
+
+  for (element = HC_ELEMENT_WILDCARD; element < HC_ELEMENT_MAX; element ++)
+  {
+    for (rule = css->rules[element], rcount = css->num_rules[element]; rcount > 0; rule ++, rcount --)
+    {
+      for (sel = rule->sel; sel; sel = sel->prev)
+      {
+        if (sel->element == HC_ELEMENT_WILDCARD)
+          fputs("*", stdout);
+        else
+          fputs(hcElements[sel->element], stdout);
+
+        /* TODO: list selector statements */
+        putchar(' ');
+      }
+
+      puts("{");
+
+      for (pindex = 0, pcount = hcDictGetCount(rule->props); pindex < pcount; pindex ++)
+      {
+        pvalue = hcDictGetIndexKeyValue(rule->props, pindex, &pname);
+        printf("  %s: %s;\n", pname, pvalue);
+      }
+
+      puts("}\n");
     }
   }
 
