@@ -491,7 +491,7 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
   int	ch;				/* Current character */
   char	*bufptr,			/* Pointer into buffer */
 	*bufend;			/* End of buffer */
-  static const char *reserved = ",:;{}[])/";
+  static const char *reserved = ",:;{}[])";
 					/* Reserved characters */
 
   bufptr = buffer;
@@ -826,6 +826,8 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
 
       rel = _HC_RELATION_SIBLING;
     }
+    else if (!strcmp(buffer, "{") || !strcmp(buffer, ","))
+      break;
     else
     {
       _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Unknown selector '%s'.", buffer);
