@@ -44,6 +44,20 @@ typedef enum _hc_type_e			/* Token type */
 
 
 /*
+ * Local globals...
+ */
+
+static const char * const types[] =	/* Types */
+{
+  "ERROR",
+  "RESERVED",
+  "STRING",
+  "QSTRING",
+  "NUMBER"
+};
+
+
+/*
  * Local functions...
  */
 
@@ -75,14 +89,6 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
   int		in_media = 0;		/* In a media grouping? */
   int		num_sels = 0;		/* Number of selectors */
   _hc_css_sel_t	*sels[1000];		/* Selectors */
-  static const char * const types[] =	/* Types */
-  {
-    "ERROR",
-    "RESERVED",
-    "STRING",
-    "QSTRING",
-    "NUMBER"
-  };
 
 
   printf("hcCSSImport(css=%p, url=\"%s\", fp=%p, s=\"%s\")\n", css, url, fp, s);
@@ -598,14 +604,17 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
           */
 
           if ((bufptr - buffer) == 1 || ((bufptr - buffer) == 2 && strchr("<>*^$|-", buffer[0])))
+          {
+            *type = _HC_TYPE_RESERVED;
             break;
+          }
 
          /*
           * Return FOO and save "=" for later...
           */
 
           _hcFileUngetc('=', &f->file);
-          ch = *--bufptr;
+          bufptr --;
           break;
         }
       }
@@ -613,14 +622,14 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
 
       if (bufptr == buffer)
         continue;
-      else if (ch != EOF && !isspace(ch & 255) && ch != '(')
+      else if (ch != EOF && !isspace(ch & 255) && ch != '(' && ch != '=')
 	_hcFileUngetc(ch, &f->file);
 
       if (isdigit(*buffer & 255) || (*buffer == '.' && isdigit(buffer[1] & 255)))
         *type = _HC_TYPE_NUMBER;
-      else if (ch == '=' || !strcmp(buffer, "("))
+      else if (!strcmp(buffer, "("))
         *type = _HC_TYPE_RESERVED;
-      else
+      else if (*type == _HC_TYPE_ERROR)
         *type = _HC_TYPE_STRING;
     }
 
@@ -648,6 +657,8 @@ hc_read_props(_hc_css_file_t *f,	/* I - file to read from */
 
   while (hc_read(f, &type, buffer, sizeof(buffer)))
   {
+    printf("%s:%d: (PROPS) %s %s\n", f->file.url, f->file.linenum, types[type], buffer);
+
     if (type == _HC_TYPE_RESERVED && !strcmp(buffer, "}"))
       break;
     else if (skip_remainder)
@@ -688,6 +699,8 @@ hc_read_props(_hc_css_file_t *f,	/* I - file to read from */
     hcDictSetKeyValue(props, name, value);
   }
 
+  printf("%s:%d: (PROPS) Returning %d properties.\n", f->file.url, f->file.linenum, (int)hcDictGetCount(props));
+
   return (props);
 }
 
@@ -715,6 +728,8 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
 
   do
   {
+    printf("%s:%d: (SELECTOR) %s %s\n", f->file.url, f->file.linenum, types[*type], buffer);
+
     if (!strcmp(buffer, ":"))
     {
      /*
@@ -801,6 +816,81 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
      /*
       * Match attribute...
       */
+
+      _hc_match_t	mtype;		/* Matching type */
+
+      if (!hc_read(f, type, name, sizeof(name)) || *type != _HC_TYPE_STRING)
+      {
+        _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing/bad attribute name.", name);
+        goto error;
+      }
+
+      printf("%s:%d: (SELECTOR) Attribute name '%s'.\n", f->file.url, f->file.linenum, name);
+
+      if (!hc_read(f, type, buffer, bufsize) || *type != _HC_TYPE_RESERVED)
+      {
+        _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing/bad operator/terminator (%s '%s') after attribute name.", types[*type], buffer);
+        goto error;
+      }
+
+      if (!strcmp(buffer, "]"))
+        mtype = _HC_MATCH_ATTR_EXIST;
+      else if (!strcmp(buffer, "="))
+        mtype = _HC_MATCH_ATTR_EQUALS;
+      else if (!strcmp(buffer, "*="))
+        mtype = _HC_MATCH_ATTR_CONTAINS;
+      else if (!strcmp(buffer, "^="))
+        mtype = _HC_MATCH_ATTR_BEGINS;
+      else if (!strcmp(buffer, "$="))
+        mtype = _HC_MATCH_ATTR_ENDS;
+      else if (!strcmp(buffer, "|="))
+        mtype = _HC_MATCH_ATTR_LANG;
+      else if (!strcmp(buffer, "~="))
+        mtype = _HC_MATCH_ATTR_SPACE;
+      else
+      {
+        _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Unknown operator '%s' after attribute name.", buffer);
+        goto error;
+      }
+
+      if (mtype == _HC_MATCH_ATTR_EXIST)
+      {
+       /*
+        * No value to match...
+        */
+
+	if (!sel)
+	  sel = hc_new_sel(NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+
+	hc_add_selstmt(f->css, sel, mtype, name, NULL);
+      }
+      else
+      {
+       /*
+        * Get value...
+        */
+
+	printf("%s:%d: (SELECTOR) Operator '%s'.\n", f->file.url, f->file.linenum, buffer);
+
+	if (!hc_read(f, type, value, sizeof(value)) || *type != _HC_TYPE_QSTRING)
+	{
+	  _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing/bad attribute value.");
+	  goto error;
+	}
+
+        printf("%s:%d: (SELECTOR) Attribute value '%s'.\n", f->file.url, f->file.linenum, value);
+
+	if (!hc_read(f, type, buffer, bufsize) || *type != _HC_TYPE_RESERVED || strcmp(buffer, "]"))
+	{
+	  _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing/bad terminator after attribute value (Ss '%s').", types[*type], buffer);
+	  goto error;
+	}
+
+	if (!sel)
+	  sel = hc_new_sel(NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+
+	hc_add_selstmt(f->css, sel, mtype, name, value);
+      }
     }
     else if (!strcmp(buffer, ">") && sel)
     {
@@ -836,6 +926,8 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
 
   }
   while (hc_read(f, type, buffer, bufsize));
+
+  printf("%s:%d: (SELECTOR) %s (%d matching statements)\n", f->file.url, f->file.linenum, hcElements[sel->element], (int)sel->num_stmts);
 
   return (sel);
 

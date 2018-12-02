@@ -23,7 +23,7 @@
 
 const char * const	hcElements[HC_ELEMENT_MAX] =
 {
-  "" /* "*" */
+  "", /* "*" */
   "!--",
   "!DOCTYPE",
   "a",
