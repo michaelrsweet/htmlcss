@@ -17,8 +17,12 @@ libdir	=	$(prefix)/lib
 mandir	=	$(prefix)/share/man
 
 CC	=	gcc
-CFLAGS	=	-Os -g -Wall '-DVERSION="$(VERSION)"'
+CFLAGS	=	$(OPTIM) -Wall '-DVERSION="$(VERSION)"'
+LDFLAGS	=	$(OPTIM)
 LIBS	=	-lm
+#OPTIM	=	-Os -g
+OPTIM	=	-g -fsanitize=address
+
 HEADERS	=	\
 		common.h \
 		css.h \
@@ -27,6 +31,10 @@ HEADERS	=	\
 		htmlcss.h \
 		pool.h \
 		run.h
+PHEADERS =	\
+		common-private.h \
+		css-private.h \
+		html-private.h
 LIBOBJS	=	\
 		common.o \
 		css-compute.o \
@@ -59,11 +67,11 @@ install:	$(TARGETS)
 	ranlib $(libdir)/libhtmlcss.a
 
 testhtmlcss:	testhtmlcss.o libhtmlcss.a
-	$(CC) $(CFLAGS) -o testhtmlcss testhtmlcss.o libhtmlcss.a $(LIBS)
+	$(CC) $(LDFLAGS) -o testhtmlcss testhtmlcss.o libhtmlcss.a $(LIBS)
 	./testhtmlcss
 
 libhtmlcss.a:	$(LIBOBJS)
 	ar -rcv libhtmlcss.a $(LIBOBJS)
 	ranlib libhtmlcss.a
 
-$(OBJS):	Makefile $(HEADERS) common-private.h css-private.h html-private.h
+$(OBJS):	Makefile $(HEADERS) $(PHEADERS)
