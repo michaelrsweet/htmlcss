@@ -229,7 +229,10 @@ Strategy for reading CSS:
 	ret = 0;
 	break;
       }
-      else if (!strcmp(buffer, "{"))
+
+      num_sels ++;
+
+      if (!strcmp(buffer, "{"))
       {
 	int		i;		/* Looping var */
         hc_dict_t	*props;		/* Properties */
@@ -238,11 +241,15 @@ Strategy for reading CSS:
         {
 	  if (skip)
 	  {
+	    printf("%s:%d: Skipping %d properties for %d selectors.\n", f.file.url, f.file.linenum, (int)hcDictGetCount(props), num_sels);
+
 	    for (i = 0; i < num_sels; i ++)
 	      _hcCSSSelDelete(sels[i]);
 	  }
 	  else
 	  {
+	    printf("%s:%d: Adding %d properties for %d selectors.\n", f.file.url, f.file.linenum, (int)hcDictGetCount(props), num_sels);
+
 	    for (i = 0; i < num_sels; i ++)
 	      hc_add_rule(css, sels[i], props);
 	  }
@@ -294,6 +301,8 @@ hc_add_rule(hc_css_t      *css,		/* I - Stylesheet */
     rule->sel   = sel;
     rule->props = hcDictCopy(props);
   }
+  else
+    _hcError(css->error_cb, css->error_ctx, NULL, 0, "Unable to allocate memory for selector rules.");
 }
 
 
