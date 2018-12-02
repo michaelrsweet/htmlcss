@@ -62,6 +62,19 @@
 #    include <unistd.h>
 #  endif /* WIN32 */
 
+
+/*
+ * DEBUG is typically defined for debug builds.  _HC_DEBUG maps to printf when
+ * DEBUG is defined and is a no-op otherwise...
+ */
+
+#  ifdef DEBUG
+#    define _HC_DEBUG(...) printf(__VA_ARGS__)
+#  else
+#    define _HC_DEBUG(...)
+#  endif /* DEBUG */
+
+
 #  ifdef __cplusplus
 extern "C" {
 #  endif /* __cplusplus */

@@ -17,11 +17,13 @@ libdir	=	$(prefix)/lib
 mandir	=	$(prefix)/share/man
 
 CC	=	gcc
-CFLAGS	=	$(OPTIM) -Wall '-DVERSION="$(VERSION)"'
+CFLAGS	=	$(OPTIM) -Wall '-DVERSION="$(VERSION)"' $(OPTIONS)
 LDFLAGS	=	$(OPTIM)
 LIBS	=	-lm
 #OPTIM	=	-Os -g
 OPTIM	=	-g -fsanitize=address
+OPTIONS	=
+#OPTIONS	=	-DDEBUG
 
 HEADERS	=	\
 		common.h \

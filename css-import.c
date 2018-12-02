@@ -91,7 +91,7 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
   _hc_css_sel_t	*sels[1000];		/* Selectors */
 
 
-  printf("hcCSSImport(css=%p, url=\"%s\", fp=%p, s=\"%s\")\n", css, url, fp, s);
+  _HC_DEBUG("hcCSSImport(css=%p, url=\"%s\", fp=%p, s=\"%s\")\n", css, url, fp, s);
 
   if (!css || (!url && !fp && !s))
   {
@@ -127,7 +127,7 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
       return (0);
     }
 
-    printf("Reading CSS from \"%s\"...\n", filename);
+    _HC_DEBUG("Reading CSS from \"%s\"...\n", filename);
   }
 
 /*
@@ -144,7 +144,7 @@ Strategy for reading CSS:
 
   while (hc_read(&f, &type, buffer, sizeof(buffer)))
   {
-    printf("%s:%d: %s %s\n", f.file.url, f.file.linenum, types[type], buffer);
+    _HC_DEBUG("%s:%d: %s %s\n", f.file.url, f.file.linenum, types[type], buffer);
 
     if (!strcmp(buffer, "@import"))
     {
@@ -241,14 +241,14 @@ Strategy for reading CSS:
         {
 	  if (skip)
 	  {
-	    printf("%s:%d: Skipping %d properties for %d selectors.\n", f.file.url, f.file.linenum, (int)hcDictGetCount(props), num_sels);
+	    _HC_DEBUG("%s:%d: Skipping %d properties for %d selectors.\n", f.file.url, f.file.linenum, (int)hcDictGetCount(props), num_sels);
 
 	    for (i = 0; i < num_sels; i ++)
 	      _hcCSSSelDelete(sels[i]);
 	  }
 	  else
 	  {
-	    printf("%s:%d: Adding %d properties for %d selectors.\n", f.file.url, f.file.linenum, (int)hcDictGetCount(props), num_sels);
+	    _HC_DEBUG("%s:%d: Adding %d properties for %d selectors.\n", f.file.url, f.file.linenum, (int)hcDictGetCount(props), num_sels);
 
 	    for (i = 0; i < num_sels; i ++)
 	      hc_add_rule(css, sels[i], props);
@@ -666,7 +666,7 @@ hc_read_props(_hc_css_file_t *f,	/* I - file to read from */
 
   while (hc_read(f, &type, buffer, sizeof(buffer)))
   {
-    printf("%s:%d: (PROPS) %s %s\n", f->file.url, f->file.linenum, types[type], buffer);
+    _HC_DEBUG("%s:%d: (PROPS) %s %s\n", f->file.url, f->file.linenum, types[type], buffer);
 
     if (type == _HC_TYPE_RESERVED && !strcmp(buffer, "}"))
       break;
@@ -708,7 +708,7 @@ hc_read_props(_hc_css_file_t *f,	/* I - file to read from */
     hcDictSetKeyValue(props, name, value);
   }
 
-  printf("%s:%d: (PROPS) Returning %d properties.\n", f->file.url, f->file.linenum, (int)hcDictGetCount(props));
+  _HC_DEBUG("%s:%d: (PROPS) Returning %d properties.\n", f->file.url, f->file.linenum, (int)hcDictGetCount(props));
 
   return (props);
 }
@@ -737,7 +737,7 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
 
   do
   {
-    printf("%s:%d: (SELECTOR) %s %s\n", f->file.url, f->file.linenum, types[*type], buffer);
+    _HC_DEBUG("%s:%d: (SELECTOR) %s %s\n", f->file.url, f->file.linenum, types[*type], buffer);
 
     if (!strcmp(buffer, ":"))
     {
@@ -834,7 +834,7 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
         goto error;
       }
 
-      printf("%s:%d: (SELECTOR) Attribute name '%s'.\n", f->file.url, f->file.linenum, name);
+      _HC_DEBUG("%s:%d: (SELECTOR) Attribute name '%s'.\n", f->file.url, f->file.linenum, name);
 
       if (!hc_read(f, type, buffer, bufsize) || *type != _HC_TYPE_RESERVED)
       {
@@ -879,7 +879,7 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
         * Get value...
         */
 
-	printf("%s:%d: (SELECTOR) Operator '%s'.\n", f->file.url, f->file.linenum, buffer);
+	_HC_DEBUG("%s:%d: (SELECTOR) Operator '%s'.\n", f->file.url, f->file.linenum, buffer);
 
 	if (!hc_read(f, type, value, sizeof(value)) || *type != _HC_TYPE_QSTRING)
 	{
@@ -887,7 +887,7 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
 	  goto error;
 	}
 
-        printf("%s:%d: (SELECTOR) Attribute value '%s'.\n", f->file.url, f->file.linenum, value);
+        _HC_DEBUG("%s:%d: (SELECTOR) Attribute value '%s'.\n", f->file.url, f->file.linenum, value);
 
 	if (!hc_read(f, type, buffer, bufsize) || *type != _HC_TYPE_RESERVED || strcmp(buffer, "]"))
 	{
@@ -936,7 +936,7 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
   }
   while (hc_read(f, type, buffer, bufsize));
 
-  printf("%s:%d: (SELECTOR) %s (%d matching statements)\n", f->file.url, f->file.linenum, hcElements[sel->element], (int)sel->num_stmts);
+  _HC_DEBUG("%s:%d: (SELECTOR) %s (%d matching statements)\n", f->file.url, f->file.linenum, hcElements[sel->element], (int)sel->num_stmts);
 
   return (sel);
 
