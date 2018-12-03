@@ -60,18 +60,27 @@ hcPoolGetString(
     hc_pool_t  *pool,			/* I - Memory pool */
     const char *s)			/* I - String to find/copy */
 {
-  char	**temp;				/* Temporary string pointer */
+  char	*news,				/* New string */
+	**temp;				/* Temporary string pointer */
 
 
   if (!pool || !s)
     return (NULL);
+  else if (!*s)
+    return ("");
 
   if (pool->num_strings == 1 && !strcmp(pool->strings[0], s))
+  {
+    _HC_DEBUG("hcPoolGetString: Existing string '%s' (%p) found.\n", pool->strings[0], (void *)pool->strings[0]);
     return (pool->strings[0]);
+  }
   else if (pool->num_strings > 1)
   {
     if ((temp = bsearch(&s, pool->strings, pool->num_strings, sizeof(char *), (int (*)(const void *, const void *))compare_strings)) != NULL)
+    {
+      _HC_DEBUG("hcPoolGetString: Existing string '%s' (%p) found.\n", *temp, (void *)*temp);
       return (*temp);
+    }
   }
 
   if (pool->num_strings >= pool->alloc_strings)
@@ -84,13 +93,15 @@ hcPoolGetString(
   }
 
   temp  = pool->strings + pool->num_strings;
-  *temp = strdup(s);
+  *temp = news = strdup(s);
   pool->num_strings ++;
 
   if (pool->num_strings > 1)
     qsort(pool->strings, pool->num_strings, sizeof(char *), (int (*)(const void *, const void *))compare_strings);
 
-  return (*temp);
+  _HC_DEBUG("hcPoolGetString: New string '%s' (%p), pool now contains %d strings.\n", news, (void *)news, (int)pool->num_strings);
+
+  return (news);
 }
 
 
