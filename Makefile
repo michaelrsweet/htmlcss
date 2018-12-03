@@ -76,4 +76,11 @@ libhtmlcss.a:	$(LIBOBJS)
 	ar -rcv libhtmlcss.a $(LIBOBJS)
 	ranlib libhtmlcss.a
 
+css-import.o:	default-css.h
+
+default-css.h:	testsuite/default.css Makefile
+	echo "static const char *default_css =" >default-css.h
+	sed -e '1,$$s/\\/\\\\/g' -e '1,$$s/"/\\"/g' <testsuite/default.css | awk '{print "\"" $$0 "\\n\""}' >>default-css.h
+	echo ";" >>default-css.h
+
 $(OBJS):	Makefile $(HEADERS) $(PHEADERS)

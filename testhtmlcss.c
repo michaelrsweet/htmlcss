@@ -63,7 +63,10 @@ main(int  argc,				/* I - Number of command-line arguments */
   * Test CSS/HTML functions...
   */
 
-  css  = hcCSSNew(pool);
+  css = hcCSSNew(pool);
+
+  hcCSSImportDefault(css);
+
   html = hcHTMLNew(pool, css);
 
   for (i = 1; i < argc; i ++)
@@ -178,13 +181,13 @@ main(int  argc,				/* I - Number of command-line arguments */
                 printf(".%s", stmt->name);
                 break;
             case _HC_MATCH_ID :
-                printf(".%s", stmt->name);
+                printf("#%s", stmt->name);
                 break;
             case _HC_MATCH_PSEUDO_CLASS :
                 if (stmt->value)
-		  printf(".%s(%s)", stmt->name, stmt->value);
+		  printf(":%s(%s)", stmt->name, stmt->value);
                 else
-		  printf(".%s", stmt->name);
+		  printf(":%s", stmt->name);
                 break;
           }
         }

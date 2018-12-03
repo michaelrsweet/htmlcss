@@ -399,6 +399,7 @@ extern int	hcCSSComputeText(hc_css_t *css, hc_node_t *node, hc_compute_t compute
 extern void	hcCSSDelete(hc_css_t *css);
 extern hc_css_t	*hcCSSNew(hc_pool_t *pool);
 extern int	hcCSSImport(hc_css_t *css, const char *url, FILE *fp, const char *s);
+extern int	hcCSSImportDefault(hc_css_t *css);
 extern void	hcCSSSetErrorCallback(hc_css_t *css, hc_error_cb_t cb, void *ctx);
 extern void	hcCSSSetURLCallback(hc_css_t *css, hc_url_cb_t cb, void *ctx);
 extern int	hcCSSSetMedia(hc_css_t *css, const char *type, int color_bits, int grayscale_bits, float width, float height);

@@ -14,6 +14,7 @@
  */
 
 #  include "css-private.h"
+#  include "default-css.h"
 
 
 /*
@@ -277,6 +278,17 @@ Strategy for reading CSS:
     fclose(f.file.fp);
 
   return (ret);
+}
+
+
+/*
+ * 'hcCSSImportDefault()' - Import the default HTML stylesheet.
+ */
+
+int					/* O - 1 on success, 0 on error */
+hcCSSImportDefault(hc_css_t *css)	/* I - Stylesheet */
+{
+  return (hcCSSImport(css, NULL, NULL, default_css));
 }
 
 
