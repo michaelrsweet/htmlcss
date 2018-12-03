@@ -69,7 +69,7 @@
  */
 
 #  ifdef DEBUG
-#    define _HC_DEBUG(...) printf(__VA_ARGS__)
+#    define _HC_DEBUG(...) fprintf(stderr, __VA_ARGS__)
 #  else
 #    define _HC_DEBUG(...)
 #  endif /* DEBUG */
