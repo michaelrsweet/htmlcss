@@ -18,6 +18,13 @@
 
 
 /*
+ * Local functions...
+ */
+
+static int	test_pool_functions(hc_pool_t *pool);
+
+
+/*
  * 'main()' - Main entry for unit tests.
  */
 
@@ -43,7 +50,19 @@ main(int  argc,				/* I - Number of command-line arguments */
 		*pvalue;		/* Property value */
 
 
+ /*
+  * Test string pool functions...
+  */
+
   pool = hcPoolNew();
+
+  if (!test_pool_functions(pool))
+    return (1);
+
+ /*
+  * Test CSS/HTML functions...
+  */
+
   css  = hcCSSNew(pool);
   html = hcHTMLNew(pool, css);
 
@@ -123,12 +142,53 @@ main(int  argc,				/* I - Number of command-line arguments */
     {
       for (sel = rule->sel; sel; sel = sel->prev)
       {
+        _hc_css_selstmt_t *stmt;	/* Matching statement */
+
         if (sel->element == HC_ELEMENT_WILDCARD)
           fputs("*", stdout);
         else
           fputs(hcElements[sel->element], stdout);
 
-        /* TODO: list selector statements */
+        for (i = 0, stmt = sel->stmts; i < (int)sel->num_stmts; i ++, stmt ++)
+        {
+          switch (stmt->match)
+          {
+            case _HC_MATCH_ATTR_EXIST :
+                printf("[%s]", stmt->name);
+                break;
+            case _HC_MATCH_ATTR_EQUALS :
+                printf("[%s=\"%s\"]", stmt->name, stmt->value);
+                break;
+            case _HC_MATCH_ATTR_CONTAINS :
+                printf("[%s*=\"%s\"]", stmt->name, stmt->value);
+                break;
+            case _HC_MATCH_ATTR_BEGINS :
+                printf("[%s^=\"%s\"]", stmt->name, stmt->value);
+                break;
+            case _HC_MATCH_ATTR_ENDS :
+                printf("[%s$=\"%s\"]", stmt->name, stmt->value);
+                break;
+            case _HC_MATCH_ATTR_LANG :
+                printf("[%s|=\"%s\"]", stmt->name, stmt->value);
+                break;
+            case _HC_MATCH_ATTR_SPACE :
+                printf("[%s~=\"%s\"]", stmt->name, stmt->value);
+                break;
+            case _HC_MATCH_CLASS :
+                printf(".%s", stmt->name);
+                break;
+            case _HC_MATCH_ID :
+                printf(".%s", stmt->name);
+                break;
+            case _HC_MATCH_PSEUDO_CLASS :
+                if (stmt->value)
+		  printf(".%s(%s)", stmt->name, stmt->value);
+                else
+		  printf(".%s", stmt->name);
+                break;
+          }
+        }
+
         putchar(' ');
       }
 
@@ -149,4 +209,302 @@ main(int  argc,				/* I - Number of command-line arguments */
   hcPoolDelete(pool);
 
   return (0);
+}
+
+
+/*
+ * 'test_pool_functions()' - Test memory pool functions.
+ */
+
+static int				/* I - 1 on success, 0 on failure */
+test_pool_functions(hc_pool_t *pool)	/* I - Memory pool */
+{
+  int		i, j;			/* Looping vars */
+  const char	*strings[235],		/* Strings from memory pool */
+		*temp;			/* Temporary string pointer */
+  static const char * const words[235] =/* Test strings */
+  {
+    "accordant",
+    "actinomere",
+    "advisableness",
+    "agitate",
+    "alef",
+    "Alsophila",
+    "Amoy",
+    "anchoritish",
+    "annulation",
+    "anticontagionist",
+    "anxietude",
+    "approximation",
+    "areologically",
+    "Ascella",
+    "atangle",
+    "autobasidiomycetous",
+    "azoflavine",
+    "ballast",
+    "Basilidianism",
+    "beefeater",
+    "bepaper",
+    "bicornate",
+    "biternate",
+    "blunge",
+    "Bostrychidae",
+    "breastfeeding",
+    "Bryum",
+    "button",
+    "Callithrix",
+    "capitulum",
+    "cartboot",
+    "cavate",
+    "certify",
+    "cheat",
+    "chloroauric",
+    "Chrysotis",
+    "clammish",
+    "cnemial",
+    "cogue",
+    "commentatorship",
+    "Condylura",
+    "contemporary",
+    "cordmaker",
+    "could",
+    "craniological",
+    "crownling",
+    "curratow",
+    "cyton",
+    "deadwort",
+    "deflagration",
+    "denitrator",
+    "despiteful",
+    "diastrophy",
+    "dioecious",
+    "disenamour",
+    "distortional",
+    "dopebook",
+    "dropsically",
+    "earlet",
+    "Eimak",
+    "emblement",
+    "endorsation",
+    "entreat",
+    "equanimousness",
+    "estop",
+    "Evodia",
+    "exploratively",
+    "faitour",
+    "feminacy",
+    "fin",
+    "flintily",
+    "forbiddable",
+    "Fourierite",
+    "fuchsinophilous",
+    "gallows",
+    "geanticline",
+    "ghaist",
+    "glossoptosis",
+    "gorily",
+    "grieved",
+    "gurl",
+    "Hamamelidaceae",
+    "headmost",
+    "hemianopia",
+    "hesperidin",
+    "Hippoglossus",
+    "homoiothermic",
+    "Hugo",
+    "hydrotherapeutics",
+    "hypogean",
+    "idose",
+    "impersuadable",
+    "incomprehension",
+    "Inermia",
+    "inobservation",
+    "intercombination",
+    "interwrought",
+    "iridoncus",
+    "isotomous",
+    "Jezebelian",
+    "Kalandariyah",
+    "kiln",
+    "Kua",
+    "lanciferous",
+    "leadable",
+    "leucocism",
+    "linja",
+    "logographical",
+    "lupinaster",
+    "magician",
+    "manganeisen",
+    "Maskoi",
+    "Medize",
+    "merchantableness",
+    "metastoma",
+    "middlebuster",
+    "miscompute",
+    "Mogollon",
+    "monospherical",
+    "mountainette",
+    "muscatorium",
+    "Myxobacteriaceae",
+    "necrographer",
+    "neuropath",
+    "nominally",
+    "nonelemental",
+    "nonprojection",
+    "norwester",
+    "obituarist",
+    "oenomel",
+    "onychitis",
+    "organizational",
+    "osteosis",
+    "outtrail",
+    "overgrow",
+    "overtart",
+    "Paguridea",
+    "pancyclopedic",
+    "parallepipedous",
+    "pashaship",
+    "pedagogy",
+    "penworker",
+    "peritrich",
+    "Phalangerinae",
+    "phonographically",
+    "physiophilosophical",
+    "pinguid",
+    "plastics",
+    "plural",
+    "polyaxial",
+    "Popian",
+    "potator",
+    "precoloration",
+    "preinform",
+    "presphenoid",
+    "probeer",
+    "pronunciative",
+    "protopoditic",
+    "pseudospherical",
+    "pumpkinify",
+    "pyrophosphate",
+    "quink",
+    "ramhood",
+    "reassociation",
+    "recurve",
+    "reheater",
+    "repand",
+    "respue",
+    "revokement",
+    "rimose",
+    "rosoli",
+    "Sabaist",
+    "Salvia",
+    "sauqui",
+    "schoolkeeping",
+    "scrod",
+    "selaginellaceous",
+    "semiserious",
+    "serrate",
+    "sheetwork",
+    "sickeningly",
+    "Siphoneae",
+    "sleighty",
+    "snobbism",
+    "songstress",
+    "spectator",
+    "spitish",
+    "squaremouth",
+    "stearin",
+    "stockproof",
+    "stromboid",
+    "subequality",
+    "subtrapezoidal",
+    "Sunday",
+    "superstrong",
+    "sweeten",
+    "syntone",
+    "tangence",
+    "teachability",
+    "tenontophyma",
+    "Teutomania",
+    "theurgic",
+    "thyreoprotein",
+    "tobaccoism",
+    "totty",
+    "transmarginal",
+    "trichromat",
+    "trochanteric",
+    "tumefacient",
+    "typographical",
+    "unaldermanly",
+    "unbowed",
+    "unconditional",
+    "underborne",
+    "undexterously",
+    "uneviscerated",
+    "ungalling",
+    "unimbowered",
+    "unlikelihood",
+    "unofficiousness",
+    "unproficiently",
+    "unride",
+    "unsnaggled",
+    "untenanted",
+    "unwillingness",
+    "urinology",
+    "vapored",
+    "vermiculite",
+    "viremic",
+    "waeg",
+    "Wazir",
+    "whistly",
+    "woadman",
+    "xenium",
+    "zanella"
+  };
+
+
+  puts("Testing memory pool functions...");
+
+  for (i = 0; i < (int)(sizeof(words) / sizeof(words[0])); i ++)
+  {
+    if ((strings[i] = hcPoolGetString(pool, words[i])) == NULL)
+    {
+      printf("FAILED getting word string #%d ('%s')\n", i + 1, words[i]);
+      return (0);
+    }
+  }
+
+  for (i = 0; i < (int)(sizeof(words) / sizeof(words[0])); i ++)
+  {
+    if (strcmp(strings[i], words[i]))
+    {
+      printf("FAILED verifying word string #%d (got '%s', expected '%s')\n", i + 1, strings[i], words[i]);
+      return (0);
+    }
+
+    for (j = i + 1; j < (int)(sizeof(words) / sizeof(words[0])); j ++)
+    {
+      if (strings[i] == strings[j])
+      {
+	printf("FAILED word string #%d ('%s') and #%d ('%s') have the same pointer.\n", i + 1, strings[i], j + 1, strings[j]);
+	return (0);
+      }
+    }
+  }
+
+  for (i = 0; i < (int)(sizeof(words) / sizeof(words[0])); i ++)
+  {
+    if ((temp = hcPoolGetString(pool, words[i])) == NULL)
+    {
+      printf("FAILED getting word string #%d ('%s')\n", i + 1, words[i]);
+      return (0);
+    }
+
+    if (temp != strings[i])
+    {
+      printf("FAILED word string #%d ('%s') did not reuse pointer.\n", i + 1, words[i]);
+      return (0);
+    }
+  }
+
+  return (1);
 }
