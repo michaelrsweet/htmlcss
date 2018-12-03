@@ -705,6 +705,7 @@ hc_read_props(_hc_css_file_t *f,	/* I - file to read from */
     if (!props)
       props = hcDictNew(f->css->pool);
 
+    _HC_DEBUG("%s:%d: (PROPS) Adding '%s: %s;'.\n", f->file.url, f->file.linenum, name, value);
     hcDictSetKeyValue(props, name, value);
   }
 
