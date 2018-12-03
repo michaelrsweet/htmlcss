@@ -1,4 +1,3 @@
-#define DEBUG
 /*
  * HTML attribute functions for HTMLCSS library.
  *
