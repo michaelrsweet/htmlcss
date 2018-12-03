@@ -39,7 +39,7 @@ extern hc_dict_t	*hcDictCopy(hc_dict_t *dict);
 extern void		hcDictDelete(hc_dict_t *dict);
 extern size_t		hcDictGetCount(hc_dict_t *dict);
 extern const char	*hcDictGetIndexKeyValue(hc_dict_t *dict, size_t idx, const char **key);
-extern const char	*hcdictGetKeyValue(hc_dict_t *dict, const char *key);
+extern const char	*hcDictGetKeyValue(hc_dict_t *dict, const char *key);
 extern hc_dict_t	*hcDictNew(hc_pool_t *pool);
 extern void		hcDictRemoveKey(hc_dict_t *dict, const char *key);
 extern void		hcDictSetKeyValue(hc_dict_t *dict, const char *key, const char *value);

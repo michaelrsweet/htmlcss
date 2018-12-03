@@ -355,7 +355,7 @@ html_parse_attr(_html_file_t *f,	/* I - HTML file info */
     }
 
     *ptr = '\0';
-    hcNodeAttrSetNameValue(node, name, value);
+    hcNodeAttrSetNameValue(f->html, node, name, value);
   }
   else if (ch != EOF)
   {
@@ -363,7 +363,7 @@ html_parse_attr(_html_file_t *f,	/* I - HTML file info */
     * Add "name=name"...
     */
 
-    hcNodeAttrSetNameValue(node, name, name);
+    hcNodeAttrSetNameValue(f->html, node, name, name);
   }
 
   return (ch);

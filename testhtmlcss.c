@@ -77,6 +77,8 @@ main(int  argc,				/* I - Number of command-line arguments */
       hcCSSImport(css, argv[i], NULL, NULL);
   }
 
+  puts("HTML document tree:\n");
+
   for (node = hcHTMLGetRootNode(html), level = 0; node; node = next)
   {
     hc_element_t element = hcNodeGetElement(node);
@@ -137,15 +139,39 @@ main(int  argc,				/* I - Number of command-line arguments */
     }
   }
 
-  puts("CSS:");
+  puts("Flattened CSS:\n");
 
   for (element = HC_ELEMENT_WILDCARD; element < HC_ELEMENT_MAX; element ++)
   {
     for (rule = css->rules[element], rcount = css->num_rules[element]; rcount > 0; rule ++, rcount --)
     {
-      for (sel = rule->sel; sel; sel = sel->prev)
+      int		num_sels = 0;	/* Number of selectors */
+      _hc_css_sel_t	*sels[100];	/* Selectors */
+
+      for (sel = rule->sel; sel && num_sels < 100; sel = sel->prev)
+        sels[num_sels++] = sel;
+
+      while (num_sels > 0)
       {
         _hc_css_selstmt_t *stmt;	/* Matching statement */
+
+        num_sels --;
+        sel = sels[num_sels];
+
+        switch (sel->relation)
+        {
+          case _HC_RELATION_CHILD :	/* Child (descendent) of previous (E F) */
+              break;
+          case _HC_RELATION_IMMED_CHILD: /* Immediate child of previous (E > F) */
+              fputs("> ", stdout);
+              break;
+          case _HC_RELATION_SIBLING:	/* Sibling of previous (E ~ F) */
+              fputs("~ ", stdout);
+              break;
+          case _HC_RELATION_IMMED_SIBLING: /* Immediate sibling of previous (E + F) */
+              fputs("+ ", stdout);
+              break;
+        }
 
         if (sel->element == HC_ELEMENT_WILDCARD)
           fputs("*", stdout);
@@ -203,7 +229,7 @@ main(int  argc,				/* I - Number of command-line arguments */
         printf("  %s: %s;\n", pname, pvalue);
       }
 
-      puts("}\n");
+      puts("}");
     }
   }
 
@@ -465,7 +491,7 @@ test_pool_functions(hc_pool_t *pool)	/* I - Memory pool */
   };
 
 
-  puts("Testing memory pool functions...");
+  puts("Testing memory pool functions:\n");
 
   for (i = 0; i < (int)(sizeof(words) / sizeof(words[0])); i ++)
   {
@@ -475,6 +501,8 @@ test_pool_functions(hc_pool_t *pool)	/* I - Memory pool */
       return (0);
     }
   }
+
+  printf("PASSED adding %d word strings to pool.\n", i);
 
   for (i = 0; i < (int)(sizeof(words) / sizeof(words[0])); i ++)
   {
@@ -494,6 +522,8 @@ test_pool_functions(hc_pool_t *pool)	/* I - Memory pool */
     }
   }
 
+  printf("PASSED verifying %d word strings in pool.\n", i);
+
   for (i = 0; i < (int)(sizeof(words) / sizeof(words[0])); i ++)
   {
     if ((temp = hcPoolGetString(pool, words[i])) == NULL)
@@ -508,6 +538,8 @@ test_pool_functions(hc_pool_t *pool)	/* I - Memory pool */
       return (0);
     }
   }
+
+  printf("PASSED string reuse checks of %d word strings in pool.\n\n", i);
 
   return (1);
 }

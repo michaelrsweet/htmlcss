@@ -76,17 +76,6 @@ hcDictCopy(hc_dict_t *dict)		/* I - Dictionary to copy */
 
 
 /*
- * 'hcDictGetCount()' - Return the number of key/value pairs in a dictionary.
- */
-
-size_t					/* O - Number of key/value pairs */
-hcDictGetCount(hc_dict_t *dict)		/* I - Dictionary */
-{
-  return (dict ? dict->num_pairs : 0);
-}
-
-
-/*
  * 'hcDictDelete()' - Delete a dictionary.
  */
 
@@ -104,26 +93,13 @@ hcDictDelete(hc_dict_t *dict)		/* I - Dictionary */
 
 
 /*
- * 'hcdictGetKeyValue()' - Get the value for a key in a dictionary.
+ * 'hcDictGetCount()' - Return the number of key/value pairs in a dictionary.
  */
 
-const char *				/* O - Value or `NULL` if not found. */
-hcdictGetKeyValue(hc_dict_t  *dict,	/* I - Dictionary */
-                  const char *key)	/* I - Key string */
+size_t					/* O - Number of key/value pairs */
+hcDictGetCount(hc_dict_t *dict)		/* I - Dictionary */
 {
-  _hc_pair_t	temp,			/* Temporary search key */
-		*ptr;			/* Pointer to match */
-
-
-  if (!dict || dict->num_pairs == 0)
-    return (NULL);
-
-  temp.key = key;
-
-  if ((ptr = (_hc_pair_t *)bsearch(&temp, dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (int (*)(const void *, const void *))compare_pairs)) != NULL)
-    return (ptr->value);
-  else
-    return (NULL);
+  return (dict ? dict->num_pairs : 0);
 }
 
 
@@ -143,6 +119,47 @@ hcDictGetIndexKeyValue(
   *key = dict->pairs[idx].key;
 
   return (dict->pairs[idx].value);
+}
+
+
+/*
+ * 'hcDictGetKeyValue()' - Get the value for a key in a dictionary.
+ */
+
+const char *				/* O - Value or `NULL` if not found. */
+hcDictGetKeyValue(hc_dict_t  *dict,	/* I - Dictionary */
+                  const char *key)	/* I - Key string */
+{
+  _hc_pair_t	temp,			/* Temporary search key */
+		*ptr;			/* Pointer to match */
+
+
+  if (!dict || dict->num_pairs == 0)
+    return (NULL);
+
+  temp.key = key;
+
+  if ((ptr = (_hc_pair_t *)bsearch(&temp, dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (int (*)(const void *, const void *))compare_pairs)) != NULL)
+    return (ptr->value);
+  else
+    return (NULL);
+}
+
+
+/*
+ * 'hcDictNew()' - Create a new dictionary.
+ */
+
+hc_dict_t *				/* O - New dictionary */
+hcDictNew(hc_pool_t *pool)		/* I - Memory pool */
+{
+  hc_dict_t	*dict;			/* New dictionary */
+
+
+  if ((dict = (hc_dict_t *)calloc(1, sizeof(hc_dict_t))) != NULL)
+    dict->pool = pool;
+
+  return (dict);
 }
 
 
@@ -236,23 +253,6 @@ hcDictSetKeyValue(hc_dict_t  *dict,	/* I - Dictionary */
   for (i = 0, ptr = dict->pairs; i < dict->num_pairs; i ++, ptr ++)
     _HC_DEBUG("hcDictSetKeyValue: pairs[%d].key=\"%s\", .value=\"%s\"\n", (int)i, ptr->key, ptr->value);
 #endif /* DEBUG */
-}
-
-
-/*
- * 'hcDictNew()' - Create a new dictionary.
- */
-
-hc_dict_t *				/* O - New dictionary */
-hcDictNew(hc_pool_t *pool)		/* I - Memory pool */
-{
-  hc_dict_t	*dict;			/* New dictionary */
-
-
-  if ((dict = (hc_dict_t *)calloc(1, sizeof(hc_dict_t))) != NULL)
-    dict->pool = pool;
-
-  return (dict);
 }
 
 

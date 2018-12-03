@@ -59,7 +59,7 @@ hcNodeAttrGetNameValue(
   if (!node || node->element < HC_ELEMENT_DOCTYPE || !name)
     return (NULL);
 
-  return (hcdictGetKeyValue(node->value.element.attrs, name));
+  return (hcDictGetKeyValue(node->value.element.attrs, name));
 }
 
 
@@ -84,12 +84,16 @@ hcNodeAttrRemove(hc_node_t  *node,	/* I - Element node */
 
 void
 hcNodeAttrSetNameValue(
+    hc_html_t  *html,			/* I - HTML document */
     hc_node_t  *node,			/* I - Element node */
     const char *name,			/* I - Attribute name */
     const char *value)			/* I - Attribute value */
 {
   if (!node || node->element < HC_ELEMENT_DOCTYPE || !name || !value)
     return;
+
+  if (!node->value.element.attrs)
+    node->value.element.attrs = hcDictNew(html->pool);
 
   hcDictSetKeyValue(node->value.element.attrs, name, value);
 }

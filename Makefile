@@ -70,7 +70,7 @@ install:	$(TARGETS)
 
 testhtmlcss:	testhtmlcss.o libhtmlcss.a
 	$(CC) $(LDFLAGS) -o testhtmlcss testhtmlcss.o libhtmlcss.a $(LIBS)
-	./testhtmlcss
+	./testhtmlcss testsuite/basic.html
 
 libhtmlcss.a:	$(LIBOBJS)
 	ar -rcv libhtmlcss.a $(LIBOBJS)

@@ -245,7 +245,7 @@ hcHTMLNewRootNode(hc_html_t  *html,	/* I - HTML document */
   if ((node = html_new(NULL, HC_ELEMENT_DOCTYPE, NULL)) != NULL)
   {
     html->root = node;
-    hcNodeAttrSetNameValue(node, "", doctype);
+    hcNodeAttrSetNameValue(html, node, "", doctype);
   }
 
   return (node);

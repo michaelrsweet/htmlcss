@@ -200,7 +200,7 @@ extern size_t		hcNodeAttrGetCount(hc_node_t *node);
 extern const char	*hcNodeAttrGetIndexNameValue(hc_node_t *node, size_t idx, const char **name);
 extern const char	*hcNodeAttrGetNameValue(hc_node_t *node, const char *name);
 extern void		hcNodeAttrRemove(hc_node_t *node, const char *name);
-extern void		hcNodeAttrSetNameValue(hc_node_t *node, const char *name, const char *value);
+extern void		hcNodeAttrSetNameValue(hc_html_t *html, hc_node_t *node, const char *name, const char *value);
 
 extern void		hcNodeDelete(hc_html_t *html, hc_node_t *node);
 extern const char	*hcNodeGetComment(hc_node_t *node);
