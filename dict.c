@@ -1,3 +1,4 @@
+#define DEBUG
 /*
  * HTML attribute functions for HTMLCSS library.
  *
@@ -189,6 +190,8 @@ hcDictSetKeyValue(hc_dict_t  *dict,	/* I - Dictionary */
 		*ptr = NULL;		/* New key/value pair */
 
 
+  _HC_DEBUG("hcDictSetKeyValue(dict=%p, key=\"%s\", value=\"%s\")\n", (void *)dict, key, value);
+
   if (!dict)
   {
     return;
@@ -226,6 +229,14 @@ hcDictSetKeyValue(hc_dict_t  *dict,	/* I - Dictionary */
   ptr->value = hcPoolGetString(dict->pool, value);
 
   qsort(dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (int (*)(const void *, const void *))compare_pairs);
+
+#ifdef DEBUG
+  size_t i;
+
+  _HC_DEBUG("hxDictSetKeyValue: num_pairs=%d\n", (int)dict->num_pairs);
+  for (i = 0, ptr = dict->pairs; i < dict->num_pairs; i ++, ptr ++)
+    _HC_DEBUG("hcDictSetKeyValue: pairs[%d].key=\"%s\", .value=\"%s\"\n", (int)i, ptr->key, ptr->value);
+#endif /* DEBUG */
 }
 
 
