@@ -29,6 +29,7 @@ HEADERS	=	\
 		common.h \
 		css.h \
 		dict.h \
+		font.h \
 		html.h \
 		htmlcss.h \
 		pool.h \
@@ -36,6 +37,7 @@ HEADERS	=	\
 PHEADERS =	\
 		common-private.h \
 		css-private.h \
+		font-private.h \
 		html-private.h
 LIBOBJS	=	\
 		common.o \
@@ -43,6 +45,8 @@ LIBOBJS	=	\
 		css-core.o \
 		css-import.o \
 		dict.o \
+		font-core.o \
+		font-extents.o \
 		html-attr.o \
 		html-core.o \
 		html-find.o \
