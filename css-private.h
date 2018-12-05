@@ -85,9 +85,19 @@ typedef struct _hc_css_sel_s		/* CSS selector */
 
 typedef struct _hc_rule_s		/* CSS rule set */
 {
+  unsigned char		hash[HC_SHA3_256_SIZE];
+					/* Hash of selector */
   _hc_css_sel_t		*sel;		/* Leaf selector */
   hc_dict_t		*props;		/* Properties */
 } _hc_rule_t;
+
+typedef struct _hc_rulecol_s		/* Collection of rules */
+{
+  int			needs_sort;	/* Needs sorting? */
+  size_t		alloc_rules;	/* Allocated rules */
+  size_t		num_rules;	/* Number of rules */
+  _hc_rule_t		**rules;	/* Rules */
+} _hc_rulecol_t;
 
 struct _hc_css_s
 {
@@ -97,10 +107,9 @@ struct _hc_css_s
   void			*error_ctx;	/* Error callback context pointer */
   hc_url_cb_t		url_cb;		/* URL callback */
   void			*url_ctx;	/* URL callback context pointer */
-  size_t		num_rules[HC_ELEMENT_MAX];
-					/* Number of rule sets for each element */
-  _hc_rule_t		*rules[HC_ELEMENT_MAX];
-					/* Rule sets for each element */
+  _hc_rulecol_t		all_rules;	/* All rule sets in the stylesheet and document */
+  _hc_rulecol_t		rules[HC_ELEMENT_MAX];
+					/* Rule sets organized by element */
 };
 
 
@@ -109,6 +118,14 @@ struct _hc_css_s
  */
 
 extern void	_hcCSSSelDelete(_hc_css_sel_t *sel);
+
+extern void	_hcRuleColAdd(_hc_rulecol_t *col, _hc_rule_t *rule);
+extern void	_hcRuleColClear(_hc_rulecol_t *col, int delete_rules);
+extern _hc_rule_t *_hcRuleColFindHash(_hc_rulecol_t *col, const unsigned char *hash);
+extern _hc_rule_t *_hcRuleColFindNode(_hc_rulecol_t *col, hc_node_t *node);
+extern void	_hcRuleDelete(_hc_rule_t *rule);
+extern _hc_rule_t *_hcRuleNew(hc_pool_t *pool, _hc_css_sel_t *sel, hc_dict_t *props);
+
 
 #  ifdef __cplusplus
 }
