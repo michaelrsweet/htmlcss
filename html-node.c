@@ -244,8 +244,10 @@ hcHTMLNewRootNode(hc_html_t  *html,	/* I - HTML document */
 
   if ((node = html_new(NULL, HC_ELEMENT_DOCTYPE, NULL)) != NULL)
   {
-    html->root = node;
-    hcNodeAttrSetNameValue(html, node, "", doctype);
+    html->root               = node;
+    node->value.element.html = html;
+
+    hcNodeAttrSetNameValue(node, "", doctype);
   }
 
   return (node);
@@ -334,6 +336,9 @@ html_new(hc_node_t    *parent,		/* I - Parent node or `NULL` if root node */
 
     if (parent)
     {
+      if (element > HC_ELEMENT_DOCTYPE)
+        node->value.element.html = parent->value.element.html;
+
       if (parent->value.element.last_child)
       {
         node->prev_sibling                             = parent->value.element.last_child;

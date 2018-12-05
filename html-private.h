@@ -43,6 +43,8 @@ struct _hc_node_s
       hc_node_t	*first_child;		/***** First child node */
       hc_node_t	*last_child;		/***** Last child node */
       hc_dict_t	*attrs;			/***** Attributes dictionary */
+      hc_html_t	*html;			/***** HTML document */
+      hc_dict_t	*props;			/***** CSS properties dictionary */
     }		element;		/*** Element value */
     char	string[1];		/*** String value */
     char	unknown[1];		/*** Unknown element/directive value */

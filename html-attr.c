@@ -84,7 +84,6 @@ hcNodeAttrRemove(hc_node_t  *node,	/* I - Element node */
 
 void
 hcNodeAttrSetNameValue(
-    hc_html_t  *html,			/* I - HTML document */
     hc_node_t  *node,			/* I - Element node */
     const char *name,			/* I - Attribute name */
     const char *value)			/* I - Attribute value */
@@ -93,7 +92,7 @@ hcNodeAttrSetNameValue(
     return;
 
   if (!node->value.element.attrs)
-    node->value.element.attrs = hcDictNew(html->pool);
+    node->value.element.attrs = hcDictNew(node->value.element.html->pool);
 
   hcDictSetKeyValue(node->value.element.attrs, name, value);
 }
