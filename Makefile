@@ -33,7 +33,8 @@ HEADERS	=	\
 		html.h \
 		htmlcss.h \
 		pool.h \
-		run.h
+		run.h \
+		sha3.h
 PHEADERS =	\
 		common-private.h \
 		css-private.h \
@@ -52,7 +53,8 @@ LIBOBJS	=	\
 		html-find.o \
 		html-load.o \
 		html-node.o \
-		pool.o
+		pool.o \
+		sha3.o
 OBJS	=	testhtmlcss.o $(LIBOBJS)
 TARGETS	=	libhtmlcss.a testhtmlcss
 

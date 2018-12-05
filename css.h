@@ -17,6 +17,7 @@
  */
 
 #  include "html.h"
+#  include "dict.h"
 
 #  ifdef __cplusplus
 extern "C" {
@@ -390,12 +391,13 @@ typedef struct _hc_css_s hc_css_t;		/* CSS data */
  * Functions...
  */
 
-extern int	hcCSSComputeBox(hc_css_t *css, hc_node_t *node, hc_compute_t compute, hc_box_t *box);
-extern char	*hcCSSComputeContent(hc_css_t *css, hc_node_t *node, hc_compute_t compute);
-extern int	hcCSSComputeDisplay(hc_css_t *css, hc_node_t *node, hc_compute_t compute, hc_display_t *display);
-extern int	hcCSSComputeMedia(hc_css_t *css, hc_node_t *node, hc_compute_t compute, hc_media_t *media);
-extern int	hcCSSComputeTable(hc_css_t *css, hc_node_t *node, hc_compute_t compute, hc_table_t *table);
-extern int	hcCSSComputeText(hc_css_t *css, hc_node_t *node, hc_compute_t compute, hc_text_t *text);
+extern int	hcCSSComputeBox(hc_node_t *node, hc_compute_t compute, hc_box_t *box);
+extern char	*hcCSSComputeContent(hc_node_t *node, hc_compute_t compute);
+extern hc_display_t hcCSSComputeDisplay(hc_node_t *node, hc_compute_t compute);
+extern int	hcCSSComputeMedia(hc_node_t *node, hc_compute_t compute, hc_media_t *media);
+extern hc_dict_t *hcCSSComputeProperties(hc_node_t *node, hc_compute_t compute);
+extern int	hcCSSComputeTable(hc_node_t *node, hc_compute_t compute, hc_table_t *table);
+extern int	hcCSSComputeText(hc_node_t *node, hc_compute_t compute, hc_text_t *text);
 extern void	hcCSSDelete(hc_css_t *css);
 extern hc_css_t	*hcCSSNew(hc_pool_t *pool);
 extern int	hcCSSImport(hc_css_t *css, const char *url, FILE *fp, const char *s);
