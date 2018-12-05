@@ -991,7 +991,7 @@ hc_read_value(_hc_css_file_t *f,	/* I - File to read from */
 
   do
   {
-    if (!paren && (ch == ';' || ch == '}'))
+    if (!paren && !quote && (ch == ';' || ch == '}'))
     {
       _hcFileUngetc(ch, &f->file);
       break;
@@ -1004,10 +1004,18 @@ hc_read_value(_hc_css_file_t *f,	/* I - File to read from */
       paren ++;
     else if (ch == ')')
       paren --;
-    else if (ch == '\"' || ch == '\'')
+    else if (ch == '\\')
     {
-      quote = ch;
+      if ((ch = _hcFileGetc(&f->file)) != EOF)
+      {
+        if (bufptr < bufend)
+          *bufptr++ = ch;
+      }
     }
+    else if (ch == quote)
+      quote = '\0';
+    else if (ch == '\"' || ch == '\'')
+      quote = ch;
   }
   while ((ch = _hcFileGetc(&f->file)) != EOF);
 
