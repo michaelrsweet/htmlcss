@@ -44,6 +44,9 @@ typedef struct hc_sha3_s		/* SHA3 hashing context */
 		state[200];		/* SHA3 state */
 } hc_sha3_t;
 
+typedef unsigned char hc_sha3_256_t[HC_SHA3_256_SIZE];
+typedef unsigned char hc_sha3_512_t[HC_SHA3_512_SIZE];
+
 
 /*
  * Prototypes...

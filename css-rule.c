@@ -17,6 +17,53 @@
 
 
 /*
+ * '_hcCSSSelAddStmt()' - Add a matching statement to a selector.
+ */
+
+void
+_hcCSSSelAddStmt(hc_pool_t     *pool,	/* I - Memory pool */
+                 _hc_css_sel_t *sel,	/* I - Selector */
+                 _hc_match_t   match,	/* I - Match type */
+                 const char    *name,	/* I - Name, if any */
+                 const char    *value)	/* I - Value, if any */
+[
+}
+
+
+/*
+ * '_hcCSSSelDelete()' - Free the memory used by a list of selectors.
+ */
+
+void
+_hcCSSSelDelete(_hc_css_sel_t *sel)	/* I - Selectors */
+{
+}
+
+
+/*
+ * '_hcCSSSelHash()' - Create a SHA3-256 hash of a list of selectors.
+ */
+
+void
+_hcCSSSelHash(_hc_css_sel_t *sel,	/* I - Selectors */
+              hc_sha3_256_t hash)	/* O - Hash of selectors */
+{
+}
+
+
+/*
+ * '_hcCSSSelNew()' - Create a new CSS selector.
+ */
+
+_hc_css_sel_t *				/* O - New selector */
+_hcCSSSelNew(_hc_css_sel_t  *prev,	/* I - Previous selector, if any */
+             hc_element_t   element,	/* I - Element or `HD_ELEMENT_WILDCARD` */
+             _hc_relation_t rel)	/* I - Relation to previous selector */
+{
+}
+
+
+/*
  * '_hcRuleColAdd()' - Add a rule set to a collection.
  */
 
@@ -46,24 +93,32 @@ _hcRuleColClear(
 _hc_rule_t *
 _hcRuleColFindHash(
     _hc_rulecol_t       *col,		/* I - Rule set collection */
-    const unsigned char *hash)		/* I - SHA3-256 hash */
+    const hc_sha3_256_t hash)		/* I - SHA3-256 hash */
 {
 }
 
 
 /*
- * '_hcRuleColFindNode()' - Find a rule set using a HTML node.
+ * '_hcRuleDelete()' - Free memory used by a rule set.
  */
 
-_hc_rule_t *
-_hcRuleColFindNode(_hc_rulecol_t *col,	/* */
-                   hc_node_t     *node,
-                   _hc_rule_t    *prev)
+void
+_hcRuleDelete(_hc_rule_t *rule)		/* I - Rule set */
 {
 }
 
-extern void	_hcRuleDelete(_hc_rule_t *rule);
-extern _hc_rule_t *_hcRuleNew(hc_pool_t *pool, _hc_css_sel_t *sel, hc_dict_t *props);
+
+/*
+ * '_hcRuleNew()' - Create a new rule set.
+ */
+
+_hc_rule_t *				/* I - Rule set */
+_hcRuleNew(
+    const hc_sha3_256_t hash,		/* I - SHA3-256 hash */
+    _hc_css_sel_t       *sel,		/* I - Selectors */
+    hc_dict_t           *props)		/* I - Properties dictionary */
+{
+}
 
 
 /*
