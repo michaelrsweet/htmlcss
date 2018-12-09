@@ -291,6 +291,19 @@ hcCSSImportDefault(hc_css_t *css)	/* I - Stylesheet */
 
 
 /*
+ * '_hcCSSImportString()' - Import a style attribute string.
+ */
+
+void
+_hcCSSImportString(hc_dict_t  *props,	/* I - Property dictionary */
+                   const char *s)	/* I - Style attribute string */
+{
+  (void)props;
+  (void)s;
+}
+
+
+/*
  * 'hc_add_rule()' - Add a rule set to a stylesheet.
  */
 
