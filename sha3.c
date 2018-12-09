@@ -121,16 +121,20 @@ hcSHA3Init(hc_sha3_t *ctx)		/* I - Hash context */
  */
 
 void
-hcSHA3Update(
-    hc_sha3_t           *ctx,		/* I - Hash context */
-    const unsigned char *data,		/* I - Data to hash */
-    size_t              datalen)	/* I - Number of bytes of data */
+hcSHA3Update(hc_sha3_t  *ctx,		/* I - Hash context */
+	     const void *data,		/* I - Data to hash */
+	     size_t     datalen)	/* I - Number of bytes of data */
 {
+  const unsigned char	*dataptr;	/* Pointer into data */
+
+
+  dataptr = (const unsigned char *)data;
+
   while (datalen > 0)
   {
     while (ctx->used < ctx->block && datalen > 0)
     {
-      ctx->state[ctx->used++] ^= *data++;
+      ctx->state[ctx->used++] ^= *dataptr++;
       datalen --;
     }
 

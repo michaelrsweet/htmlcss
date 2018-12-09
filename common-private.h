@@ -84,7 +84,10 @@ extern "C" {
  * Types...
  */
 
-typedef struct _hc_file_s
+typedef int (*_hc_compare_func_t)(const void *, const void *);
+					/* bsearch/qsort comparison function */
+
+typedef struct _hc_file_s		/* High-level file/stream */
 {
   const char	*url;			/* URL or filename */
   FILE		*fp;			/* File pointer */

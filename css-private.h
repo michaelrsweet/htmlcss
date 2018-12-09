@@ -117,16 +117,16 @@ struct _hc_css_s
  * Functions...
  */
 
-extern void	_hcCSSSelAddStmt(hc_pool_t *pool, _hc_css_sel_t *sel, _hc_match_t match, const char *name, const char *value);
+extern void	_hcCSSSelAddStmt(hc_css_t *css, _hc_css_sel_t *sel, _hc_match_t match, const char *name, const char *value);
 extern void	_hcCSSSelDelete(_hc_css_sel_t *sel);
 extern void	_hcCSSSelHash(_hc_css_sel_t *sel, hc_sha3_256_t hash);
-extern _hc_css_sel_t *_hcCSSSelNew(_hc_css_sel_t *prev, hc_element_t element, _hc_relation_t rel);
+extern _hc_css_sel_t *_hcCSSSelNew(hc_css_t *css, _hc_css_sel_t *prev, hc_element_t element, _hc_relation_t rel);
 
-extern void	_hcRuleColAdd(_hc_rulecol_t *col, _hc_rule_t *rule);
+extern void	_hcRuleColAdd(hc_css_t *css, _hc_rulecol_t *col, _hc_rule_t *rule);
 extern void	_hcRuleColClear(_hc_rulecol_t *col, int delete_rules);
 extern _hc_rule_t *_hcRuleColFindHash(_hc_rulecol_t *col, const hc_sha3_256_t hash);
 extern void	_hcRuleDelete(_hc_rule_t *rule);
-extern _hc_rule_t *_hcRuleNew(const hc_sha3_256_t hash, _hc_css_sel_t *sel, hc_dict_t *props);
+extern _hc_rule_t *_hcRuleNew(hc_css_t *css, const hc_sha3_256_t hash, _hc_css_sel_t *sel, hc_dict_t *props);
 
 
 #  ifdef __cplusplus

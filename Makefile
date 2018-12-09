@@ -45,6 +45,7 @@ LIBOBJS	=	\
 		css-compute.o \
 		css-core.o \
 		css-import.o \
+		css-rule.o \
 		dict.o \
 		font-core.o \
 		font-extents.o \

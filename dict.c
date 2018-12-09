@@ -139,7 +139,7 @@ hcDictGetKeyValue(hc_dict_t  *dict,	/* I - Dictionary */
 
   temp.key = key;
 
-  if ((ptr = (_hc_pair_t *)bsearch(&temp, dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (int (*)(const void *, const void *))compare_pairs)) != NULL)
+  if ((ptr = (_hc_pair_t *)bsearch(&temp, dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (_hc_compare_func_t)compare_pairs)) != NULL)
     return (ptr->value);
   else
     return (NULL);
@@ -181,7 +181,7 @@ hcDictRemoveKey(hc_dict_t  *dict,	/* I - Dictionary */
 
   temp.key = key;
 
-  if ((ptr = (_hc_pair_t *)bsearch(&temp, dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (int (*)(const void *, const void *))compare_pairs)) != NULL)
+  if ((ptr = (_hc_pair_t *)bsearch(&temp, dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (_hc_compare_func_t)compare_pairs)) != NULL)
   {
     dict->num_pairs --;
 
@@ -220,7 +220,7 @@ hcDictSetKeyValue(hc_dict_t  *dict,	/* I - Dictionary */
   {
     temp.key = key;
 
-    ptr = (_hc_pair_t *)bsearch(&temp, dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (int (*)(const void *, const void *))compare_pairs);
+    ptr = (_hc_pair_t *)bsearch(&temp, dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (_hc_compare_func_t)compare_pairs);
   }
 
   if (ptr)
@@ -244,7 +244,7 @@ hcDictSetKeyValue(hc_dict_t  *dict,	/* I - Dictionary */
   ptr->key   = hcPoolGetString(dict->pool, key);
   ptr->value = hcPoolGetString(dict->pool, value);
 
-  qsort(dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (int (*)(const void *, const void *))compare_pairs);
+  qsort(dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (_hc_compare_func_t)compare_pairs);
 
 #ifdef DEBUG
   size_t i;

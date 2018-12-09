@@ -64,7 +64,7 @@ _hcElementLookup(const char *s)		/* I - String */
   const char	**match;		/* Matching element */
 
 
-  match  = bsearch(&s, hcElements + 1, sizeof(hcElements) / sizeof(hcElements[0]) - 1, sizeof(hcElements[0]), (int (*)(const void *, const void *))html_compare_elements);
+  match  = bsearch(&s, hcElements + 1, sizeof(hcElements) / sizeof(hcElements[0]) - 1, sizeof(hcElements[0]), (_hc_compare_func_t)html_compare_elements);
 
   if (match)
     return ((hc_element_t)(match - hcElements));

@@ -63,9 +63,7 @@ static const char * const types[] =	/* Types */
  */
 
 static void		hc_add_rule(hc_css_t *css, _hc_css_sel_t *sel, hc_dict_t *props);
-static void		hc_add_selstmt(hc_css_t *css, _hc_css_sel_t *sel, _hc_match_t match, const char *name, const char *value);
 static int		hc_eval_media(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
-static _hc_css_sel_t	*hc_new_sel(_hc_css_sel_t *prev, hc_element_t element, _hc_relation_t rel);
 static char		*hc_read(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
 static hc_dict_t	*hc_read_props(_hc_css_file_t *f, hc_dict_t *props);
 static _hc_css_sel_t	*hc_read_sel(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
@@ -94,11 +92,19 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
 
   _HC_DEBUG("hcCSSImport(css=%p, url=\"%s\", fp=%p, s=\"%s\")\n", css, url, fp, s);
 
+ /*
+  * Range check input...
+  */
+
   if (!css || (!url && !fp && !s))
   {
     errno = EINVAL;
     return (0);
   }
+
+ /*
+  * Prepare input file...
+  */
 
   f.css          = css;
   f.file.url     = url;
@@ -131,17 +137,9 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
     _HC_DEBUG("Reading CSS from \"%s\"...\n", filename);
   }
 
-/*
-
-Strategy for reading CSS:
-
-1. Read selector or @rule up to the opening brace.
-2a. For @rule: read selectors up to the opening brace, then read property:value; pairs until the closing brace.
-2b. For selector, read property:value; pairs up to the closing brace.
-3. Back to 1.
-
-*/
-
+ /*
+  * Read CSS...
+  */
 
   while (hc_read(&f, &type, buffer, sizeof(buffer)))
   {
@@ -302,45 +300,15 @@ hc_add_rule(hc_css_t      *css,		/* I - Stylesheet */
 	    hc_dict_t     *props)	/* I - Properties */
 {
   _hc_rule_t	*rule;			/* New rule */
+  hc_sha3_256_t	hash;			/* Hash */
 
 
-  if ((rule = realloc(css->rules[sel->element], (css->num_rules[sel->element] + 1) * sizeof(_hc_rule_t))) != NULL)
+  _hcCSSSelHash(sel, hash);
+
+  if ((rule = _hcRuleNew(css, hash, sel, props)) != NULL)
   {
-    css->rules[sel->element] = rule;
-    rule += css->num_rules[sel->element];
-    css->num_rules[sel->element] ++;
-
-    rule->sel   = sel;
-    rule->props = hcDictCopy(props);
-  }
-  else
-    _hcError(css->error_cb, css->error_ctx, NULL, 0, "Unable to allocate memory for selector rules.");
-}
-
-
-/*
- * 'hc_add_selstmt()' - Add a matching statement to a selector.
- */
-
-static void
-hc_add_selstmt(hc_css_t      *css,	/* I - Stylesheet */
-               _hc_css_sel_t *sel,	/* I - Selector */
-	       _hc_match_t   match,	/* I - Matching statement type */
-	       const char    *name,	/* I - Name, if any */
-	       const char    *value)	/* I - Value, if any */
-{
-  _hc_css_selstmt_t	*temp;		/* Current statement */
-
-
-  if ((temp = realloc(sel->stmts, (sel->num_stmts + 1) * sizeof(_hc_css_selstmt_t))) != NULL)
-  {
-    sel->stmts = temp;
-    temp += sel->num_stmts;
-    sel->num_stmts ++;
-
-    temp->match = match;
-    temp->name  = hcPoolGetString(css->pool, name);
-    temp->value = hcPoolGetString(css->pool, value);
+    _hcRuleColAdd(css, &css->all_rules, rule);
+    _hcRuleColAdd(css, css->rules + sel->element, rule);
   }
 }
 
@@ -479,30 +447,6 @@ hc_eval_media(_hc_css_file_t *f,	/* I - File to read from */
   _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Unexpected token \"%s\" seen.", buffer);
   return (0);
 }
-
-
-/*
- * 'hc_new_sel()' - Create a new selector.
- */
-
-static _hc_css_sel_t *			/* O - New selector */
-hc_new_sel(_hc_css_sel_t  *prev,	/* I - Previous selector in list */
-	   hc_element_t   element,	/* I - Element */
-	   _hc_relation_t rel)		/* I - Relationship to previous */
-{
-  _hc_css_sel_t	*sel;			/* New selector */
-
-
-  if ((sel = (_hc_css_sel_t *)calloc(1, sizeof(_hc_css_sel_t))) != NULL)
-  {
-    sel->prev     = prev;
-    sel->element  = element;
-    sel->relation = rel;
-  }
-
-  return (sel);
-}
-
 
 
 /*
@@ -788,9 +732,9 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
         value[0] = '\0';
 
       if (!sel)
-        sel = hc_new_sel(NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+        sel = _hcCSSSelNew(f->css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
 
-      hc_add_selstmt(f->css, sel, _HC_MATCH_PSEUDO_CLASS, name, value[0] ? value : NULL);
+      _hcCSSSelAddStmt(f->css, sel, _HC_MATCH_PSEUDO_CLASS, name, value[0] ? value : NULL);
     }
     else if (buffer[0] == '.')
     {
@@ -799,9 +743,9 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
       */
 
       if (!sel)
-        sel = hc_new_sel(NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+        sel = _hcCSSSelNew(f->css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
 
-      hc_add_selstmt(f->css, sel, _HC_MATCH_CLASS, buffer + 1, NULL);
+      _hcCSSSelAddStmt(f->css, sel, _HC_MATCH_CLASS, buffer + 1, NULL);
     }
     else if (buffer[0] == '#')
     {
@@ -810,9 +754,9 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
       */
 
       if (!sel)
-        sel = hc_new_sel(NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+        sel = _hcCSSSelNew(f->css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
 
-      hc_add_selstmt(f->css, sel, _HC_MATCH_ID, buffer + 1, NULL);
+      _hcCSSSelAddStmt(f->css, sel, _HC_MATCH_ID, buffer + 1, NULL);
     }
     else if (*type == _HC_TYPE_STRING)
     {
@@ -830,7 +774,7 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
 	goto error;
       }
 
-      sel = hc_new_sel(sel, element, rel);
+      sel = _hcCSSSelNew(f->css, sel, element, rel);
       rel = _HC_RELATION_CHILD;
     }
     else if (!strcmp(buffer, "["))
@@ -882,9 +826,9 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
         */
 
 	if (!sel)
-	  sel = hc_new_sel(NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+	  sel = _hcCSSSelNew(f->css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
 
-	hc_add_selstmt(f->css, sel, mtype, name, NULL);
+	_hcCSSSelAddStmt(f->css, sel, mtype, name, NULL);
       }
       else
       {
@@ -909,9 +853,9 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
 	}
 
 	if (!sel)
-	  sel = hc_new_sel(NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+	  sel = _hcCSSSelNew(f->css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
 
-	hc_add_selstmt(f->css, sel, mtype, name, value);
+	_hcCSSSelAddStmt(f->css, sel, mtype, name, value);
       }
     }
     else if (!strcmp(buffer, ">") && sel)

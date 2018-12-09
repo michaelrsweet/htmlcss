@@ -18,11 +18,6 @@
 
 
 /*
- * Local functions...
- */
-
-
-/*
  * 'hcCSSDelete()' - Free memory associated with a stylesheet.
  */
 
@@ -30,24 +25,14 @@ void
 hcCSSDelete(hc_css_t *css)		/* I - Stylesheet */
 {
   hc_element_t	element;		/* Current element */
-  size_t	i;			/* Looping var */
-  _hc_rule_t	*rule;			/* Current rule */
 
 
   if (!css)
     return;
 
   for (element = HC_ELEMENT_WILDCARD; element < HC_ELEMENT_MAX; element ++)
-  {
-    for (i = css->num_rules[element], rule = css->rules[element]; i > 0; i --, rule ++)
-    {
-      _hcCSSSelDelete(rule->sel);
-      hcDictDelete(rule->props);
-    }
-
-    if (css->rules[element])
-      free(css->rules[element]);
-  }
+    _hcRuleColClear(css->rules + element, 0);
+  _hcRuleColClear(&css->all_rules, 1);
 
   free(css);
 }
@@ -79,30 +64,6 @@ hcCSSNew(hc_pool_t *pool)		/* I - Memory pool */
   }
 
   return (css);
-}
-
-
-/*
- * '_hcCSSSelDelete()' - Delete a CSS selector.
- */
-
-void
-_hcCSSSelDelete(_hc_css_sel_t *sel)	/* I - Selector to delete */
-{
-  _hc_css_sel_t *prev;			/* Previous selector */
-
-
-  while (sel)
-  {
-    prev = sel->prev;
-
-    if (sel->stmts)
-      free(sel->stmts);
-
-    free(sel);
-
-    sel = prev;
-  }
 }
 
 

@@ -76,7 +76,7 @@ hcPoolGetString(
   }
   else if (pool->num_strings > 1)
   {
-    if ((temp = bsearch(&s, pool->strings, pool->num_strings, sizeof(char *), (int (*)(const void *, const void *))compare_strings)) != NULL)
+    if ((temp = bsearch(&s, pool->strings, pool->num_strings, sizeof(char *), (_hc_compare_func_t)compare_strings)) != NULL)
     {
       _HC_DEBUG("hcPoolGetString: Existing string '%s' (%p) found.\n", *temp, (void *)*temp);
       return (*temp);
@@ -97,7 +97,7 @@ hcPoolGetString(
   pool->num_strings ++;
 
   if (pool->num_strings > 1)
-    qsort(pool->strings, pool->num_strings, sizeof(char *), (int (*)(const void *, const void *))compare_strings);
+    qsort(pool->strings, pool->num_strings, sizeof(char *), (_hc_compare_func_t)compare_strings);
 
   _HC_DEBUG("hcPoolGetString: New string '%s' (%p), pool now contains %d strings.\n", news, (void *)news, (int)pool->num_strings);
 

@@ -54,7 +54,7 @@ typedef unsigned char hc_sha3_512_t[HC_SHA3_512_SIZE];
 
 extern void	hcSHA3Final(hc_sha3_t *ctx, unsigned char *hash, size_t hashlen);
 extern void	hcSHA3Init(hc_sha3_t *ctx);
-extern void	hcSHA3Update(hc_sha3_t *ctx, const unsigned char *data, size_t datalen);
+extern void	hcSHA3Update(hc_sha3_t *ctx, const void *data, size_t datalen);
 
 
 /*

@@ -42,9 +42,7 @@ main(int  argc,				/* I - Number of command-line arguments */
   hc_node_t	*node,			/* Current node */
 		*next;			/* Next node */
   int		level;			/* Indentation level */
-  hc_element_t	element;		/* Current element */
   _hc_rule_t	*rule;			/* CSS rule */
-  size_t	rcount;			/* Rule count */
   _hc_css_sel_t	*sel;			/* CSS selector */
   size_t	pindex,			/* Property index */
 		pcount;			/* Property count */
@@ -150,96 +148,101 @@ main(int  argc,				/* I - Number of command-line arguments */
 
   puts("Flattened CSS:\n");
 
-  for (element = HC_ELEMENT_WILDCARD; element < HC_ELEMENT_MAX; element ++)
+  for (i = 0; i < (int)css->all_rules.num_rules; i ++)
   {
-    for (rule = css->rules[element], rcount = css->num_rules[element]; rcount > 0; rule ++, rcount --)
+    int			j;		/* Looping var */
+    int			num_sels = 0;	/* Number of selectors */
+    _hc_css_sel_t	*sels[100];	/* Selectors */
+
+    rule = css->all_rules.rules[i];
+
+    for (sel = rule->sel; sel && num_sels < 100; sel = sel->prev)
+      sels[num_sels++] = sel;
+
+    while (num_sels > 0)
     {
-      int		num_sels = 0;	/* Number of selectors */
-      _hc_css_sel_t	*sels[100];	/* Selectors */
+      _hc_css_selstmt_t *stmt;	/* Matching statement */
 
-      for (sel = rule->sel; sel && num_sels < 100; sel = sel->prev)
-        sels[num_sels++] = sel;
+      num_sels --;
+      sel = sels[num_sels];
 
-      while (num_sels > 0)
+      switch (sel->relation)
       {
-        _hc_css_selstmt_t *stmt;	/* Matching statement */
-
-        num_sels --;
-        sel = sels[num_sels];
-
-        switch (sel->relation)
-        {
-          case _HC_RELATION_CHILD :	/* Child (descendent) of previous (E F) */
-              break;
-          case _HC_RELATION_IMMED_CHILD: /* Immediate child of previous (E > F) */
-              fputs("> ", stdout);
-              break;
-          case _HC_RELATION_SIBLING:	/* Sibling of previous (E ~ F) */
-              fputs("~ ", stdout);
-              break;
-          case _HC_RELATION_IMMED_SIBLING: /* Immediate sibling of previous (E + F) */
-              fputs("+ ", stdout);
-              break;
-        }
-
-        if (sel->element == HC_ELEMENT_WILDCARD)
-          fputs("*", stdout);
-        else
-          fputs(hcElements[sel->element], stdout);
-
-        for (i = 0, stmt = sel->stmts; i < (int)sel->num_stmts; i ++, stmt ++)
-        {
-          switch (stmt->match)
-          {
-            case _HC_MATCH_ATTR_EXIST :
-                printf("[%s]", stmt->name);
-                break;
-            case _HC_MATCH_ATTR_EQUALS :
-                printf("[%s=\"%s\"]", stmt->name, stmt->value);
-                break;
-            case _HC_MATCH_ATTR_CONTAINS :
-                printf("[%s*=\"%s\"]", stmt->name, stmt->value);
-                break;
-            case _HC_MATCH_ATTR_BEGINS :
-                printf("[%s^=\"%s\"]", stmt->name, stmt->value);
-                break;
-            case _HC_MATCH_ATTR_ENDS :
-                printf("[%s$=\"%s\"]", stmt->name, stmt->value);
-                break;
-            case _HC_MATCH_ATTR_LANG :
-                printf("[%s|=\"%s\"]", stmt->name, stmt->value);
-                break;
-            case _HC_MATCH_ATTR_SPACE :
-                printf("[%s~=\"%s\"]", stmt->name, stmt->value);
-                break;
-            case _HC_MATCH_CLASS :
-                printf(".%s", stmt->name);
-                break;
-            case _HC_MATCH_ID :
-                printf("#%s", stmt->name);
-                break;
-            case _HC_MATCH_PSEUDO_CLASS :
-                if (stmt->value)
-		  printf(":%s(%s)", stmt->name, stmt->value);
-                else
-		  printf(":%s", stmt->name);
-                break;
-          }
-        }
-
-        putchar(' ');
+	case _HC_RELATION_CHILD :	/* Child (descendent) of previous (E F) */
+	    break;
+	case _HC_RELATION_IMMED_CHILD: /* Immediate child of previous (E > F) */
+	    fputs("> ", stdout);
+	    break;
+	case _HC_RELATION_SIBLING:	/* Sibling of previous (E ~ F) */
+	    fputs("~ ", stdout);
+	    break;
+	case _HC_RELATION_IMMED_SIBLING: /* Immediate sibling of previous (E + F) */
+	    fputs("+ ", stdout);
+	    break;
       }
 
-      puts("{");
+      if (sel->element == HC_ELEMENT_WILDCARD)
+	fputs("*", stdout);
+      else
+	fputs(hcElements[sel->element], stdout);
 
-      for (pindex = 0, pcount = hcDictGetCount(rule->props); pindex < pcount; pindex ++)
+      for (j = 0, stmt = sel->stmts; j < (int)sel->num_stmts; j ++, stmt ++)
       {
-        pvalue = hcDictGetIndexKeyValue(rule->props, pindex, &pname);
-        printf("  %s: %s;\n", pname, pvalue);
+	switch (stmt->match)
+	{
+	  case _HC_MATCH_ATTR_EXIST :
+	      printf("[%s]", stmt->name);
+	      break;
+	  case _HC_MATCH_ATTR_EQUALS :
+	      printf("[%s=\"%s\"]", stmt->name, stmt->value);
+	      break;
+	  case _HC_MATCH_ATTR_CONTAINS :
+	      printf("[%s*=\"%s\"]", stmt->name, stmt->value);
+	      break;
+	  case _HC_MATCH_ATTR_BEGINS :
+	      printf("[%s^=\"%s\"]", stmt->name, stmt->value);
+	      break;
+	  case _HC_MATCH_ATTR_ENDS :
+	      printf("[%s$=\"%s\"]", stmt->name, stmt->value);
+	      break;
+	  case _HC_MATCH_ATTR_LANG :
+	      printf("[%s|=\"%s\"]", stmt->name, stmt->value);
+	      break;
+	  case _HC_MATCH_ATTR_SPACE :
+	      printf("[%s~=\"%s\"]", stmt->name, stmt->value);
+	      break;
+	  case _HC_MATCH_CLASS :
+	      printf(".%s", stmt->name);
+	      break;
+	  case _HC_MATCH_ID :
+	      printf("#%s", stmt->name);
+	      break;
+	  case _HC_MATCH_PSEUDO_CLASS :
+	      if (stmt->value)
+		printf(":%s(%s)", stmt->name, stmt->value);
+	      else
+		printf(":%s", stmt->name);
+	      break;
+	}
       }
 
-      puts("}");
+      putchar(' ');
     }
+
+    putchar('<');
+    for (j = 0; j < HC_SHA3_256_SIZE; j ++)
+      printf("%02X", rule->hash[j]);
+    putchar('>');
+    putchar(' ');
+    puts("{");
+
+    for (pindex = 0, pcount = hcDictGetCount(rule->props); pindex < pcount; pindex ++)
+    {
+      pvalue = hcDictGetIndexKeyValue(rule->props, pindex, &pname);
+      printf("  %s: %s;\n", pname, pvalue);
+    }
+
+    puts("}");
   }
 
   hcHTMLDelete(html);
