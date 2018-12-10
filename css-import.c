@@ -90,7 +90,7 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
   _hc_css_sel_t	*sels[1000];		/* Selectors */
 
 
-  _HC_DEBUG("hcCSSImport(css=%p, url=\"%s\", fp=%p, s=\"%s\")\n", css, url, fp, s);
+  _HC_DEBUG("hcCSSImport(css=%p, url=\"%s\", fp=%p, s=\"%s\")\n", (void *)css, url, (void *)fp, s);
 
  /*
   * Range check input...
@@ -603,7 +603,7 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
       else if (ch != EOF && !isspace(ch & 255) && ch != '(' && ch != '=')
 	_hcFileUngetc(ch, &f->file);
 
-      if (isdigit(*buffer & 255) || (*buffer == '.' && isdigit(buffer[1] & 255)))
+      if (isdigit(*buffer & 255) || (*buffer == '.' && bufptr > (buffer + 1) && isdigit(buffer[1] & 255)))
         *type = _HC_TYPE_NUMBER;
       else if (!strcmp(buffer, "("))
         *type = _HC_TYPE_RESERVED;
@@ -906,7 +906,12 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
   }
   while (hc_read(f, type, buffer, bufsize));
 
-  _HC_DEBUG("%s:%d: (SELECTOR) %s (%d matching statements)\n", f->file.url, f->file.linenum, hcElements[sel->element], (int)sel->num_stmts);
+#ifdef DEBUG
+  if (sel)
+    _HC_DEBUG("%s:%d: (SELECTOR) %s (%d matching statements)\n", f->file.url, f->file.linenum, hcElements[sel->element], (int)sel->num_stmts);
+  else
+    _HC_DEBUG("%s:%d: (SELECTOR) NULL\n", f->file.url, f->file.linenum);
+#endif /* DEBUG */
 
   return (sel);
 
@@ -932,10 +937,10 @@ hc_read_value(_hc_css_file_t *f,	/* I - File to read from */
               size_t         bufsize)	/* I - Size of string buffer */
 {
   int	ch,				/* Character from file */
-	paren = 0;			/* Parenthesis */
-  char	*bufptr = buffer,		/* Pointer into string buffer */
-	*bufend = buffer + bufsize - 1,	/* End of string buffer */
+	paren = 0,			/* Parenthesis */
 	quote = '\0';			/* Quote character (if any) */
+  char	*bufptr = buffer,		/* Pointer into string buffer */
+	*bufend = buffer + bufsize - 1;	/* End of string buffer */
 
 
  /*
@@ -955,7 +960,7 @@ hc_read_value(_hc_css_file_t *f,	/* I - File to read from */
     }
 
     if (bufptr < bufend)
-      *bufptr++ = ch;
+      *bufptr++ = (char)ch;
 
     if (ch == '(')
       paren ++;
@@ -966,7 +971,7 @@ hc_read_value(_hc_css_file_t *f,	/* I - File to read from */
       if ((ch = _hcFileGetc(&f->file)) != EOF)
       {
         if (bufptr < bufend)
-          *bufptr++ = ch;
+          *bufptr++ = (char)ch;
       }
     }
     else if (ch == quote)

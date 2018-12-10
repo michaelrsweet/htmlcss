@@ -1,0 +1,626 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		27CEF00521BEA2D400793C86 /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 27CEF00621BEA2D400793C86 /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				27CEF00A21BEA2E100793C86 /* PBXTargetDependency */,
+				27CEF00C21BEA2E100793C86 /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		27CEEFC121BE9B7600793C86 /* dict.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFB821BE9B7600793C86 /* dict.h */; };
+		27CEEFC221BE9B7600793C86 /* htmlcss.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFB921BE9B7600793C86 /* htmlcss.h */; };
+		27CEEFC321BE9B7600793C86 /* common.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFBA21BE9B7600793C86 /* common.h */; };
+		27CEEFC421BE9B7600793C86 /* html.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFBB21BE9B7600793C86 /* html.h */; };
+		27CEEFC521BE9B7600793C86 /* pool.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFBC21BE9B7600793C86 /* pool.h */; };
+		27CEEFC621BE9B7600793C86 /* run.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFBD21BE9B7600793C86 /* run.h */; };
+		27CEEFC721BE9B7600793C86 /* sha3.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFBE21BE9B7600793C86 /* sha3.h */; };
+		27CEEFC821BE9B7600793C86 /* font.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFBF21BE9B7600793C86 /* font.h */; };
+		27CEEFC921BE9B7600793C86 /* css.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFC021BE9B7600793C86 /* css.h */; };
+		27CEEFDE21BE9BB200793C86 /* html-find.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFCA21BE9BB200793C86 /* html-find.c */; };
+		27CEEFDF21BE9BB200793C86 /* common-private.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFCB21BE9BB200793C86 /* common-private.h */; };
+		27CEEFE021BE9BB200793C86 /* css-compute.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFCC21BE9BB200793C86 /* css-compute.c */; };
+		27CEEFE121BE9BB200793C86 /* html-private.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFCD21BE9BB200793C86 /* html-private.h */; };
+		27CEEFE221BE9BB200793C86 /* font-private.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFCE21BE9BB200793C86 /* font-private.h */; };
+		27CEEFE321BE9BB200793C86 /* html-core.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFCF21BE9BB200793C86 /* html-core.c */; };
+		27CEEFE421BE9BB200793C86 /* dict.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFD021BE9BB200793C86 /* dict.c */; };
+		27CEEFE521BE9BB200793C86 /* font-core.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFD121BE9BB200793C86 /* font-core.c */; };
+		27CEEFE621BE9BB200793C86 /* css-rule.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFD221BE9BB200793C86 /* css-rule.c */; };
+		27CEEFE721BE9BB200793C86 /* pool.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFD321BE9BB200793C86 /* pool.c */; };
+		27CEEFE821BE9BB200793C86 /* html-node.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFD421BE9BB200793C86 /* html-node.c */; };
+		27CEEFE921BE9BB200793C86 /* font-extents.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFD521BE9BB200793C86 /* font-extents.c */; };
+		27CEEFEA21BE9BB200793C86 /* default-css.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFD621BE9BB200793C86 /* default-css.h */; };
+		27CEEFEB21BE9BB200793C86 /* html-attr.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFD721BE9BB200793C86 /* html-attr.c */; };
+		27CEEFEC21BE9BB200793C86 /* css-core.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFD821BE9BB200793C86 /* css-core.c */; };
+		27CEEFED21BE9BB200793C86 /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFD921BE9BB200793C86 /* common.c */; };
+		27CEEFEE21BE9BB200793C86 /* css-import.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFDA21BE9BB200793C86 /* css-import.c */; };
+		27CEEFEF21BE9BB200793C86 /* css-private.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFDB21BE9BB200793C86 /* css-private.h */; };
+		27CEEFF021BE9BB200793C86 /* sha3.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFDC21BE9BB200793C86 /* sha3.c */; };
+		27CEEFF121BE9BB200793C86 /* html-load.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFDD21BE9BB200793C86 /* html-load.c */; };
+		27CEF00221BE9D1B00793C86 /* testhtmlcss.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEF00121BE9D1B00793C86 /* testhtmlcss.c */; };
+		27CEF00E21BEA31F00793C86 /* libhtmlcss.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27B622AE21BE9AE200397ABE /* libhtmlcss.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		27CEF00321BE9D2A00793C86 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 27B622A621BE9AE200397ABE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 27B622AD21BE9AE200397ABE;
+			remoteInfo = htmlcss;
+		};
+		27CEF00921BEA2E100793C86 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 27B622A621BE9AE200397ABE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 27B622AD21BE9AE200397ABE;
+			remoteInfo = htmlcss;
+		};
+		27CEF00B21BEA2E100793C86 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 27B622A621BE9AE200397ABE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 27CEEFFB21BE9D0400793C86;
+			remoteInfo = testhtmlcss;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		27CEEFFA21BE9D0400793C86 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		27B622AE21BE9AE200397ABE /* libhtmlcss.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libhtmlcss.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		27CEEFB821BE9B7600793C86 /* dict.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dict.h; sourceTree = SOURCE_ROOT; };
+		27CEEFB921BE9B7600793C86 /* htmlcss.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = htmlcss.h; sourceTree = SOURCE_ROOT; };
+		27CEEFBA21BE9B7600793C86 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = SOURCE_ROOT; };
+		27CEEFBB21BE9B7600793C86 /* html.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = html.h; sourceTree = SOURCE_ROOT; };
+		27CEEFBC21BE9B7600793C86 /* pool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pool.h; sourceTree = SOURCE_ROOT; };
+		27CEEFBD21BE9B7600793C86 /* run.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = run.h; sourceTree = SOURCE_ROOT; };
+		27CEEFBE21BE9B7600793C86 /* sha3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sha3.h; sourceTree = SOURCE_ROOT; };
+		27CEEFBF21BE9B7600793C86 /* font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = font.h; sourceTree = SOURCE_ROOT; };
+		27CEEFC021BE9B7600793C86 /* css.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = css.h; sourceTree = SOURCE_ROOT; };
+		27CEEFCA21BE9BB200793C86 /* html-find.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "html-find.c"; sourceTree = SOURCE_ROOT; };
+		27CEEFCB21BE9BB200793C86 /* common-private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "common-private.h"; sourceTree = SOURCE_ROOT; };
+		27CEEFCC21BE9BB200793C86 /* css-compute.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "css-compute.c"; sourceTree = SOURCE_ROOT; };
+		27CEEFCD21BE9BB200793C86 /* html-private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "html-private.h"; sourceTree = SOURCE_ROOT; };
+		27CEEFCE21BE9BB200793C86 /* font-private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "font-private.h"; sourceTree = SOURCE_ROOT; };
+		27CEEFCF21BE9BB200793C86 /* html-core.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "html-core.c"; sourceTree = SOURCE_ROOT; };
+		27CEEFD021BE9BB200793C86 /* dict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dict.c; sourceTree = SOURCE_ROOT; };
+		27CEEFD121BE9BB200793C86 /* font-core.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "font-core.c"; sourceTree = SOURCE_ROOT; };
+		27CEEFD221BE9BB200793C86 /* css-rule.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "css-rule.c"; sourceTree = SOURCE_ROOT; };
+		27CEEFD321BE9BB200793C86 /* pool.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pool.c; sourceTree = SOURCE_ROOT; };
+		27CEEFD421BE9BB200793C86 /* html-node.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "html-node.c"; sourceTree = SOURCE_ROOT; };
+		27CEEFD521BE9BB200793C86 /* font-extents.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "font-extents.c"; sourceTree = SOURCE_ROOT; };
+		27CEEFD621BE9BB200793C86 /* default-css.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "default-css.h"; sourceTree = SOURCE_ROOT; };
+		27CEEFD721BE9BB200793C86 /* html-attr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "html-attr.c"; sourceTree = SOURCE_ROOT; };
+		27CEEFD821BE9BB200793C86 /* css-core.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "css-core.c"; sourceTree = SOURCE_ROOT; };
+		27CEEFD921BE9BB200793C86 /* common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = common.c; sourceTree = SOURCE_ROOT; };
+		27CEEFDA21BE9BB200793C86 /* css-import.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "css-import.c"; sourceTree = SOURCE_ROOT; };
+		27CEEFDB21BE9BB200793C86 /* css-private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "css-private.h"; sourceTree = SOURCE_ROOT; };
+		27CEEFDC21BE9BB200793C86 /* sha3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sha3.c; sourceTree = SOURCE_ROOT; };
+		27CEEFDD21BE9BB200793C86 /* html-load.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "html-load.c"; sourceTree = SOURCE_ROOT; };
+		27CEEFF221BE9CA700793C86 /* NOTICE */ = {isa = PBXFileReference; lastKnownFileType = text; path = NOTICE; sourceTree = "<group>"; };
+		27CEEFF321BE9CA700793C86 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		27CEEFF421BE9CA800793C86 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		27CEEFF521BE9CA800793C86 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		27CEEFF721BE9CCC00793C86 /* DOCUMENTATION.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = DOCUMENTATION.md; sourceTree = "<group>"; };
+		27CEEFFC21BE9D0400793C86 /* testhtmlcss */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = testhtmlcss; sourceTree = BUILT_PRODUCTS_DIR; };
+		27CEF00121BE9D1B00793C86 /* testhtmlcss.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = testhtmlcss.c; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		27B622AC21BE9AE200397ABE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		27CEEFF921BE9D0400793C86 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				27CEF00E21BEA31F00793C86 /* libhtmlcss.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		27B622A521BE9AE200397ABE = {
+			isa = PBXGroup;
+			children = (
+				27CEEFF321BE9CA700793C86 /* Makefile */,
+				27CEEFF621BE9CB100793C86 /* Documentation */,
+				27CEEFB521BE9B1200793C86 /* Public Headers */,
+				27CEEFB621BE9B1C00793C86 /* libhtmlcss */,
+				27CEEFB721BE9B3C00793C86 /* Unit Tests */,
+				27B622AF21BE9AE200397ABE /* Products */,
+				27CEF00D21BEA31F00793C86 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		27B622AF21BE9AE200397ABE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				27B622AE21BE9AE200397ABE /* libhtmlcss.a */,
+				27CEEFFC21BE9D0400793C86 /* testhtmlcss */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		27CEEFB521BE9B1200793C86 /* Public Headers */ = {
+			isa = PBXGroup;
+			children = (
+				27CEEFBA21BE9B7600793C86 /* common.h */,
+				27CEEFC021BE9B7600793C86 /* css.h */,
+				27CEEFB821BE9B7600793C86 /* dict.h */,
+				27CEEFBF21BE9B7600793C86 /* font.h */,
+				27CEEFBB21BE9B7600793C86 /* html.h */,
+				27CEEFB921BE9B7600793C86 /* htmlcss.h */,
+				27CEEFBC21BE9B7600793C86 /* pool.h */,
+				27CEEFBD21BE9B7600793C86 /* run.h */,
+				27CEEFBE21BE9B7600793C86 /* sha3.h */,
+			);
+			path = "Public Headers";
+			sourceTree = "<group>";
+		};
+		27CEEFB621BE9B1C00793C86 /* libhtmlcss */ = {
+			isa = PBXGroup;
+			children = (
+				27CEEFCB21BE9BB200793C86 /* common-private.h */,
+				27CEEFD921BE9BB200793C86 /* common.c */,
+				27CEEFCC21BE9BB200793C86 /* css-compute.c */,
+				27CEEFD821BE9BB200793C86 /* css-core.c */,
+				27CEEFDA21BE9BB200793C86 /* css-import.c */,
+				27CEEFDB21BE9BB200793C86 /* css-private.h */,
+				27CEEFD221BE9BB200793C86 /* css-rule.c */,
+				27CEEFD621BE9BB200793C86 /* default-css.h */,
+				27CEEFD021BE9BB200793C86 /* dict.c */,
+				27CEEFD121BE9BB200793C86 /* font-core.c */,
+				27CEEFD521BE9BB200793C86 /* font-extents.c */,
+				27CEEFCE21BE9BB200793C86 /* font-private.h */,
+				27CEEFD721BE9BB200793C86 /* html-attr.c */,
+				27CEEFCF21BE9BB200793C86 /* html-core.c */,
+				27CEEFCA21BE9BB200793C86 /* html-find.c */,
+				27CEEFDD21BE9BB200793C86 /* html-load.c */,
+				27CEEFD421BE9BB200793C86 /* html-node.c */,
+				27CEEFCD21BE9BB200793C86 /* html-private.h */,
+				27CEEFD321BE9BB200793C86 /* pool.c */,
+				27CEEFDC21BE9BB200793C86 /* sha3.c */,
+			);
+			path = libhtmlcss;
+			sourceTree = "<group>";
+		};
+		27CEEFB721BE9B3C00793C86 /* Unit Tests */ = {
+			isa = PBXGroup;
+			children = (
+				27CEF00121BE9D1B00793C86 /* testhtmlcss.c */,
+			);
+			path = "Unit Tests";
+			sourceTree = "<group>";
+		};
+		27CEEFF621BE9CB100793C86 /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+				27CEEFF721BE9CCC00793C86 /* DOCUMENTATION.md */,
+				27CEEFF421BE9CA800793C86 /* LICENSE */,
+				27CEEFF221BE9CA700793C86 /* NOTICE */,
+				27CEEFF521BE9CA800793C86 /* README.md */,
+			);
+			name = Documentation;
+			sourceTree = "<group>";
+		};
+		27CEF00D21BEA31F00793C86 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		27B622AA21BE9AE200397ABE /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				27CEEFC621BE9B7600793C86 /* run.h in Headers */,
+				27CEEFEA21BE9BB200793C86 /* default-css.h in Headers */,
+				27CEEFC521BE9B7600793C86 /* pool.h in Headers */,
+				27CEEFC721BE9B7600793C86 /* sha3.h in Headers */,
+				27CEEFC821BE9B7600793C86 /* font.h in Headers */,
+				27CEEFC121BE9B7600793C86 /* dict.h in Headers */,
+				27CEEFC421BE9B7600793C86 /* html.h in Headers */,
+				27CEEFC921BE9B7600793C86 /* css.h in Headers */,
+				27CEEFEF21BE9BB200793C86 /* css-private.h in Headers */,
+				27CEEFC321BE9B7600793C86 /* common.h in Headers */,
+				27CEEFC221BE9B7600793C86 /* htmlcss.h in Headers */,
+				27CEEFDF21BE9BB200793C86 /* common-private.h in Headers */,
+				27CEEFE121BE9BB200793C86 /* html-private.h in Headers */,
+				27CEEFE221BE9BB200793C86 /* font-private.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		27B622AD21BE9AE200397ABE /* htmlcss */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 27B622B221BE9AE200397ABE /* Build configuration list for PBXNativeTarget "htmlcss" */;
+			buildPhases = (
+				27B622AA21BE9AE200397ABE /* Headers */,
+				27B622AB21BE9AE200397ABE /* Sources */,
+				27B622AC21BE9AE200397ABE /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = htmlcss;
+			productName = htmlcss;
+			productReference = 27B622AE21BE9AE200397ABE /* libhtmlcss.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		27CEEFFB21BE9D0400793C86 /* testhtmlcss */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 27CEEFFE21BE9D0400793C86 /* Build configuration list for PBXNativeTarget "testhtmlcss" */;
+			buildPhases = (
+				27CEEFF821BE9D0400793C86 /* Sources */,
+				27CEEFF921BE9D0400793C86 /* Frameworks */,
+				27CEEFFA21BE9D0400793C86 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				27CEF00421BE9D2A00793C86 /* PBXTargetDependency */,
+			);
+			name = testhtmlcss;
+			productName = testhtmlcss;
+			productReference = 27CEEFFC21BE9D0400793C86 /* testhtmlcss */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		27B622A621BE9AE200397ABE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1010;
+				ORGANIZATIONNAME = "Michael R Sweet";
+				TargetAttributes = {
+					27B622AD21BE9AE200397ABE = {
+						CreatedOnToolsVersion = 10.1;
+					};
+					27CEEFFB21BE9D0400793C86 = {
+						CreatedOnToolsVersion = 10.1;
+					};
+					27CEF00521BEA2D400793C86 = {
+						CreatedOnToolsVersion = 10.1;
+					};
+				};
+			};
+			buildConfigurationList = 27B622A921BE9AE200397ABE /* Build configuration list for PBXProject "htmlcss" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 27B622A521BE9AE200397ABE;
+			productRefGroup = 27B622AF21BE9AE200397ABE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				27CEF00521BEA2D400793C86 /* All */,
+				27B622AD21BE9AE200397ABE /* htmlcss */,
+				27CEEFFB21BE9D0400793C86 /* testhtmlcss */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		27B622AB21BE9AE200397ABE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				27CEEFE521BE9BB200793C86 /* font-core.c in Sources */,
+				27CEEFEC21BE9BB200793C86 /* css-core.c in Sources */,
+				27CEEFEE21BE9BB200793C86 /* css-import.c in Sources */,
+				27CEEFE321BE9BB200793C86 /* html-core.c in Sources */,
+				27CEEFE921BE9BB200793C86 /* font-extents.c in Sources */,
+				27CEEFEB21BE9BB200793C86 /* html-attr.c in Sources */,
+				27CEEFF021BE9BB200793C86 /* sha3.c in Sources */,
+				27CEEFDE21BE9BB200793C86 /* html-find.c in Sources */,
+				27CEEFED21BE9BB200793C86 /* common.c in Sources */,
+				27CEEFF121BE9BB200793C86 /* html-load.c in Sources */,
+				27CEEFE721BE9BB200793C86 /* pool.c in Sources */,
+				27CEEFE821BE9BB200793C86 /* html-node.c in Sources */,
+				27CEEFE021BE9BB200793C86 /* css-compute.c in Sources */,
+				27CEEFE421BE9BB200793C86 /* dict.c in Sources */,
+				27CEEFE621BE9BB200793C86 /* css-rule.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		27CEEFF821BE9D0400793C86 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				27CEF00221BE9D1B00793C86 /* testhtmlcss.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		27CEF00421BE9D2A00793C86 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 27B622AD21BE9AE200397ABE /* htmlcss */;
+			targetProxy = 27CEF00321BE9D2A00793C86 /* PBXContainerItemProxy */;
+		};
+		27CEF00A21BEA2E100793C86 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 27B622AD21BE9AE200397ABE /* htmlcss */;
+			targetProxy = 27CEF00921BEA2E100793C86 /* PBXContainerItemProxy */;
+		};
+		27CEF00C21BEA2E100793C86 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 27CEEFFB21BE9D0400793C86 /* testhtmlcss */;
+			targetProxy = 27CEF00B21BEA2E100793C86 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		27B622B021BE9AE200397ABE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = YES;
+				CLANG_WARN_ASSIGN_ENUM = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_FLOAT_CONVERSION = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_PEDANTIC = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				ONLY_ACTIVE_ARCH = YES;
+				RUN_CLANG_STATIC_ANALYZER = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		27B622B121BE9AE200397ABE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = YES;
+				CLANG_WARN_ASSIGN_ENUM = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_FLOAT_CONVERSION = YES;
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_PEDANTIC = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				RUN_CLANG_STATIC_ANALYZER = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		27B622B321BE9AE200397ABE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = RU58A2256H;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		27B622B421BE9AE200397ABE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = RU58A2256H;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		27CEEFFF21BE9D0400793C86 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = RU58A2256H;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		27CEF00021BE9D0400793C86 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = RU58A2256H;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		27CEF00721BEA2D400793C86 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = RU58A2256H;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		27CEF00821BEA2D400793C86 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = RU58A2256H;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		27B622A921BE9AE200397ABE /* Build configuration list for PBXProject "htmlcss" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				27B622B021BE9AE200397ABE /* Debug */,
+				27B622B121BE9AE200397ABE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		27B622B221BE9AE200397ABE /* Build configuration list for PBXNativeTarget "htmlcss" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				27B622B321BE9AE200397ABE /* Debug */,
+				27B622B421BE9AE200397ABE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		27CEEFFE21BE9D0400793C86 /* Build configuration list for PBXNativeTarget "testhtmlcss" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				27CEEFFF21BE9D0400793C86 /* Debug */,
+				27CEF00021BE9D0400793C86 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		27CEF00621BEA2D400793C86 /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				27CEF00721BEA2D400793C86 /* Debug */,
+				27CEF00821BEA2D400793C86 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 27B622A621BE9AE200397ABE /* Project object */;
+}

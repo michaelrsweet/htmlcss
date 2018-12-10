@@ -321,7 +321,7 @@ html_new(hc_node_t    *parent,		/* I - Parent node or `NULL` if root node */
     return (NULL);
 
   if (element < HC_ELEMENT_DOCTYPE)
-    nodesize = sizeof(hc_node_t) - sizeof(node->value) + strlen(s) + 1;
+    nodesize = sizeof(hc_node_t) - sizeof(node->value) + slen + 1;
   else
     nodesize = sizeof(hc_node_t);
 

@@ -185,7 +185,7 @@ hcDictRemoveKey(hc_dict_t  *dict,	/* I - Dictionary */
   {
     dict->num_pairs --;
 
-    idx = ptr - dict->pairs;
+    idx = (size_t)(ptr - dict->pairs);
 
     if (idx < dict->num_pairs)
       memmove(ptr, ptr + 1, (dict->num_pairs - idx) * sizeof(_hc_pair_t));

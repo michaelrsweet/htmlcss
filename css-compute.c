@@ -13,7 +13,7 @@
  * Include necessary headers...
  */
 
-#  include "css-private.h"
+#  include "html-private.h"
 
 
 /*
@@ -24,67 +24,81 @@ static hc_dict_t *hc_create_props(hc_node_t *node, hc_compute_t compute);
 
 
 /*
- * 'hcCSSComputeBox()' - Compute the box properties for the given HTML node.
+ * 'hcNodeComputeCSSBox()' - Compute the box properties for the given HTML node.
  */
 
 int					/* O - 1 on success, 0 on failure */
-hcCSSComputeBox(
+hcNodeComputeCSSBox(
     hc_node_t    *node,			/* I - HTML node */
     hc_compute_t compute,		/* I - Pseudo-class, if any */
     hc_box_t     *box)			/* O - Box properties */
 {
+  (void)node;
+  (void)compute;
+  (void)box;
+
   return (0);
 }
 
 
 /*
- * 'hcCSSComputeContent()' - Compute the content: value for the given HTML node.
+ * 'hcNodeComputeCSSContent()' - Compute the content: value for the given HTML node.
  *
  * The returned string must be freed using `free()`.
  */
 
 char *					/* O - Content string or `NULL` if none/error */
-hcCSSComputeContent(
+hcNodeComputeCSSContent(
     hc_node_t    *node,			/* I - HTML node */
     hc_compute_t compute)		/* I - Pseudo-class, if any */
 {
+  (void)node;
+  (void)compute;
+
   return (NULL);
 }
 
 
 /*
- * 'hcCSSComputeDisplay()' - Compute the display property for the given HTML node.
+ * 'hcNodeComputeCSSDisplay()' - Compute the display property for the given HTML node.
  */
 
 hc_display_t				/* O - 1 on success, 0 on failure */
-hcCSSComputeDisplay(
+hcNodeComputeCSSDisplay(
     hc_node_t    *node,			/* I - HTML node */
     hc_compute_t compute)		/* I - Pseudo-class, if any */
 {
+  (void)node;
+  (void)compute;
+
   return (HC_DISPLAY_NONE);
 }
 
 
 /*
- * 'hcCSSComputeMedia()' - Compute the media properties for the given HTML node.
+ * 'hcNodeComputeCSSMedia()' - Compute the media properties for the given HTML node.
  */
 
 int					/* O - 1 on success, 0 on failure */
-hcCSSComputeMedia(
+hcNodeComputeCSSMedia(
     hc_node_t    *node,			/* I - HTML node */
     hc_compute_t compute,		/* I - Pseudo-class, if any */
     hc_media_t   *media)		/* O - Media properties */
 {
+  (void)node;
+  (void)compute;
+  (void)media;
+
   return (0);
 }
 
 
 /*
- * 'hcCSSComputeProperties()' - Compute the properties for the given node.
+ * 'hcNodeComputeCSSProperties()' - Compute the properties for the given node.
  */
 
 hc_dict_t *				/* O - Properties or `NULL` on error */
-hcCSSComputeProperties(
+hcNodeComputeCSSProperties(
     hc_node_t    *node,			/* I - HTML node */
     hc_compute_t compute)		/* I - Pseudo-class, if any */
 {
@@ -107,29 +121,37 @@ hcCSSComputeProperties(
 
 
 /*
- * 'hcCSSComputeTable()' - Compute the table properties for the given HTML node.
+ * 'hcNodeComputeCSSTable()' - Compute the table properties for the given HTML node.
  */
 
 int					/* O - 1 on success, 0 on failure */
-hcCSSComputeTable(
+hcNodeComputeCSSTable(
     hc_node_t    *node,			/* I - HTML node */
     hc_compute_t compute,		/* I - Pseudo-class, if any */
     hc_table_t   *table)		/* O - Table properties */
 {
+  (void)node;
+  (void)compute;
+  (void)table;
+
   return (0);
 }
 
 
 /*
- * 'hcCSSComputeText()' - Compute the text properties for the given HTML node.
+ * 'hcNodeComputeCSSText()' - Compute the text properties for the given HTML node.
  */
 
 int					/* O - 1 on success, 0 on failure */
-hcCSSComputeText(
+hcNodeComputeCSSText(
     hc_node_t    *node,			/* I - HTML node */
     hc_compute_t compute,		/* I - Pseudo-class, if any */
     hc_text_t    *text)			/* O - Text properties */
 {
+  (void)node;
+  (void)compute;
+  (void)text;
+
   return (0);
 }
 
@@ -142,5 +164,8 @@ static hc_dict_t *			/* O - Dictionary */
 hc_create_props(hc_node_t    *node,	/* I - HTML node */
                 hc_compute_t compute)	/* I - Pseudo-class, if any */
 {
+  (void)node;
+  (void)compute;
+
   return (NULL);
 }

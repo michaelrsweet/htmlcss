@@ -18,6 +18,7 @@
 
 #  include "common.h"
 #  include "pool.h"
+#  include "css.h"
 
 #  ifdef __cplusplus
 extern "C" {
@@ -167,8 +168,6 @@ typedef enum				/* HTML element enum */
   HC_ELEMENT_MAX
 } hc_element_t;
 
-typedef struct _hc_css_s hc_css_t;	/* CSS data */
-
 typedef struct _hc_node_s hc_node_t;	/* HTML node */
 
 typedef struct _hc_html_s hc_html_t;	/* HTML document */
@@ -201,6 +200,14 @@ extern const char	*hcNodeAttrGetIndexNameValue(hc_node_t *node, size_t idx, cons
 extern const char	*hcNodeAttrGetNameValue(hc_node_t *node, const char *name);
 extern void		hcNodeAttrRemove(hc_node_t *node, const char *name);
 extern void		hcNodeAttrSetNameValue(hc_node_t *node, const char *name, const char *value);
+
+extern int		hcNodeComputeCSSBox(hc_node_t *node, hc_compute_t compute, hc_box_t *box);
+extern char		*hcNodeComputeCSSContent(hc_node_t *node, hc_compute_t compute);
+extern hc_display_t	hcNodeComputeCSSDisplay(hc_node_t *node, hc_compute_t compute);
+extern int		hcNodeComputeCSSMedia(hc_node_t *node, hc_compute_t compute, hc_media_t *media);
+extern hc_dict_t	*hcNodeComputeCSSProperties(hc_node_t *node, hc_compute_t compute);
+extern int		hcNodeComputeCSSTable(hc_node_t *node, hc_compute_t compute, hc_table_t *table);
+extern int		hcNodeComputeCSSText(hc_node_t *node, hc_compute_t compute, hc_text_t *text);
 
 extern void		hcNodeDelete(hc_html_t *html, hc_node_t *node);
 extern const char	*hcNodeGetComment(hc_node_t *node);

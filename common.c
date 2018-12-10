@@ -103,7 +103,7 @@ _hcDefaultURLCB(
 
     for (url += 7, bufptr = buffer, bufend = buffer + bufsize - 1; *url; url ++)
     {
-      char ch = *url;			/* Current character */
+      int ch = *url;			/* Current character */
 
       if (ch == '%' && isxdigit(url[1] & 255) && isxdigit(url[2] & 255))
       {
@@ -126,7 +126,7 @@ _hcDefaultURLCB(
 
       if (bufptr < bufend)
       {
-        *bufptr++ = ch;
+        *bufptr++ = (char)ch;
       }
       else
       {

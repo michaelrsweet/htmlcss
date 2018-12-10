@@ -187,7 +187,7 @@ hcHTMLLoad(hc_html_t  *html,		/* I - HTML document */
 	if (ch == '<')
 	  _hcFileUngetc(ch, &f.file);
         else
-          *bufptr++ = ch;
+          *bufptr++ = (char)ch;
       }
       else
       {
@@ -223,7 +223,7 @@ hcHTMLLoad(hc_html_t  *html,		/* I - HTML document */
     else
     {
       if (bufptr < bufend)
-        *bufptr++ = ch;
+        *bufptr++ = (char)ch;
 
       if (ch == '\n' || bufptr >= bufend)
       {
@@ -313,7 +313,7 @@ html_parse_attr(_html_file_t *f,	/* I - HTML file info */
   do
   {
     if (ptr < end)
-      *ptr++ = tolower(ch);
+      *ptr++ = (char)tolower(ch);
     else
       break;
   }
@@ -332,12 +332,12 @@ html_parse_attr(_html_file_t *f,	/* I - HTML file info */
 
     if ((ch = _hcFileGetc(&f->file)) == '\'' || ch == '\"')
     {
-      char quote = ch;			/* Quote character */
+      int quote = ch;			/* Quote character */
 
       while ((ch = _hcFileGetc(&f->file)) != EOF && ch != quote)
       {
 	if (ptr < end)
-	  *ptr++ = ch;
+	  *ptr++ = (char)ch;
 	else
 	  break;
       }
@@ -347,7 +347,7 @@ html_parse_attr(_html_file_t *f,	/* I - HTML file info */
       do
       {
 	if (ptr < end)
-	  *ptr++ = ch;
+	  *ptr++ = (char)ch;
 	else
 	  break;
       }
@@ -398,7 +398,7 @@ html_parse_comment(_html_file_t *f)	/* I - HTML file info */
       break;
     }
     else if (bufptr < bufend)
-      *bufptr++ = ch;
+      *bufptr++ = (char)ch;
     else if (!_hcError(f->html->error_cb, f->html->error_ctx, f->file.url, f->file.linenum, "Comment too long."))
       return (0);
     else
@@ -443,7 +443,7 @@ html_parse_doctype(_html_file_t *f)	/* I - HTML file info */
   while (ch != EOF && ch != '>')
   {
     if (bufptr < bufend)
-      *bufptr++ = ch;
+      *bufptr++ = (char)ch;
     else
       break;
 
@@ -454,7 +454,7 @@ html_parse_doctype(_html_file_t *f)	/* I - HTML file info */
       while ((ch = _hcFileGetc(&f->file)) != EOF && ch != quote)
       {
         if (bufptr < bufend)
-          *bufptr++ = ch;
+          *bufptr++ = (char)ch;
         else
           break;
       }
@@ -500,14 +500,14 @@ html_parse_element(_html_file_t *f,	/* I - HTML file info */
   bufptr = buffer;
   bufend = buffer + sizeof(buffer) - 1;
   if (!close_el)
-    *bufptr++ = ch;
+    *bufptr++ = (char)ch;
 
   while ((ch = _hcFileGetc(&f->file)) != EOF)
   {
     if (isspace(ch) || ch == '>' || ch == '/')
       break;
     else if (bufptr < bufend)
-      *bufptr++ = ch;
+      *bufptr++ = (char)ch;
     else if (!_hcError(f->html->error_cb, f->html->error_ctx, f->file.url, f->file.linenum, "Element name too long."))
       return (0);
     else
@@ -752,7 +752,7 @@ html_parse_unknown(_html_file_t *f,	/* I - HTML file info */
   while ((ch = _hcFileGetc(&f->file)) != EOF && ch != '>')
   {
     if (bufptr < bufend)
-      *bufptr++ = ch;
+      *bufptr++ = (char)ch;
     else
       break;
 
@@ -763,7 +763,7 @@ html_parse_unknown(_html_file_t *f,	/* I - HTML file info */
       while ((ch = _hcFileGetc(&f->file)) != EOF && ch != quote)
       {
         if (bufptr < bufend)
-          *bufptr++ = ch;
+          *bufptr++ = (char)ch;
         else
           break;
       }
@@ -771,7 +771,7 @@ html_parse_unknown(_html_file_t *f,	/* I - HTML file info */
       if (ch == EOF || ch != quote || bufptr >= bufend)
         break;
 
-      *bufptr++ = ch;
+      *bufptr++ = (char)ch;
     }
   }
 

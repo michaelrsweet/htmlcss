@@ -23,6 +23,7 @@
 void
 hcFontDelete(hc_font_t *font)		/* I - Font object */
 {
+  (void)font;
 }
 
 

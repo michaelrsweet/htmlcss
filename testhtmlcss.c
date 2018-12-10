@@ -114,7 +114,7 @@ main(int  argc,				/* I - Number of command-line arguments */
       printf("<!DOCTYPE %s>\n", hcNodeAttrGetNameValue(node, ""));
     else
     {
-      int idx, count = hcNodeAttrGetCount(node);
+      size_t idx, count = hcNodeAttrGetCount(node);
 
       printf("<%s", hcElements[element]);
       for (idx = 0; idx < count; idx ++)
