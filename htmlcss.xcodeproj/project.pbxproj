@@ -185,7 +185,7 @@
 				27CEEFBD21BE9B7600793C86 /* run.h */,
 				27CEEFBE21BE9B7600793C86 /* sha3.h */,
 			);
-			path = "Public Headers";
+			name = "Public Headers";
 			sourceTree = "<group>";
 		};
 		27CEEFB621BE9B1C00793C86 /* libhtmlcss */ = {
@@ -212,7 +212,7 @@
 				27CEEFD321BE9BB200793C86 /* pool.c */,
 				27CEEFDC21BE9BB200793C86 /* sha3.c */,
 			);
-			path = libhtmlcss;
+			name = libhtmlcss;
 			sourceTree = "<group>";
 		};
 		27CEEFB721BE9B3C00793C86 /* Unit Tests */ = {
@@ -220,7 +220,7 @@
 			children = (
 				27CEF00121BE9D1B00793C86 /* testhtmlcss.c */,
 			);
-			path = "Unit Tests";
+			name = "Unit Tests";
 			sourceTree = "<group>";
 		};
 		27CEEFF621BE9CB100793C86 /* Documentation */ = {
