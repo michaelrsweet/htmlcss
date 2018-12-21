@@ -35,11 +35,11 @@ typedef struct _hc_dict_s hc_dict_t;
  * Functions...
  */
 
-extern hc_dict_t	*hcDictCopy(hc_dict_t *dict);
+extern hc_dict_t	*hcDictCopy(const hc_dict_t *dict);
 extern void		hcDictDelete(hc_dict_t *dict);
-extern size_t		hcDictGetCount(hc_dict_t *dict);
-extern const char	*hcDictGetIndexKeyValue(hc_dict_t *dict, size_t idx, const char **key);
-extern const char	*hcDictGetKeyValue(hc_dict_t *dict, const char *key);
+extern size_t		hcDictGetCount(const hc_dict_t *dict);
+extern const char	*hcDictGetIndexKeyValue(const hc_dict_t *dict, size_t idx, const char **key);
+extern const char	*hcDictGetKeyValue(const hc_dict_t *dict, const char *key);
 extern hc_dict_t	*hcDictNew(hc_pool_t *pool);
 extern void		hcDictRemoveKey(hc_dict_t *dict, const char *key);
 extern void		hcDictSetKeyValue(hc_dict_t *dict, const char *key, const char *value);

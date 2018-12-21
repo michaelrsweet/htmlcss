@@ -48,7 +48,7 @@ static int	compare_pairs(_hc_pair_t *a, _hc_pair_t *b);
  */
 
 hc_dict_t *				/* O - New dictionary */
-hcDictCopy(hc_dict_t *dict)		/* I - Dictionary to copy */
+hcDictCopy(const hc_dict_t *dict)	/* I - Dictionary to copy */
 {
   hc_dict_t	*newdict;		/* New dictionary */
 
@@ -97,7 +97,7 @@ hcDictDelete(hc_dict_t *dict)		/* I - Dictionary */
  */
 
 size_t					/* O - Number of key/value pairs */
-hcDictGetCount(hc_dict_t *dict)		/* I - Dictionary */
+hcDictGetCount(const hc_dict_t *dict)	/* I - Dictionary */
 {
   return (dict ? dict->num_pairs : 0);
 }
@@ -109,9 +109,9 @@ hcDictGetCount(hc_dict_t *dict)		/* I - Dictionary */
 
 const char *				/* O - Value or `NULL` if `idx` is invalid. */
 hcDictGetIndexKeyValue(
-    hc_dict_t  *dict,			/* I - Dictionary */
-    size_t     idx,			/* I - Index (0-based) */
-    const char **key)			/* O - Key or `NULL` if `idx` is invalid. */
+    const hc_dict_t *dict,		/* I - Dictionary */
+    size_t          idx,		/* I - Index (0-based) */
+    const char      **key)		/* O - Key or `NULL` if `idx` is invalid. */
 {
   if (!dict || idx >= dict->num_pairs || !key)
     return (NULL);
@@ -127,8 +127,9 @@ hcDictGetIndexKeyValue(
  */
 
 const char *				/* O - Value or `NULL` if not found. */
-hcDictGetKeyValue(hc_dict_t  *dict,	/* I - Dictionary */
-                  const char *key)	/* I - Key string */
+hcDictGetKeyValue(
+    const hc_dict_t *dict,		/* I - Dictionary */
+    const char      *key)		/* I - Key string */
 {
   _hc_pair_t	temp,			/* Temporary search key */
 		*ptr;			/* Pointer to match */
