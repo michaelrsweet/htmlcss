@@ -115,6 +115,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     else
     {
       size_t idx, count = hcNodeAttrGetCount(node);
+      const hc_dict_t *props = hcNodeComputeCSSProperties(node, HC_COMPUTE_BASE);
 
       printf("<%s", hcElements[element]);
       for (idx = 0; idx < count; idx ++)
@@ -122,7 +123,14 @@ main(int  argc,				/* I - Number of command-line arguments */
 	const char *name, *value = hcNodeAttrGetIndexNameValue(node, idx, &name);
 	printf(" %s=\"%s\"", name, value);
       }
-      puts(">");
+      fputs("> {", stdout);
+      for (idx = 0, count = hcDictGetCount(props); idx < count; idx ++)
+      {
+        const char *key, *value = hcDictGetIndexKeyValue(props, idx, &key);
+
+        printf(" %s: %s;", key, value);
+      }
+      puts("}");
     }
 
     if ((next = hcNodeGetFirstChildNode(node)) != NULL)
@@ -155,6 +163,9 @@ main(int  argc,				/* I - Number of command-line arguments */
     _hc_css_sel_t	*sels[100];	/* Selectors */
 
     rule = css->all_rules.rules[i];
+
+    if (!rule->sel)
+      continue;
 
     for (sel = rule->sel; sel && num_sels < 100; sel = sel->prev)
       sels[num_sels++] = sel;

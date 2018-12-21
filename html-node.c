@@ -293,10 +293,7 @@ static void
 html_delete(hc_node_t *node)		/* I - HTML node */
 {
   if (node->element >= HC_ELEMENT_DOCTYPE)
-  {
     hcDictDelete(node->value.element.attrs);
-    hcDictDelete(node->value.element.props);
-  }
 
   free(node);
 }

@@ -205,7 +205,7 @@ extern int		hcNodeComputeCSSBox(hc_node_t *node, hc_compute_t compute, hc_box_t 
 extern char		*hcNodeComputeCSSContent(hc_node_t *node, hc_compute_t compute);
 extern hc_display_t	hcNodeComputeCSSDisplay(hc_node_t *node, hc_compute_t compute);
 extern int		hcNodeComputeCSSMedia(hc_node_t *node, hc_compute_t compute, hc_media_t *media);
-extern hc_dict_t	*hcNodeComputeCSSProperties(hc_node_t *node, hc_compute_t compute);
+extern const hc_dict_t	*hcNodeComputeCSSProperties(hc_node_t *node, hc_compute_t compute);
 extern int		hcNodeComputeCSSTable(hc_node_t *node, hc_compute_t compute, hc_table_t *table);
 extern int		hcNodeComputeCSSText(hc_node_t *node, hc_compute_t compute, hc_text_t *text);
 

@@ -287,11 +287,11 @@ typedef struct hc_box_shadow_s		/* Box shadow values */
 
 typedef enum				/* What to compute */
 {
-  HC_COMPUTE_NORMAL,
-  HC_COMPUTE_BEFORE,
-  HC_COMPUTE_AFTER,
-  HC_COMPUTE_FIRST_LINE,
-  HC_COMPUTE_FIRST_LETTER
+  HC_COMPUTE_BASE,			/* Base content */
+  HC_COMPUTE_BEFORE,			/* Content before element */
+  HC_COMPUTE_AFTER,			/* Content after element */
+  HC_COMPUTE_FIRST_LINE,		/* First line of block */
+  HC_COMPUTE_FIRST_LETTER		/* First letter of block */
 } hc_compute_t;
 
 typedef struct hc_border_s		/* All CSS border properties */
