@@ -123,7 +123,7 @@ main(int  argc,				/* I - Number of command-line arguments */
 	const char *name, *value = hcNodeAttrGetIndexNameValue(node, idx, &name);
 	printf(" %s=\"%s\"", name, value);
       }
-      fputs("> {", stdout);
+      printf("> {%p", (void *)props);
       for (idx = 0, count = hcDictGetCount(props); idx < count; idx ++)
       {
         const char *key, *value = hcDictGetIndexKeyValue(props, idx, &key);

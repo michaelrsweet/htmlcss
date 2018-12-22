@@ -295,11 +295,21 @@ hcCSSImportDefault(hc_css_t *css)	/* I - Stylesheet */
  */
 
 void
-_hcCSSImportString(hc_dict_t  *props,	/* I - Property dictionary */
+_hcCSSImportString(hc_css_t   *css,	/* I - Stylesheet */
+                   hc_dict_t  *props,	/* I - Property dictionary */
                    const char *s)	/* I - Style attribute string */
 {
-  (void)props;
-  (void)s;
+  _hc_css_file_t f;			/* Local file info */
+
+
+  f.css          = css;
+  f.file.url     = NULL;
+  f.file.fp      = NULL;
+  f.file.s       = s;
+  f.file.sptr    = s;
+  f.file.linenum = 1;
+
+  hc_read_props(&f, props);
 }
 
 

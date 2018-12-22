@@ -117,7 +117,7 @@ struct _hc_css_s
  * Functions...
  */
 
-extern void	_hcCSSImportString(hc_dict_t *props, const char *s);
+extern void	_hcCSSImportString(hc_css_t *css, hc_dict_t *props, const char *s);
 extern void	_hcCSSSelAddStmt(hc_css_t *css, _hc_css_sel_t *sel, _hc_match_t match, const char *name, const char *value);
 extern void	_hcCSSSelDelete(_hc_css_sel_t *sel);
 extern void	_hcCSSSelHash(_hc_css_sel_t *sel, hc_sha3_256_t hash);

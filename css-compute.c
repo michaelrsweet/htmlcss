@@ -21,6 +21,15 @@
  * Local types...
  */
 
+typedef struct _hc_attrmap_s		/* HTML attribute to CSS mapping */
+{
+  hc_element_t	element;		/* HTML element */
+  const char	*attr_name,		/* HTML attribute name */
+		*prop_name,		/* CSS property name */
+		*prop_value;		/* CSS property value (if any) */
+} _hc_attrmap_t;
+
+
 typedef struct _hc_css_match_s		/* Matching rule set */
 {
   int		score;			/* Score */
@@ -214,6 +223,59 @@ hc_create_props(hc_node_t    *node,	/* I - HTML node */
 			*value;		/* Value from style */
   hc_sha3_t		ctx;		/* SHA3 hashing context */
   hc_sha3_256_t		hash;		/* Hash for matches */
+  static _hc_attrmap_t	attrs[] =	/* HTML attributes that map to CSS properties */
+  {
+    { HC_ELEMENT_WILDCARD, "align",       "text-align",       NULL },
+    { HC_ELEMENT_BODY,     "background",  "background-image", NULL },
+    { HC_ELEMENT_TABLE,    "background",  "background-image", NULL },
+    { HC_ELEMENT_TD,       "background",  "background-image", NULL },
+    { HC_ELEMENT_TH,       "background",  "background-image", NULL },
+    { HC_ELEMENT_TR,       "background",  "background-image", NULL },
+    { HC_ELEMENT_BODY,     "bgcolor",     "background-color", NULL },
+    { HC_ELEMENT_TABLE,    "bgcolor",     "background-color", NULL },
+    { HC_ELEMENT_TD,       "bgcolor",     "background-color", NULL },
+    { HC_ELEMENT_TH,       "bgcolor",     "background-color", NULL },
+    { HC_ELEMENT_TR,       "bgcolor",     "background-color", NULL },
+    { HC_ELEMENT_TABLE,    "border",      "border",           NULL },
+    { HC_ELEMENT_TABLE,    "cellpadding", "padding",          NULL },
+    { HC_ELEMENT_TABLE,    "cellspacing", "margin",           NULL },
+    { HC_ELEMENT_BR,       "clear",       "clear",            NULL },
+    { HC_ELEMENT_FONT,     "color",       "color",            NULL },
+    { HC_ELEMENT_WILDCARD, "dir",         "direction",        NULL },
+    { HC_ELEMENT_FONT,     "face",        "font-family",      NULL },
+    { HC_ELEMENT_IMG,      "height",      "height",           NULL },
+    { HC_ELEMENT_TABLE,    "height",      "height",           NULL },
+    { HC_ELEMENT_TD,       "height",      "height",           NULL },
+    { HC_ELEMENT_TH,       "height",      "height",           NULL },
+    { HC_ELEMENT_TR,       "height",      "height",           NULL },
+    { HC_ELEMENT_IMG,      "hspace",      "padding-left",     NULL },
+    { HC_ELEMENT_IMG,      "hspace",      "padding-right",    NULL },
+    { HC_ELEMENT_HR,       "noshade",     "border-style",     "solid" },
+    { HC_ELEMENT_TD,       "nowrap",      "white-space",      "no-wrap" },
+    { HC_ELEMENT_TH,       "nowrap",      "white-space",      "no-wrap" },
+    { HC_ELEMENT_BODY,     "text",        "color",            NULL },
+    { HC_ELEMENT_LI,       "type",        "list-item-style",  NULL },
+    { HC_ELEMENT_OL,       "type",        "list-item-style",  NULL },
+    { HC_ELEMENT_UL,       "type",        "list-item-style",  NULL },
+    { HC_ELEMENT_COL,      "valign",      "vertical-align",   NULL },
+    { HC_ELEMENT_COLGROUP, "valign",      "vertical-align",   NULL },
+    { HC_ELEMENT_IMG,      "valign",      "vertical-align",   NULL },
+    { HC_ELEMENT_TBODY,    "valign",      "vertical-align",   NULL },
+    { HC_ELEMENT_TD,       "valign",      "vertical-align",   NULL },
+    { HC_ELEMENT_TFOOT,    "valign",      "vertical-align",   NULL },
+    { HC_ELEMENT_TH,       "valign",      "vertical-align",   NULL },
+    { HC_ELEMENT_THEAD,    "valign",      "vertical-align",   NULL },
+    { HC_ELEMENT_TR,       "valign",      "vertical-align",   NULL },
+    { HC_ELEMENT_IMG,      "vspace",      "padding-bottom",   NULL },
+    { HC_ELEMENT_IMG,      "vspace",      "padding-top",      NULL },
+    { HC_ELEMENT_COL,      "width",       "width",            NULL },
+    { HC_ELEMENT_COLGROUP, "width",       "width",            NULL },
+    { HC_ELEMENT_IMG,      "width",       "width",            NULL },
+    { HC_ELEMENT_PRE,      "width",       "width",            NULL },
+    { HC_ELEMENT_TABLE,    "width",       "width",            NULL },
+    { HC_ELEMENT_TD,       "width",       "width",            NULL },
+    { HC_ELEMENT_TH,       "width",       "width",            NULL }
+  };
   static const char * const pseudo_classes[] =
   {					/* Pseudo-classes for each enum */
     NULL,
@@ -300,6 +362,29 @@ hc_create_props(hc_node_t    *node,	/* I - HTML node */
   qsort(matches, num_matches, sizeof(_hc_css_match_t), (_hc_compare_func_t)hc_compare_matches);
 
  /*
+  * Build properties from attributes...
+  */
+
+  props = hcDictNew(css->pool);
+
+  for (i = 0; i < (sizeof(attrs) / sizeof(attrs[0])); i ++)
+  {
+    if (attrs[i].element != HC_ELEMENT_WILDCARD && node->element != attrs[i].element)
+      continue;
+
+    if ((value = hcNodeAttrGetNameValue(node, attrs[i].attr_name)) != NULL)
+    {
+      if (attrs[i].prop_value)
+        hcDictSetKeyValue(props, attrs[i].prop_name, attrs[i].prop_value);
+      else
+        hcDictSetKeyValue(props, attrs[i].prop_name, value);
+    }
+  }
+
+  if ((value = hcNodeAttrGetNameValue(node, "style")) != NULL)
+    _hcCSSImportString(css, props, value);
+
+ /*
   * Hash the match to see if we have already calculated this set of
   * properties...
   */
@@ -307,17 +392,27 @@ hc_create_props(hc_node_t    *node,	/* I - HTML node */
   hcSHA3Init(&ctx);
   for (i = num_matches, match = matches; i > 0; i --, match ++)
     hcSHA3Update(&ctx, match->rule->hash, sizeof(match->rule->hash));
+  for (i = 0, count = hcDictGetCount(props); i < count; i ++)
+  {
+    value = hcDictGetIndexKeyValue(props, i, &key);
+    hcSHA3Update(&ctx, key, strlen(key));
+    hcSHA3Update(&ctx, ":", 1);
+    hcSHA3Update(&ctx, value, strlen(value));
+    hcSHA3Update(&ctx, ";", 1);
+  }
   hcSHA3Final(&ctx, hash, sizeof(hash));
 
   if ((rule = _hcRuleColFindHash(&css->all_rules, hash)) != NULL)
+  {
+    hcDictDelete(props);
     return (rule->props);
+  }
 
  /*
   * No match, so synthesize the properties and add it...
   */
 
-  props = hcDictCopy(matches[0].rule->props);
-  for (i = num_matches - 1, match = matches + 1; i > 0; i --, match ++)
+  for (i = num_matches, match = matches; i > 0; i --, match ++)
   {
     hc_dict_t *dict = match->rule->props;
 					/* Dictionary for this match */
