@@ -10,11 +10,8 @@ smart CSS cache to minimize the size of a HTML document in memory.
 I'm providing HTMLCSS as open source under the Apache License Version 2.0 with
 exceptions for use with GPL2/LGPL2 applications which allows you do pretty much
 do whatever you like with it.  Please do provide feedback and report bugs to the
-Github project page at:
-
-    https://github.com/michaelrsweet/htmlcss
-
-so that everyone can benefit.
+[Github project page](https://github.com/michaelrsweet/htmlcss) so that everyone
+can benefit.
 
 
 Features
