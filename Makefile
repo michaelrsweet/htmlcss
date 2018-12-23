@@ -75,9 +75,9 @@ install:	$(TARGETS)
 	cp libhtmlcss.a $(libdir)
 	ranlib $(libdir)/libhtmlcss.a
 
-testhtmlcss:	testhtmlcss.o libhtmlcss.a
+testhtmlcss:	testhtmlcss.o libhtmlcss.a testhtmlcss.html
 	$(CC) $(LDFLAGS) -o testhtmlcss testhtmlcss.o libhtmlcss.a $(LIBS)
-	./testhtmlcss testsuite/basic.html
+	./testhtmlcss testhtmlcss.html
 
 libhtmlcss.a:	$(LIBOBJS)
 	ar -rcv libhtmlcss.a $(LIBOBJS)
@@ -85,9 +85,9 @@ libhtmlcss.a:	$(LIBOBJS)
 
 css-import.o:	default-css.h
 
-default-css.h:	testsuite/default.css Makefile
+default-css.h:	default.css Makefile
 	echo "static const char *default_css =" >default-css.h
-	sed -e '1,$$s/\\/\\\\/g' -e '1,$$s/"/\\"/g' <testsuite/default.css | awk '{print "\"" $$0 "\\n\""}' >>default-css.h
+	sed -e '1,$$s/\\/\\\\/g' -e '1,$$s/"/\\"/g' <default.css | awk '{print "\"" $$0 "\\n\""}' >>default-css.h
 	echo ";" >>default-css.h
 
 $(OBJS):	Makefile $(HEADERS) $(PHEADERS)
