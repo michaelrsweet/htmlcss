@@ -16,8 +16,6 @@
  * Include necessary headers...
  */
 
-#  include "common.h"
-#  include "pool.h"
 #  include "css.h"
 
 #  ifdef __cplusplus
@@ -189,7 +187,7 @@ extern hc_node_t	*hcHTMLFindNode(hc_html_t *html, hc_node_t *current, hc_element
 extern hc_css_t		*hcHTMLGetCSS(hc_html_t *html);
 extern const char	*hcHTMLGetDOCTYPE(hc_html_t *html);
 extern hc_node_t	*hcHTMLGetRootNode(hc_html_t *html);
-extern int		hcHTMLLoad(hc_html_t *html, const char *url, FILE *fp);
+extern int		hcHTMLImport(hc_html_t *html, hc_file_t *file);
 extern hc_html_t	*hcHTMLNew(hc_pool_t *pool, hc_css_t *css);
 extern hc_node_t	*hcHTMLNewRootNode(hc_html_t *html, const char *doctype);
 extern void		hcHTMLSetErrorCallback(hc_html_t *html, hc_error_cb_t cb, void *ctx);

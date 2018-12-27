@@ -14,6 +14,7 @@
  */
 
 #  include "css-private.h"
+#  include "pool-private.h"
 
 
 /*
@@ -48,7 +49,7 @@ _hcCSSSelAddStmt(hc_css_t      *css,	/* I - Stylesheet */
     temp->value = hcPoolGetString(css->pool, value);
   }
   else
-    _hcError(css->error_cb, css->error_ctx, NULL, 0, "Unable to allocate memory for selector statement.");
+    _hcPoolError(css->pool, 0, "Unable to allocate memory for selector statement.");
 }
 
 
@@ -123,7 +124,7 @@ _hcCSSSelNew(hc_css_t       *css,	/* I - Stylesheet */
     sel->relation = rel;
   }
   else
-    _hcError(css->error_cb, css->error_ctx, NULL, 0, "Unable to allocate memory for selector.");
+    _hcPoolError(css->pool, 0, "Unable to allocate memory for selector.");
 
   return (sel);
 }
@@ -154,7 +155,7 @@ _hcRuleColAdd(hc_css_t      *css,	/* I - Stylesheet */
 
     if ((ptr = realloc(col->rules, alloc_rules * sizeof(_hc_rule_t *))) == NULL)
     {
-      _hcError(css->error_cb, css->error_ctx, NULL, 0, "Unable to allocate memory for selector rules.");
+      _hcPoolError(css->pool, 0, "Unable to allocate memory for selector rules.");
       return;
     }
 
@@ -264,7 +265,7 @@ _hcRuleNew(
     rule->props = hcDictCopy(props);
   }
   else
-    _hcError(css->error_cb, css->error_ctx, NULL, 0, "Unable to allocate memory for selector rules.");
+    _hcPoolError(css->pool, 0, "Unable to allocate memory for selector rules.");
 
   return (rule);
 }

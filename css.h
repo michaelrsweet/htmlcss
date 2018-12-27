@@ -17,6 +17,7 @@
  */
 
 #  include "dict.h"
+#  include "file.h"
 
 #  ifdef __cplusplus
 extern "C" {
@@ -392,7 +393,7 @@ typedef struct _hc_css_s hc_css_t;		/* CSS data */
 
 extern void	hcCSSDelete(hc_css_t *css);
 extern hc_css_t	*hcCSSNew(hc_pool_t *pool);
-extern int	hcCSSImport(hc_css_t *css, const char *url, FILE *fp, const char *s);
+extern int	hcCSSImport(hc_css_t *css, hc_file_t *file);
 extern int	hcCSSImportDefault(hc_css_t *css);
 extern void	hcCSSSetErrorCallback(hc_css_t *css, hc_error_cb_t cb, void *ctx);
 extern void	hcCSSSetURLCallback(hc_css_t *css, hc_url_cb_t cb, void *ctx);

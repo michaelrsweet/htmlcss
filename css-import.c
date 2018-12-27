@@ -14,18 +14,13 @@
  */
 
 #  include "css-private.h"
+#  include "file-private.h"
 #  include "default-css.h"
 
 
 /*
  * Local types...
  */
-
-typedef struct _hc_css_file_s
-{
-  hc_css_t	*css;			/* Stylesheet */
-  _hc_file_t	file;			/* File information */
-} _hc_css_file_t;
 
 typedef enum _hc_logop_e		/* Logical operation */
 {
@@ -63,11 +58,11 @@ static const char * const types[] =	/* Types */
  */
 
 static void		hc_add_rule(hc_css_t *css, _hc_css_sel_t *sel, hc_dict_t *props);
-static int		hc_eval_media(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
-static char		*hc_read(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
-static hc_dict_t	*hc_read_props(_hc_css_file_t *f, hc_dict_t *props);
-static _hc_css_sel_t	*hc_read_sel(_hc_css_file_t *f, _hc_type_t *type, char *buffer, size_t bufsize);
-static char		*hc_read_value(_hc_css_file_t *f, char *buffer, size_t bufsize);
+static int		hc_eval_media(hc_css_t *css, hc_file_t *file, _hc_type_t *type, char *buffer, size_t bufsize);
+static char		*hc_read(hc_file_t *file, _hc_type_t *type, char *buffer, size_t bufsize);
+static hc_dict_t	*hc_read_props(hc_css_t *css, hc_file_t *file, hc_dict_t *props);
+static _hc_css_sel_t	*hc_read_sel(hc_css_t *css, hc_file_t *file, _hc_type_t *type, char *buffer, size_t bufsize);
+static char		*hc_read_value(hc_file_t *file, char *buffer, size_t bufsize);
 
 
 /*
@@ -75,13 +70,10 @@ static char		*hc_read_value(_hc_css_file_t *f, char *buffer, size_t bufsize);
  */
 
 int					/* O - 1 on success, 0 on error */
-hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
-            const char *url,		/* I - URL or filename */
-            FILE       *fp,		/* I - File pointer or `NULL` */
-            const char *s)		/* I - String or `NULL` */
+hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
+            hc_file_t *file)		/* I - File */
 {
   int		ret = 1;		/* Return value */
-  _hc_css_file_t f;			/* Local file info */
   char		buffer[256];		/* Current value */
   _hc_type_t	type;			/* Value type */
   int		skip = 0;		/* Skip current definitions */
@@ -90,67 +82,32 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
   _hc_css_sel_t	*sels[1000];		/* Selectors */
 
 
-  _HC_DEBUG("hcCSSImport(css=%p, url=\"%s\", fp=%p, s=\"%s\")\n", (void *)css, url, (void *)fp, s);
+  _HC_DEBUG("hcCSSImport(css=%p, file=%p)\n", (void *)css, (void *)file);
 
  /*
   * Range check input...
   */
 
-  if (!css || (!url && !fp && !s))
+  if (!css || !file)
   {
     errno = EINVAL;
     return (0);
   }
 
  /*
-  * Prepare input file...
-  */
-
-  f.css          = css;
-  f.file.url     = url;
-  f.file.fp      = fp;
-  f.file.s       = s;
-  f.file.sptr    = s;
-  f.file.linenum = 1;
-
-  if (url && !fp && !s)
-  {
-    char	filename[1024];		/* Local filename buffer */
-
-    if (!strchr(url, ':'))
-    {
-      strncpy(filename, url, sizeof(filename) - 1);
-      filename[sizeof(filename) - 1] = '\0';
-    }
-    else if (!(css->url_cb)(url, filename, sizeof(filename), css->url_ctx))
-    {
-      _hcError(css->error_cb, css->error_ctx, url, 0, "Unable to open: %s", strerror(errno));
-      return (0);
-    }
-
-    if ((f.file.fp = fopen(filename, "rb")) == NULL)
-    {
-      _hcError(css->error_cb, css->error_ctx, url, 0, "Unable to open: %s", strerror(errno));
-      return (0);
-    }
-
-    _HC_DEBUG("Reading CSS from \"%s\"...\n", filename);
-  }
-
- /*
   * Read CSS...
   */
 
-  while (hc_read(&f, &type, buffer, sizeof(buffer)))
+  while (hc_read(file, &type, buffer, sizeof(buffer)))
   {
-    _HC_DEBUG("%s:%d: %s %s\n", f.file.url, f.file.linenum, types[type], buffer);
+    _HC_DEBUG("%s:%d: %s %s\n", file->url, file->linenum, types[type], buffer);
 
     if (!strcmp(buffer, "@import"))
     {
       int	in_url = 0;		/* In a URL? */
       char	path[256] = "";		/* Path to import */
 
-      while (hc_read(&f, &type, buffer, sizeof(buffer)))
+      while (hc_read(file, &type, buffer, sizeof(buffer)))
       {
         if (type == _HC_TYPE_QSTRING)
         {
@@ -165,7 +122,7 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
           break;
         else
         {
-	  _hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unexpected %s token seen.", buffer);
+	  _hcFileError(file, "Unexpected %s token seen.", buffer);
 	  ret = 0;
 	  break;
         }
@@ -174,18 +131,22 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
       if (!path[0])
         break;
 
-      if (hc_eval_media(&f, &type, buffer, sizeof(buffer)))
+      if (hc_eval_media(css, file, &type, buffer, sizeof(buffer)))
       {
-        if (!hcCSSImport(css, path, NULL, NULL))
-        {
-          ret = 0;
+        hc_file_t *impfile = hcFileNewURL(file->pool, path, file->url);
+					/* Import file */
+
+        ret = hcCSSImport(css, impfile);
+
+        hcFileDelete(impfile);
+
+        if (!ret)
           break;
-        }
       }
 
       if (strcmp(buffer, ";"))
       {
-	_hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unexpected %s token seen.", buffer);
+	_hcFileError(file, "Unexpected %s token seen.", buffer);
 	ret = 0;
 	break;
       }
@@ -194,16 +155,16 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
     {
       if (in_media)
       {
-	_hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unexpected nested @media.");
+	_hcFileError(file, "Unexpected nested @media.");
         break;
       }
 
-      skip     = !hc_eval_media(&f, &type, buffer, sizeof(buffer));
+      skip     = !hc_eval_media(css, file, &type, buffer, sizeof(buffer));
       in_media = !strcmp(buffer, "{");
     }
     else if (buffer[0] == '@')
     {
-      _hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unknown %s seen.", buffer);
+      _hcFileError(file, "Unknown %s seen.", buffer);
       ret = 0;
       break;
     }
@@ -216,14 +177,14 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
       }
       else
       {
-	_hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unexpected %s seen.", buffer);
+	_hcFileError(file, "Unexpected %s seen.", buffer);
 	ret = 0;
 	break;
       }
     }
     else if (num_sels < (int)(sizeof(sels) / sizeof(sels[0])))
     {
-      if ((sels[num_sels] = hc_read_sel(&f, &type, buffer, sizeof(buffer))) == NULL)
+      if ((sels[num_sels] = hc_read_sel(css, file, &type, buffer, sizeof(buffer))) == NULL)
       {
 	ret = 0;
 	break;
@@ -236,18 +197,18 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
 	int		i;		/* Looping var */
         hc_dict_t	*props;		/* Properties */
 
-        if ((props = hc_read_props(&f, NULL)) != NULL)
+        if ((props = hc_read_props(css, file, NULL)) != NULL)
         {
 	  if (skip)
 	  {
-	    _HC_DEBUG("%s:%d: Skipping %d properties for %d selectors.\n", f.file.url, f.file.linenum, (int)hcDictGetCount(props), num_sels);
+	    _HC_DEBUG("%s:%d: Skipping %d properties for %d selectors.\n", file->url, file->linenum, (int)hcDictGetCount(props), num_sels);
 
 	    for (i = 0; i < num_sels; i ++)
 	      _hcCSSSelDelete(sels[i]);
 	  }
 	  else
 	  {
-	    _HC_DEBUG("%s:%d: Adding %d properties for %d selectors.\n", f.file.url, f.file.linenum, (int)hcDictGetCount(props), num_sels);
+	    _HC_DEBUG("%s:%d: Adding %d properties for %d selectors.\n", file->url, file->linenum, (int)hcDictGetCount(props), num_sels);
 
 	    for (i = 0; i < num_sels; i ++)
 	      hc_add_rule(css, sels[i], props);
@@ -259,21 +220,18 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
       }
       else if (strcmp(buffer, ","))
       {
-	_hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Unexpected %s seen.", buffer);
+	_hcFileError(file, "Unexpected %s seen.", buffer);
 	ret = 0;
 	break;
       }
     }
     else
     {
-      _hcError(css->error_cb, css->error_ctx, f.file.url, f.file.linenum, "Too many selectors seen.", buffer);
+      _hcFileError(file, "Too many selectors seen.");
       ret = 0;
       break;
     }
   }
-
-  if (f.file.fp != fp)
-    fclose(f.file.fp);
 
   return (ret);
 }
@@ -286,7 +244,14 @@ hcCSSImport(hc_css_t   *css,		/* I - Stylesheet */
 int					/* O - 1 on success, 0 on error */
 hcCSSImportDefault(hc_css_t *css)	/* I - Stylesheet */
 {
-  return (hcCSSImport(css, NULL, NULL, default_css));
+  hc_file_t	*file = hcFileNewString(css->pool, default_css);
+					/* String file */
+  int		ret = hcCSSImport(css, file);
+					/* Return value */
+
+  hcFileDelete(file);
+
+  return (ret);
 }
 
 
@@ -299,17 +264,11 @@ _hcCSSImportString(hc_css_t   *css,	/* I - Stylesheet */
                    hc_dict_t  *props,	/* I - Property dictionary */
                    const char *s)	/* I - Style attribute string */
 {
-  _hc_css_file_t f;			/* Local file info */
+  hc_file_t	*file = hcFileNewString(css->pool, s);
+					/* String file */
 
-
-  f.css          = css;
-  f.file.url     = NULL;
-  f.file.fp      = NULL;
-  f.file.s       = s;
-  f.file.sptr    = s;
-  f.file.linenum = 1;
-
-  hc_read_props(&f, props);
+  hc_read_props(css, file, props);
+  hcFileDelete(file);
 }
 
 
@@ -341,10 +300,11 @@ hc_add_rule(hc_css_t      *css,		/* I - Stylesheet */
  */
 
 static int				/* O - 1 if media rule matches, 0 otherwise */
-hc_eval_media(_hc_css_file_t *f,	/* I - File to read from */
-              _hc_type_t     *type,	/* O - Token type */
-              char           *buffer,	/* I - Buffer */
-              size_t         bufsize)	/* I - Size of buffer */
+hc_eval_media(hc_css_t   *css,		/* I - Stylesheet */
+              hc_file_t  *file,		/* I - File to read from */
+              _hc_type_t *type,		/* O - Token type */
+              char       *buffer,	/* I - Buffer */
+              size_t     bufsize)	/* I - Size of buffer */
 {
   int		media_result = -1;	/* Result of evaluation */
   int		media_current = -1;	/* Result of current expression */
@@ -352,7 +312,7 @@ hc_eval_media(_hc_css_file_t *f,	/* I - File to read from */
   int		invert = 0;		/* Was "not" seen? */
 
 
-  while (hc_read(f, type, buffer, bufsize))
+  while (hc_read(file, type, buffer, bufsize))
   {
     if (*type == _HC_TYPE_RESERVED)
     {
@@ -364,7 +324,7 @@ hc_eval_media(_hc_css_file_t *f,	/* I - File to read from */
         * Skip subexpression...
         */
 
-	while (hc_read(f, type, buffer, bufsize))
+	while (hc_read(file, type, buffer, bufsize))
 	{
 	  if (*type == _HC_TYPE_RESERVED && !strcmp(buffer, ")"))
 	    break;
@@ -372,7 +332,7 @@ hc_eval_media(_hc_css_file_t *f,	/* I - File to read from */
 
         if (*type != _HC_TYPE_RESERVED)
         {
-	  _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Unexpected end-of-file.", buffer);
+	  _hcFileError(file, "Unexpected end-of-file.");
 	  return (0);
         }
 
@@ -422,7 +382,7 @@ hc_eval_media(_hc_css_file_t *f,	/* I - File to read from */
 	  continue;
 	}
       }
-      else if ((!strcmp(buffer, f->css->media.type) || !strcmp(buffer, "all")) != invert)
+      else if ((!strcmp(buffer, css->media.type) || !strcmp(buffer, "all")) != invert)
       {
         if (media_current < 0 || logop != _HC_LOGOP_OR)
 	  media_current = 0;
@@ -467,7 +427,8 @@ hc_eval_media(_hc_css_file_t *f,	/* I - File to read from */
 
   unexpected:
 
-  _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Unexpected token \"%s\" seen.", buffer);
+  _hcFileError(file, "Unexpected token \"%s\" seen.", buffer);
+
   return (0);
 }
 
@@ -477,10 +438,10 @@ hc_eval_media(_hc_css_file_t *f,	/* I - File to read from */
  */
 
 static char *				/* O - String or `NULL` on EOF */
-hc_read(_hc_css_file_t *f,		/* I - CSS file */
-	_hc_type_t     *type,		/* O - String type */
-	char           *buffer,		/* I - Buffer */
-	size_t         bufsize)		/* I - Size of buffer */
+hc_read(hc_file_t  *file,		/* I - CSS file */
+	_hc_type_t *type,		/* O - String type */
+	char       *buffer,		/* I - Buffer */
+	size_t     bufsize)		/* I - Size of buffer */
 {
   int	ch;				/* Current character */
   char	*bufptr,			/* Pointer into buffer */
@@ -494,7 +455,7 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
 
   for (;;)
   {
-    while ((ch = _hcFileGetc(&f->file)) != EOF)
+    while ((ch = hcFileGetc(file)) != EOF)
     {
       if (!isspace(ch & 255))
 	break;
@@ -514,10 +475,10 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
 
       if (ch == ':')
       {
-        if ((ch = _hcFileGetc(&f->file)) == ':')
+        if ((ch = hcFileGetc(file)) == ':')
           *bufptr++ = (char)ch;
         else
-	  _hcFileUngetc(ch, &f->file);
+	  hcFileUngetc(file, ch);
       }
     }
     else if (ch == '\'' || ch == '\"')
@@ -528,7 +489,7 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
 
       int quote = ch;			/* Quote character */
 
-      while ((ch = _hcFileGetc(&f->file)) != EOF)
+      while ((ch = hcFileGetc(file)) != EOF)
       {
 	if (ch == quote)
 	  break;
@@ -561,7 +522,7 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
 
 	  bufptr --;
 
-	  while ((ch = _hcFileGetc(&f->file)) != EOF)
+	  while ((ch = hcFileGetc(file)) != EOF)
 	  {
 	    if (ch == '/' && asterisk)
 	      break;
@@ -601,17 +562,17 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
           * Return FOO and save "=" for later...
           */
 
-          _hcFileUngetc('=', &f->file);
+          hcFileUngetc(file, '=');
           bufptr --;
           break;
         }
       }
-      while ((ch = _hcFileGetc(&f->file)) != EOF);
+      while ((ch = hcFileGetc(file)) != EOF);
 
       if (bufptr == buffer)
         continue;
       else if (ch != EOF && !isspace(ch & 255) && ch != '(' && ch != '=')
-	_hcFileUngetc(ch, &f->file);
+	hcFileUngetc(file, ch);
 
       if (isdigit(*buffer & 255) || (*buffer == '.' && bufptr > (buffer + 1) && isdigit(buffer[1] & 255)))
         *type = _HC_TYPE_NUMBER;
@@ -633,8 +594,9 @@ hc_read(_hc_css_file_t *f,		/* I - CSS file */
  */
 
 static hc_dict_t *			/* O - Properties or `NULL` on error */
-hc_read_props(_hc_css_file_t *f,	/* I - file to read from */
-              hc_dict_t      *props)	/* I - Existing properties */
+hc_read_props(hc_css_t  *css,		/* I - Stylesheet */
+              hc_file_t *file,		/* I - file to read from */
+              hc_dict_t *props)		/* I - Existing properties */
 {
   _hc_type_t	type;			/* String type */
   char		buffer[256],		/* String buffer */
@@ -643,9 +605,9 @@ hc_read_props(_hc_css_file_t *f,	/* I - file to read from */
   int		skip_remainder = 0;	/* Skip the remainder? */
 
 
-  while (hc_read(f, &type, buffer, sizeof(buffer)))
+  while (hc_read(file, &type, buffer, sizeof(buffer)))
   {
-    _HC_DEBUG("%s:%d: (PROPS) %s %s\n", f->file.url, f->file.linenum, types[type], buffer);
+    _HC_DEBUG("%s:%d: (PROPS) %s %s\n", file->url, file->linenum, types[type], buffer);
 
     if (type == _HC_TYPE_RESERVED && !strcmp(buffer, "}"))
       break;
@@ -653,7 +615,7 @@ hc_read_props(_hc_css_file_t *f,	/* I - file to read from */
       continue;
     else if (type != _HC_TYPE_STRING)
     {
-      _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Unexpected %s seen.", buffer);
+      _hcFileError(file, "Unexpected %s seen.", buffer);
       skip_remainder = 1;
       continue;
     }
@@ -661,34 +623,34 @@ hc_read_props(_hc_css_file_t *f,	/* I - file to read from */
     strncpy(name, buffer, sizeof(name) - 1);
     name[sizeof(name) - 1] = '\0';
 
-    if (!hc_read(f, &type, buffer, sizeof(buffer)) || type != _HC_TYPE_RESERVED || strcmp(buffer, ":"))
+    if (!hc_read(file, &type, buffer, sizeof(buffer)) || type != _HC_TYPE_RESERVED || strcmp(buffer, ":"))
     {
-      _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing colon, saw %s instead.", buffer);
+      _hcFileError(file, "Missing colon, saw %s instead.", buffer);
       skip_remainder = 1;
       continue;
     }
 
-    if (!hc_read_value(f, value, sizeof(value)))
+    if (!hc_read_value(file, value, sizeof(value)))
     {
-      _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing property value.");
+      _hcFileError(file, "Missing property value.");
       break;
     }
 
-    if (!hc_read(f, &type, buffer, sizeof(buffer)) || type != _HC_TYPE_RESERVED || strcmp(buffer, ";"))
+    if (!hc_read(file, &type, buffer, sizeof(buffer)) || type != _HC_TYPE_RESERVED || strcmp(buffer, ";"))
     {
-      _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing semi-colon, saw %s instead.", buffer);
+      _hcFileError(file, "Missing semi-colon, saw %s instead.", buffer);
       skip_remainder = 1;
       continue;
     }
 
     if (!props)
-      props = hcDictNew(f->css->pool);
+      props = hcDictNew(css->pool);
 
-    _HC_DEBUG("%s:%d: (PROPS) Adding '%s: %s;'.\n", f->file.url, f->file.linenum, name, value);
+    _HC_DEBUG("%s:%d: (PROPS) Adding '%s: %s;'.\n", file->url, file->linenum, name, value);
     hcDictSetKeyValue(props, name, value);
   }
 
-  _HC_DEBUG("%s:%d: (PROPS) Returning %d properties.\n", f->file.url, f->file.linenum, (int)hcDictGetCount(props));
+  _HC_DEBUG("%s:%d: (PROPS) Returning %d properties.\n", file->url, file->linenum, (int)hcDictGetCount(props));
 
   return (props);
 }
@@ -702,10 +664,11 @@ hc_read_props(_hc_css_file_t *f,	/* I - file to read from */
  */
 
 static _hc_css_sel_t *			/* O  - Selector or `NULL` on error */
-hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
-            _hc_type_t     *type,	/* IO - String type */
-            char           *buffer,	/* I  - String buffer */
-            size_t         bufsize)	/* I  - Size of string buffer */
+hc_read_sel(hc_css_t   *css,		/* I  - Stylesheet */
+	    hc_file_t  *file,		/* I  - File to read from */
+            _hc_type_t *type,		/* IO - String type */
+            char       *buffer,		/* I  - String buffer */
+            size_t     bufsize)		/* I  - Size of string buffer */
 {
   _hc_css_sel_t *sel = NULL;		/* Current selector */
   _hc_relation_t rel = _HC_RELATION_CHILD;
@@ -717,7 +680,7 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
 
   do
   {
-    _HC_DEBUG("%s:%d: (SELECTOR) %s %s\n", f->file.url, f->file.linenum, types[*type], buffer);
+    _HC_DEBUG("%s:%d: (SELECTOR) %s %s\n", file->url, file->linenum, types[*type], buffer);
 
     if (!strcmp(buffer, ":"))
     {
@@ -725,9 +688,9 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
       * Match pseudo-class...
       */
 
-      if (!hc_read(f, type, name, sizeof(name)) || *type != _HC_TYPE_STRING)
+      if (!hc_read(file, type, name, sizeof(name)) || *type != _HC_TYPE_STRING)
       {
-        _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing/bad pseudo-class.");
+        _hcFileError(file, "Missing/bad pseudo-class.");
         goto error;
       }
 
@@ -739,15 +702,15 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
         */
 
         *ptr = '\0';
-        if (!hc_read(f, type, value, sizeof(value)) || *type != _HC_TYPE_STRING)
+        if (!hc_read(file, type, value, sizeof(value)) || *type != _HC_TYPE_STRING)
         {
-	  _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing/bad value for ':%s'.", name);
+	  _hcFileError(file, "Missing/bad value for ':%s'.", name);
 	  goto error;
         }
 
-        if (!hc_read(f, type, buffer, bufsize) || *type != _HC_TYPE_RESERVED || strcmp(buffer, ")"))
+        if (!hc_read(file, type, buffer, bufsize) || *type != _HC_TYPE_RESERVED || strcmp(buffer, ")"))
         {
-	  _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing/bad parenthesis after ':%s(%s'.", name, value);
+	  _hcFileError(file, "Missing/bad parenthesis after ':%s(%s'.", name, value);
 	  goto error;
         }
       }
@@ -755,9 +718,9 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
         value[0] = '\0';
 
       if (!sel)
-        sel = _hcCSSSelNew(f->css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+        sel = _hcCSSSelNew(css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
 
-      _hcCSSSelAddStmt(f->css, sel, _HC_MATCH_PSEUDO_CLASS, name, value[0] ? value : NULL);
+      _hcCSSSelAddStmt(css, sel, _HC_MATCH_PSEUDO_CLASS, name, value[0] ? value : NULL);
     }
     else if (buffer[0] == '.')
     {
@@ -766,9 +729,9 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
       */
 
       if (!sel)
-        sel = _hcCSSSelNew(f->css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+        sel = _hcCSSSelNew(css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
 
-      _hcCSSSelAddStmt(f->css, sel, _HC_MATCH_CLASS, buffer + 1, NULL);
+      _hcCSSSelAddStmt(css, sel, _HC_MATCH_CLASS, buffer + 1, NULL);
     }
     else if (buffer[0] == '#')
     {
@@ -777,9 +740,9 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
       */
 
       if (!sel)
-        sel = _hcCSSSelNew(f->css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+        sel = _hcCSSSelNew(css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
 
-      _hcCSSSelAddStmt(f->css, sel, _HC_MATCH_ID, buffer + 1, NULL);
+      _hcCSSSelAddStmt(css, sel, _HC_MATCH_ID, buffer + 1, NULL);
     }
     else if (*type == _HC_TYPE_STRING)
     {
@@ -793,11 +756,11 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
         element = HC_ELEMENT_WILDCARD;
       else if ((element = _hcElementLookup(buffer)) == HC_ELEMENT_UNKNOWN)
       {
-	_hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Unknown selector '%s'.", buffer);
+	_hcFileError(file, "Unknown selector '%s'.", buffer);
 	goto error;
       }
 
-      sel = _hcCSSSelNew(f->css, sel, element, rel);
+      sel = _hcCSSSelNew(css, sel, element, rel);
       rel = _HC_RELATION_CHILD;
     }
     else if (!strcmp(buffer, "["))
@@ -808,17 +771,17 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
 
       _hc_match_t	mtype;		/* Matching type */
 
-      if (!hc_read(f, type, name, sizeof(name)) || *type != _HC_TYPE_STRING)
+      if (!hc_read(file, type, name, sizeof(name)) || *type != _HC_TYPE_STRING)
       {
-        _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing/bad attribute name.", name);
+        _hcFileError(file, "Missing/bad attribute name.");
         goto error;
       }
 
-      _HC_DEBUG("%s:%d: (SELECTOR) Attribute name '%s'.\n", f->file.url, f->file.linenum, name);
+      _HC_DEBUG("%s:%d: (SELECTOR) Attribute name '%s'.\n", file->url, file->linenum, name);
 
-      if (!hc_read(f, type, buffer, bufsize) || *type != _HC_TYPE_RESERVED)
+      if (!hc_read(file, type, buffer, bufsize) || *type != _HC_TYPE_RESERVED)
       {
-        _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing/bad operator/terminator (%s '%s') after attribute name.", types[*type], buffer);
+        _hcFileError(file, "Missing/bad operator/terminator (%s '%s') after attribute name.", types[*type], buffer);
         goto error;
       }
 
@@ -838,7 +801,7 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
         mtype = _HC_MATCH_ATTR_SPACE;
       else
       {
-        _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Unknown operator '%s' after attribute name.", buffer);
+        _hcFileError(file, "Unknown operator '%s' after attribute name.", buffer);
         goto error;
       }
 
@@ -849,9 +812,9 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
         */
 
 	if (!sel)
-	  sel = _hcCSSSelNew(f->css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+	  sel = _hcCSSSelNew(css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
 
-	_hcCSSSelAddStmt(f->css, sel, mtype, name, NULL);
+	_hcCSSSelAddStmt(css, sel, mtype, name, NULL);
       }
       else
       {
@@ -859,26 +822,26 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
         * Get value...
         */
 
-	_HC_DEBUG("%s:%d: (SELECTOR) Operator '%s'.\n", f->file.url, f->file.linenum, buffer);
+	_HC_DEBUG("%s:%d: (SELECTOR) Operator '%s'.\n", file->url, file->linenum, buffer);
 
-	if (!hc_read(f, type, value, sizeof(value)) || *type != _HC_TYPE_QSTRING)
+	if (!hc_read(file, type, value, sizeof(value)) || *type != _HC_TYPE_QSTRING)
 	{
-	  _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing/bad attribute value.");
+	  _hcFileError(file, "Missing/bad attribute value.");
 	  goto error;
 	}
 
-        _HC_DEBUG("%s:%d: (SELECTOR) Attribute value '%s'.\n", f->file.url, f->file.linenum, value);
+        _HC_DEBUG("%s:%d: (SELECTOR) Attribute value '%s'.\n", file->url, file->linenum, value);
 
-	if (!hc_read(f, type, buffer, bufsize) || *type != _HC_TYPE_RESERVED || strcmp(buffer, "]"))
+	if (!hc_read(file, type, buffer, bufsize) || *type != _HC_TYPE_RESERVED || strcmp(buffer, "]"))
 	{
-	  _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Missing/bad terminator after attribute value (Ss '%s').", types[*type], buffer);
+	  _hcFileError(file, "Missing/bad terminator after attribute value (%s '%s').", types[*type], buffer);
 	  goto error;
 	}
 
 	if (!sel)
-	  sel = _hcCSSSelNew(f->css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
+	  sel = _hcCSSSelNew(css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
 
-	_hcCSSSelAddStmt(f->css, sel, mtype, name, value);
+	_hcCSSSelAddStmt(css, sel, mtype, name, value);
       }
     }
     else if (!strcmp(buffer, ">") && sel)
@@ -909,18 +872,18 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
       break;
     else
     {
-      _hcError(f->css->error_cb, f->css->error_ctx, f->file.url, f->file.linenum, "Unknown selector '%s'.", buffer);
+      _hcFileError(file, "Unknown selector '%s'.", buffer);
       goto error;
     }
 
   }
-  while (hc_read(f, type, buffer, bufsize));
+  while (hc_read(file, type, buffer, bufsize));
 
 #ifdef DEBUG
   if (sel)
-    _HC_DEBUG("%s:%d: (SELECTOR) %s (%d matching statements)\n", f->file.url, f->file.linenum, hcElements[sel->element], (int)sel->num_stmts);
+    _HC_DEBUG("%s:%d: (SELECTOR) %s (%d matching statements)\n", file->url, file->linenum, hcElements[sel->element], (int)sel->num_stmts);
   else
-    _HC_DEBUG("%s:%d: (SELECTOR) NULL\n", f->file.url, f->file.linenum);
+    _HC_DEBUG("%s:%d: (SELECTOR) NULL\n", file->url, file->linenum);
 #endif /* DEBUG */
 
   return (sel);
@@ -942,9 +905,9 @@ hc_read_sel(_hc_css_file_t *f,		/* I  - File to read from */
  */
 
 static char *				/* O - String or `NULL` on error */
-hc_read_value(_hc_css_file_t *f,	/* I - File to read from */
-              char           *buffer,	/* I - String buffer */
-              size_t         bufsize)	/* I - Size of string buffer */
+hc_read_value(hc_file_t *file,		/* I - File to read from */
+              char      *buffer,	/* I - String buffer */
+              size_t    bufsize)	/* I - Size of string buffer */
 {
   int	ch,				/* Character from file */
 	paren = 0,			/* Parenthesis */
@@ -957,7 +920,7 @@ hc_read_value(_hc_css_file_t *f,	/* I - File to read from */
   * Skip leading whitespace...
   */
 
-  while ((ch = _hcFileGetc(&f->file)) != EOF)
+  while ((ch = hcFileGetc(file)) != EOF)
     if (!isspace(ch & 255) || ch == ';' || ch == '}')
       break;
 
@@ -965,7 +928,7 @@ hc_read_value(_hc_css_file_t *f,	/* I - File to read from */
   {
     if (!paren && !quote && (ch == ';' || ch == '}'))
     {
-      _hcFileUngetc(ch, &f->file);
+      hcFileUngetc(file, ch);
       break;
     }
 
@@ -978,7 +941,7 @@ hc_read_value(_hc_css_file_t *f,	/* I - File to read from */
       paren --;
     else if (ch == '\\')
     {
-      if ((ch = _hcFileGetc(&f->file)) != EOF)
+      if ((ch = hcFileGetc(file)) != EOF)
       {
         if (bufptr < bufend)
           *bufptr++ = (char)ch;
@@ -989,7 +952,7 @@ hc_read_value(_hc_css_file_t *f,	/* I - File to read from */
     else if (ch == '\"' || ch == '\'')
       quote = ch;
   }
-  while ((ch = _hcFileGetc(&f->file)) != EOF);
+  while ((ch = hcFileGetc(file)) != EOF);
 
  /*
   * Remove trailing whitespace...

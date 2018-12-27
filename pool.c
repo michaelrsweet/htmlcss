@@ -13,20 +13,7 @@
  * Include necessary headers...
  */
 
-#include "common-private.h"
-#include "pool.h"
-
-
-/*
- * Local types...
- */
-
-struct _hc_pool_s			/* Memory pool */
-{
-  size_t	num_strings;		/* Number of strings in pool */
-  size_t	alloc_strings;		/* Allocated size of strings array */
-  char		**strings;		/* Strings array */
-};
+#include "pool-private.h"
 
 
 /*
@@ -37,13 +24,70 @@ static int	compare_strings(char **a, char **b);
 
 
 /*
- * 'hcPoolNew()' - Create a new memory pool.
+ * 'hcPoolDelete()' - Free the memory used by a pool.
  */
 
-hc_pool_t *			/* O - New memory pool */
-hcPoolNew(void)
+void
+hcPoolDelete(hc_pool_t *pool)	/* I - Memory pool */
 {
-  return ((hc_pool_t *)calloc(1, sizeof(hc_pool_t)));
+  if (pool)
+  {
+    if (pool->num_strings > 0)
+    {
+      size_t	i;			/* Looping var */
+      char	**temp;			/* String pointer */
+
+      for (i = pool->num_strings, temp = pool->strings; i > 0; i --, temp ++)
+        free(*temp);
+
+      free(pool->strings);
+    }
+
+    free(pool);
+  }
+}
+
+
+/*
+ * '_hcPoolError()' - Display an error message.
+ */
+
+int					/* O - 1 to continue, 0 to stop */
+_hcPoolError(
+    hc_pool_t  *pool,			/* I - Memory pool */
+    int        linenum,			/* I - Line number in file or 0 */
+    const char *message,		/* I - Printf-style message string */
+    ...)				/* I - Additional arguments as needed */
+{
+  int		ret;			/* Return value */
+  va_list	ap;			/* Pointer to additional arguments */
+
+
+  va_start(ap, message);
+  ret = _hcPoolErrorv(pool, linenum, message, ap);
+  va_end(ap);
+
+  return (ret);
+}
+
+
+/*
+ * '_hcPoolErrorv()' - Display an error message.
+ */
+
+int					/* O - 1 to continue, 0 to stop */
+_hcPoolErrorv(
+    hc_pool_t  *pool,			/* I - Memory pool */
+    int        linenum,			/* I - Line number in file or 0 */
+    const char *message,		/* I - Printf-style message string */
+    va_list    ap)			/* I - Pointer to additional arguments */
+{
+  char		buffer[8192];		/* Message buffer */
+
+
+  vsnprintf(buffer, sizeof(buffer), message, ap);
+
+  return ((pool->error_cb)(pool->error_ctx, buffer, linenum));
 }
 
 
@@ -106,27 +150,75 @@ hcPoolGetString(
 
 
 /*
- * 'hcPoolDelete()' - Free the memory used by a pool.
+ * 'hcPoolGetURL()' - Get a file corresponding to a URL.
+ */
+
+const char *				/* O - Filename or `NULL` on error */
+hcPoolGetURL(hc_pool_t  *pool,		/* I - Memory pool */
+             const char *url,		/* I - URL */
+             const char *baseurl)	/* I - Base URL, if any */
+{
+  (void)pool;
+  (void)url;
+  (void)baseurl;
+
+  return (NULL);
+}
+
+
+/*
+ * 'hcPoolNew()' - Create a new memory pool.
+ */
+
+hc_pool_t *			/* O - New memory pool */
+hcPoolNew(void)
+{
+  return ((hc_pool_t *)calloc(1, sizeof(hc_pool_t)));
+}
+
+
+/*
+ * 'hcPoolSetErrorCallback()' - Set the error reporting callback.
+ *
+ * The default error callback writes the message to `stderr`.
+ *
+ * The error callback returns 1 to continue processing or 0 to stop immediately.
  */
 
 void
-hcPoolDelete(hc_pool_t *pool)	/* I - Memory pool */
+hcPoolSetErrorCallback(
+    hc_pool_t     *pool,		/* I - Memory pool */
+    hc_error_cb_t cb,			/* I - Error callback or `NULL` for the default */
+    void          *ctx)			/* I - Context pointer for callback */
 {
-  if (pool)
-  {
-    if (pool->num_strings > 0)
-    {
-      size_t	i;			/* Looping var */
-      char	**temp;			/* String pointer */
+  if (!pool)
+    return;
 
-      for (i = pool->num_strings, temp = pool->strings; i > 0; i --, temp ++)
-        free(*temp);
+  pool->error_cb  = cb ? cb : _hcDefaultErrorCB;
+  pool->error_ctx = ctx;
+}
 
-      free(pool->strings);
-    }
 
-    free(pool);
-  }
+/*
+ * 'hcPoolSetURLCallback()' - Set the URL callback.
+ *
+ * The default URL callback supports local files (only).
+ *
+ * The URL callback returns a local pathname (copied to the specified buffer)
+ * or `NULL` if the URL cannot be loaded/found.
+ */
+
+void
+hcPoolSetURLCallback(
+    hc_pool_t   *pool,			/* I - Memory pool */
+    hc_url_cb_t cb,			/* I - URL callback or `NULL` for the default */
+    void        *ctx)			/* I - Context pointer for callback */
+{
+  if (!pool)
+    return;
+
+  pool->url_cb  = cb ? cb : _hcDefaultURLCB;
+  pool->url_ctx = ctx;
 }
 
 

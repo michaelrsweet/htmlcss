@@ -34,10 +34,9 @@ typedef struct _hc_font_s hc_font_t;
  * Functions...
  */
 
-extern int		hcFontComputeExtents(hc_font_t *font, float size, hc_font_style_t style, hc_font_variant_t variant, hc_font_weight_t weight, const char *s, hc_rect_t *extents);
+extern int		hcFontComputeExtents(const hc_font_t *font, float size, const char *s, hc_rect_t *extents);
 extern void		hcFontDelete(hc_font_t *font);
-extern hc_font_t	*hcFontNew(hc_pool_t *pool, const char *family);
-
+extern hc_font_t	*hcFontNew(hc_pool_t *pool, hc_file_t *file);
 
 
 #  ifdef __cplusplus

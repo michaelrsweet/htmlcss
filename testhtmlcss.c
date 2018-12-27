@@ -78,10 +78,14 @@ main(int  argc,				/* I - Number of command-line arguments */
 
   for (i = 1; i < argc; i ++)
   {
+    hc_file_t *file = hcFileNewURL(pool, argv[i], NULL);
+
     if ((ext = strrchr(argv[i], '.')) == NULL || strcmp(ext, ".css"))
-      hcHTMLLoad(html, argv[i], NULL);
+      hcHTMLImport(html, file);
     else
-      hcCSSImport(css, argv[i], NULL, NULL);
+      hcCSSImport(css, file);
+
+    hcFileDelete(file);
   }
 
   puts("HTML document tree:\n");

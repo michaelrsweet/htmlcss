@@ -27,13 +27,6 @@ extern "C" {
 #  endif /* __cplusplus */
 
 
-/*
- * Types...
- */
-
-typedef int (*hc_error_cb_t)(const char *message, int linenum, void *ctx);
-typedef char *(*hc_url_cb_t)(const char *url, char *buffer, size_t bufsize, void *ctx);
-
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */

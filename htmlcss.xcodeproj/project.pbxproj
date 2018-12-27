@@ -53,6 +53,10 @@
 		27CEEFF121BE9BB200793C86 /* html-load.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEEFDD21BE9BB200793C86 /* html-load.c */; };
 		27CEF00221BE9D1B00793C86 /* testhtmlcss.c in Sources */ = {isa = PBXBuildFile; fileRef = 27CEF00121BE9D1B00793C86 /* testhtmlcss.c */; };
 		27CEF00E21BEA31F00793C86 /* libhtmlcss.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27B622AE21BE9AE200397ABE /* libhtmlcss.a */; };
+		27F1750821D4501B0001838C /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 27F1750521D450160001838C /* file.c */; };
+		27F1750921D4501B0001838C /* pool-private.h in Headers */ = {isa = PBXBuildFile; fileRef = 27F1750621D450170001838C /* pool-private.h */; };
+		27F1750A21D4501B0001838C /* file-private.h in Headers */ = {isa = PBXBuildFile; fileRef = 27F1750721D450180001838C /* file-private.h */; };
+		27F1750C21D450240001838C /* file.h in Headers */ = {isa = PBXBuildFile; fileRef = 27F1750B21D450240001838C /* file.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -129,6 +133,10 @@
 		27CEEFF721BE9CCC00793C86 /* DOCUMENTATION.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = DOCUMENTATION.md; sourceTree = "<group>"; };
 		27CEEFFC21BE9D0400793C86 /* testhtmlcss */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = testhtmlcss; sourceTree = BUILT_PRODUCTS_DIR; };
 		27CEF00121BE9D1B00793C86 /* testhtmlcss.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = testhtmlcss.c; sourceTree = SOURCE_ROOT; };
+		27F1750521D450160001838C /* file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = file.c; sourceTree = "<group>"; };
+		27F1750621D450170001838C /* pool-private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "pool-private.h"; sourceTree = "<group>"; };
+		27F1750721D450180001838C /* file-private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "file-private.h"; sourceTree = "<group>"; };
+		27F1750B21D450240001838C /* file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,6 +186,7 @@
 				27CEEFBA21BE9B7600793C86 /* common.h */,
 				27CEEFC021BE9B7600793C86 /* css.h */,
 				27CEEFB821BE9B7600793C86 /* dict.h */,
+				27F1750B21D450240001838C /* file.h */,
 				27CEEFBF21BE9B7600793C86 /* font.h */,
 				27CEEFBB21BE9B7600793C86 /* html.h */,
 				27CEEFB921BE9B7600793C86 /* htmlcss.h */,
@@ -200,6 +209,8 @@
 				27CEEFD221BE9BB200793C86 /* css-rule.c */,
 				27CEEFD621BE9BB200793C86 /* default-css.h */,
 				27CEEFD021BE9BB200793C86 /* dict.c */,
+				27F1750721D450180001838C /* file-private.h */,
+				27F1750521D450160001838C /* file.c */,
 				27CEEFD121BE9BB200793C86 /* font-core.c */,
 				27CEEFD521BE9BB200793C86 /* font-extents.c */,
 				27CEEFCE21BE9BB200793C86 /* font-private.h */,
@@ -209,6 +220,7 @@
 				27CEEFDD21BE9BB200793C86 /* html-load.c */,
 				27CEEFD421BE9BB200793C86 /* html-node.c */,
 				27CEEFCD21BE9BB200793C86 /* html-private.h */,
+				27F1750621D450170001838C /* pool-private.h */,
 				27CEEFD321BE9BB200793C86 /* pool.c */,
 				27CEEFDC21BE9BB200793C86 /* sha3.c */,
 			);
@@ -254,11 +266,14 @@
 				27CEEFC721BE9B7600793C86 /* sha3.h in Headers */,
 				27CEEFC821BE9B7600793C86 /* font.h in Headers */,
 				27CEEFC121BE9B7600793C86 /* dict.h in Headers */,
+				27F1750921D4501B0001838C /* pool-private.h in Headers */,
 				27CEEFC421BE9B7600793C86 /* html.h in Headers */,
 				27CEEFC921BE9B7600793C86 /* css.h in Headers */,
 				27CEEFEF21BE9BB200793C86 /* css-private.h in Headers */,
 				27CEEFC321BE9B7600793C86 /* common.h in Headers */,
+				27F1750C21D450240001838C /* file.h in Headers */,
 				27CEEFC221BE9B7600793C86 /* htmlcss.h in Headers */,
+				27F1750A21D4501B0001838C /* file-private.h in Headers */,
 				27CEEFDF21BE9BB200793C86 /* common-private.h in Headers */,
 				27CEEFE121BE9BB200793C86 /* html-private.h in Headers */,
 				27CEEFE221BE9BB200793C86 /* font-private.h in Headers */,
@@ -354,6 +369,7 @@
 				27CEEFE921BE9BB200793C86 /* font-extents.c in Sources */,
 				27CEEFEB21BE9BB200793C86 /* html-attr.c in Sources */,
 				27CEEFF021BE9BB200793C86 /* sha3.c in Sources */,
+				27F1750821D4501B0001838C /* file.c in Sources */,
 				27CEEFDE21BE9BB200793C86 /* html-find.c in Sources */,
 				27CEEFED21BE9BB200793C86 /* common.c in Sources */,
 				27CEEFF121BE9BB200793C86 /* html-load.c in Sources */,

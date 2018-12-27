@@ -32,11 +32,11 @@ hcFontDelete(hc_font_t *font)		/* I - Font object */
  */
 
 hc_font_t *				/* O - New font object */
-hcFontNew(hc_pool_t  *pool,		/* I - Memory pool */
-          const char *family)		/* I - Font family name */
+hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
+          hc_file_t *file)		/* I - File */
 {
   (void)pool;
-  (void)family;
+  (void)file;
 
   return (NULL);
 }

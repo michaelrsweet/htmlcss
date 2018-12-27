@@ -75,6 +75,17 @@
 #  endif /* DEBUG */
 
 
+/*
+ * _HC_FORMAT_ARGS tells the compiler to validate printf-style format
+ * arguments, producing warnings when there are issues...
+ */
+
+#  if defined(__has_extension) || defined(__GNUC__)
+#    define _HC_FORMAT_ARGS(a,b) __attribute__ ((__format__(__printf__, a, b)))
+#  else
+#    define _HC_FORMAT_ARGS(a,b)
+#  endif /* __has_extension || __GNUC__ */
+
 #  ifdef __cplusplus
 extern "C" {
 #  endif /* __cplusplus */
@@ -86,51 +97,15 @@ extern "C" {
 
 typedef int (*_hc_compare_func_t)(const void *, const void *);
 					/* bsearch/qsort comparison function */
-
-typedef struct _hc_file_s		/* High-level file/stream */
-{
-  const char	*url;			/* URL or filename */
-  FILE		*fp;			/* File pointer */
-  const char	*s,			/* String */
-		*sptr;			/* Pointer into string */
-  int		linenum;		/* Current line number */
-} _hc_file_t;
+typedef unsigned char _hc_uchar_t;	/* Unsigned 8-bit byte */
 
 
 /*
  * Functions...
  */
 
-extern int	_hcDefaultErrorCB(const char *message, int linenum, void *ctx);
-extern char	*_hcDefaultURLCB(const char *url, char *buffer, size_t bufsize, void *ctx);
-extern int	_hcError(hc_error_cb_t error_cb, void *ctx, const char *url, int linenum, const char *message, ...);
-
-static inline int _hcFileGetc(_hc_file_t *f)
-{
-  int	ch;				/* Current character */
-
-  if (f->sptr && *(f->sptr))
-    ch = *(f->sptr)++;
-  else if (f->sptr)
-    ch = EOF;
-  else
-    ch = getc(f->fp);
-
-  if (ch == '\n')
-    f->linenum ++;
-
-  return (ch);
-}
-static inline void _hcFileUngetc(int ch, _hc_file_t *f)
-{
-  if (f->sptr && f->sptr > f->s)
-    (f->sptr) --;
-  else if (f->fp)
-    ungetc(ch, f->fp);
-
-  if (ch == '\n')
-    f->linenum --;
-}
+extern int	_hcDefaultErrorCB(void *ctx, const char *message, int linenum);
+extern char	*_hcDefaultURLCB(void *ctx, const char *url, char *buffer, size_t bufsize);
 
 
 #  ifdef __cplusplus

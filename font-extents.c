@@ -23,19 +23,13 @@
 
 int					/* O - 1 on success, 0 on failure */
 hcFontComputeExtents(
-    hc_font_t         *font,		/* I - Font object */
-    float             size,		/* I - Font size */
-    hc_font_style_t   style,		/* I - Font style */
-    hc_font_variant_t variant,		/* I - Font variant */
-    hc_font_weight_t  weight,		/* I - Font weight */
-    const char        *s,		/* I - String */
-    hc_rect_t         *extents)		/* O - Extents of the string */
+    const hc_font_t *font,		/* I - Font object */
+    float           size,		/* I - Font size */
+    const char      *s,			/* I - String */
+    hc_rect_t       *extents)		/* O - Extents of the string */
 {
   (void)font;
   (void)size;
-  (void)style;
-  (void)variant;
-  (void)weight;
   (void)s;
   (void)extents;
 
