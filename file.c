@@ -23,6 +23,9 @@
 void
 hcFileDelete(hc_file_t *file)		/* I - File */
 {
+  if (!file)
+    return;
+
   if (file->fp && file->fp != stdin)
     fclose(file->fp);
 
