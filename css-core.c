@@ -56,9 +56,7 @@ hcCSSNew(hc_pool_t *pool)		/* I - Memory pool */
     * 128ppi.
     */
 
-    css->pool     = pool;
-    css->error_cb = _hcDefaultErrorCB;
-    css->url_cb   = _hcDefaultURLCB;
+    css->pool = pool;
 
     hcCSSSetMedia(css, "print", 24, 8, 1058.27f, 1408.0f);
   }

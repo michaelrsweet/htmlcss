@@ -158,11 +158,75 @@ hcPoolGetURL(hc_pool_t  *pool,		/* I - Memory pool */
              const char *url,		/* I - URL */
              const char *baseurl)	/* I - Base URL, if any */
 {
-  (void)pool;
-  (void)url;
-  (void)baseurl;
+  const char	*mapped;		/* Mapped file */
+  char		*ptr,			/* Pointer into URL */
+		temp[1024],		/* Temporary path */
+		newurl[1024];		/* New URL */
 
-  return (NULL);
+
+  if (*url == '/')
+  {
+    if (!baseurl)
+      return (hcPoolGetString(pool, url));
+    else if (!strncmp(baseurl, "http://", 7))
+    {
+      strncpy(temp, baseurl, sizeof(temp) - 1);
+      temp[sizeof(temp) - 1] = '\0';
+      if ((ptr = strchr(temp + 7, '/')) != NULL)
+        *ptr = '\0';
+
+      snprintf(newurl, sizeof(newurl), "%s%s", temp, url);
+      url = newurl;
+    }
+    else if (!strncmp(baseurl, "https://", 8))
+    {
+      strncpy(temp, baseurl, sizeof(temp) - 1);
+      temp[sizeof(temp) - 1] = '\0';
+      if ((ptr = strchr(temp + 8, '/')) != NULL)
+        *ptr = '\0';
+
+      snprintf(newurl, sizeof(newurl), "%s%s", temp, url);
+      url = newurl;
+    }
+    else
+      return (hcPoolGetString(pool, url));
+  }
+  else if (strncmp(url, "http://", 7) && strncmp(url, "https://", 8))
+  {
+    if (!baseurl)
+    {
+      getcwd(temp, sizeof(temp));
+      snprintf(newurl, sizeof(newurl), "%s/%s", temp, url);
+
+      return (hcPoolGetString(pool, newurl));
+    }
+    else
+    {
+      strncpy(temp, baseurl, sizeof(temp) - 1);
+      temp[sizeof(temp) - 1] = '\0';
+
+      if ((ptr = strrchr(temp, '/')) != NULL)
+        *ptr = '\0';
+
+      snprintf(newurl, sizeof(newurl), "%s/%s", temp, url);
+
+      if (newurl[0] == '/')
+	return (hcPoolGetString(pool, newurl));
+
+      url = newurl;
+    }
+  }
+
+  if ((mapped = (pool->url_cb)(pool->url_ctx, url, temp, sizeof(temp))) != NULL)
+  {
+    if (!pool->urls)
+      pool->urls = hcDictNew(pool);
+
+    hcDictSetKeyValue(pool->urls, url, temp);
+    mapped = hcPoolGetString(pool, temp);
+  }
+
+  return (mapped);
 }
 
 
@@ -173,7 +237,16 @@ hcPoolGetURL(hc_pool_t  *pool,		/* I - Memory pool */
 hc_pool_t *			/* O - New memory pool */
 hcPoolNew(void)
 {
-  return ((hc_pool_t *)calloc(1, sizeof(hc_pool_t)));
+  hc_pool_t *pool = (hc_pool_t *)calloc(1, sizeof(hc_pool_t));
+				/* New memory pool */
+
+  if (pool)
+  {
+    pool->error_cb = _hcDefaultErrorCB;
+    pool->url_cb   = _hcDefaultURLCB;
+  }
+
+  return (pool);
 }
 
 

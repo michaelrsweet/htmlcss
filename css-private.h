@@ -103,10 +103,6 @@ struct _hc_css_s
 {
   hc_pool_t		*pool;		/* Memory pool */
   hc_media_t		media;		/* Base media definition */
-  hc_error_cb_t		error_cb;	/* Error callback */
-  void			*error_ctx;	/* Error callback context pointer */
-  hc_url_cb_t		url_cb;		/* URL callback */
-  void			*url_ctx;	/* URL callback context pointer */
   _hc_rulecol_t		all_rules;	/* All rule sets in the stylesheet and document */
   _hc_rulecol_t		rules[HC_ELEMENT_MAX];
 					/* Rule sets organized by element */
