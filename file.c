@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/hc
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2019 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -232,6 +232,34 @@ hcFileRead(hc_file_t *file,		/* I - File */
   }
   else
     return (fread(buffer, 1, bytes, file->fp));
+}
+
+
+/*
+ * 'hcFileSeek()' - Randomly access data within a file.
+ */
+
+size_t					/* O - New file offset or 0 on error */
+hcFileSeek(hc_file_t *file,		/* I - File */
+           size_t    offset)		/* I - Offset within file */
+{
+  if (!file)
+    return (0);
+
+  if (file->bufptr)
+  {
+    if (offset > (file->bufend - file->buffer))
+      offset = (file->bufend - file->buffer);
+
+    file->bufptr = file->buffer + offset;
+
+    return (offset);
+  }
+
+  if (fseek(file->fp, (long)offset, SEEK_SET))
+    return (0);
+  else
+    return ((size_t)ftell(file->fp));
 }
 
 

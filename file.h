@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/hc
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2019 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -40,6 +40,7 @@ extern hc_file_t	*hcFileNewBuffer(hc_pool_t *pool, const void *buffer, size_t by
 extern hc_file_t	*hcFileNewString(hc_pool_t *pool, const char *s);
 extern hc_file_t	*hcFileNewURL(hc_pool_t *pool, const char *url, const char *baseurl);
 extern size_t		hcFileRead(hc_file_t *file, void *buffer, size_t bytes);
+extern size_t		hcFileSeek(hc_file_t *file, size_t offset);
 extern void		hcFileUngetc(hc_file_t *file, int ch);
 
 

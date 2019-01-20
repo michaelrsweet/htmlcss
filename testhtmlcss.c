@@ -39,6 +39,7 @@ main(int  argc,				/* I - Number of command-line arguments */
   hc_pool_t	*pool;			/* Memory pool */
   hc_css_t	*css;			/* Stylesheet */
   hc_html_t	*html;			/* HTML document */
+  hc_font_t	*font;			/* Font */
   hc_node_t	*node,			/* Current node */
 		*next;			/* Next node */
   int		level;			/* Indentation level */
@@ -80,8 +81,10 @@ main(int  argc,				/* I - Number of command-line arguments */
   {
     hc_file_t *file = hcFileNewURL(pool, argv[i], NULL);
 
-    if ((ext = strrchr(argv[i], '.')) == NULL || strcmp(ext, ".css"))
+    if ((ext = strrchr(argv[i], '.')) == NULL || (strcmp(ext, ".css") && strcmp(ext, ".otf") && strcmp(ext, ".ttf")))
       hcHTMLImport(html, file);
+    else if (!strcmp(ext, ".ttf") || !strcmp(ext, ".otf"))
+      font = hcFontNew(pool, file);
     else
       hcCSSImport(css, file);
 

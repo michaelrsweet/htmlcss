@@ -16,6 +16,7 @@
  * Include necessary headers...
  */
 
+#  include "font.h"
 #  include "css.h"
 #  include "html.h"
 #  include "run.h"
