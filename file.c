@@ -248,8 +248,8 @@ hcFileSeek(hc_file_t *file,		/* I - File */
 
   if (file->bufptr)
   {
-    if (offset > (file->bufend - file->buffer))
-      offset = (file->bufend - file->buffer);
+    if (offset > (size_t)(file->bufend - file->buffer))
+      offset = (size_t)(file->bufend - file->buffer);
 
     file->bufptr = file->buffer + offset;
 
