@@ -84,7 +84,10 @@ main(int  argc,				/* I - Number of command-line arguments */
     if ((ext = strrchr(argv[i], '.')) == NULL || (strcmp(ext, ".css") && strcmp(ext, ".otf") && strcmp(ext, ".ttf")))
       hcHTMLImport(html, file);
     else if (!strcmp(ext, ".ttf") || !strcmp(ext, ".otf"))
-      font = hcFontNew(pool, file);
+    {
+      if ((font = hcFontNew(pool, file)) != NULL)
+        hcFontDelete(font);
+    }
     else
       hcCSSImport(css, file);
 
