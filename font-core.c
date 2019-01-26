@@ -61,7 +61,7 @@ typedef struct _hc_off_table_s		/* OFF/TTF offset table */
 
 typedef struct _hc_off_name_s		/* OFF/TTF name string */
 {
-  unsigned short	plaform_id,	/* Platform identifier */
+  unsigned short	platform_id,	/* Platform identifier */
 			encoding_id,	/* Encoding identifier */
 			language_id,	/* Language identifier */
 			name_id,	/* Name identifier */
@@ -82,7 +82,7 @@ typedef struct _hc_off_names_s		/* OFF/TTF naming table */
  * Local functions...
  */
 
-static char	*copy_name(hc_pool_t *pool, _hc_off_names_t *names, unsigned name_id);
+static const char *copy_name(hc_pool_t *pool, _hc_off_names_t *names, unsigned name_id);
 static int	read_names(hc_file_t *file, _hc_off_table_t *table, _hc_off_names_t *names);
 static int	read_table(hc_file_t *file, _hc_off_table_t *table);
 static unsigned	read_ulong(hc_file_t *file);
@@ -144,6 +144,8 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
   font->pool   = pool;
   font->family = copy_name(pool, &names, _HC_OFF_FontFamily);
 
+  fprintf(stderr, "family=\"%s\"\n", font->family);
+
   if ((length = seek_table(file, &table, _HC_OFF_cmap)) > 0)
     fprintf(stderr, "cmap table is %u bytes long.\n", length);
   else
@@ -200,14 +202,36 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
  * 'copy_name()' - Copy a name string from a font.
  */
 
-static char *				/* O - Name string or `NULL` */
+static const char *			/* O - Name string or `NULL` */
 copy_name(hc_pool_t       *pool,	/* I - String pool */
           _hc_off_names_t *names,	/* I - Names table */
           unsigned        name_id)	/* I - Name identifier */
 {
-  (void)pool;
-  (void)names;
-  (void)name_id;
+  int			i;		/* Looping var */
+  _hc_off_name_t	*name;		/* Current name */
+  char			temp[1024];	/* Temporary string buffer */
+
+
+  for (i = names->num_names, name = names->names; i > 0; i --, name ++)
+  {
+    if (name->name_id == name_id &&
+        ((name->platform_id == _HC_OFF_Mac && name->language_id == _HC_OFF_Mac_USEnglish) ||
+         (name->platform_id == _HC_OFF_Windows && name->encoding_id == _HC_OFF_Windows_Unicode && name->language_id == _HC_OFF_Windows_USEnglish)))
+    {
+      int length;			/* Length of string to copy */
+
+      if (name->offset > names->storage_size || (name->offset + name->length) > names->storage_size)
+        continue;
+
+      if ((length = name->length) > (sizeof(temp) - 1))
+        length = sizeof(temp) - 1;
+
+      memcpy(temp, names->storage + name->offset, length);
+      temp[length] = '\0';
+
+      return (hcPoolGetString(pool, temp));
+    }
+  }
 
   return (NULL);
 }
@@ -222,10 +246,65 @@ read_names(hc_file_t       *file,	/* I - File */
            _hc_off_table_t *table,	/* I - Offset table */
            _hc_off_names_t *names)	/* O - Names */
 {
-  (void)file;
-  (void)table;
+  unsigned	length;			/* Length of names table */
+  int		i,			/* Looping var */
+		format,			/* Name table format */
+		offset;			/* Offset to storage */
+  _hc_off_name_t *name;			/* Current name */
+
 
   memset(names, 0, sizeof(_hc_off_names_t));
+
+ /*
+  * Find the name table...
+  */
+
+  if ((length = seek_table(file, table, _HC_OFF_name)) == 0)
+    return (-1);
+
+  if ((format = read_ushort(file)) < 0 || format > 1)
+    return (-1);
+
+  if ((names->num_names = read_ushort(file)) < 1)
+    return (-1);
+
+  if ((names->names = (_hc_off_name_t *)calloc((size_t)names->num_names, sizeof(_hc_off_name_t))) == NULL)
+    return (-1);
+
+  if ((offset = read_ushort(file)) < 0 || (unsigned)offset >= length)
+    return (-1);
+
+  names->storage_size = length - (unsigned)offset;
+  if ((names->storage = calloc(1, names->storage_size)) == NULL)
+    return (-1);
+
+  for (i = names->num_names, name = names->names; i > 0; i --, name ++)
+  {
+    name->platform_id = (unsigned short)read_ushort(file);
+    name->encoding_id = (unsigned short)read_ushort(file);
+    name->language_id = (unsigned short)read_ushort(file);
+    name->name_id     = (unsigned short)read_ushort(file);
+    name->length      = (unsigned short)read_ushort(file);
+    name->offset      = (unsigned short)read_ushort(file);
+  }
+
+  if (format == 1)
+  {
+   /*
+    * Skip language_id table...
+    */
+
+    int count = read_ushort(file);	/* Number of language IDs */
+
+    while (count > 0)
+    {
+      read_ushort(file); /* length */
+      read_ushort(file); /* offset */
+      count --;
+    }
+  }
+
+  hcFileRead(file, names->storage, length - (unsigned)offset);
 
   return (0);
 }
@@ -280,7 +359,7 @@ read_table(hc_file_t       *file,	/* I - File */
   * Read the table entries...
   */
 
-  if ((table->entries = calloc(table->num_entries, sizeof(_hc_off_dir_t))) == NULL)
+  if ((table->entries = calloc((size_t)table->num_entries, sizeof(_hc_off_dir_t))) == NULL)
     return (-1);
 
   for (i = table->num_entries, current = table->entries; i > 0; i --, current ++)
@@ -308,7 +387,7 @@ read_ulong(hc_file_t *file)		/* I - File to read from */
   if (hcFileRead(file, buffer, sizeof(buffer)) != sizeof(buffer))
     return ((unsigned)EOF);
   else
-    return ((buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3]);
+    return ((unsigned)((buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3]));
 }
 
 
