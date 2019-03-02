@@ -30,7 +30,10 @@ extern "C" {
 struct _hc_font_s
 {
   hc_pool_t	*pool;
+  const char	*copyright;
   const char	*family;
+  const char	*postscript_name;
+  const char	*version;
 };
 
 

@@ -36,7 +36,10 @@ typedef struct _hc_font_s hc_font_t;
 
 extern int		hcFontComputeExtents(const hc_font_t *font, float size, const char *s, hc_rect_t *extents);
 extern void		hcFontDelete(hc_font_t *font);
+extern const char	*hcFontGetCopyright(hc_font_t *font);
 extern const char	*hcFontGetFamily(hc_font_t *font);
+extern const char	*hcFontGetPostScriptName(hc_font_t *font);
+extern const char	*hcFontGetVersion(hc_font_t *font);
 extern hc_font_t	*hcFontNew(hc_pool_t *pool, hc_file_t *file);
 
 

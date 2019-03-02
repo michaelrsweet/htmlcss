@@ -111,7 +111,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     {
       if ((font = hcFontNew(pool, file)) != NULL)
       {
-        printf("%s: family=\"%s\"\n", argv[i], hcFontGetFamily(font));
+        printf("%s: copyright=\"%s\", family=\"%s\", postscript_name=\"%s\", version=\"%s\"\n", argv[i], hcFontGetCopyright(font), hcFontGetFamily(font), hcFontGetPostScriptName(font), hcFontGetVersion(font));
         hcFontDelete(font);
       }
       else if (show_font)

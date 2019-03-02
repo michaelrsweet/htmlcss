@@ -13,6 +13,7 @@
  * Include necessary headers...
  */
 
+#include "common-private.h"
 #include "font-private.h"
 
 
@@ -33,12 +34,16 @@
 #define _HC_OFF_Mac_USEnglish	0	/* Macintosh US English language ID */
 
 #define _HC_OFF_Windows		3	/* Windows platform ID */
-#define _HC_OFF_Windows_Unicode	1	/* Windows Unicode BMP encoding ID */
-#define _HC_OFF_Windows_USEnglish 0x0409/* Windows US English language ID */
+#define _HC_OFF_Windows_English 9	/* Windows English language ID base */
+#define _HC_OFF_Windows_UCS2	1	/* Windows UCS-2 encoding */
+#define _HC_OFF_Windows_UCS4	10	/* Windows UCS-4 encoding */
 
 #define _HC_OFF_Copyright	0	/* Copyright naming string */
 #define _HC_OFF_FontFamily	1	/* Font family naming string ("Arial") */
 #define _HC_OFF_FontSubfamily	2	/* Font sub-family naming string ("Bold") */
+#define _HC_OFF_FontFullName	4	/* Font full name ("Arial Bold") */
+#define _HC_OFF_FontVersion	5	/* Font version number */
+#define _HC_OFF_PostScriptName	6	/* Font PostScript name */
 
 
 /*
@@ -102,6 +107,17 @@ hcFontDelete(hc_font_t *font)		/* I - Font object */
 
 
 /*
+ * 'hcFontGetCopyright()' - Get the copyright text for a font.
+ */
+
+const char *				/* O - Copyright text */
+hcFontGetCopyright(hc_font_t *font)	/* I - Font object */
+{
+  return (font ? font->copyright : NULL);
+}
+
+
+/*
  * 'hcFontGetFamily()' - Get the family name of a font.
  */
 
@@ -109,6 +125,29 @@ const char *				/* O - Family name */
 hcFontGetFamily(hc_font_t *font)	/* I - Font object */
 {
   return (font ? font->family : NULL);
+}
+
+
+/*
+ * 'hcFontGetPostScriptName()' - Get the PostScript name of a font.
+ */
+
+const char *				/* O - PostScript name */
+hcFontGetPostScriptName(
+    hc_font_t *font)			/* I - Font object */
+{
+  return (font ? font->postscript_name : NULL);
+}
+
+
+/*
+ * 'hcFontGetVersion()' - Get the version number of a font.
+ */
+
+const char *				/* O - Version number */
+hcFontGetVersion(hc_font_t *font)	/* I - Font object */
+{
+  return (font ? font->version : NULL);
 }
 
 
@@ -129,7 +168,7 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
   if (read_table(file, &table))
     return (NULL);
 
-  fprintf(stderr, "num_entries=%d\n", table.num_entries);
+  _HC_DEBUG("num_entries=%d\n", table.num_entries);
 
   if (read_names(file, &table, &names))
   {
@@ -143,7 +182,7 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
     return (NULL);
   }
 
-  fprintf(stderr, "num_names=%d\n", names.num_names);
+  _HC_DEBUG("num_names=%d\n", names.num_names);
 
   if ((font = (hc_font_t *)calloc(1, sizeof(hc_font_t))) == NULL)
   {
@@ -157,50 +196,53 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
     return (NULL);
   }
 
-  font->pool   = pool;
-  font->family = copy_name(pool, &names, _HC_OFF_FontFamily);
+  font->pool            = pool;
+  font->copyright       = copy_name(pool, &names, _HC_OFF_Copyright);
+  font->family          = copy_name(pool, &names, _HC_OFF_FontFamily);
+  font->postscript_name = copy_name(pool, &names, _HC_OFF_PostScriptName);
+  font->version         = copy_name(pool, &names, _HC_OFF_FontVersion);
 
-  fprintf(stderr, "family=\"%s\"\n", font->family);
+  _HC_DEBUG("family=\"%s\"\n", font->family);
 
   if ((length = seek_table(file, &table, _HC_OFF_cmap)) > 0)
-    fprintf(stderr, "cmap table is %u bytes long.\n", length);
+    _HC_DEBUG("cmap table is %u bytes long.\n", length);
   else
-    fputs("REQUIRED cmap table is missing.\n", stderr);
+    _HC_DEBUG("REQUIRED cmap table is missing.\n");
 
   if ((length = seek_table(file, &table, _HC_OFF_head)) > 0)
-    fprintf(stderr, "head table is %u bytes long.\n", length);
+    _HC_DEBUG("head table is %u bytes long.\n", length);
   else
-    fputs("REQUIRED head table is missing.\n", stderr);
+    _HC_DEBUG("REQUIRED head table is missing.\n");
 
   if ((length = seek_table(file, &table, _HC_OFF_hhea)) > 0)
-    fprintf(stderr, "hhea table is %u bytes long.\n", length);
+    _HC_DEBUG("hhea table is %u bytes long.\n", length);
   else
-    fputs("REQUIRED hhea table is missing.\n", stderr);
+    _HC_DEBUG("REQUIRED hhea table is missing.\n");
 
   if ((length = seek_table(file, &table, _HC_OFF_hmtx)) > 0)
-    fprintf(stderr, "hmtx table is %u bytes long.\n", length);
+    _HC_DEBUG("hmtx table is %u bytes long.\n", length);
   else
-    fputs("REQUIRED hmtx table is missing.\n", stderr);
+    _HC_DEBUG("REQUIRED hmtx table is missing.\n");
 
   if ((length = seek_table(file, &table, _HC_OFF_maxp)) > 0)
-    fprintf(stderr, "maxp table is %u bytes long.\n", length);
+    _HC_DEBUG("maxp table is %u bytes long.\n", length);
   else
-    fputs("REQUIRED maxp table is missing.\n", stderr);
+    _HC_DEBUG("REQUIRED maxp table is missing.\n");
 
   if ((length = seek_table(file, &table, _HC_OFF_name)) > 0)
-    fprintf(stderr, "name table is %u bytes long.\n", length);
+    _HC_DEBUG("name table is %u bytes long.\n", length);
   else
-    fputs("REQUIRED name table is missing.\n", stderr);
+    _HC_DEBUG("REQUIRED name table is missing.\n");
 
   if ((length = seek_table(file, &table, _HC_OFF_OS_2)) > 0)
-    fprintf(stderr, "OS/2 table is %u bytes long.\n", length);
+    _HC_DEBUG("OS/2 table is %u bytes long.\n", length);
   else
-    fputs("REQUIRED OS/2 table is missing.\n", stderr);
+    _HC_DEBUG("REQUIRED OS/2 table is missing.\n");
 
   if ((length = seek_table(file, &table, _HC_OFF_post)) > 0)
-    fprintf(stderr, "post table is %u bytes long.\n", length);
+    _HC_DEBUG("post table is %u bytes long.\n", length);
   else
-    fputs("REQUIRED post table is missing.\n", stderr);
+    _HC_DEBUG("REQUIRED post table is missing.\n");
 
   free(table.entries);
 
@@ -224,29 +266,63 @@ copy_name(hc_pool_t       *pool,	/* I - String pool */
 {
   int			i;		/* Looping var */
   _hc_off_name_t	*name;		/* Current name */
-  char			temp[1024];	/* Temporary string buffer */
 
 
   for (i = names->num_names, name = names->names; i > 0; i --, name ++)
   {
     if (name->name_id == name_id &&
         ((name->platform_id == _HC_OFF_Mac && name->language_id == _HC_OFF_Mac_USEnglish) ||
-         (name->platform_id == _HC_OFF_Windows && name->encoding_id == _HC_OFF_Windows_Unicode && name->language_id == _HC_OFF_Windows_USEnglish)))
+         (name->platform_id == _HC_OFF_Windows && (name->language_id & 0xff) == _HC_OFF_Windows_English)))
     {
-      int length;			/* Length of string to copy */
+      char	temp[1024],	/* Temporary string buffer */
+		*tempptr,	/* Pointer into temporary string */
+		*storptr;	/* Pointer into storage */
+      int	chars,		/* Length of string to copy in characters */
+		bpc;		/* Bytes per character */
 
-      if (name->offset > names->storage_size || (name->offset + name->length) > names->storage_size)
+      if ((name->offset + name->length) > names->storage_size)
+      {
+        _HC_DEBUG("copy_name: offset(%d)+length(%d) > storage_size(%d)\n", name->offset, name->length, names->storage_size);
         continue;
+      }
 
-      if ((length = name->length) > (sizeof(temp) - 1))
-        length = sizeof(temp) - 1;
+      if (name->platform_id == _HC_OFF_Windows && name->encoding_id == _HC_OFF_Windows_UCS2)
+      {
+        storptr = (char *)names->storage + name->offset + 1;
+        chars   = name->length / 2;
+        bpc     = 2;
+      }
+      else if (name->platform_id == _HC_OFF_Windows && name->encoding_id == _HC_OFF_Windows_UCS4)
+      {
+        storptr = (char *)names->storage + name->offset + 3;
+        chars   = name->length / 4;
+        bpc     = 4;
+      }
+      else
+      {
+        storptr = (char *)names->storage + name->offset;
+        chars   = name->length;
+        bpc     = 1;
+      }
 
-      memcpy(temp, names->storage + name->offset, length);
-      temp[length] = '\0';
+      for (tempptr = temp; chars > 0; storptr += bpc, chars --)
+        if (tempptr < (temp + sizeof(temp) - 1))
+          *tempptr++ = *storptr;
+	else
+	  break;
+
+      *tempptr = '\0';
+
+      _HC_DEBUG("copy_name: name_id(%d) = \"%s\"\n", name_id, temp);
 
       return (hcPoolGetString(pool, temp));
     }
   }
+
+  _HC_DEBUG("copy_name: No English name string for %d.\n", name_id);
+  for (i = names->num_names, name = names->names; i > 0; i --, name ++)
+    if (name->name_id == name_id)
+      _HC_DEBUG("copy_name: Found name_id=%d, platform_id=%d, language_id=%d(0x%04x)\n", name_id, name->platform_id, name->language_id, name->language_id);
 
   return (NULL);
 }
@@ -280,6 +356,8 @@ read_names(hc_file_t       *file,	/* I - File */
   if ((format = read_ushort(file)) < 0 || format > 1)
     return (-1);
 
+  _HC_DEBUG("read_names: format=%d\n", format);
+
   if ((names->num_names = read_ushort(file)) < 1)
     return (-1);
 
@@ -290,8 +368,9 @@ read_names(hc_file_t       *file,	/* I - File */
     return (-1);
 
   names->storage_size = length - (unsigned)offset;
-  if ((names->storage = calloc(1, names->storage_size)) == NULL)
+  if ((names->storage = malloc(names->storage_size)) == NULL)
     return (-1);
+  memset(names->storage, 'A', names->storage_size);
 
   for (i = names->num_names, name = names->names; i > 0; i --, name ++)
   {
@@ -301,6 +380,8 @@ read_names(hc_file_t       *file,	/* I - File */
     name->name_id     = (unsigned short)read_ushort(file);
     name->length      = (unsigned short)read_ushort(file);
     name->offset      = (unsigned short)read_ushort(file);
+
+    _HC_DEBUG("name->platform_id=%d, encoding_id=%d, language_id=%d(0x%04x), name_id=%d, length=%d, offset=%d\n", name->platform_id, name->encoding_id, name->language_id, name->language_id, name->name_id, name->length, name->offset);
   }
 
   if (format == 1)
@@ -310,6 +391,8 @@ read_names(hc_file_t       *file,	/* I - File */
     */
 
     int count = read_ushort(file);	/* Number of language IDs */
+
+    _HC_DEBUG("read_names: Skipping language_id table...\n");
 
     while (count > 0)
     {
