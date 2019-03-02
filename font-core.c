@@ -102,6 +102,17 @@ hcFontDelete(hc_font_t *font)		/* I - Font object */
 
 
 /*
+ * 'hcFontGetFamily()' - Get the family name of a font.
+ */
+
+const char *				/* O - Family name */
+hcFontGetFamily(hc_font_t *font)	/* I - Font object */
+{
+  return (font ? font->family : NULL);
+}
+
+
+/*
  * 'hcFontNew()' - Create a new font object for the named font family.
  */
 
@@ -197,7 +208,6 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
     free(names.names);
   if (names.storage)
     free(names.storage);
-
 
   return (font);
 }

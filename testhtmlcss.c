@@ -7,6 +7,10 @@
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
+ *
+ * Usage:
+ *
+ *   ./testhtmlcss [--all] [--css] [--font] [--html] [files]
  */
 
 /*
@@ -49,221 +53,273 @@ main(int  argc,				/* I - Number of command-line arguments */
 		pcount;			/* Property count */
   const char	*pname,			/* Property name */
 		*pvalue;		/* Property value */
+  int		test_all = 0,		/* Test everything? */
+		show_css = 0,		/* Show flattened CSS? */
+		show_font = 0,		/* Show font information? */
+		show_html = 0;		/* Show HTML? */
 
 
  /*
-  * Test hash functions...
-  */
-
-  if (!test_sha3_functions())
-    return (1);
-
- /*
-  * Test string pool functions...
+  * Initialize memory pool, stylesheet, and HTML document objects...
   */
 
   pool = hcPoolNew();
 
-  if (!test_pool_functions(pool))
-    return (1);
-
- /*
-  * Test CSS/HTML functions...
-  */
-
   css = hcCSSNew(pool);
-
   hcCSSImportDefault(css);
 
   html = hcHTMLNew(pool, css);
 
+ /*
+  * Parse command-line...
+  */
+
   for (i = 1; i < argc; i ++)
   {
+    if (!strcmp(argv[i], "--all"))
+    {
+      test_all = 1;
+      continue;
+    }
+    else if (!strcmp(argv[i], "--css"))
+    {
+      show_css = 1;
+      continue;
+    }
+    else if (!strcmp(argv[i], "--font"))
+    {
+      show_font = 1;
+      continue;
+    }
+    else if (!strcmp(argv[i], "--html"))
+    {
+      show_html = 1;
+      continue;
+    }
+    else if (argv[i][0] == '-')
+    {
+      puts("Usage: ./testhtmlcss [--all] [--css] [--font] [--html] [files]");
+      return (1);
+    }
+
     hc_file_t *file = hcFileNewURL(pool, argv[i], NULL);
 
-    if ((ext = strrchr(argv[i], '.')) == NULL || (strcmp(ext, ".css") && strcmp(ext, ".otf") && strcmp(ext, ".ttf")))
-      hcHTMLImport(html, file);
-    else if (!strcmp(ext, ".ttf") || !strcmp(ext, ".otf"))
+    if ((ext = strrchr(argv[i], '.')) == NULL)
+      ext = ".html";
+
+    if (!strcmp(ext, ".otc") || !strcmp(ext, ".otf") || !strcmp(ext, ".ttc") || !strcmp(ext, ".ttf"))
     {
       if ((font = hcFontNew(pool, file)) != NULL)
+      {
+        printf("%s: family=\"%s\"\n", argv[i], hcFontGetFamily(font));
         hcFontDelete(font);
+      }
+      else if (show_font)
+      {
+        printf("%s: Unable to open (%s)\n", argv[i], strerror(errno));
+      }
     }
-    else
+    else if (!strcmp(ext, ".css"))
       hcCSSImport(css, file);
+    else
+      hcHTMLImport(html, file);
 
     hcFileDelete(file);
   }
 
-  puts("HTML document tree:\n");
-
-  for (node = hcHTMLGetRootNode(html), level = 0; node; node = next)
+  if (test_all || argc == 1)
   {
-    hc_element_t element = hcNodeGetElement(node);
+   /*
+    * Test hash functions...
+    */
 
-    printf("%*s", level * 2, "");
+    if (!test_sha3_functions())
+      return (1);
 
-    if (element == HC_ELEMENT_STRING)
+   /*
+    * Test string pool functions...
+    */
+
+    if (!test_pool_functions(pool))
+      return (1);
+  }
+
+  if (show_html)
+  {
+    puts("HTML document tree:\n");
+
+    for (node = hcHTMLGetRootNode(html), level = 0; node; node = next)
     {
-      const char *s = hcNodeGetString(node);
+      hc_element_t element = hcNodeGetElement(node);
 
-      while (*s)
+      printf("%*s", level * 2, "");
+
+      if (element == HC_ELEMENT_STRING)
       {
-	if (*s < ' ')
-	  printf("\\%03o", *s);
-	else
-	  putchar(*s);
+	const char *s = hcNodeGetString(node);
 
-	s ++;
-      }
-
-      putchar('\n');
-    }
-    else if (element == HC_ELEMENT_COMMENT)
-      printf("<!-- %s -->\n", hcNodeGetComment(node));
-    else if (element == HC_ELEMENT_DOCTYPE)
-      printf("<!DOCTYPE %s>\n", hcNodeAttrGetNameValue(node, ""));
-    else
-    {
-      size_t idx, count = hcNodeAttrGetCount(node);
-      const hc_dict_t *props = hcNodeComputeCSSProperties(node, HC_COMPUTE_BASE);
-
-      printf("<%s", hcElements[element]);
-      for (idx = 0; idx < count; idx ++)
-      {
-	const char *name, *value = hcNodeAttrGetIndexNameValue(node, idx, &name);
-	printf(" %s=\"%s\"", name, value);
-      }
-      printf("> {%p", (void *)props);
-      for (idx = 0, count = hcDictGetCount(props); idx < count; idx ++)
-      {
-        const char *key, *value = hcDictGetIndexKeyValue(props, idx, &key);
-
-        printf(" %s: %s;", key, value);
-      }
-      puts("}");
-    }
-
-    if ((next = hcNodeGetFirstChildNode(node)) != NULL)
-      level += 2;
-    else
-    {
-      if ((next = hcNodeGetNextSiblingNode(node)) == NULL)
-      {
-	next = hcNodeGetParentNode(node);
-	level -= 2;
-
-	while (next && !hcNodeGetNextSiblingNode(next))
+	while (*s)
 	{
-	  next = hcNodeGetParentNode(next);
-	  level -= 2;
+	  if (*s < ' ')
+	    printf("\\%03o", *s);
+	  else
+	    putchar(*s);
+
+	  s ++;
 	}
 
-	if (next)
-	  next = hcNodeGetNextSiblingNode(next);
+	putchar('\n');
+      }
+      else if (element == HC_ELEMENT_COMMENT)
+	printf("<!-- %s -->\n", hcNodeGetComment(node));
+      else if (element == HC_ELEMENT_DOCTYPE)
+	printf("<!DOCTYPE %s>\n", hcNodeAttrGetNameValue(node, ""));
+      else
+      {
+	size_t idx, count = hcNodeAttrGetCount(node);
+	const hc_dict_t *props = hcNodeComputeCSSProperties(node, HC_COMPUTE_BASE);
+
+	printf("<%s", hcElements[element]);
+	for (idx = 0; idx < count; idx ++)
+	{
+	  const char *name, *value = hcNodeAttrGetIndexNameValue(node, idx, &name);
+	  printf(" %s=\"%s\"", name, value);
+	}
+	printf("> {%p", (void *)props);
+	for (idx = 0, count = hcDictGetCount(props); idx < count; idx ++)
+	{
+	  const char *key, *value = hcDictGetIndexKeyValue(props, idx, &key);
+
+	  printf(" %s: %s;", key, value);
+	}
+	puts("}");
+      }
+
+      if ((next = hcNodeGetFirstChildNode(node)) != NULL)
+	level += 2;
+      else
+      {
+	if ((next = hcNodeGetNextSiblingNode(node)) == NULL)
+	{
+	  next = hcNodeGetParentNode(node);
+	  level -= 2;
+
+	  while (next && !hcNodeGetNextSiblingNode(next))
+	  {
+	    next = hcNodeGetParentNode(next);
+	    level -= 2;
+	  }
+
+	  if (next)
+	    next = hcNodeGetNextSiblingNode(next);
+	}
       }
     }
   }
 
-  puts("Flattened CSS:\n");
-
-  for (i = 0; i < (int)css->all_rules.num_rules; i ++)
+  if (show_css)
   {
-    int			j;		/* Looping var */
-    int			num_sels = 0;	/* Number of selectors */
-    _hc_css_sel_t	*sels[100];	/* Selectors */
+    puts("Flattened CSS:\n");
 
-    rule = css->all_rules.rules[i];
-
-    if (!rule->sel)
-      continue;
-
-    for (sel = rule->sel; sel && num_sels < 100; sel = sel->prev)
-      sels[num_sels++] = sel;
-
-    while (num_sels > 0)
+    for (i = 0; i < (int)css->all_rules.num_rules; i ++)
     {
-      _hc_css_selstmt_t *stmt;	/* Matching statement */
+      int			j;		/* Looping var */
+      int			num_sels = 0;	/* Number of selectors */
+      _hc_css_sel_t	*sels[100];	/* Selectors */
 
-      num_sels --;
-      sel = sels[num_sels];
+      rule = css->all_rules.rules[i];
 
-      switch (sel->relation)
+      if (!rule->sel)
+	continue;
+
+      for (sel = rule->sel; sel && num_sels < 100; sel = sel->prev)
+	sels[num_sels++] = sel;
+
+      while (num_sels > 0)
       {
-	case _HC_RELATION_CHILD :	/* Child (descendent) of previous (E F) */
-	    break;
-	case _HC_RELATION_IMMED_CHILD: /* Immediate child of previous (E > F) */
-	    fputs("> ", stdout);
-	    break;
-	case _HC_RELATION_SIBLING:	/* Sibling of previous (E ~ F) */
-	    fputs("~ ", stdout);
-	    break;
-	case _HC_RELATION_IMMED_SIBLING: /* Immediate sibling of previous (E + F) */
-	    fputs("+ ", stdout);
-	    break;
-      }
+	_hc_css_selstmt_t *stmt;	/* Matching statement */
 
-      if (sel->element == HC_ELEMENT_WILDCARD)
-	fputs("*", stdout);
-      else
-	fputs(hcElements[sel->element], stdout);
+	num_sels --;
+	sel = sels[num_sels];
 
-      for (j = 0, stmt = sel->stmts; j < (int)sel->num_stmts; j ++, stmt ++)
-      {
-	switch (stmt->match)
+	switch (sel->relation)
 	{
-	  case _HC_MATCH_ATTR_EXIST :
-	      printf("[%s]", stmt->name);
+	  case _HC_RELATION_CHILD :	/* Child (descendent) of previous (E F) */
 	      break;
-	  case _HC_MATCH_ATTR_EQUALS :
-	      printf("[%s=\"%s\"]", stmt->name, stmt->value);
+	  case _HC_RELATION_IMMED_CHILD: /* Immediate child of previous (E > F) */
+	      fputs("> ", stdout);
 	      break;
-	  case _HC_MATCH_ATTR_CONTAINS :
-	      printf("[%s*=\"%s\"]", stmt->name, stmt->value);
+	  case _HC_RELATION_SIBLING:	/* Sibling of previous (E ~ F) */
+	      fputs("~ ", stdout);
 	      break;
-	  case _HC_MATCH_ATTR_BEGINS :
-	      printf("[%s^=\"%s\"]", stmt->name, stmt->value);
-	      break;
-	  case _HC_MATCH_ATTR_ENDS :
-	      printf("[%s$=\"%s\"]", stmt->name, stmt->value);
-	      break;
-	  case _HC_MATCH_ATTR_LANG :
-	      printf("[%s|=\"%s\"]", stmt->name, stmt->value);
-	      break;
-	  case _HC_MATCH_ATTR_SPACE :
-	      printf("[%s~=\"%s\"]", stmt->name, stmt->value);
-	      break;
-	  case _HC_MATCH_CLASS :
-	      printf(".%s", stmt->name);
-	      break;
-	  case _HC_MATCH_ID :
-	      printf("#%s", stmt->name);
-	      break;
-	  case _HC_MATCH_PSEUDO_CLASS :
-	      if (stmt->value)
-		printf(":%s(%s)", stmt->name, stmt->value);
-	      else
-		printf(":%s", stmt->name);
+	  case _HC_RELATION_IMMED_SIBLING: /* Immediate sibling of previous (E + F) */
+	      fputs("+ ", stdout);
 	      break;
 	}
+
+	if (sel->element == HC_ELEMENT_WILDCARD)
+	  fputs("*", stdout);
+	else
+	  fputs(hcElements[sel->element], stdout);
+
+	for (j = 0, stmt = sel->stmts; j < (int)sel->num_stmts; j ++, stmt ++)
+	{
+	  switch (stmt->match)
+	  {
+	    case _HC_MATCH_ATTR_EXIST :
+		printf("[%s]", stmt->name);
+		break;
+	    case _HC_MATCH_ATTR_EQUALS :
+		printf("[%s=\"%s\"]", stmt->name, stmt->value);
+		break;
+	    case _HC_MATCH_ATTR_CONTAINS :
+		printf("[%s*=\"%s\"]", stmt->name, stmt->value);
+		break;
+	    case _HC_MATCH_ATTR_BEGINS :
+		printf("[%s^=\"%s\"]", stmt->name, stmt->value);
+		break;
+	    case _HC_MATCH_ATTR_ENDS :
+		printf("[%s$=\"%s\"]", stmt->name, stmt->value);
+		break;
+	    case _HC_MATCH_ATTR_LANG :
+		printf("[%s|=\"%s\"]", stmt->name, stmt->value);
+		break;
+	    case _HC_MATCH_ATTR_SPACE :
+		printf("[%s~=\"%s\"]", stmt->name, stmt->value);
+		break;
+	    case _HC_MATCH_CLASS :
+		printf(".%s", stmt->name);
+		break;
+	    case _HC_MATCH_ID :
+		printf("#%s", stmt->name);
+		break;
+	    case _HC_MATCH_PSEUDO_CLASS :
+		if (stmt->value)
+		  printf(":%s(%s)", stmt->name, stmt->value);
+		else
+		  printf(":%s", stmt->name);
+		break;
+	  }
+	}
+
+	putchar(' ');
       }
 
+      putchar('<');
+      for (j = 0; j < HC_SHA3_256_SIZE; j ++)
+	printf("%02X", rule->hash[j]);
+      putchar('>');
       putchar(' ');
+      puts("{");
+
+      for (pindex = 0, pcount = hcDictGetCount(rule->props); pindex < pcount; pindex ++)
+      {
+	pvalue = hcDictGetIndexKeyValue(rule->props, pindex, &pname);
+	printf("  %s: %s;\n", pname, pvalue);
+      }
+
+      puts("}");
     }
-
-    putchar('<');
-    for (j = 0; j < HC_SHA3_256_SIZE; j ++)
-      printf("%02X", rule->hash[j]);
-    putchar('>');
-    putchar(' ');
-    puts("{");
-
-    for (pindex = 0, pcount = hcDictGetCount(rule->props); pindex < pcount; pindex ++)
-    {
-      pvalue = hcDictGetIndexKeyValue(rule->props, pindex, &pname);
-      printf("  %s: %s;\n", pname, pvalue);
-    }
-
-    puts("}");
   }
 
   hcHTMLDelete(html);

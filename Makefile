@@ -3,7 +3,7 @@
 #
 #     https://github.com/michaelrsweet/htmlcss
 #
-# Copyright © 2018 by Michael R Sweet.
+# Copyright © 2018-2019 by Michael R Sweet.
 #
 # Licensed under Apache License v2.0.  See the file "LICENSE" for more
 # information.
@@ -81,7 +81,7 @@ install:	$(TARGETS)
 
 testhtmlcss:	testhtmlcss.o libhtmlcss.a testhtmlcss.html
 	$(CC) $(LDFLAGS) -o testhtmlcss testhtmlcss.o libhtmlcss.a $(LIBS)
-	./testhtmlcss testhtmlcss.html
+	./testhtmlcss --all --css --font --html testhtmlcss.html
 
 libhtmlcss.a:	$(LIBOBJS)
 	ar -rcv libhtmlcss.a $(LIBOBJS)
