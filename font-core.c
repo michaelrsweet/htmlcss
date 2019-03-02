@@ -124,6 +124,11 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
   {
     free(table.entries);
 
+    if (names.names)
+      free(names.names);
+    if (names.storage)
+      free(names.storage);
+
     return (NULL);
   }
 
