@@ -79,9 +79,14 @@ install:	$(TARGETS)
 	cp libhtmlcss.a $(libdir)
 	ranlib $(libdir)/libhtmlcss.a
 
-testhtmlcss:	testhtmlcss.o libhtmlcss.a testhtmlcss.html
-	$(CC) $(LDFLAGS) -o testhtmlcss testhtmlcss.o libhtmlcss.a $(LIBS)
+test:		testhtmlcss
 	./testhtmlcss --all --css --font --html testhtmlcss.html
+
+test-fonts:	testhtmlcss
+	./testhtmlcss --font testsuite/*.ttf testsuite/*.otf
+
+testhtmlcss:	testhtmlcss.o libhtmlcss.a
+	$(CC) $(LDFLAGS) -o testhtmlcss testhtmlcss.o libhtmlcss.a $(LIBS)
 
 libhtmlcss.a:	$(LIBOBJS)
 	ar -rcv libhtmlcss.a $(LIBOBJS)

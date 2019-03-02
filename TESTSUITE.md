@@ -8,8 +8,9 @@ verify the proper operation of the HTMLCSS library.
 HTML and CSS Files
 ------------------
 
-All of the HTML and CSS files are my original creation.  Many come from the
-HTMLDOC test suite.
+Most of the HTML and CSS files are my original creation.  Many come from the
+HTMLDOC test suite.  The "source-sans-pro.css" file is part of the Adobe open
+font project - see "Font Files" below.
 
 
 Image Files
