@@ -1,3 +1,4 @@
+//#define DEBUG 1
 /*
  * Core font object functions for HTMLCSS library.
  *
@@ -166,9 +167,12 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
 
 
   if (read_table(file, &table))
+  {
+    fputs("hcFontNew: Unable to read font table.\n", stderr);
     return (NULL);
+  }
 
-  _HC_DEBUG("num_entries=%d\n", table.num_entries);
+  _HC_DEBUG("hcFontNew: num_entries=%d\n", table.num_entries);
 
   if (read_names(file, &table, &names))
   {
@@ -182,7 +186,7 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
     return (NULL);
   }
 
-  _HC_DEBUG("num_names=%d\n", names.num_names);
+  _HC_DEBUG("hcFontNew: num_names=%d\n", names.num_names);
 
   if ((font = (hc_font_t *)calloc(1, sizeof(hc_font_t))) == NULL)
   {
@@ -202,47 +206,47 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
   font->postscript_name = copy_name(pool, &names, _HC_OFF_PostScriptName);
   font->version         = copy_name(pool, &names, _HC_OFF_FontVersion);
 
-  _HC_DEBUG("family=\"%s\"\n", font->family);
+  _HC_DEBUG("hcFontNew: family=\"%s\"\n", font->family);
 
   if ((length = seek_table(file, &table, _HC_OFF_cmap)) > 0)
-    _HC_DEBUG("cmap table is %u bytes long.\n", length);
+    _HC_DEBUG("hcFontNew: cmap table is %u bytes long.\n", length);
   else
-    _HC_DEBUG("REQUIRED cmap table is missing.\n");
+    _HC_DEBUG("hcFontNew: REQUIRED cmap table is missing.\n");
 
   if ((length = seek_table(file, &table, _HC_OFF_head)) > 0)
-    _HC_DEBUG("head table is %u bytes long.\n", length);
+    _HC_DEBUG("hcFontNew: head table is %u bytes long.\n", length);
   else
-    _HC_DEBUG("REQUIRED head table is missing.\n");
+    _HC_DEBUG("hcFontNew: REQUIRED head table is missing.\n");
 
   if ((length = seek_table(file, &table, _HC_OFF_hhea)) > 0)
-    _HC_DEBUG("hhea table is %u bytes long.\n", length);
+    _HC_DEBUG("hcFontNew: hhea table is %u bytes long.\n", length);
   else
-    _HC_DEBUG("REQUIRED hhea table is missing.\n");
+    _HC_DEBUG("hcFontNew: REQUIRED hhea table is missing.\n");
 
   if ((length = seek_table(file, &table, _HC_OFF_hmtx)) > 0)
-    _HC_DEBUG("hmtx table is %u bytes long.\n", length);
+    _HC_DEBUG("hcFontNew: hmtx table is %u bytes long.\n", length);
   else
-    _HC_DEBUG("REQUIRED hmtx table is missing.\n");
+    _HC_DEBUG("hcFontNew: REQUIRED hmtx table is missing.\n");
 
   if ((length = seek_table(file, &table, _HC_OFF_maxp)) > 0)
-    _HC_DEBUG("maxp table is %u bytes long.\n", length);
+    _HC_DEBUG("hcFontNew: maxp table is %u bytes long.\n", length);
   else
-    _HC_DEBUG("REQUIRED maxp table is missing.\n");
+    _HC_DEBUG("hcFontNew: REQUIRED maxp table is missing.\n");
 
   if ((length = seek_table(file, &table, _HC_OFF_name)) > 0)
-    _HC_DEBUG("name table is %u bytes long.\n", length);
+    _HC_DEBUG("hcFontNew: name table is %u bytes long.\n", length);
   else
-    _HC_DEBUG("REQUIRED name table is missing.\n");
+    _HC_DEBUG("hcFontNew: REQUIRED name table is missing.\n");
 
   if ((length = seek_table(file, &table, _HC_OFF_OS_2)) > 0)
-    _HC_DEBUG("OS/2 table is %u bytes long.\n", length);
+    _HC_DEBUG("hcFontNew: OS/2 table is %u bytes long.\n", length);
   else
-    _HC_DEBUG("REQUIRED OS/2 table is missing.\n");
+    _HC_DEBUG("hcFontNew: REQUIRED OS/2 table is missing.\n");
 
   if ((length = seek_table(file, &table, _HC_OFF_post)) > 0)
-    _HC_DEBUG("post table is %u bytes long.\n", length);
+    _HC_DEBUG("hcFontNew: post table is %u bytes long.\n", length);
   else
-    _HC_DEBUG("REQUIRED post table is missing.\n");
+    _HC_DEBUG("hcFontNew: REQUIRED post table is missing.\n");
 
   free(table.entries);
 
@@ -434,7 +438,7 @@ read_table(hc_file_t       *file,	/* I - File */
   memset(table, 0, sizeof(_hc_off_table_t));
 
   /* sfnt version */
-  if ((temp = read_ulong(file)) != 0x10000)
+  if ((temp = read_ulong(file)) != 0x10000 && temp != 0x4f54544f)
     return (-1);
 
   /* numTables */
