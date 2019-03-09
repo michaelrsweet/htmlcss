@@ -18,6 +18,7 @@
 
 #  include "dict.h"
 #  include "file.h"
+#  include "font.h"
 
 #  ifdef __cplusplus
 extern "C" {
@@ -131,36 +132,6 @@ typedef enum
 
 typedef enum
 {
-  HC_FONT_STYLE_NORMAL,
-  HC_FONT_STYLE_ITALIC,
-  HC_FONT_STYLE_OBLIQUE
-} hc_font_style_t;
-
-typedef enum
-{
-  HC_FONT_VARIANT_NORMAL,
-  HC_FONT_VARIANT_SMALL_CAPS
-} hc_font_variant_t;
-
-typedef enum
-{
-  HC_FONT_WEIGHT_NORMAL,		/* Nominally 400 */
-  HC_FONT_WEIGHT_BOLD,			/* Nominally 700 */
-  HC_FONT_WEIGHT_BOLDER,
-  HC_FONT_WEIGHT_LIGHTER,
-  HC_FONT_WEIGHT_100 = 100,
-  HC_FONT_WEIGHT_200 = 200,
-  HC_FONT_WEIGHT_300 = 300,
-  HC_FONT_WEIGHT_400 = 400,
-  HC_FONT_WEIGHT_500 = 500,
-  HC_FONT_WEIGHT_600 = 600,
-  HC_FONT_WEIGHT_700 = 700,
-  HC_FONT_WEIGHT_800 = 800,
-  HC_FONT_WEIGHT_900 = 900
-} hc_font_weight_t;
-
-typedef enum
-{
   HC_LIST_STYLE_POSITION_INSIDE,
   HC_LIST_STYLE_POSITION_OUTSIDE
 } hc_list_style_position_t;
@@ -245,14 +216,6 @@ typedef struct hc_color_s		/* sRGBA color */
   float			blue;		/* Blue, 0.0 to 1.0 */
   float			alpha;		/* Alpha, 0.0 (transparent) to 1.0 (opaque) */
 } hc_color_t;
-
-typedef struct hc_rect_s		/* Rectangle */
-{
-  float			left;		/* Left offset */
-  float			top;		/* Top offset */
-  float			right;		/* Right offset */
-  float			bottom;		/* Bottom offset */
-} hc_rect_t;
 
 typedef struct hc_point_s		/* Point/coordinate */
 {

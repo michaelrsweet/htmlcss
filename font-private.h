@@ -24,16 +24,36 @@ extern "C" {
 
 
 /*
+ * Constants...
+ */
+
+#  define _HC_FONT_UNITS	16384	/* Unit size for font dimensions */
+
+
+/*
  * Types...
  */
 
 struct _hc_font_s
 {
-  hc_pool_t	*pool;
-  const char	*copyright;
-  const char	*family;
-  const char	*postscript_name;
-  const char	*version;
+  hc_pool_t		*pool;		/* Memory pool */
+  const char		*copyright;	/* Copyright string */
+  const char		*family;	/* Font family string */
+  const char		*postscript_name;
+					/* PostScript name string */
+  const char		*version;	/* Font version string */
+  short			*widths[256];	/* Character widths (sparse array) */
+  short			ascent,		/* Maximum ascent above baseline */
+			descent,	/* Maximum descent below baseline */
+			cap_height,	/* "A" height */
+			x_height,	/* "x" height */
+			x_max,		/* Bounding box */
+			x_min,
+			y_max,
+			y_min,
+			weight;		/* Font weight */
+  float			italic_angle;	/* Angle of italic text */
+  hc_font_style_t	style;		/* Font style */
 };
 
 

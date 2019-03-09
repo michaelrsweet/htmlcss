@@ -1,4 +1,3 @@
-//#define DEBUG 1
 /*
  * Core font object functions for HTMLCSS library.
  *
@@ -83,17 +82,75 @@ typedef struct _hc_off_names_s		/* OFF/TTF naming table */
   unsigned		storage_size;	/* Size of storage area */
 } _hc_off_names_t;
 
+typedef struct _hc_off_cmap4_s		/* Format 4 cmap table */
+{
+  unsigned short	startCode,	/* First character */
+			endCode,	/* Last character */
+			idRangeOffset;	/* Offset for range (modulo 65536) */
+  short			idDelta;	/* Delta for range (modulo 65536) */
+} _hc_off_cmap4_t;
+
+typedef struct _hc_off_head_s		/* Font header */
+{
+  short			xMin,		/* Bounding box of all glyphs */
+			yMin,
+			xMax,
+			yMax;
+  unsigned short	macStyle;	/* Mac style bits */
+} _hc_off_head_t;
+
+#define _HC_OFF_macStyle_Bold		0x01
+#define _HC_OFF_macStyle_Italic		0x02
+#define _HC_OFF_macStyle_Underline	0x04
+#define _HC_OFF_macStyle_Outline	0x08
+#define _HC_OFF_macStyle_Shadow		0x10
+#define _HC_OFF_macStyle_Condensed	0x20
+#define _HC_OFF_macStyle_Extended	0x40
+
+typedef struct _hc_off_hhea_s		/* Horizontal header */
+{
+  short			ascender,	/* Ascender */
+			descender;	/* Descender */
+  int			numberOfHMetrics;
+					/* Number of horizontal metrics */
+} _hc_off_hhea_t;
+
+typedef struct _hc_off_os_2_s		/* OS/2 information */
+{
+  unsigned short	usWeightClass,	/* Font weight */
+			fsType;		/* Type bits */
+  short			sTypoAscender,	/* Ascender */
+			sTypoDescender,	/* Descender */
+			sCapHeight;	/* CapHeight */
+} _hc_off_os_2_t;
+
+#define _HC_OFF_fsType_	0x
+#define _HC_OFF_fsType_	0x
+#define _HC_OFF_fsType_	0x
+#define _HC_OFF_fsType_	0x
+#define _HC_OFF_fsType_	0x
+#define _HC_OFF_fsType_	0x
+#define _HC_OFF_fsType_	0x
+
 
 /*
  * Local functions...
  */
 
 static const char *copy_name(hc_pool_t *pool, _hc_off_names_t *names, unsigned name_id);
+static int	read_cmap(hc_file_t *file, _hc_off_table_t *table, int **cmap);
+static int	read_head(hc_file_t *file, _hc_off_table_t *table, _hc_off_head_t *head);
+static int	read_hhea(hc_file_t *file, _hc_off_table_t *table, _hc_off_hhea_t *hhea);
+static short	*read_hmtx(hc_file_t *file, _hc_off_table_t *table, _hc_off_hhea_t *hhea);
+static int	read_maxp(hc_file_t *file, _hc_off_table_t *table);
 static int	read_names(hc_file_t *file, _hc_off_table_t *table, _hc_off_names_t *names);
+static int	read_os_2(hc_file_t *file, _hc_off_table_t *table, _hc_off_os_2_t *os_2);
+static float	read_post(hc_file_t *file, _hc_off_table_t *table);
+static int	read_short(hc_file_t *file);
 static int	read_table(hc_file_t *file, _hc_off_table_t *table);
 static unsigned	read_ulong(hc_file_t *file);
 static int	read_ushort(hc_file_t *file);
-static unsigned	seek_table(hc_file_t *file, _hc_off_table_t *table, unsigned tag);
+static unsigned	seek_table(hc_file_t *file, _hc_off_table_t *table, unsigned tag, unsigned offset);
 
 
 /*
@@ -103,7 +160,13 @@ static unsigned	seek_table(hc_file_t *file, _hc_off_table_t *table, unsigned tag
 void
 hcFontDelete(hc_font_t *font)		/* I - Font object */
 {
-  (void)font;
+  int	i;				/* Looping var */
+
+
+  for (i = 0; i < 256; i ++)
+    free(font->widths[i]);
+
+  free(font);
 }
 
 
@@ -163,7 +226,14 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
   hc_font_t		*font = NULL;	/* New font object */
   _hc_off_table_t	table;		/* Offset table */
   _hc_off_names_t	names;		/* Names */
-  unsigned		length;		/* Length of table */
+  int			i,		/* Looping var */
+			num_cmap,	/* Number of Unicode character to glyph mappings */
+			*cmap = NULL,	/* Unicode character to glyph mappings */
+			num_glyphs;	/* Numnber of glyphs */
+  short			*widths = NULL;	/* Glyph widths */
+  _hc_off_head_t	head;		/* head table */
+  _hc_off_hhea_t	hhea;		/* hhea table */
+  _hc_off_os_2_t	os_2;		/* OS/2 table */
 
 
   if (read_table(file, &table))
@@ -176,28 +246,14 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
 
   if (read_names(file, &table, &names))
   {
-    free(table.entries);
-
-    if (names.names)
-      free(names.names);
-    if (names.storage)
-      free(names.storage);
-
-    return (NULL);
+    goto cleanup;
   }
 
   _HC_DEBUG("hcFontNew: num_names=%d\n", names.num_names);
 
   if ((font = (hc_font_t *)calloc(1, sizeof(hc_font_t))) == NULL)
   {
-    free(table.entries);
-
-    if (names.names)
-      free(names.names);
-    if (names.storage)
-      free(names.storage);
-
-    return (NULL);
+    goto cleanup;
   }
 
   font->pool            = pool;
@@ -205,55 +261,126 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
   font->family          = copy_name(pool, &names, _HC_OFF_FontFamily);
   font->postscript_name = copy_name(pool, &names, _HC_OFF_PostScriptName);
   font->version         = copy_name(pool, &names, _HC_OFF_FontVersion);
+  font->italic_angle    = read_post(file, &table);
 
   _HC_DEBUG("hcFontNew: family=\"%s\"\n", font->family);
 
-  if ((length = seek_table(file, &table, _HC_OFF_cmap)) > 0)
-    _HC_DEBUG("hcFontNew: cmap table is %u bytes long.\n", length);
-  else
-    _HC_DEBUG("hcFontNew: REQUIRED cmap table is missing.\n");
+  if ((num_cmap = read_cmap(file, &table, &cmap)) <= 0)
+  {
+    _HC_DEBUG("hcFontNew: Unable to read cmap table.\n");
+    hcFontDelete(font);
+    font = NULL;
 
-  if ((length = seek_table(file, &table, _HC_OFF_head)) > 0)
-    _HC_DEBUG("hcFontNew: head table is %u bytes long.\n", length);
-  else
-    _HC_DEBUG("hcFontNew: REQUIRED head table is missing.\n");
+    goto cleanup;
+  }
 
-  if ((length = seek_table(file, &table, _HC_OFF_hhea)) > 0)
-    _HC_DEBUG("hcFontNew: hhea table is %u bytes long.\n", length);
-  else
-    _HC_DEBUG("hcFontNew: REQUIRED hhea table is missing.\n");
+  if (read_head(file, &table, &head) < 0)
+  {
+    _HC_DEBUG("hcFontNew: Unable to read head table.\n");
+    hcFontDelete(font);
+    font = NULL;
 
-  if ((length = seek_table(file, &table, _HC_OFF_hmtx)) > 0)
-    _HC_DEBUG("hcFontNew: hmtx table is %u bytes long.\n", length);
-  else
-    _HC_DEBUG("hcFontNew: REQUIRED hmtx table is missing.\n");
+    goto cleanup;
+  }
 
-  if ((length = seek_table(file, &table, _HC_OFF_maxp)) > 0)
-    _HC_DEBUG("hcFontNew: maxp table is %u bytes long.\n", length);
-  else
-    _HC_DEBUG("hcFontNew: REQUIRED maxp table is missing.\n");
+  font->x_max = head.xMax;
+  font->x_min = head.xMin;
+  font->y_max = head.yMax;
+  font->y_min = head.yMin;
 
-  if ((length = seek_table(file, &table, _HC_OFF_name)) > 0)
-    _HC_DEBUG("hcFontNew: name table is %u bytes long.\n", length);
+  if (head.macStyle & _HC_OFF_macStyle_Italic)
+    font->style = HC_FONT_STYLE_ITALIC;
   else
-    _HC_DEBUG("hcFontNew: REQUIRED name table is missing.\n");
+    font->style = HC_FONT_STYLE_NORMAL;
 
-  if ((length = seek_table(file, &table, _HC_OFF_OS_2)) > 0)
-    _HC_DEBUG("hcFontNew: OS/2 table is %u bytes long.\n", length);
-  else
-    _HC_DEBUG("hcFontNew: REQUIRED OS/2 table is missing.\n");
+  if (read_hhea(file, &table, &hhea) < 0)
+  {
+    _HC_DEBUG("hcFontNew: Unable to read hhea table.\n");
+    hcFontDelete(font);
+    font = NULL;
 
-  if ((length = seek_table(file, &table, _HC_OFF_post)) > 0)
-    _HC_DEBUG("hcFontNew: post table is %u bytes long.\n", length);
+    goto cleanup;
+  }
+
+  font->ascent  = hhea.ascender;
+  font->descent = hhea.descender;
+
+  if ((num_glyphs = read_maxp(file, &table)) < 0)
+  {
+    _HC_DEBUG("hcFontNew: Unable to read maxp table.\n");
+    hcFontDelete(font);
+    font = NULL;
+
+    goto cleanup;
+  }
+
+  _HC_DEBUG("hcFontNew: num_glyphs=%d\n", num_glyphs);
+
+  if (hhea.numberOfHMetrics > 0)
+  {
+    if ((widths = read_hmtx(file, &table, &hhea)) == NULL)
+    {
+      _HC_DEBUG("hcFontNew: Unable to read hmtx table.\n");
+      hcFontDelete(font);
+      font = NULL;
+
+      goto cleanup;
+    }
+  }
   else
-    _HC_DEBUG("hcFontNew: REQUIRED post table is missing.\n");
+  {
+    _HC_DEBUG("hcFontNew: Number of horizontal metrics is 0.\n");
+    hcFontDelete(font);
+    font = NULL;
+
+    goto cleanup;
+  }
+
+  if (read_os_2(file, &table, &os_2) < 0)
+  {
+    _HC_DEBUG("hcFontNew: Unable to read OS/2 table.\n");
+    hcFontDelete(font);
+    font = NULL;
+
+    goto cleanup;
+  }
+
+  font->weight       = (short)os_2.usWeightClass;
+  font->cap_height   = os_2.sCapHeight;
+  font->italic_angle = read_post(file, &table);
+
+ /*
+  * Build sparse widths table...
+  */
+
+  for (i = 0; i < num_cmap; i ++)
+  {
+    if (cmap[i] >= 0)
+    {
+      int	bin = i / 256,		/* Sub-array bin */
+		glyph = cmap[i];	/* Glyph index */
+
+
+      if (!font->widths[bin])
+        font->widths[bin] = (short *)calloc(256, sizeof(short));
+
+      if (glyph >= hhea.numberOfHMetrics)
+	font->widths[bin][i & 255] = widths[hhea.numberOfHMetrics - 1];
+      else
+	font->widths[bin][i & 255] = widths[glyph];
+    }
+  }
+
+ /*
+  * Cleanup and return the font...
+  */
+
+  cleanup:
 
   free(table.entries);
-
-  if (names.names)
-    free(names.names);
-  if (names.storage)
-    free(names.storage);
+  free(names.names);
+  free(names.storage);
+  free(widths);
 
   return (font);
 }
@@ -333,6 +460,363 @@ copy_name(hc_pool_t       *pool,	/* I - String pool */
 
 
 /*
+ * 'read_cmap()' - Read the cmap table, getting the Unicode mapping table.
+ */
+
+static int				/* O - Number of cmap entries or -1 on error */
+read_cmap(hc_file_t       *file,	/* I - File */
+          _hc_off_table_t *table,	/* I - Offset table */
+          int             **cmap)	/* O - cmap entries */
+{
+  unsigned	length;			/* Length of cmap table */
+  int		i,			/* Looping var */
+		temp,			/* Temporary value */
+		num_tables,		/* Number of cmap tables */
+		num_cmap = 0,		/* Number of cmap entries */
+		platform_id,		/* Platform identifier (Windows or Mac) */
+		encoding_id,		/* Encoding identifier (varies) */
+		cformat,		/* Formap of cmap data */
+		clength;		/* Length of cmap data */
+  unsigned	coffset = 0;		/* Offset to cmap data */
+  int		*cmapptr;		/* Pointer into cmap */
+
+
+  *cmap = NULL;
+
+ /*
+  * Find the cmap table...
+  */
+
+  if ((length = seek_table(file, table, _HC_OFF_cmap, 0)) == 0)
+  {
+    _HC_DEBUG("read_cmap: Missing cmap table.\n");
+    return (-1);
+  }
+
+  if ((temp = read_ushort(file)) != 0)
+  {
+    _HC_DEBUG("read_cmap: Unknown cmap version %d.\n", temp);
+    return (-1);
+  }
+
+  if ((num_tables = read_ushort(file)) < 1)
+  {
+    _HC_DEBUG("read_cmap: No tables to read.\n");
+    return (-1);
+  }
+
+  _HC_DEBUG("read_cmap: num_tables=%d\n", num_tables);
+
+  for (i = 0; i < num_tables; i ++)
+  {
+    platform_id = read_ushort(file);
+    encoding_id = read_ushort(file);
+    coffset     = read_ulong(file);
+
+    _HC_DEBUG("read_cmap: table[%d].platform_id=%d, encoding_id=%d, coffset=%u\n", i, platform_id, encoding_id, coffset);
+
+    if (platform_id == _HC_OFF_Windows && encoding_id == _HC_OFF_Windows_UCS2)
+      break;
+  }
+
+  if (i >= num_tables)
+  {
+    _HC_DEBUG("read_cmap: No matching cmap table.\n");
+    return (-1);
+  }
+
+  if ((length = seek_table(file, table, _HC_OFF_cmap, coffset)) == 0)
+  {
+    _HC_DEBUG("read_cmap: Unable to read cmap table at offset %u.\n", coffset);
+    return (-1);
+  }
+
+  if ((cformat = read_ushort(file)) < 0)
+  {
+    _HC_DEBUG("read_cmap: Unable to read cmap table format at offset %u.\n", coffset);
+    return (-1);
+  }
+
+  if ((clength = read_ushort(file)) < 0)
+  {
+    _HC_DEBUG("read_cmap: Unable to read cmap table length at offset %u.\n", coffset);
+    return (-1);
+  }
+
+  _HC_DEBUG("read_cmap: cformat=%d, clength=%u\n", cformat, clength);
+
+  switch (cformat)
+  {
+    case 4 :
+        {
+         /*
+          * Format 4: Segment mapping to delta values.
+          *
+          * This is an overly complicated linear way of encoding a sparse
+          * mapping table.  And it uses 1-based indexing with modulo
+          * arithmetic...
+          */
+
+          int		ch,		/* Current character */
+			seg,		/* Current segment */
+			glyph,		/* Current glyph */
+			segCount,	/* Number of segments */
+			numGlyphIdArray,/* Number of glyph IDs */
+			*glyphIdArray;	/* Glyph IDs */
+          _hc_off_cmap4_t *segments,	/* Segment data */
+			*segment;	/* This segment */
+
+
+         /*
+          * Read the table...
+          */
+
+          /* language = */       read_ushort(file);
+          segCount             = read_ushort(file) / 2;
+	  /* searchRange = */    read_ushort(file);
+	  /* entrySelectoed = */ read_ushort(file);
+	  /* rangeShift = */     read_ushort(file);
+
+          _HC_DEBUG("read_cmap: segCount=%d\n", segCount);
+
+          numGlyphIdArray = (clength - 8 * segCount - 16) / 2;
+          segments        = (_hc_off_cmap4_t *)calloc((size_t)segCount, sizeof(_hc_off_cmap4_t));
+          glyphIdArray    = (int *)calloc((size_t)numGlyphIdArray, sizeof(int));
+
+          _HC_DEBUG("read_cmap: numGlyphIdArray=%d\n", numGlyphIdArray);
+
+          for (i = 0; i < segCount; i ++)
+            segments[i].endCode = (unsigned short)read_ushort(file);
+
+	  /* reservedPad = */ read_ushort(file);
+
+          for (i = 0; i < segCount; i ++)
+            segments[i].startCode = (unsigned short)read_ushort(file);
+
+          for (i = 0; i < segCount; i ++)
+            segments[i].idDelta = (short)read_short(file);
+
+          for (i = 0; i < segCount; i ++)
+            segments[i].idRangeOffset = (unsigned short)read_ushort(file);
+
+          for (i = 0; i < numGlyphIdArray; i ++)
+            glyphIdArray[i] = read_ushort(file);
+
+#ifdef DEBUG
+          for (i = 0; i < segCount; i ++)
+            _HC_DEBUG("read_cmap: segment[%d].startCode=%d, endCode=%d, idDelta=%d, idRangeOffset=%d\n", i, segments[i].startCode, segments[i].endCode, segments[i].idDelta, segments[i].idRangeOffset);
+
+          for (i = 0; i < numGlyphIdArray; i ++)
+            _HC_DEBUG("read_cmap: glyphIdArray[%d]=%d\n", i, glyphIdArray[i]);
+#endif /* DEBUG */
+
+         /*
+          * Based on the end code of the segent table, allocate space for the
+          * uncompressed cmap table...
+          */
+
+          segCount --;			/* Last segment is not used (sigh) */
+
+	  num_cmap = segments[segCount - 1].endCode + 1;
+	  cmapptr  = *cmap = (int *)malloc((size_t)num_cmap * sizeof(int));
+
+          memset(cmapptr, -1, (size_t)num_cmap * sizeof(int));
+
+         /*
+          * Now loop through the segments and assign glyph indices from the
+          * array...
+          */
+
+          for (seg = segCount, segment = segments; seg > 0; seg --, segment ++)
+          {
+            for (ch = segment->startCode; ch <= segment->endCode; ch ++)
+            {
+              if (segment->idRangeOffset)
+              {
+               /*
+                * Use an "obscure indexing trick" (words from the spec, not
+                * mine) to look up the glyph index...
+                */
+
+                int temp = segment->idRangeOffset / 2 + ch - segment->startCode + seg - segCount - 1;
+
+                if (temp < 0 || temp >= numGlyphIdArray || !glyphIdArray[temp])
+                  glyph = -1;
+		else
+		  glyph = ((glyphIdArray[temp] + segment->idDelta) & 65535) - 1;
+              }
+              else
+              {
+               /*
+                * Just use idDelta to compute a glyph index...
+                */
+
+                glyph = ((ch + segment->idDelta) & 65535) - 1;
+	      }
+
+	      cmapptr[ch] = glyph;
+            }
+	  }
+
+         /*
+          * Free the segment data...
+          */
+
+	  free(segments);
+	  free(glyphIdArray);
+        }
+        break;
+
+    default :
+        _HC_DEBUG("read_cmap: Format %d cmap tables are not yet supported.\n", cformat);
+        return (-1);
+  }
+
+#ifdef DEBUG
+  cmapptr = *cmap;
+  for (i = 0; i < num_cmap && i < 127; i ++)
+    if (cmapptr[i] >= 0)
+      _HC_DEBUG("read_cmap; cmap[%d]=%d\n", i, cmapptr[i]);
+#endif /* DEBUG */
+
+  return (num_cmap);
+}
+
+
+/*
+ * 'read_head()' - Read the head table.
+ */
+
+static int				/* O - 0 on success, -1 on error */
+read_head(hc_file_t       *file,	/* I - File */
+          _hc_off_table_t *table,	/* I - Offset table */
+          _hc_off_head_t  *head)	/* O - head table data */
+{
+  unsigned	length;			/* Length of head table */
+
+
+  memset(head, 0, sizeof(_hc_off_head_t));
+
+  if ((length = seek_table(file, table, _HC_OFF_head, 0)) == 0)
+    return (-1);
+
+  /* majorVersion */       read_ushort(file);
+  /* minorVersion */       read_ushort(file);
+  /* fontRevision */       read_ulong(file);
+  /* checkSumAdjustment */ read_ulong(file);
+  /* magicNumber */        read_ulong(file);
+  /* flags */              read_ushort(file);
+  /* unitsPerEm */         read_ushort(file);
+  /* created */            read_ulong(file); read_ulong(file);
+  /* modified */           read_ulong(file); read_ulong(file);
+  head->xMin             = (short)read_short(file);
+  head->yMin             = (short)read_short(file);
+  head->xMax             = (short)read_short(file);
+  head->yMax             = (short)read_short(file);
+  head->macStyle         = (unsigned short)read_ushort(file);
+
+  return (0);
+}
+
+
+/*
+ * 'read_hhea()' - Read the hhea table.
+ */
+
+static int				/* O - 0 on success, -1 on error */
+read_hhea(hc_file_t       *file,	/* I - File */
+          _hc_off_table_t *table,	/* I - Offset table */
+          _hc_off_hhea_t  *hhea)	/* O - hhea table data */
+{
+  unsigned	length;			/* Length of hhea table */
+
+
+  memset(hhea, 0, sizeof(_hc_off_hhea_t));
+
+  if ((length = seek_table(file, table, _HC_OFF_hhea, 0)) == 0)
+    return (-1);
+
+  /* majorVersion */        read_ushort(file);
+  /* minorVersion */        read_ushort(file);
+  hhea->ascender          = (short)read_short(file);
+  hhea->descender         = (short)read_short(file);
+  /* lineGap */             read_short(file);
+  /* advanceWidthMax */     read_ushort(file);
+  /* minLeftSideBearing */  read_short(file);
+  /* minRightSideBearing */ read_short(file);
+  /* mMaxExtent */          read_short(file);
+  /* caretSlopeRise */      read_short(file);
+  /* caretSlopeRun */       read_short(file);
+  /* caretOffset */         read_short(file);
+  /* (reserved) */          read_short(file);
+  /* (reserved) */          read_short(file);
+  /* (reserved) */          read_short(file);
+  /* (reserved) */          read_short(file);
+  /* metricDataFormat */    read_short(file);
+  hhea->numberOfHMetrics  = (unsigned short)read_ushort(file);
+
+  return (0);
+}
+
+
+/*
+ * 'read_hmtx()' - Read the horizontal metrics from the font.
+ */
+
+static short *				/* O - Array of glyph widths */
+read_hmtx(hc_file_t       *file,	/* I - File */
+          _hc_off_table_t *table,	/* I - Offset table */
+          _hc_off_hhea_t  *hhea)	/* O - hhea table data */
+{
+  unsigned	length;			/* Length of hmtx table */
+  int		i;			/* Looping var */
+  short		*widths;		/* Glyph widths array */
+
+
+  if ((length = seek_table(file, table, _HC_OFF_hmtx, 0)) == 0)
+    return (NULL);
+
+  if (length < (unsigned)(4 * hhea->numberOfHMetrics))
+  {
+    _HC_DEBUG("read_hmtx: length=%u, expected at least %d\n", length, 4 * hhea->numberOfHMetrics);
+    return (NULL);
+  }
+
+  if ((widths = (short *)calloc((size_t)hhea->numberOfHMetrics, sizeof(short))) == NULL)
+    return (NULL);
+
+  for (i = 0; i < hhea->numberOfHMetrics; i ++)
+  {
+    if ((widths[i] = (short)read_ushort(file)) < 0)
+      break;
+
+    /* lsb */ read_short(file);
+  }
+
+  return (widths);
+}
+
+
+/*
+ * 'read_maxp()' - Read the number of glyphs in the font.
+ */
+
+static int				/* O - Number of glyphs or -1 on error */
+read_maxp(hc_file_t       *file,	/* I - File */
+          _hc_off_table_t *table)	/* I - Offset table */
+{
+ /*
+  * All we care about is the number of glyphs, so get grab that...
+  */
+
+  if (seek_table(file, table, _HC_OFF_maxp, 4) == 0)
+    return (-1);
+  else
+    return (read_ushort(file));
+}
+
+
+/*
  * 'read_names()' - Read the name strings from a font.
  */
 
@@ -354,7 +838,7 @@ read_names(hc_file_t       *file,	/* I - File */
   * Find the name table...
   */
 
-  if ((length = seek_table(file, table, _HC_OFF_name)) == 0)
+  if ((length = seek_table(file, table, _HC_OFF_name, 0)) == 0)
     return (-1);
 
   if ((format = read_ushort(file)) < 0 || format > 1)
@@ -409,6 +893,116 @@ read_names(hc_file_t       *file,	/* I - File */
   hcFileRead(file, names->storage, length - (unsigned)offset);
 
   return (0);
+}
+
+
+/*
+ * 'read_os_2()' - Read the OS/2 table.
+ */
+
+static int				/* O - 0 on success, -1 on error */
+read_os_2(hc_file_t       *file,	/* I - File */
+          _hc_off_table_t *table,	/* I - Offset table */
+          _hc_off_os_2_t  *os_2)	/* O - OS/2 table */
+{
+  unsigned	length;			/* Length of OS/2 table */
+  int		version;		/* OS/2 table version */
+  unsigned char	panose[10];		/* panose value */
+
+
+  memset(os_2, 0, sizeof(_hc_off_os_2_t));
+
+ /*
+  * Find the OS/2 table...
+  */
+
+  if ((length = seek_table(file, table, _HC_OFF_OS_2, 0)) == 0)
+    return (-1);
+
+  if ((version = read_ushort(file)) < 0)
+    return (-1);
+
+  _HC_DEBUG("read_names: version=%d\n", version);
+
+  /* xAvgCharWidth */       read_short(file);
+  os_2->usWeightClass     = (unsigned short)read_ushort(file);
+  /* usWidthClass */        read_ushort(file);
+  os_2->fsType            = (unsigned short)read_ushort(file);
+  /* ySubscriptXSize */     read_short(file);
+  /* ySubscriptYSize */     read_short(file);
+  /* ySubscriptXOffset */   read_short(file);
+  /* ySubscriptYOffset */   read_short(file);
+  /* ySuperscriptXSize */   read_short(file);
+  /* ySuperscriptYSize */   read_short(file);
+  /* ySuperscriptXOffset */ read_short(file);
+  /* ySuperscriptYOffset */ read_short(file);
+  /* yStrikeoutSize */      read_short(file);
+  /* yStrikeoutOffset */    read_short(file);
+  /* sFamilyClass */        read_short(file);
+  /* panose[10] */          hcFileRead(file, panose, sizeof(panose));
+  /* ulUnicodeRange1 */     read_ulong(file);
+  /* ulUnicodeRange2 */     read_ulong(file);
+  /* ulUnicodeRange3 */     read_ulong(file);
+  /* ulUnicodeRange4 */     read_ulong(file);
+  /* achVendID */           read_ulong(file); read_ulong(file);
+                            read_ulong(file); read_ulong(file);
+  /* fsSelection */         read_ushort(file);
+  /* usFirstCharIndex */    read_ushort(file);
+  /* usLastCharIndex */     read_ushort(file);
+  os_2->sTypoAscender     = (short)read_short(file);
+  os_2->sTypoDescender    = (short)read_short(file);
+  /* sTypoLineGap */        read_short(file);
+  /* usWinAscent */         read_ushort(file);
+  /* usWinDescent */        read_ushort(file);
+
+  if (version >= 4)
+  {
+    /* ulCodePageRange1 */  read_ulong(file);
+    /* ulCodePageRange2 */  read_ulong(file);
+    /* sxHeight */          read_short(file);
+    os_2->sCapHeight      = (short)read_short(file);
+  }
+
+  return (0);
+}
+
+
+/*
+ * 'read_post()' - Read the italicAngle value from the post table.
+ */
+
+static float				/* O - italicAngle value or 0.0 */
+read_post(hc_file_t       *file,	/* I - File */
+          _hc_off_table_t *table)	/* I - Offset table */
+{
+  unsigned	length;			/* Length of post table */
+
+
+  if ((length = seek_table(file, table, _HC_OFF_post, 0)) == 0)
+    return (0.0f);
+
+  /* version */ read_ulong(file);
+
+  return ((int)read_ulong(file) / 65536.0f);
+}
+
+
+/*
+ * 'read_short()' - Read a 16-bit signed integer.
+ */
+
+static int				/* O - 16-bit signed integer value or EOF */
+read_short(hc_file_t *file)		/* i - File to read from */
+{
+  unsigned char	buffer[2];		/* Read buffer */
+
+
+  if (hcFileRead(file, buffer, sizeof(buffer)) != sizeof(buffer))
+    return (EOF);
+  else if (buffer[0] & 0x80)
+    return (((buffer[0] << 8) | buffer[1]) - 65536);
+  else
+    return ((buffer[0] << 8) | buffer[1]);
 }
 
 
@@ -517,7 +1111,8 @@ read_ushort(hc_file_t *file)		/* i - File to read from */
 static unsigned				/* O - Length of table or 0 if not found */
 seek_table(hc_file_t       *file,	/* I - File */
            _hc_off_table_t *table,	/* I - Font table */
-           unsigned        tag)		/* I - Tag to find */
+           unsigned        tag,		/* I - Tag to find */
+           unsigned        offset)	/* I - Additional offset */
 {
   int		i;			/* Looping var */
   _hc_off_dir_t	*current;		/* Current entry */
@@ -527,8 +1122,8 @@ seek_table(hc_file_t       *file,	/* I - File */
   {
     if (current->tag == tag)
     {
-      if (hcFileSeek(file, current->offset) == current->offset)
-        return (current->length);
+      if (hcFileSeek(file, current->offset + offset) == (current->offset + offset))
+        return (current->length - offset);
       else
         return (0);
     }
