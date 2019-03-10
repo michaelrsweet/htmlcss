@@ -442,13 +442,13 @@ copy_name(hc_pool_t       *pool,	/* I - String pool */
 
       if (name->platform_id == _HC_OFF_Windows && name->encoding_id == _HC_OFF_Windows_UCS2)
       {
-        storptr = (char *)names->storage + name->offset + 1;
+        storptr = (char *)names->storage + name->offset;
         chars   = name->length / 2;
         bpc     = 2;
       }
       else if (name->platform_id == _HC_OFF_Windows && name->encoding_id == _HC_OFF_Windows_UCS4)
       {
-        storptr = (char *)names->storage + name->offset + 3;
+        storptr = (char *)names->storage + name->offset;
         chars   = name->length / 4;
         bpc     = 4;
       }
@@ -460,10 +460,81 @@ copy_name(hc_pool_t       *pool,	/* I - String pool */
       }
 
       for (tempptr = temp; chars > 0; storptr += bpc, chars --)
-        if (tempptr < (temp + sizeof(temp) - 1))
-          *tempptr++ = *storptr;
+      {
+        int ch;				/* Current character */
+
+       /*
+        * Convert to Unicode...
+        */
+
+        if (bpc == 1)
+          ch = *storptr;
+	else if (bpc == 2)
+	  ch = ((storptr[0] & 255) << 8) | (storptr[1] & 255);
 	else
-	  break;
+	  ch = ((storptr[0] & 255) << 24) | ((storptr[1] & 255) << 16) | ((storptr[2] & 255) << 8) | (storptr[3] & 255);
+
+       /*
+        * Convert to UTF-8...
+        */
+
+        if (ch < 0x80)
+        {
+         /*
+          * 1-byte ASCII...
+          */
+
+	  if (tempptr < (temp + sizeof(temp) - 1))
+	    *tempptr++ = (char)ch;
+	  else
+	    break;
+	}
+	else if (ch < 0x400)
+	{
+	 /*
+	  * 2-byte UTF-8...
+	  */
+
+	  if (tempptr < (temp + sizeof(temp) - 2))
+	  {
+	    *tempptr++ = (char)(0xc0 | (ch >> 6));
+	    *tempptr++ = (char)(0x80 | (ch & 0x3f));
+	  }
+	  else
+	    break;
+	}
+	else if (ch < 0x10000)
+	{
+	 /*
+	  * 3-byte UTF-8...
+	  */
+
+	  if (tempptr < (temp + sizeof(temp) - 3))
+	  {
+	    *tempptr++ = (char)(0xe0 | (ch >> 12));
+	    *tempptr++ = (char)(0x80 | ((ch >> 6) & 0x3f));
+	    *tempptr++ = (char)(0x80 | (ch & 0x3f));
+	  }
+	  else
+	    break;
+	}
+	else
+	{
+	 /*
+	  * 4-byte UTF-8...
+	  */
+
+	  if (tempptr < (temp + sizeof(temp) - 4))
+	  {
+	    *tempptr++ = (char)(0xf0 | (ch >> 18));
+	    *tempptr++ = (char)(0x80 | ((ch >> 12) & 0x3f));
+	    *tempptr++ = (char)(0x80 | ((ch >> 6) & 0x3f));
+	    *tempptr++ = (char)(0x80 | (ch & 0x3f));
+	  }
+	  else
+	    break;
+	}
+      }
 
       *tempptr = '\0';
 
