@@ -113,10 +113,14 @@ main(int  argc,				/* I - Number of command-line arguments */
       {
         hc_rect_t	extents;	/* Extents of text */
 
+        printf("%s:\n    copyright=\"%s\"\n    family=\"%s\"\n    postscript_name=\"%s\"\n    version=\"%s\"\n", argv[i], hcFontGetCopyright(font), hcFontGetFamily(font), hcFontGetPostScriptName(font), hcFontGetVersion(font));
+
         hcFontComputeExtents(font, 10.0f, "Hello, world!", &extents);
-        printf("%s:\n    copyright=\"%s\"\n    family=\"%s\"\n    postscript_name=\"%s\"\n    version=\"%s\"\n    width of \"Hello, world!\"=%.3f\n", argv[i], hcFontGetCopyright(font), hcFontGetFamily(font), hcFontGetPostScriptName(font), hcFontGetVersion(font), extents.right);
+        printf("    extents of \"Hello, world!\"=[%.3f %.3f %.3f %.3f]\n", extents.left, extents.bottom, extents.right, extents.top);
+
         hcFontComputeExtents(font, 10.0f, "0123456789", &extents);
-        printf("    width of \"0123456789\"=%.3f\n", extents.right);
+        printf("    extents of \"0123456789\"=[%.3f %.3f %.3f %.3f]\n", extents.left, extents.bottom, extents.right, extents.top);
+
         hcFontDelete(font);
       }
       else if (show_font)

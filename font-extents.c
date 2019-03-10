@@ -28,18 +28,19 @@ hcFontComputeExtents(
     const char      *s,			/* I - String */
     hc_rect_t       *extents)		/* O - Extents of the string */
 {
-  int		ch,			/* Current character */
-		width = 0;		/* Width */
-  const short	*widths;		/* Widths */
+  int			ch,		/* Current character */
+			first = 1,	/* First character */
+			width = 0;	/* Width */
+  _hc_font_metric_t	*widths;	/* Widths */
 
+
+  _HC_DEBUG("hcFontComputeExtents(font=%p, size=%.2f, s=\"%s\", extents=%p)\n", (void *)font, size, s, (void *)extents);
 
   if (extents)
     memset(extents, 0, sizeof(hc_rect_t));
 
   if (!font || size <= 0.0f || !s || !extents)
     return (0);
-
-  _HC_DEBUG("hcFontComputeExtents(font=%p, size=%.2f, s=\"%s\", extents=%p)\n", (void *)font, size, s, (void *)extents);
 
   while (*s)
   {
@@ -64,13 +65,22 @@ hcFontComputeExtents(
       ch = *s++;
 
     if ((widths = font->widths[ch / 256]) != NULL)
-      width += widths[ch & 255];
+    {
+      if (first)
+      {
+        extents->left = -widths[ch & 255].left_bearing / font->units;
+        first         = 0;
+      }
+
+      width += widths[ch & 255].width;
+    }
   }
 
   _HC_DEBUG("hcFontComputeExtents: width=%d\n", width);
 
-  extents->right = size * width / font->units;
-  extents->top   = size;
+  extents->bottom = size * font->y_min / font->units;
+  extents->right  = size * width / font->units + extents->left;
+  extents->top    = size * font->y_max / font->units;
 
   return (1);
 }

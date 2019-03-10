@@ -28,6 +28,12 @@ extern "C" {
  * Types...
  */
 
+typedef struct _hc_font_metric_s	/**** Font metric information ****/
+{
+  short			width,		/* Advance width */
+			left_bearing;	/* Left side bearing */
+} _hc_font_metric_t;
+
 struct _hc_font_s
 {
   hc_pool_t		*pool;		/* Memory pool */
@@ -36,7 +42,7 @@ struct _hc_font_s
   const char		*postscript_name;
 					/* PostScript name string */
   const char		*version;	/* Font version string */
-  short			*widths[256];	/* Character widths (sparse array) */
+  _hc_font_metric_t	*widths[256];	/* Character metrics (sparse array) */
   float			units;		/* Width units */
   short			ascent,		/* Maximum ascent above baseline */
 			descent,	/* Maximum descent below baseline */

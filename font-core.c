@@ -141,7 +141,7 @@ static const char *copy_name(hc_pool_t *pool, _hc_off_names_t *names, unsigned n
 static int	read_cmap(hc_file_t *file, _hc_off_table_t *table, int **cmap);
 static int	read_head(hc_file_t *file, _hc_off_table_t *table, _hc_off_head_t *head);
 static int	read_hhea(hc_file_t *file, _hc_off_table_t *table, _hc_off_hhea_t *hhea);
-static short	*read_hmtx(hc_file_t *file, _hc_off_table_t *table, _hc_off_hhea_t *hhea);
+static _hc_font_metric_t *read_hmtx(hc_file_t *file, _hc_off_table_t *table, _hc_off_hhea_t *hhea);
 static int	read_maxp(hc_file_t *file, _hc_off_table_t *table);
 static int	read_names(hc_file_t *file, _hc_off_table_t *table, _hc_off_names_t *names);
 static int	read_os_2(hc_file_t *file, _hc_off_table_t *table, _hc_off_os_2_t *os_2);
@@ -252,7 +252,7 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
 			num_cmap,	/* Number of Unicode character to glyph mappings */
 			*cmap = NULL,	/* Unicode character to glyph mappings */
 			num_glyphs;	/* Numnber of glyphs */
-  short			*widths = NULL;	/* Glyph widths */
+  _hc_font_metric_t	*widths = NULL;	/* Glyph metrics */
   _hc_off_head_t	head;		/* head table */
   _hc_off_hhea_t	hhea;		/* hhea table */
   _hc_off_os_2_t	os_2;		/* OS/2 table */
@@ -385,7 +385,7 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
 
 
       if (!font->widths[bin])
-        font->widths[bin] = (short *)calloc(256, sizeof(short));
+        font->widths[bin] = (_hc_font_metric_t *)calloc(256, sizeof(_hc_font_metric_t));
 
       if (glyph >= hhea.numberOfHMetrics)
 	font->widths[bin][i & 255] = widths[hhea.numberOfHMetrics - 1];
@@ -857,14 +857,14 @@ read_hhea(hc_file_t       *file,	/* I - File */
  * 'read_hmtx()' - Read the horizontal metrics from the font.
  */
 
-static short *				/* O - Array of glyph widths */
+static _hc_font_metric_t *		/* O - Array of glyph metrics */
 read_hmtx(hc_file_t       *file,	/* I - File */
           _hc_off_table_t *table,	/* I - Offset table */
           _hc_off_hhea_t  *hhea)	/* O - hhea table data */
 {
-  unsigned	length;			/* Length of hmtx table */
-  int		i;			/* Looping var */
-  short		*widths;		/* Glyph widths array */
+  unsigned		length;		/* Length of hmtx table */
+  int			i;		/* Looping var */
+  _hc_font_metric_t	*widths;	/* Glyph metrics array */
 
 
   if ((length = seek_table(file, table, _HC_OFF_hmtx, 0)) == 0)
@@ -876,15 +876,13 @@ read_hmtx(hc_file_t       *file,	/* I - File */
     return (NULL);
   }
 
-  if ((widths = (short *)calloc((size_t)hhea->numberOfHMetrics, sizeof(short))) == NULL)
+  if ((widths = (_hc_font_metric_t *)calloc((size_t)hhea->numberOfHMetrics, sizeof(_hc_font_metric_t))) == NULL)
     return (NULL);
 
   for (i = 0; i < hhea->numberOfHMetrics; i ++)
   {
-    if ((widths[i] = (short)read_ushort(file)) < 0)
-      break;
-
-    /* lsb */ read_short(file);
+    widths[i].width        = (short)read_ushort(file);
+    widths[i].left_bearing = (short)read_short(file);
   }
 
   return (widths);
