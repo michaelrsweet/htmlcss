@@ -111,7 +111,12 @@ main(int  argc,				/* I - Number of command-line arguments */
     {
       if ((font = hcFontNew(pool, file)) != NULL)
       {
-        printf("%s: copyright=\"%s\", family=\"%s\", postscript_name=\"%s\", version=\"%s\"\n", argv[i], hcFontGetCopyright(font), hcFontGetFamily(font), hcFontGetPostScriptName(font), hcFontGetVersion(font));
+        hc_rect_t	extents;	/* Extents of text */
+
+        hcFontComputeExtents(font, 10.0f, "Hello, world!", &extents);
+        printf("%s:\n    copyright=\"%s\"\n    family=\"%s\"\n    postscript_name=\"%s\"\n    version=\"%s\"\n    width of \"Hello, world!\"=%.3f\n", argv[i], hcFontGetCopyright(font), hcFontGetFamily(font), hcFontGetPostScriptName(font), hcFontGetVersion(font), extents.right);
+        hcFontComputeExtents(font, 10.0f, "0123456789", &extents);
+        printf("    width of \"0123456789\"=%.3f\n", extents.right);
         hcFontDelete(font);
       }
       else if (show_font)
