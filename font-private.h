@@ -16,18 +16,12 @@
  * Include necessary headers...
  */
 
+#  include "common-private.h"
 #  include "font.h"
 
 #  ifdef __cplusplus
 extern "C" {
 #  endif /* __cplusplus */
-
-
-/*
- * Constants...
- */
-
-#  define _HC_FONT_UNITS	16384	/* Unit size for font dimensions */
 
 
 /*
@@ -43,6 +37,7 @@ struct _hc_font_s
 					/* PostScript name string */
   const char		*version;	/* Font version string */
   short			*widths[256];	/* Character widths (sparse array) */
+  float			units;		/* Width units */
   short			ascent,		/* Maximum ascent above baseline */
 			descent,	/* Maximum descent below baseline */
 			cap_height,	/* "A" height */

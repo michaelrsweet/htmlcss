@@ -39,6 +39,8 @@ hcFontComputeExtents(
   if (!font || size <= 0.0f || !s || !extents)
     return (0);
 
+  _HC_DEBUG("hcFontComputeExtents(font=%p, size=%.2f, s=\"%s\", extents=%p)\n", (void *)font, size, s, (void *)extents);
+
   while (*s)
   {
     if ((*s & 0xe0) == 0xc0 && (s[1] & 0xc0) == 0x80)
@@ -65,7 +67,9 @@ hcFontComputeExtents(
       width += widths[ch & 255];
   }
 
-  extents->right = size * width / _HC_FONT_UNITS;
+  _HC_DEBUG("hcFontComputeExtents: width=%d\n", width);
+
+  extents->right = size * width / font->units;
   extents->top   = size;
 
   return (1);

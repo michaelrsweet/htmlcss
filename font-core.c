@@ -13,7 +13,6 @@
  * Include necessary headers...
  */
 
-#include "common-private.h"
 #include "font-private.h"
 
 
@@ -92,6 +91,7 @@ typedef struct _hc_off_cmap4_s		/* Format 4 cmap table */
 
 typedef struct _hc_off_head_s		/* Font header */
 {
+  unsigned short	unitsPerEm;	/* Units for widths/coordinates */
   short			xMin,		/* Bounding box of all glyphs */
 			yMin,
 			xMax,
@@ -283,6 +283,7 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
     goto cleanup;
   }
 
+  font->units = (float)head.unitsPerEm;
   font->x_max = head.xMax;
   font->x_min = head.xMin;
   font->y_max = head.yMax;
@@ -706,7 +707,7 @@ read_head(hc_file_t       *file,	/* I - File */
   /* checkSumAdjustment */ read_ulong(file);
   /* magicNumber */        read_ulong(file);
   /* flags */              read_ushort(file);
-  /* unitsPerEm */         read_ushort(file);
+  head->unitsPerEm       = (unsigned short)read_ushort(file);
   /* created */            read_ulong(file); read_ulong(file);
   /* modified */           read_ulong(file); read_ulong(file);
   head->xMin             = (short)read_short(file);
