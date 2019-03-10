@@ -205,6 +205,17 @@ hcFontGetPostScriptName(
 
 
 /*
+ * 'hcFontGetStyle()' - Get the font style.
+ */
+
+hc_font_style_t				/* O - Style */
+hcFontGetStyle(hc_font_t *font)		/* I - Font object */
+{
+  return (font ? font->style : HC_FONT_STYLE_NORMAL);
+}
+
+
+/*
  * 'hcFontGetVersion()' - Get the version number of a font.
  */
 
@@ -212,6 +223,17 @@ const char *				/* O - Version number */
 hcFontGetVersion(hc_font_t *font)	/* I - Font object */
 {
   return (font ? font->version : NULL);
+}
+
+
+/*
+ * 'hcFontGetWeight()' - Get the weight of a font.
+ */
+
+hc_font_weight_t			/* O - Weight */
+hcFontGetWeight(hc_font_t *font)	/* I - Font object */
+{
+  return (font ? (hc_font_weight_t)font->weight : HC_FONT_WEIGHT_400);
 }
 
 
