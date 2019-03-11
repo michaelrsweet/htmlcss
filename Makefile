@@ -33,6 +33,7 @@ HEADERS	=	\
 		font.h \
 		html.h \
 		htmlcss.h \
+		image.h \
 		pool.h \
 		run.h \
 		sha3.h
@@ -58,6 +59,7 @@ LIBOBJS	=	\
 		html-find.o \
 		html-load.o \
 		html-node.o \
+		image.o \
 		pool.o \
 		sha3.o
 OBJS	=	testhtmlcss.o $(LIBOBJS)
