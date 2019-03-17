@@ -22,6 +22,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		27430482223F121E00A65988 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 27430481223F121E00A65988 /* libz.tbd */; };
 		27573DBF2236083C0020E273 /* image.h in Headers */ = {isa = PBXBuildFile; fileRef = 27573DBD2236083A0020E273 /* image.h */; };
 		27573DC02236083C0020E273 /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = 27573DBE2236083B0020E273 /* image.c */; };
 		27CEEFC121BE9B7600793C86 /* dict.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFB821BE9B7600793C86 /* dict.h */; };
@@ -98,6 +99,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		27430481223F121E00A65988 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		27573DBD2236083A0020E273 /* image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image.h; sourceTree = "<group>"; };
 		27573DBE2236083B0020E273 /* image.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = image.c; sourceTree = "<group>"; };
 		27B622AE21BE9AE200397ABE /* libhtmlcss.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libhtmlcss.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -155,6 +157,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27430482223F121E00A65988 /* libz.tbd in Frameworks */,
 				27CEF00E21BEA31F00793C86 /* libhtmlcss.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -255,6 +258,7 @@
 		27CEF00D21BEA31F00793C86 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				27430481223F121E00A65988 /* libz.tbd */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

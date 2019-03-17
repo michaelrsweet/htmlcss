@@ -19,7 +19,7 @@ mandir	=	$(prefix)/share/man
 CC	=	gcc
 CFLAGS	=	$(OPTIM) -Wall '-DVERSION="$(VERSION)"' $(OPTIONS)
 LDFLAGS	=	$(OPTIM)
-LIBS	=	-lm
+LIBS	=	-lz -lm
 #OPTIM	=	-Os -g
 OPTIM	=	-g -fsanitize=address
 OPTIONS	=

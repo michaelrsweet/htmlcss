@@ -18,6 +18,7 @@
 
 #  include "file.h"
 #  include "pool-private.h"
+#  include <zlib.h>
 
 #  ifdef __cplusplus
 extern "C" {
@@ -32,7 +33,7 @@ struct _hc_file_s			/* High-level file/stream */
 {
   hc_pool_t		*pool;		/* Memory pool */
   const char		*url;		/* URL or filename */
-  FILE			*fp;		/* File pointer */
+  gzFile		fp;		/* File pointer */
   const _hc_uchar_t	*buffer,	/* String buffer */
 			*bufptr,	/* Pointer into buffer */
 			*bufend;	/* End of buffer */

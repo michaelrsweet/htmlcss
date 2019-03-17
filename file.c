@@ -26,8 +26,8 @@ hcFileDelete(hc_file_t *file)		/* I - File */
   if (!file)
     return;
 
-  if (file->fp && file->fp != stdin)
-    fclose(file->fp);
+  if (file->fp)
+    gzclose(file->fp);
 
   free(file);
 }
@@ -78,7 +78,7 @@ hcFileGetc(hc_file_t *file)		/* I - File */
       ch = EOF;
   }
   else
-    ch = getc(file->fp);
+    ch = gzgetc(file->fp);
 
   if (ch == '\n')
     file->linenum ++;
@@ -148,7 +148,7 @@ hcFileNewURL(hc_pool_t  *pool,		/* I - Memory pool */
   {
     file->pool    = pool;
     file->url     = filename;
-    file->fp      = fopen(filename, "rb");
+    file->fp      = gzopen(filename, "rb");
     file->linenum = 1;
 
     if (!file->fp)
@@ -160,59 +160,6 @@ hcFileNewURL(hc_pool_t  *pool,		/* I - Memory pool */
   }
 
   return (file);
-
-#if 0
-  f.css          = css;
-  f.file.url     = url;
-  f.file.fp      = fp;
-  f.file.s       = s;
-  f.file.sptr    = s;
-  f.file.linenum = 1;
-
-  if (url && !fp && !s)
-  {
-    char	filename[1024];		/* Local filename buffer */
-
-    if (!strchr(url, ':'))
-    {
-      strncpy(filename, url, sizeof(filename) - 1);
-      filename[sizeof(filename) - 1] = '\0';
-    }
-    else if (!(css->url_cb)(url, filename, sizeof(filename), css->url_ctx))
-    {
-      _hcError(css->error_cb, css->error_ctx, url, 0, "Unable to open: %s", strerror(errno));
-      return (0);
-    }
-
-    if ((f.file.fp = fopen(filename, "rb")) == NULL)
-    {
-      _hcError(css->error_cb, css->error_ctx, url, 0, "Unable to open: %s", strerror(errno));
-      return (0);
-    }
-
-  if (!fp)
-  {
-    if (!(html->url_cb)(url, buffer, sizeof(buffer), html->url_ctx))
-    {
-      _hcError(html->error_cb, html->error_ctx, url, 0, "Unable to open: %s", strerror(errno));
-      return (0);
-    }
-
-    if ((f.file.fp = fopen(buffer, "rb")) == NULL)
-    {
-      _hcError(html->error_cb, html->error_ctx, url, 0, "Unable to open: %s", strerror(errno));
-      return (0);
-    }
-  }
-  else if (!url)
-  {
-    if (fp == stdin)
-      f.file.url = "<stdin>";
-    else
-      f.file.url = "<unknown>";
-  }
-
-#endif /* 0 */
 }
 
 
@@ -225,6 +172,9 @@ hcFileRead(hc_file_t *file,		/* I - File */
            void      *buffer,		/* I - Buffer */
            size_t    bytes)		/* I - Number of bytes to read */
 {
+  ssize_t	rbytes;			/* Number of bytes read */
+
+
   if (!file || !buffer || bytes == 0)
     return (0);
 
@@ -241,8 +191,10 @@ hcFileRead(hc_file_t *file,		/* I - File */
 
     return (bytes);
   }
+  else if ((rbytes = gzread(file->fp, buffer, (unsigned)bytes)) < 0)
+    return (0);
   else
-    return (fread(buffer, 1, bytes, file->fp));
+    return ((size_t)bytes);
 }
 
 
@@ -254,6 +206,9 @@ size_t					/* O - New file offset or 0 on error */
 hcFileSeek(hc_file_t *file,		/* I - File */
            size_t    offset)		/* I - Offset within file */
 {
+  ssize_t	soffset;		/* Seek offset */
+
+
   if (!file)
     return (0);
 
@@ -267,10 +222,10 @@ hcFileSeek(hc_file_t *file,		/* I - File */
     return (offset);
   }
 
-  if (fseek(file->fp, (long)offset, SEEK_SET))
+  if ((soffset = gzseek(file->fp, (long)offset, SEEK_SET)) < 0)
     return (0);
   else
-    return ((size_t)ftell(file->fp));
+    return ((size_t)soffset);
 }
 
 
@@ -285,7 +240,7 @@ hcFileUngetc(hc_file_t *f,		/* I - File */
   if (f->bufptr && f->bufptr > f->buffer)
     f->bufptr --;
   else if (f->fp)
-    ungetc(ch, f->fp);
+    gzungetc(ch, f->fp);
 
   if (ch == '\n')
     f->linenum --;
