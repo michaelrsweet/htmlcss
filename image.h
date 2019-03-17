@@ -1,6 +1,10 @@
 /*
  * Image handling header for HTMLCSS library.
  *
+ * Note: The purpose of these functions is currently just to discover the
+ * dimensions and format of an image file and not to decode or transform the
+ * contents of an image.
+ *
  *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2019 by Michael R Sweet.
@@ -16,7 +20,7 @@
  * Include necessary headers...
  */
 
-#  include "file.h"
+#  include "css.h"
 
 #  ifdef __cplusplus
 extern "C" {
@@ -37,6 +41,7 @@ typedef struct _hc_image_s hc_image_t;	/* Image object */
 extern void		hcImageDelete(hc_image_t *image);
 extern const char	*hcImageGetFormat(hc_image_t *image);
 extern int		hcImageGetHeight(hc_image_t *image);
+extern hc_size_t	hcImageGetSize(hc_image_t *image);
 extern int		hcImageGetWidth(hc_image_t *image);
 extern hc_image_t	*hcImageNew(hc_pool_t *pool, hc_file_t *file);
 

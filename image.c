@@ -1,6 +1,10 @@
 /*
  * Image handling functions for HTMLCSS library.
  *
+ * Note: The purpose of these functions is currently just to discover the
+ * dimensions and format of an image file and not to decode or transform the
+ * contents of an image.
+ *
  *     https://github.com/michaelrsweet/hc
  *
  * Copyright © 2019 by Michael R Sweet.
@@ -21,12 +25,22 @@
  * Types...
  */
 
+typedef enum _hc_res_e
+{
+  _HC_RES_NONE,				/* No units */
+  _HC_RES_PER_INCH,			/* Pixels per inch */
+  _HC_RES_PER_CM			/* Pixels per cm */
+} _hc_res_t;
+
 struct _hc_image_s
 {
   hc_pool_t	*pool;			/* Memory pool */
   const char	*format;		/* MIME media type */
   int		width,			/* Width in pixels */
 		height;			/* Height in pixels */
+  int		xres,			/* Width resolution */
+		yres;			/* Height resolution */
+  _hc_res_t	units;			/* Resolution units */
 };
 
 
@@ -65,6 +79,59 @@ int					/* O - Height in pixels */
 hcImageGetHeight(hc_image_t *image)	/* I - Image object */
 {
   return (image ? image->height : 0);
+}
+
+
+/*
+ * 'hcImageGetSize()' - Get the natural size of an image.
+ */
+
+hc_size_t				/* O - CSS dimensions */
+hcImageGetSize(hc_image_t *image)	/* I - Image object */
+{
+  hc_size_t	size;			/* CSS dimensions */
+
+
+  if (image)
+  {
+    if (image->xres > 0 && image->yres > 0 && image->units != _HC_RES_NONE)
+    {
+      if (image->units == _HC_RES_PER_INCH)
+      {
+       /*
+        * Convert from PPI to points...
+        */
+
+        size.width  = 72.0f * image->width / image->xres;
+        size.height = 72.0f * image->height / image->yres;
+      }
+      else
+      {
+       /*
+        * Convert from PPCM to points...
+        */
+
+        size.width  = 72.0f / 2.54f * image->width / image->xres;
+        size.height = 72.0f / 2.54f * image->height / image->yres;
+      }
+    }
+    else
+    {
+     /*
+      * Default resolution is 100 PPI, CSS units are points (72 points per inch).
+      */
+
+      size.width  = 0.72f * image->width;
+      size.height = 0.72f * image->height;
+    }
+  }
+  else
+  {
+    size.width  = 0.0f;
+    size.height = 0.0f;
+  }
+
+  return (size);
 }
 
 
@@ -167,7 +234,7 @@ hcImageNew(hc_pool_t *pool,		/* I - Memory pool */
         if (*bufptr == 0xff)
           continue;
 
-        if ((bufptr + 8) >= bufend)
+        if ((bufptr + 16) >= bufend)
         {
          /*
           * Read more of the marker...
@@ -189,10 +256,29 @@ hcImageNew(hc_pool_t *pool,		/* I - Memory pool */
 
         _HC_DEBUG("hcImageNew: JPEG X'FF%02X' (length %u)\n", *bufptr, (unsigned)length);
 
-        if ((*bufptr >= 0xc0 && *bufptr <= 0xc3) ||
-	    (*bufptr >= 0xc5 && *bufptr <= 0xc7) ||
-	    (*bufptr >= 0xc9 && *bufptr <= 0xcb) ||
-	    (*bufptr >= 0xcd && *bufptr <= 0xcf))
+        if (*bufptr == 0xe0 && length >= 16 && !memcmp(bufptr + 3, "JFIF", 5))
+        {
+         /*
+          * APP0 marker for JFIF...
+          */
+
+          if (bufptr[10] == 1)
+          {
+            image->units = _HC_RES_PER_INCH;
+            image->xres  = (bufptr[11] << 8) | bufptr[12];
+            image->yres  = (bufptr[13] << 8) | bufptr[14];
+	  }
+	  else if (bufptr[10] == 2)
+          {
+            image->units = _HC_RES_PER_CM;
+            image->xres  = (bufptr[11] << 8) | bufptr[12];
+            image->yres  = (bufptr[13] << 8) | bufptr[14];
+	  }
+        }
+        else if ((*bufptr >= 0xc0 && *bufptr <= 0xc3) ||
+		 (*bufptr >= 0xc5 && *bufptr <= 0xc7) ||
+		 (*bufptr >= 0xc9 && *bufptr <= 0xcb) ||
+		 (*bufptr >= 0xcd && *bufptr <= 0xcf))
         {
 	 /*
 	  * SOFn marker, look for dimensions...

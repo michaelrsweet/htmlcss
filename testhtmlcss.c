@@ -129,14 +129,17 @@ main(int  argc,				/* I - Number of command-line arguments */
         printf("%s: Unable to open (%s)\n", argv[i], strerror(errno));
       }
     }
-    else if (!strcmp(ext, ".gif") || !strcmp(ext, ".jpg") || !strcmp(ext, ".jpeg") || !strcmp(ext, ".png") || !strcmp(ext, ".svg"))
+    else if (!strcmp(ext, ".gif") || !strcmp(ext, ".jpg") || !strcmp(ext, ".jpeg") || !strcmp(ext, ".png") || !strcmp(ext, ".svg") || !strcmp(ext, ".svgz"))
     {
       hc_image_t *image = hcImageNew(pool, file);
 					/* Image */
 
       if (image)
       {
-        printf("%s: %dx%d (%s)\n", argv[i], hcImageGetWidth(image), hcImageGetHeight(image), hcImageGetFormat(image));
+        hc_size_t size = hcImageGetSize(image);
+					/* Image size */
+
+        printf("%s: %dx%d pixels, %.1fx%.1f points (%s)\n", argv[i], hcImageGetWidth(image), hcImageGetHeight(image), size.width, size.height, hcImageGetFormat(image));
         hcImageDelete(image);
       }
       else
