@@ -1,6 +1,8 @@
 /*
  * SHA3 hash definitions for HTMLCSS library.
  *
+ *     https://github.com/michaelrsweet/htmlcss
+ *
  * Copyright © 2015-2018 by Michael R Sweet. All rights reserved.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more

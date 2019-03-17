@@ -5,7 +5,7 @@
  * dimensions and format of an image file and not to decode or transform the
  * contents of an image.
  *
- *     https://github.com/michaelrsweet/hc
+ *     https://github.com/michaelrsweet/htmlcss
  *
  * Copyright © 2019 by Michael R Sweet.
  *

@@ -1,6 +1,8 @@
 /*
  * SHA3 hash implementation for HTMLCSS library.
  *
+ *     https://github.com/michaelrsweet/htmlcss
+ *
  * Copyright © 2015-2018 Michael R Sweet. All rights reserved.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
@@ -10,7 +12,7 @@
  * "Keccak-readable-and-compact.c" source code from the official
  * Keccak reference implementation code repository:
  *
- *     https: *github.com/gvanas/KeccakCodePackage.git
+ *     https://github.com/gvanas/KeccakCodePackage.git
  *
  * The original code bore the following notice:
  *
@@ -21,15 +23,15 @@
  *     For more information, feedback or questions, please refer to
  *     our websites:
  *
- *         http: *keccak.noekeon.org/
- *         http: *keyak.noekeon.org/
- *         http: *ketje.noekeon.org/
+ *         http://keccak.noekeon.org/
+ *         http://keyak.noekeon.org/
+ *         http://ketje.noekeon.org/
  *
  *     To the extent possible under law, the implementer has waived
  *     all copyright and related or neighboring rights to the source
  *     code in this file.
  *
- *         http: *creativecommons.org/publicdomain/zero/1.0/
+ *         http://creativecommons.org/publicdomain/zero/1.0/
 */
 
 #include "sha3.h"
@@ -52,13 +54,13 @@
  */
 
 #ifndef LITTLE_ENDIAN
-#  ifdef WIN32
+#  ifdef _WIN32
 #    define LITTLE_ENDIAN 1	/* Windows is always little-endian */
 #  elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #    define LITTLE_ENDIAN 1	/* GCC/Clang preprocessor check */
 #  else
 #    define LITTLE_ENDIAN 0	/* Otherwise don't assume little-endian */
-#  endif /* WIN32 */
+#  endif /* _WIN32 */
 #endif /* !LITTLE_ENDIAN */
 
 

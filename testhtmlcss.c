@@ -1,7 +1,7 @@
 /*
  * Unit test program for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/hc
+ *     https://github.com/michaelrsweet/htmlcss
  *
  * Copyright © 2018-2019 by Michael R Sweet.
  *

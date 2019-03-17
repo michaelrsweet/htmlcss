@@ -1,7 +1,7 @@
 /*
  * CSS computation functions for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/hc
+ *     https://github.com/michaelrsweet/htmlcss
  *
  * Copyright © 2018 by Michael R Sweet.
  *

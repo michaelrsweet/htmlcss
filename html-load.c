@@ -1,9 +1,9 @@
 /*
  * HTML load functions for HTMLCSS library.
  *
- *     https://github.com/michaelrsweet/hc
+ *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright � 2018 by Michael R Sweet.
+ * Copyright © 2018 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
