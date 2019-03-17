@@ -137,15 +137,26 @@ hcFileNewURL(hc_pool_t  *pool,		/* I - Memory pool */
   const char	*filename;		/* Local file */
 
 
+  _HC_DEBUG("hcFileNewURL(pool=%p, url=\"%s\", baseurl=\"%s\")\n", (void *)pool, url, baseurl);
+
   if ((filename = hcPoolGetURL(pool, url, baseurl)) == NULL)
     return (NULL);
+
+  _HC_DEBUG("hcFileNewURL: filename=\"%s\"\n", filename);
 
   if ((file = calloc(1, sizeof(hc_file_t))) != NULL)
   {
     file->pool    = pool;
-    file->url     = hcPoolGetString(pool, url);
+    file->url     = filename;
     file->fp      = fopen(filename, "rb");
     file->linenum = 1;
+
+    if (!file->fp)
+    {
+      perror(filename);
+      free(file);
+      file = NULL;
+    }
   }
 
   return (file);

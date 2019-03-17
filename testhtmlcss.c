@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/hc
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2019 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -19,6 +19,7 @@
 
 #include "htmlcss.h"
 #include "css-private.h"
+#include "image.h"
 #include "sha3.h"
 
 
@@ -127,6 +128,19 @@ main(int  argc,				/* I - Number of command-line arguments */
       {
         printf("%s: Unable to open (%s)\n", argv[i], strerror(errno));
       }
+    }
+    else if (!strcmp(ext, ".gif") || !strcmp(ext, ".jpg") || !strcmp(ext, ".jpeg") || !strcmp(ext, ".png") || !strcmp(ext, ".svg"))
+    {
+      hc_image_t *image = hcImageNew(pool, file);
+					/* Image */
+
+      if (image)
+      {
+        printf("%s: %dx%d (%s)\n", argv[i], hcImageGetWidth(image), hcImageGetHeight(image), hcImageGetFormat(image));
+        hcImageDelete(image);
+      }
+      else
+        printf("%s: Unable to open.\n", argv[i]);
     }
     else if (!strcmp(ext, ".css"))
       hcCSSImport(css, file);
