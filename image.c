@@ -113,7 +113,7 @@ hcImageNew(hc_pool_t *pool,		/* I - Memory pool */
     * PNG image...
     */
 
-    image->format = hcPoolGetString(pool, "image/png");
+    image->format = "image/png";
     image->width  = (buffer[16] << 24) | (buffer[17] << 16) | (buffer[18] << 8) | buffer[19];
     image->height = (buffer[20] << 24) | (buffer[21] << 16) | (buffer[22] << 8) | buffer[23];
   }
@@ -123,9 +123,116 @@ hcImageNew(hc_pool_t *pool,		/* I - Memory pool */
     * GIF image...
     */
 
-    image->format = hcPoolGetString(pool, "image/gif");
+    image->format = "image/gif";
     image->width  = (buffer[7] << 8) | buffer[6];
     image->height = (buffer[9] << 8) | buffer[8];
+  }
+  else if (bytes > 3 && !memcmp(buffer, "\377\330\377", 3))
+  {
+   /*
+    * JPEG image...
+    */
+
+    unsigned char	*bufptr = buffer + 2,
+					/* Pointer into buffer */
+			*bufend = buffer + bytes;
+					/* End of buffer */
+    size_t		length;		/* Length of marker */
+
+    image->format = "image/jpeg";
+
+   /*
+    * Scan the file for a SOFn marker, then we can get the dimensions...
+    */
+
+    while (bufptr < bufend)
+    {
+      if (*bufptr == 0xff)
+      {
+        bufptr ++;
+
+        if (bufptr >= bufend)
+        {
+         /*
+          * If we are at the end of the current buffer, re-fill and continue...
+          */
+
+          if ((bytes = hcFileRead(file, buffer, sizeof(buffer))) == 0)
+            break;
+
+          bufptr = buffer;
+          bufend = buffer + bytes;
+        }
+
+        if (*bufptr == 0xff)
+          continue;
+
+        if ((bufptr + 8) >= bufend)
+        {
+         /*
+          * Read more of the marker...
+          */
+
+          bytes = (size_t)(bufend - bufptr);
+
+          memmove(buffer, bufptr, bytes);
+          bufptr = buffer;
+          bufend = buffer + bytes;
+
+          if ((bytes = hcFileRead(file, bufend, sizeof(buffer) - bytes)) == 0)
+            break;
+
+          bufend += bytes;
+	}
+
+        length = (size_t)((bufptr[1] << 8) | bufptr[2]);
+
+        _HC_DEBUG("hcImageNew: JPEG X'FF%02X' (length %u)\n", *bufptr, (unsigned)length);
+
+        if ((*bufptr >= 0xc0 && *bufptr <= 0xc3) ||
+	    (*bufptr >= 0xc5 && *bufptr <= 0xc7) ||
+	    (*bufptr >= 0xc9 && *bufptr <= 0xcb) ||
+	    (*bufptr >= 0xcd && *bufptr <= 0xcf))
+        {
+	 /*
+	  * SOFn marker, look for dimensions...
+	  */
+
+          image->width  = (bufptr[6] << 8) | bufptr[7];
+          image->height = (bufptr[4] << 8) | bufptr[5];
+	  break;
+        }
+
+       /*
+        * Skip past this marker...
+        */
+
+        bufptr ++;
+        bytes = (size_t)(bufend - bufptr);
+
+        while (length >= bytes)
+        {
+          length -= bytes;
+
+          if ((bytes = hcFileRead(file, buffer, sizeof(buffer))) == 0)
+            break;
+
+          bufptr = buffer;
+          bufend = buffer + bytes;
+        }
+
+        if (length > bytes)
+          break;
+
+        bufptr += length;
+      }
+    }
+
+    if (image->width == 0 || image->height == 0)
+    {
+      free(image);
+      return (NULL);
+    }
   }
   else
   {
