@@ -16,13 +16,16 @@ font project - see "Font Files" below.
 Image Files
 -----------
 
-Most of the image files are my original creation.  The "logo.gif" file is the
-original logo of a company I founded and later closed after 17 years when I
-went to work for Apple...
+All of the GIF and JPEG image files are my original creation.  The "logo.gif"
+file is the original logo of a company I founded and later closed after 17 years
+when I went to work for Apple.
 
 The PNG test images come from Willem van Schaik's
 [PngSuite](http://www.schaik.com/pngsuite/).  The license for these images can
 be found in the file "pngsuite-LICENSE.md".
+
+The SVG test images come from several sources - see the corresponding
+"xxx-LICENSE.md" files.
 
 
 Font Files
