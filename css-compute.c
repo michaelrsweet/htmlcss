@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2019 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -44,6 +44,7 @@ typedef struct _hc_css_match_s		/* Matching rule set */
 
 static int		hc_compare_matches(_hc_css_match_t *a, _hc_css_match_t *b);
 static const hc_dict_t	*hc_create_props(hc_node_t *node, hc_compute_t compute);
+static int		hc_get_color(const char *value, hc_color_t *color);
 static int		hc_match_node(hc_node_t *node, _hc_css_sel_t *sel, const char *pseudo_class);
 static int		hc_match_rule(hc_node_t *node, _hc_rule_t *rule, const char *pseudo_class);
 
@@ -58,11 +59,208 @@ hcNodeComputeCSSBox(
     hc_compute_t compute,		/* I - Pseudo-class, if any */
     hc_box_t     *box)			/* O - Box properties */
 {
-  (void)node;
-  (void)compute;
-  (void)box;
+  int			i;		/* Looping var */
+  const char		*value;		/* Property value */
+  const hc_dict_t	*props = hcNodeComputeCSSProperties(node, compute);
+					/* Properties */
+  static const char * const boxes[] =
+  {					/* background-clip/origin: values */
+    "border-box",
+    "padding-box",
+    "content-box"
+  };
 
-  return (0);
+
+  memset(box, 0, sizeof(hc_box_t));
+
+  if ((value = hcDictGetKeyValue(props, "min-width")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "min-height")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "max-width")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "max-height")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "background")) != NULL)
+  {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+
+    for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
+    {
+    }
+
+    free(temp);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "background-attachment")) != NULL)
+  {
+    if (!strcmp(value, "scroll"))
+      box->background_attachment = HC_BACKGROUND_ATTACHMENT_SCROLL;
+    else if (!strcmp(value, "fixed"))
+      box->background_attachment = HC_BACKGROUND_ATTACHMENT_FIXED;
+  }
+
+  if ((value = hcDictGetKeyValue(props, "background-clip")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(boxes) / sizeof(boxes[0])); i ++)
+    {
+      if (!strcmp(value, boxes[i]))
+      {
+        box->background_clip = (hc_background_box_t)i;
+        break;
+      }
+    }
+  }
+
+  if ((value = hcDictGetKeyValue(props, "background-color")) != NULL)
+  {
+    hc_get_color(value, &box->background_color);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "background-image")) != NULL)
+  {
+    box->background_image = value;
+  }
+
+  if ((value = hcDictGetKeyValue(props, "background-origin")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(boxes) / sizeof(boxes[0])); i ++)
+    {
+      if (!strcmp(value, boxes[i]))
+      {
+        box->background_origin = (hc_background_box_t)i;
+        break;
+      }
+    }
+  }
+
+  if ((value = hcDictGetKeyValue(props, "background-position")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "background-repeat")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "background-size")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-collapse")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-radius")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-spacing")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "box-shadow")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "break-after")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "break-before")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "break-inside")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "float")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "list-style")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "list-style-image")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "list-style-position")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "margin")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "margin-bottom")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "margin-left")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "margin-right")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "margin-top")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "orphans")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "overflow")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "padding")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "padding-bottom")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "padding-left")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "padding-right")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "padding-top")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "widows")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "z-index")) != NULL)
+  {
+  }
+
+  return (1);
 }
 
 
@@ -93,8 +291,36 @@ hcNodeComputeCSSDisplay(
     hc_node_t    *node,			/* I - HTML node */
     hc_compute_t compute)		/* I - Pseudo-class, if any */
 {
-  (void)node;
-  (void)compute;
+  int			i;		/* Looping var */
+  const char		*value;		/* Property value */
+  const hc_dict_t	*props = hcNodeComputeCSSProperties(node, compute);
+					/* Properties */
+  static const char	* const displays[] =
+  {					/* display: values */
+    "none",
+    "block",
+    "inline",
+    "inline-block",
+    "inline-table",
+    "list-item",
+    "table",
+    "table-caption",
+    "table-header-group",
+    "table-footer-group",
+    "table-row-group",
+    "table-row",
+    "table-column-group",
+    "table-column",
+    "table-cell"
+  };
+
+
+  if ((value = hcDictGetKeyValue(props, "display")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(displays) / sizeof(displays[0])); i ++)
+      if (!strcmp(value, displays[i]))
+        return ((hc_display_t)i);
+  }
 
   return (HC_DISPLAY_NONE);
 }
@@ -433,6 +659,184 @@ hc_create_props(hc_node_t    *node,	/* I - HTML node */
   _hcRuleColAdd(css, &css->all_rules, rule);
 
   return (props);
+}
+
+
+/*
+ * 'hc_get_color()' - Get the color for a named color.
+ */
+
+static int				/* O - 1 on success, 0 on failure */
+hc_get_color(const char *value,		/* I - Color string */
+             hc_color_t *color)		/* O - Color values */
+{
+  int		i;			/* Looping var */
+  char		*ptr;			/* Pointer into value */
+  hc_color_t	rgba;			/* Color values */
+  static struct
+  {
+    const char	*name;			/* Color name */
+    hc_color_t	rgba;			/* Color values */
+  }		colors[] =
+  {
+    { "black",		{ 0.0f, 0.0f, 0.0f, 1.0f } },
+    { "transparent",	{ 0.0f, 0.0f, 0.0f, 0.0f } },
+    { "aqua",		{ 0.0f, 1.0f, 1.0f, 1.0f } },
+    { "blue",		{ 0.0f, 0.0f, 1.0f, 1.0f } },
+    { "fuschia",	{ 1.0f, 0.0f, 1.0f, 1.0f } },
+    { "gray",		{ 0.5f, 0.5f, 0.5f, 1.0f } },
+    { "green",		{ 0.0f, 0.5f, 0.0f, 1.0f } },
+    { "lime",		{ 0.0f, 1.0f, 0.0f, 1.0f } },
+    { "maroon",		{ 0.5f, 0.0f, 0.0f, 1.0f } },
+    { "navy",		{ 0.0f, 0.0f, 0.5f, 1.0f } },
+    { "olive",		{ 0.5f, 0.5f, 0.0f, 1.0f } },
+    { "orange",		{ 1.0f, 0.65f, 0.0f, 1.0f } },
+    { "purple",		{ 0.5f, 0.0f, 0.5f, 1.0f } },
+    { "red",		{ 1.0f, 0.0f, 0.0f, 1.0f } },
+    { "silver",		{ 0.75f, 0.75f, 0.75f, 1.0f } },
+    { "teal",		{ 0.0f, 0.5f, 0.5f, 1.0f } },
+    { "white",		{ 1.0f, 1.0f, 1.0f, 1.0f } },
+    { "yellow",		{ 1.0f, 1.0f, 0.0f, 1.0f } }
+  };
+
+
+  if (!strncmp(value, "rgb(", 4))
+  {
+    rgba.red = (float)strtod(value + 4, &ptr);
+    if (*ptr == '%')
+    {
+      ptr ++;
+      rgba.red /= 100.0f;
+    }
+    else
+    {
+      rgba.red /= 255.0f;
+    }
+    if (*ptr != ',')
+      return (0);
+
+    rgba.green = (float)strtod(ptr + 1, &ptr);
+    if (*ptr == '%')
+    {
+      ptr ++;
+      rgba.green /= 100.0f;
+    }
+    else
+    {
+      rgba.green /= 255.0f;
+    }
+    if (*ptr != ',')
+      return (0);
+
+    rgba.blue = (float)strtod(ptr + 1, &ptr);
+    if (*ptr == '%')
+    {
+      ptr ++;
+      rgba.blue /= 100.0f;
+    }
+    else
+    {
+      rgba.blue /= 255.0f;
+    }
+    if (*ptr != ')')
+      return (0);
+
+    rgba.alpha = 1.0f;
+    *color     = rgba;
+
+    return (1);
+  }
+  else if (!strncmp(value, "rgba(", 5))
+  {
+    rgba.red = (float)strtod(value + 5, &ptr);
+    if (*ptr == '%')
+    {
+      ptr ++;
+      rgba.red /= 100.0f;
+    }
+    else
+    {
+      rgba.red /= 255.0f;
+    }
+    if (*ptr != ',')
+      return (0);
+
+    rgba.green = (float)strtod(ptr + 1, &ptr);
+    if (*ptr == '%')
+    {
+      ptr ++;
+      rgba.green /= 100.0f;
+    }
+    else
+    {
+      rgba.green /= 255.0f;
+    }
+    if (*ptr != ',')
+      return (0);
+
+    rgba.blue = (float)strtod(ptr + 1, &ptr);
+    if (*ptr == '%')
+    {
+      ptr ++;
+      rgba.blue /= 100.0f;
+    }
+    else
+    {
+      rgba.blue /= 255.0f;
+    }
+    if (*ptr != ',')
+      return (0);
+    rgba.alpha = (float)strtod(ptr + 1, &ptr);
+    if (*ptr == '%')
+    {
+      ptr ++;
+      rgba.alpha /= 100.0f;
+    }
+    if (*ptr != ')')
+      return (0);
+
+    *color = rgba;
+
+    return (1);
+  }
+  else if (*value == '#')
+  {
+    size_t	len = strlen(value);
+
+    if (len == 4 && (i = (int)strtol(value + 1, &ptr, 16)) >= 0 && !*ptr)
+    {
+      color->red   = ((i >> 8) & 15) / 15.0f;
+      color->green = ((i >> 4) & 15) / 15.0f;
+      color->blue  = (i & 15) / 15.0f;
+      color->alpha = 1.0f;
+
+      return (1);
+    }
+    else if (len == 7 && (i = (int)strtol(value + 1, &ptr, 16)) >= 0 && !*ptr)
+    {
+      color->red   = ((i >> 16) & 255) / 255.0f;
+      color->green = ((i >> 8) & 255) / 255.0f;
+      color->blue  = (i & 255) / 255.0f;
+      color->alpha = 1.0f;
+
+      return (1);
+    }
+    else
+      return (0);
+  }
+  else
+  {
+    for (i = 0; i < (int)(sizeof(colors) / sizeof(colors[0])); i ++)
+    {
+      if (!strcmp(value, colors[i].name))
+      {
+        *color = colors[i].rgba;
+        return (1);
+      }
+    }
+  }
+
+  return (0);
 }
 
 

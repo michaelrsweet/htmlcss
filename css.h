@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2019 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -44,9 +44,9 @@ typedef enum
 
 typedef enum
 {
-  HX_BACKGROUND_BOX_BORDER_BOX,
-  HX_BACKGROUND_BOX_PADDING_BOX,
-  HX_BACKGROUND_BOX_CONTENT_BOX
+  HC_BACKGROUND_BOX_BORDER_BOX,
+  HC_BACKGROUND_BOX_PADDING_BOX,
+  HC_BACKGROUND_BOX_CONTENT_BOX
 } hc_background_box_t;
 
 typedef enum
