@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd"> 
-  
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+
 <!--======================================================================-->
 <!--=  Copyright 2000, 2002 World Wide Web Consortium, (Massachusetts    =-->
 <!--=  Institute of Technology, Institut National de Recherche en        =-->
@@ -26,7 +26,7 @@
 
 
 <svg id="svg-root" width="80" height="60" viewBox="0 0 480 360"
-     xmlns="http://www.w3.org/2000/svg" 
+     xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink" >
 
    <title id="test-title">interact-order-03-b</title>
@@ -34,7 +34,7 @@
       File that just serves as hyperlink target for test case
       interact-order-03-b.svg.
    </desc>
-   
+
    <g>
       <text style="font-family:Helvetica;font-size:40; text-anchor:middle">
          <tspan x="240" y="40">
