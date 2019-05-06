@@ -1,5 +1,5 @@
-HTMLCSS v0.1
-============
+HTMLCSS
+=======
 
 HTMLCSS is a lightweight HTML/CSS parser written in C that allows applications
 to prepare a HTML document for rendering or conversion.  HTMLCSS is extremely
