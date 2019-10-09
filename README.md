@@ -21,7 +21,7 @@ Features include:
 
 - HTML 5 markup parser
 - CSS 3 stylesheet parser
-- OFC/OFF/TTC/TTF font file parser (metadata only)
+- OFC/OFF/TTC/TTF font file parser (metadata and metrics only)
 - GIF/JPG/PNG image file parser (metadata only)
 - Functions to calculate CSS properties for a given node in a HTML document
 - Functions to extract HTML "runs" consisting of CSS properties, content
