@@ -69,6 +69,13 @@ hcNodeComputeCSSBox(
     "padding-box",
     "content-box"
   };
+  static const char * const repeats[] =
+  {					/* background-repeat: values */
+    "no-repeat",
+    "repeat",
+    "repeat-x",
+    "repeat-y"
+  };
 
 
   memset(box, 0, sizeof(hc_box_t));
@@ -94,9 +101,71 @@ hcNodeComputeCSSBox(
     char	*temp = strdup(value),	/* Temporary copy of value */
 		*current,		/* Current value */
 		*next;			/* Next value */
+    int		first_box = 1,		/* First box value? */
+		pos_size = 0;		/* X/Y position/size */
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
+      if (!strcmp(current, "scroll"))
+      {
+	box->background_attachment = HC_BACKGROUND_ATTACHMENT_SCROLL;
+      }
+      else if (!strcmp(current, "fixed"))
+      {
+	box->background_attachment = HC_BACKGROUND_ATTACHMENT_FIXED;
+      }
+      else if (!strncmp(current, "url(", 4))
+      {
+        box->background_image = hcPoolGetString(node->value.element.html->pool, current);
+      }
+      else if (!strcmp(current, "/"))
+      {
+        pos_size = 2;
+      }
+      else if (isdigit(*current & 255))
+      {
+      }
+      else if (!strcmp(current, "auto"))
+      {
+      }
+      else if (!strcmp(current, "contain") && pos_size == 2)
+      {
+      }
+      else if (!strcmp(current, "cover") && pos_size == 2)
+      {
+      }
+      else if (!strcmp(current, ""))
+      {
+      }
+      else if (!strcmp(current, ""))
+      {
+      }
+      else if (!hc_get_color(current, &box->background_color))
+      {
+	for (i = 0; i < (int)(sizeof(boxes) / sizeof(boxes[0])); i ++)
+	{
+	  if (!strcmp(current, boxes[i]))
+	  {
+	    if (first_box)
+	    {
+	      box->background_origin = (hc_background_box_t)i;
+	      first_box              = 0;
+	    }
+
+	    box->background_clip = (hc_background_box_t)i;
+	    break;
+	  }
+	}
+
+	for (i = 0; i < (int)(sizeof(repeats) / sizeof(repeats[0])); i ++)
+	{
+	  if (!strcmp(current, repeats[i]))
+	  {
+	    box->background_repeat = (hc_background_repeat_t)i;
+	    break;
+	  }
+	}
+      }
     }
 
     free(temp);
@@ -150,6 +219,14 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "background-repeat")) != NULL)
   {
+    for (i = 0; i < (int)(sizeof(repeats) / sizeof(repeats[0])); i ++)
+    {
+      if (!strcmp(value, repeats[i]))
+      {
+        box->background_repeat = (hc_background_repeat_t)i;
+        break;
+      }
+    }
   }
 
   if ((value = hcDictGetKeyValue(props, "background-size")) != NULL)
