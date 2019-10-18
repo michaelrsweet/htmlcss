@@ -335,7 +335,7 @@
 		27B622A621BE9AE200397ABE /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1020;
+				LastUpgradeCheck = 1110;
 				ORGANIZATIONNAME = "Michael R Sweet";
 				TargetAttributes = {
 					27B622AD21BE9AE200397ABE = {
@@ -580,6 +580,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = RU58A2256H;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -590,6 +591,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = RU58A2256H;
 				PRODUCT_NAME = "$(TARGET_NAME)";
