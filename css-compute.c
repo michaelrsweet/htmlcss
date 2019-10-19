@@ -14,6 +14,7 @@
  */
 
 #  include "css-private.h"
+#  include "image.h"
 #  include <ctype.h>
 
 
@@ -45,6 +46,7 @@ typedef struct _hc_css_match_s		/* Matching rule set */
 static int		hc_compare_matches(_hc_css_match_t *a, _hc_css_match_t *b);
 static const hc_dict_t	*hc_create_props(hc_node_t *node, hc_compute_t compute);
 static int		hc_get_color(const char *value, hc_color_t *color);
+static float		hc_get_length(const char *value, float max_value, float text_value);
 static int		hc_match_node(hc_node_t *node, _hc_css_sel_t *sel, const char *pseudo_class);
 static int		hc_match_rule(hc_node_t *node, _hc_rule_t *rule, const char *pseudo_class);
 
@@ -61,8 +63,17 @@ hcNodeComputeCSSBox(
 {
   int			i;		/* Looping var */
   const char		*value;		/* Property value */
+  hc_pool_t		*pool = node->value.element.html->pool;
+					/* Memory pool */
+  hc_css_t		*css = node->value.element.html->css;
+					/* Stylesheet */
   const hc_dict_t	*props = hcNodeComputeCSSProperties(node, compute);
 					/* Properties */
+  const char		*bg_pos_size[4] =
+  {					/* Background position/size values (late binding) */
+    NULL, NULL,				/* X, Y */
+    NULL, NULL				/* WIDTH, HEIGHT */
+  };
   static const char * const boxes[] =
   {					/* background-clip/origin: values */
     "border-box",
@@ -80,6 +91,10 @@ hcNodeComputeCSSBox(
 
   memset(box, 0, sizeof(hc_box_t));
 
+ /*
+  * Size constraint values...
+  */
+
   if ((value = hcDictGetKeyValue(props, "min-width")) != NULL)
   {
   }
@@ -95,6 +110,10 @@ hcNodeComputeCSSBox(
   if ((value = hcDictGetKeyValue(props, "max-height")) != NULL)
   {
   }
+
+ /*
+  * Background values (just a single background image is currently supported)
+  */
 
   if ((value = hcDictGetKeyValue(props, "background")) != NULL)
   {
@@ -116,7 +135,10 @@ hcNodeComputeCSSBox(
       }
       else if (!strncmp(current, "url(", 4))
       {
-        box->background_image = hcPoolGetString(node->value.element.html->pool, current);
+        char	url[1024];		/* URL string */
+
+        if (sscanf(current, "url(%1023s)", url) == 1)
+          box->background_image = hcPoolGetString(pool, url);
       }
       else if (!strcmp(current, "/"))
       {
@@ -124,21 +146,44 @@ hcNodeComputeCSSBox(
       }
       else if (isdigit(*current & 255))
       {
+        if (pos_size < 4)
+          bg_pos_size[pos_size] = hcPoolGetString(pool, current);
+
+        pos_size ++;
       }
       else if (!strcmp(current, "auto"))
       {
+        if (pos_size < 2)
+          pos_size = 2;
+
+        if (pos_size == 2)
+          bg_pos_size[2] = bg_pos_size[3] = hcPoolGetString(pool, current);
+        else
+          bg_pos_size[3] = hcPoolGetString(pool, current);
+
+        pos_size ++;
       }
-      else if (!strcmp(current, "contain") && pos_size == 2)
+      else if (!strcmp(current, "bottom") || !strcmp(current, "top"))
       {
+        bg_pos_size[1] = hcPoolGetString(pool, current);
       }
-      else if (!strcmp(current, "cover") && pos_size == 2)
+      else if (!strcmp(current, "center"))
       {
+        if (pos_size == 0)
+          bg_pos_size[0] = bg_pos_size[1] = hcPoolGetString(pool, current);
+        else if (pos_size == 1)
+          bg_pos_size[1] = hcPoolGetString(pool, current);
+
+        pos_size ++;
       }
-      else if (!strcmp(current, ""))
+      else if ((!strcmp(current, "contain") || !strcmp(current, "cover")) && pos_size == 2)
       {
+        bg_pos_size[2] = bg_pos_size[3] = hcPoolGetString(pool, current);
+        pos_size       = 4;
       }
-      else if (!strcmp(current, ""))
+      else if (!strcmp(current, "left") || !strcmp(current, "right"))
       {
+        bg_pos_size[0] = hcPoolGetString(pool, current);
       }
       else if (!hc_get_color(current, &box->background_color))
       {
@@ -198,7 +243,10 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "background-image")) != NULL)
   {
-    box->background_image = value;
+    char	url[1024];		/* URL string */
+
+    if (sscanf(value, "url(%1023s)", url) == 1)
+      box->background_image = hcPoolGetString(node->value.element.html->pool, url);
   }
 
   if ((value = hcDictGetKeyValue(props, "background-origin")) != NULL)
@@ -215,6 +263,40 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "background-position")) != NULL)
   {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		pos_size = 0;		/* X/Y position/size */
+
+    for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
+    {
+      if (isdigit(*current & 255))
+      {
+        if (pos_size < 2)
+          bg_pos_size[pos_size] = hcPoolGetString(pool, current);
+
+        pos_size ++;
+      }
+      else if (!strcmp(current, "bottom") || !strcmp(current, "top"))
+      {
+        bg_pos_size[1] = hcPoolGetString(pool, current);
+      }
+      else if (!strcmp(current, "center"))
+      {
+        if (pos_size == 0)
+          bg_pos_size[0] = bg_pos_size[1] = hcPoolGetString(pool, current);
+        else if (pos_size == 1)
+          bg_pos_size[1] = hcPoolGetString(pool, current);
+
+        pos_size ++;
+      }
+      else if (!strcmp(current, "left") || !strcmp(current, "right"))
+      {
+        bg_pos_size[0] = hcPoolGetString(pool, current);
+      }
+    }
+
+    free(temp);
   }
 
   if ((value = hcDictGetKeyValue(props, "background-repeat")) != NULL)
@@ -231,7 +313,119 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "background-size")) != NULL)
   {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		pos_size = 2;		/* X/Y position/size */
+
+    for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
+    {
+      if (isdigit(*current & 255))
+      {
+        if (pos_size < 4)
+          bg_pos_size[pos_size] = hcPoolGetString(pool, current);
+
+        pos_size ++;
+      }
+      else if (!strcmp(current, "auto"))
+      {
+        if (pos_size == 2)
+          bg_pos_size[2] = bg_pos_size[3] = hcPoolGetString(pool, current);
+        else
+          bg_pos_size[3] = hcPoolGetString(pool, current);
+
+        pos_size ++;
+      }
+      else if ((!strcmp(current, "contain") || !strcmp(current, "cover")) && pos_size == 2)
+      {
+        bg_pos_size[2] = bg_pos_size[3] = hcPoolGetString(pool, current);
+        pos_size       = 4;
+      }
+    }
+
+    free(temp);
   }
+
+  if (box->background_image)
+  {
+    hc_file_t *bg_file  = hcFileNewURL(pool, box->background_image, NULL /* TODO: Track dirname of parent document */);
+    hc_image_t *bg_image = hcImageNew(pool, bg_file);
+    hc_size_t bg_size = hcImageGetSize(bg_image);
+
+    if (bg_pos_size[2] && bg_size.width > 0.0 && bg_size.height > 0.0)
+    {
+      if (!strcmp(bg_pos_size[2], "auto"))
+      {
+	box->background_size.width = bg_size.width;
+      }
+      if (!strcmp(bg_pos_size[2], "contain"))
+      {
+        float temp = css->media.size.width * bg_size.height / bg_size.width;
+
+        if (temp < css->media.size.height)
+          box->background_size.width = css->media.size.width;
+        else
+          box->background_size.width = css->media.size.height * bg_size.width / bg_size.height;
+      }
+      else if (!strcmp(bg_pos_size[2], "cover"))
+      {
+        float temp = css->media.size.width * bg_size.height / bg_size.width;
+
+        if (temp >= css->media.size.height)
+          box->background_size.width = css->media.size.width;
+        else
+          box->background_size.width = css->media.size.height * bg_size.width / bg_size.height;
+      }
+      else if (isdigit(bg_pos_size[2][0] & 255))
+      {
+        box->background_size.width = hc_get_length(bg_pos_size[2], css->media.size.width, 12.0);
+
+        if (!bg_pos_size[3])
+          box->background_size.height = box->background_size.width * bg_size.height / bg_size.width;
+      }
+    }
+    else
+      box->background_size.width = bg_size.width;
+
+    if (bg_pos_size[3] && bg_size.width > 0.0 && bg_size.height > 0.0)
+    {
+      if (!strcmp(bg_pos_size[3], "auto"))
+      {
+	box->background_size.height = bg_size.height;
+      }
+      if (!strcmp(bg_pos_size[3], "contain"))
+      {
+        float temp = css->media.size.height * bg_size.width / bg_size.height;
+
+        if (temp < css->media.size.width)
+          box->background_size.height = css->media.size.height;
+        else
+          box->background_size.height = css->media.size.width * bg_size.height / bg_size.width;
+      }
+      else if (!strcmp(bg_pos_size[3], "cover"))
+      {
+        float temp = css->media.size.height * bg_size.width / bg_size.height;
+
+        if (temp > css->media.size.width)
+          box->background_size.height = css->media.size.height;
+        else
+          box->background_size.height = css->media.size.width * bg_size.height / bg_size.width;
+      }
+      else if (isdigit(bg_pos_size[3][0] & 255))
+      {
+        box->background_size.height = hc_get_length(bg_pos_size[3], css->media.size.height, 12.0);
+
+        if (!bg_pos_size[2])
+          box->background_size.width = box->background_size.height * bg_size.width / bg_size.height;
+      }
+    }
+    else if (box->background_size.height == 0.0)
+      box->background_size.height = bg_size.height;
+  }
+
+ /*
+  * Border values...
+  */
 
   if ((value = hcDictGetKeyValue(props, "border")) != NULL)
   {
@@ -914,6 +1108,72 @@ hc_get_color(const char *value,		/* I - Color string */
   }
 
   return (0);
+}
+
+
+/*
+ * 'hc_get_length()' - Get a length/measurement value.
+ */
+
+static float				/* O - Value in points or 0.0 on error */
+hc_get_length(const char *value,	/* I - Value string */
+              float      max_value,	/* I - Maximum value for percentages */
+              float      text_value)	/* I - Text height/width */
+{
+  char		*ptr;			/* Pointer to units after value */
+  double	temp = strtod(value, &ptr);
+					/* Interim value */
+
+  if (ptr)
+  {
+    if (!strcmp(ptr, "%"))
+      temp *= 0.01 * max_value;
+    else if (!strcmp(ptr, "ch"))
+      temp *= text_value;	/* TODO: Need real '0' width */
+    else if (!strcmp(ptr, "cm"))
+      temp *= 72.0 / 2.54;
+    else if (!strcmp(ptr, "em"))
+      temp *= text_value;	/* TODO: Need real 'M' width/height */
+    else if (!strcmp(ptr, "ex"))
+      temp *= text_value;	/* TODO: Need real 'x' height */
+    else if (!strcmp(ptr, "in"))
+      temp *= 72.0;
+    else if (!strcmp(ptr, "mm"))
+      temp *= 72.0 / 25.4;
+    else if (!strcmp(ptr, "pc"))
+      temp *= 72.0 / 6.0;
+    else if (!strcmp(ptr, "px"))
+      temp *= 72.0 / 96.0;
+    else if (!strcmp(ptr, "Q"))	/* Quarter-millimeters */
+      temp *= 72.0 / 25.4 / 4.0;
+    else if (!strcmp(ptr, "vh"))
+      temp *= 0.01 * 792.0;	/* TODO: Use media height */
+    else if (!strcmp(ptr, "vmax"))
+    {
+      // if (width > height)
+      //   temp *= 0.01 * width;
+      // else
+      //   temp *= 0.01 * height
+      temp *= 0.01 * 792.0;	/* TODO: Use media height */
+    }
+    else if (!strcmp(ptr, "vmin"))
+    {
+      // if (width < height)
+      //   temp *= 0.01 * width;
+      // else
+      //   temp *= 0.01 * height
+      temp *= 0.01 * 612.0;	/* TODO: Use media width */
+    }
+    else if (!strcmp(ptr, "vw"))
+      temp *= 0.01 * 612.0;	/* TODO: Use media width */
+    else if (strcmp(ptr, "pt"))
+    {
+      /* TODO: Show error */
+      temp = 0.0;
+    }
+  }
+
+  return ((float)temp);
 }
 
 
