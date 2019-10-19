@@ -67,6 +67,7 @@ struct _hc_html_s
  * Private functions...
  */
 
+extern int		_hcNodeComputeCSSTextFont(hc_node_t *node, const hc_dict_t *props, hc_text_t *text);
 extern hc_element_t	_hcElementLookup(const char *s);
 extern hc_node_t	*_hcNodeNewUnknown(hc_node_t *parent, const char *unk);
 

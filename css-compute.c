@@ -14,6 +14,7 @@
  */
 
 #  include "css-private.h"
+#  include "font-private.h"
 #  include "image.h"
 #  include <ctype.h>
 
@@ -46,7 +47,7 @@ typedef struct _hc_css_match_s		/* Matching rule set */
 static int		hc_compare_matches(_hc_css_match_t *a, _hc_css_match_t *b);
 static const hc_dict_t	*hc_create_props(hc_node_t *node, hc_compute_t compute);
 static int		hc_get_color(const char *value, hc_color_t *color);
-static float		hc_get_length(const char *value, float max_value, float text_value);
+static float		hc_get_length(const char *value, float max_value, hc_css_t *css, hc_text_t *text);
 static int		hc_match_node(hc_node_t *node, _hc_css_sel_t *sel, const char *pseudo_class);
 static int		hc_match_rule(hc_node_t *node, _hc_rule_t *rule, const char *pseudo_class);
 
@@ -69,6 +70,7 @@ hcNodeComputeCSSBox(
 					/* Stylesheet */
   const hc_dict_t	*props = hcNodeComputeCSSProperties(node, compute);
 					/* Properties */
+  hc_text_t		text;		/* Text font properties */
   const char		*bg_pos_size[4] =
   {					/* Background position/size values (late binding) */
     NULL, NULL,				/* X, Y */
@@ -90,6 +92,8 @@ hcNodeComputeCSSBox(
 
 
   memset(box, 0, sizeof(hc_box_t));
+
+  _hcNodeComputeCSSTextFont(node, props, &text);
 
  /*
   * Size constraint values...
@@ -144,7 +148,7 @@ hcNodeComputeCSSBox(
       {
         pos_size = 2;
       }
-      else if (isdigit(*current & 255))
+      else if (strchr("0123456789-.", *current))
       {
         if (pos_size < 4)
           bg_pos_size[pos_size] = hcPoolGetString(pool, current);
@@ -270,7 +274,7 @@ hcNodeComputeCSSBox(
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
-      if (isdigit(*current & 255))
+      if (strchr("0123456789-.", *current))
       {
         if (pos_size < 2)
           bg_pos_size[pos_size] = hcPoolGetString(pool, current);
@@ -320,7 +324,7 @@ hcNodeComputeCSSBox(
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
-      if (isdigit(*current & 255))
+      if (strchr("0123456789-.", *current))
       {
         if (pos_size < 4)
           bg_pos_size[pos_size] = hcPoolGetString(pool, current);
@@ -376,9 +380,9 @@ hcNodeComputeCSSBox(
         else
           box->background_size.width = css->media.size.height * bg_size.width / bg_size.height;
       }
-      else if (isdigit(bg_pos_size[2][0] & 255))
+      else if (strchr("0123456789-.", bg_pos_size[2][0]))
       {
-        box->background_size.width = hc_get_length(bg_pos_size[2], css->media.size.width, 12.0);
+        box->background_size.width = hc_get_length(bg_pos_size[2], css->media.size.width, css, &text);
 
         if (!bg_pos_size[3])
           box->background_size.height = box->background_size.width * bg_size.height / bg_size.width;
@@ -411,9 +415,9 @@ hcNodeComputeCSSBox(
         else
           box->background_size.height = css->media.size.width * bg_size.height / bg_size.width;
       }
-      else if (isdigit(bg_pos_size[3][0] & 255))
+      else if (strchr("0123456789-.", bg_pos_size[3][0]))
       {
-        box->background_size.height = hc_get_length(bg_pos_size[3], css->media.size.height, 12.0);
+        box->background_size.height = hc_get_length(bg_pos_size[3], css->media.size.height, css, &text);
 
         if (!bg_pos_size[2])
           box->background_size.width = box->background_size.height * bg_size.width / bg_size.height;
@@ -421,6 +425,30 @@ hcNodeComputeCSSBox(
     }
     else if (box->background_size.height == 0.0)
       box->background_size.height = bg_size.height;
+
+    if (bg_pos_size[0])
+    {
+      if (!strcmp(bg_pos_size[0], "left"))
+        box->background_position.left = 0.0f;
+      else if (!strcmp(bg_pos_size[0], "center"))
+        box->background_position.left = 0.5f * (css->media.size.width - bg_size.width);
+      else if (!strcmp(bg_pos_size[0], "right"))
+        box->background_position.left = css->media.size.width - bg_size.width;
+      else if (strchr("0123456789-.", bg_pos_size[0][0]))
+        box->background_position.left = hc_get_length(bg_pos_size[0], css->media.size.width - bg_size.width, css, &text);
+    }
+
+    if (bg_pos_size[1])
+    {
+      if (!strcmp(bg_pos_size[0], "top"))
+        box->background_position.top = 0.0f;
+      else if (!strcmp(bg_pos_size[0], "center"))
+        box->background_position.top = 0.5f * (css->media.size.height - bg_size.height);
+      else if (!strcmp(bg_pos_size[0], "bottom"))
+        box->background_position.top = css->media.size.height - bg_size.height;
+      else if (strchr("0123456789-.", bg_pos_size[0][0]))
+        box->background_position.top = hc_get_length(bg_pos_size[0], css->media.size.height - bg_size.height, css, &text);
+    }
   }
 
  /*
@@ -675,6 +703,26 @@ hcNodeComputeCSSText(
   (void)node;
   (void)compute;
   (void)text;
+
+  return (0);
+}
+
+
+/*
+ * '_hcNodeComputeCSSTextFont()' - Compute the text font properties for the
+ *                                 given HTML node.
+ */
+
+int					/* O - 1 on success, 0 on failure */
+_hcNodeComputeCSSTextFont(
+    hc_node_t       *node,		/* I - HTML node */
+    const hc_dict_t *props,		/* I - Property dictionary */
+    hc_text_t       *text)		/* O - Text properties */
+{
+  (void)node;
+  (void)props;
+
+  memset(text, 0, sizeof(hc_text_t));
 
   return (0);
 }
@@ -1118,7 +1166,8 @@ hc_get_color(const char *value,		/* I - Color string */
 static float				/* O - Value in points or 0.0 on error */
 hc_get_length(const char *value,	/* I - Value string */
               float      max_value,	/* I - Maximum value for percentages */
-              float      text_value)	/* I - Text height/width */
+              hc_css_t   *css,		/* I - Stylesheet */
+              hc_text_t  *text)		/* I - Text properties */
 {
   char		*ptr;			/* Pointer to units after value */
   double	temp = strtod(value, &ptr);
@@ -1129,13 +1178,18 @@ hc_get_length(const char *value,	/* I - Value string */
     if (!strcmp(ptr, "%"))
       temp *= 0.01 * max_value;
     else if (!strcmp(ptr, "ch"))
-      temp *= text_value;	/* TODO: Need real '0' width */
+    {
+      hc_rect_t	extents;		/* Font extents */
+
+      hcFontComputeExtents(text->font, text->font_size, "0", &extents);
+      temp *= extents.right;
+    }
     else if (!strcmp(ptr, "cm"))
       temp *= 72.0 / 2.54;
     else if (!strcmp(ptr, "em"))
-      temp *= text_value;	/* TODO: Need real 'M' width/height */
+      temp *= text->font_size;
     else if (!strcmp(ptr, "ex"))
-      temp *= text_value;	/* TODO: Need real 'x' height */
+      temp *= text->font_size * text->font->x_height / text->font->units;
     else if (!strcmp(ptr, "in"))
       temp *= 72.0;
     else if (!strcmp(ptr, "mm"))
@@ -1147,25 +1201,23 @@ hc_get_length(const char *value,	/* I - Value string */
     else if (!strcmp(ptr, "Q"))	/* Quarter-millimeters */
       temp *= 72.0 / 25.4 / 4.0;
     else if (!strcmp(ptr, "vh"))
-      temp *= 0.01 * 792.0;	/* TODO: Use media height */
+      temp *= 0.01 * css->media.size.height;
     else if (!strcmp(ptr, "vmax"))
     {
-      // if (width > height)
-      //   temp *= 0.01 * width;
-      // else
-      //   temp *= 0.01 * height
-      temp *= 0.01 * 792.0;	/* TODO: Use media height */
+      if (css->media.size.width > css->media.size.height)
+        temp *= 0.01 * css->media.size.width;
+      else
+        temp *= 0.01 * css->media.size.height;
     }
     else if (!strcmp(ptr, "vmin"))
     {
-      // if (width < height)
-      //   temp *= 0.01 * width;
-      // else
-      //   temp *= 0.01 * height
-      temp *= 0.01 * 612.0;	/* TODO: Use media width */
+      if (css->media.size.width < css->media.size.height)
+        temp *= 0.01 * css->media.size.width;
+      else
+        temp *= 0.01 * css->media.size.height;
     }
     else if (!strcmp(ptr, "vw"))
-      temp *= 0.01 * 612.0;	/* TODO: Use media width */
+      temp *= 0.01 * css->media.size.width;
     else if (strcmp(ptr, "pt"))
     {
       /* TODO: Show error */

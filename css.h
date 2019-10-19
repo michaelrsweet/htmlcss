@@ -330,6 +330,7 @@ typedef struct hc_table_s		/* CSS table properties */
 typedef struct hc_text_s		/* CSS text properties */
 {
   hc_direction_t	direction;
+  hc_font_t		*font;		/* Loaded font */
   const char		*font_family;
   float			font_size;
   hc_font_style_t	font_style;
