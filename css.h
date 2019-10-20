@@ -333,6 +333,8 @@ typedef struct hc_text_s		/* CSS text properties */
   hc_font_t		*font;		/* Loaded font */
   const char		*font_family;
   float			font_size;
+  float			font_size_adjust;
+  hc_font_stretch_t	font_stretch;
   hc_font_style_t	font_style;
   hc_font_variant_t	font_variant;
   hc_font_weight_t	font_weight;

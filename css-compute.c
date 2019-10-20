@@ -47,7 +47,7 @@ typedef struct _hc_css_match_s		/* Matching rule set */
 static int		hc_compare_matches(_hc_css_match_t *a, _hc_css_match_t *b);
 static const hc_dict_t	*hc_create_props(hc_node_t *node, hc_compute_t compute);
 static int		hc_get_color(const char *value, hc_color_t *color);
-static float		hc_get_length(const char *value, float max_value, hc_css_t *css, hc_text_t *text);
+static float		hc_get_length(const char *value, float max_value, float multiplier, hc_css_t *css, hc_text_t *text);
 static int		hc_match_node(hc_node_t *node, _hc_css_sel_t *sel, const char *pseudo_class);
 static int		hc_match_rule(hc_node_t *node, _hc_rule_t *rule, const char *pseudo_class);
 
@@ -91,7 +91,13 @@ hcNodeComputeCSSBox(
   };
 
 
+  if (!box)
+    return (0);
+
   memset(box, 0, sizeof(hc_box_t));
+
+  if (!node)
+    return (0);
 
   _hcNodeComputeCSSTextFont(node, props, &text);
 
@@ -382,7 +388,7 @@ hcNodeComputeCSSBox(
       }
       else if (strchr("0123456789-.", bg_pos_size[2][0]))
       {
-        box->background_size.width = hc_get_length(bg_pos_size[2], css->media.size.width, css, &text);
+        box->background_size.width = hc_get_length(bg_pos_size[2], css->media.size.width, 72.0f / 96.0f, css, &text);
 
         if (!bg_pos_size[3])
           box->background_size.height = box->background_size.width * bg_size.height / bg_size.width;
@@ -417,7 +423,7 @@ hcNodeComputeCSSBox(
       }
       else if (strchr("0123456789-.", bg_pos_size[3][0]))
       {
-        box->background_size.height = hc_get_length(bg_pos_size[3], css->media.size.height, css, &text);
+        box->background_size.height = hc_get_length(bg_pos_size[3], css->media.size.height, 72.0f / 96.0f, css, &text);
 
         if (!bg_pos_size[2])
           box->background_size.width = box->background_size.height * bg_size.width / bg_size.height;
@@ -435,7 +441,7 @@ hcNodeComputeCSSBox(
       else if (!strcmp(bg_pos_size[0], "right"))
         box->background_position.left = css->media.size.width - bg_size.width;
       else if (strchr("0123456789-.", bg_pos_size[0][0]))
-        box->background_position.left = hc_get_length(bg_pos_size[0], css->media.size.width - bg_size.width, css, &text);
+        box->background_position.left = hc_get_length(bg_pos_size[0], css->media.size.width - bg_size.width, 72.0f / 96.0f, css, &text);
     }
 
     if (bg_pos_size[1])
@@ -447,7 +453,7 @@ hcNodeComputeCSSBox(
       else if (!strcmp(bg_pos_size[0], "bottom"))
         box->background_position.top = css->media.size.height - bg_size.height;
       else if (strchr("0123456789-.", bg_pos_size[0][0]))
-        box->background_position.top = hc_get_length(bg_pos_size[0], css->media.size.height - bg_size.height, css, &text);
+        box->background_position.top = hc_get_length(bg_pos_size[0], css->media.size.height - bg_size.height, 72.0f / 96.0f, css, &text);
     }
   }
 
@@ -700,9 +706,201 @@ hcNodeComputeCSSText(
     hc_compute_t compute,		/* I - Pseudo-class, if any */
     hc_text_t    *text)			/* O - Text properties */
 {
-  (void)node;
-  (void)compute;
-  (void)text;
+  int			i;		/* Looping var */
+  const char		*value;		/* Property value */
+  hc_pool_t		*pool = node->value.element.html->pool;
+					/* Memory pool */
+  hc_css_t		*css = node->value.element.html->css;
+					/* Stylesheet */
+  const hc_dict_t	*props = hcNodeComputeCSSProperties(node, compute);
+					/* Properties */
+  static const char * const aligns[] =	/* text-align: values */
+  {
+    "left",
+    "right",
+    "center",
+    "justify"
+  };
+  static const char * const decorations[] =
+  {					/* text-decoration: values */
+    "none",
+    "underline",
+    "overline",
+    "line-through"
+  };
+  static const char * const transforms[] =
+  {					/* text-transform: values */
+    "none",
+    "capitalize",
+    "lowercase",
+    "uppercase"
+  };
+  static const char * const unicode_bidis[] =
+  {					/* unicode-bidi: values */
+    "normal",
+    "embed",
+    "override"
+  };
+  static const char * const white_spaces[] =
+  {					/* white-space: values */
+    "normal",
+    "nowrap",
+    "pre",
+    "pre-line",
+    "pre-wrap"
+  };
+
+
+  if (!text)
+    return (0);
+
+  if (!_hcNodeComputeCSSTextFont(node, props, text))
+    return (0);
+
+  if (!node)
+    return (0);
+
+  if ((value = hcDictGetKeyValue(props, "direction")) != NULL)
+  {
+    if (!strcmp(value, "ltr"))
+      text->direction = HC_DIRECTION_LTR;
+    else if (!strcmp(value, "rtl"))
+      text->direction = HC_DIRECTION_RTL;
+  }
+
+  if ((value = hcDictGetKeyValue(props, "letter-spacing")) != NULL)
+  {
+    if (!strcmp(value, "normal"))
+      text->letter_spacing = 0.0f;
+    else
+      text->letter_spacing = hc_get_length(value, css->media.size.width, 72.0f / 96.0f, css, text);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "quotes")) != NULL)
+  {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next,			/* Next value */
+		sep;			/* Separator character */
+    int		quotes_pos = 0;		/* quotes: position */
+
+    for (current = temp; *current && quotes_pos < 4; current = next)
+    {
+     /*
+      * Extract one value...
+      */
+
+      while (isspace(*current & 255) && *current)
+        current ++;
+
+      if (!*current)
+        break;
+
+      for (next = current; *next; next ++)
+      {
+        if (isspace(*next & 255))
+          break;
+	else if (*next == '\'' || *next == '\"')
+	{
+	  int quote = *next++;
+
+          while (*next)
+          {
+            if (*next == quote)
+	      break;
+	    else
+	      next ++;
+	  }
+	}
+      }
+
+      sep   = *next;
+      *next = '\0';
+
+      if (*current == '\'' || *current == '\"')
+        current ++;
+
+      text->quotes[quotes_pos ++] = hcPoolGetString(pool, current);
+
+      *next = sep;
+
+      if (sep == '\'' || sep == '\"')
+        next ++;
+    }
+
+    free(temp);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "text-align")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(aligns) / sizeof(aligns[0])); i ++)
+    {
+      if (!strcmp(value, aligns[i]))
+      {
+        text->text_align = (hc_text_align_t)i;
+        break;
+      }
+    }
+  }
+
+  if ((value = hcDictGetKeyValue(props, "text-decoration")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(decorations) / sizeof(decorations[0])); i ++)
+    {
+      if (!strcmp(value, decorations[i]))
+      {
+        text->text_decoration = (hc_text_decoration_t)i;
+        break;
+      }
+    }
+  }
+
+  if ((value = hcDictGetKeyValue(props, "text-indent")) != NULL)
+    text->text_indent = hc_get_length(value, css->media.size.width, 72.0f / 96.0f, css, text);
+
+  if ((value = hcDictGetKeyValue(props, "text-transform")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(transforms) / sizeof(transforms[0])); i ++)
+    {
+      if (!strcmp(value, transforms[i]))
+      {
+        text->text_transform = (hc_text_transform_t)i;
+        break;
+      }
+    }
+  }
+
+  if ((value = hcDictGetKeyValue(props, "unicode-bidi")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(unicode_bidis) / sizeof(unicode_bidis[0])); i ++)
+    {
+      if (!strcmp(value, unicode_bidis[i]))
+      {
+        text->unicode_bidi = (hc_unicode_bidi_t)i;
+        break;
+      }
+    }
+  }
+
+  if ((value = hcDictGetKeyValue(props, "white-space")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(white_spaces) / sizeof(white_spaces[0])); i ++)
+    {
+      if (!strcmp(value, white_spaces[i]))
+      {
+        text->white_space = (hc_white_space_t)i;
+        break;
+      }
+    }
+  }
+
+  if ((value = hcDictGetKeyValue(props, "word-spacing")) != NULL)
+  {
+    if (!strcmp(value, "normal"))
+      text->word_spacing = 0.0f;
+    else
+      text->word_spacing = hc_get_length(value, css->media.size.width, 72.0f / 96.0f, css, text);
+  }
 
   return (0);
 }
@@ -719,12 +917,274 @@ _hcNodeComputeCSSTextFont(
     const hc_dict_t *props,		/* I - Property dictionary */
     hc_text_t       *text)		/* O - Text properties */
 {
-  (void)node;
-  (void)props;
+  int			i;		/* Looping var */
+  const char		*value;		/* Property value */
+  hc_pool_t		*pool = node->value.element.html->pool;
+					/* Memory pool */
+  hc_css_t		*css = node->value.element.html->css;
+					/* Stylesheet */
+  static const char * const stretches[] =
+  {					/* font-stretch: values */
+    "ultra-condensed",
+    "extra-condensed",
+    "condensed",
+    "semi-condensed",
+    "normal",
+    "semi-expanded",
+    "expanded",
+    "extra-expanded",
+    "ultra-expanded"
+  };
+  static const char * const styles[] =
+  {					/* font-style: values */
+    "normal",
+    "italic",
+    "oblique"
+  };
+
 
   memset(text, 0, sizeof(hc_text_t));
 
-  return (0);
+  if (!node)
+    return (0);
+
+  if ((value = hcDictGetKeyValue(props, "font")) != NULL)
+  {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next,			/* Next value */
+		sep;			/* Separator character */
+    int		saw_slash = 0,		/* Did we see a slash? */
+		font_pos = 0;		/* Position within the font value */
+
+    for (current = temp; *current; current = next)
+    {
+     /*
+      * Extract one value...
+      */
+
+      int	saw_comma = 0;		/* Saw a comma? */
+
+      while (isspace(*current & 255) && *current)
+        current ++;
+
+      if (!*current)
+        break;
+
+      for (next = current; *next; next ++)
+      {
+        if (isspace(*next & 255) && !saw_comma)
+          break;
+	else if (*next == ',')
+	  saw_comma = 1;
+	else if (*next == '/')
+	{
+	  if (next == current)
+	    next ++;
+	  break;
+	}
+	else if (*next == '\'' || *next == '\"')
+	{
+	  int quote = *next++;
+
+	  saw_comma = 0;
+
+          while (*next)
+          {
+            if (*next == quote)
+	    {
+	      next ++;
+	      break;
+	    }
+	    else
+	      next ++;
+	  }
+	}
+	else
+	  saw_comma = 0;
+      }
+
+      sep   = *next;
+      *next = '\0';
+
+     /*
+      * Decode...
+      */
+
+      if (*current == '\"' || *current == '\'' || !strcmp(current, "cursive") || !strcmp(current, "fantasy") || !strcmp(current, "monospace") || !strcmp(current, "sans-serif") || !strcmp(current, "serif"))
+        text->font_family = hcPoolGetString(pool, current);
+      else if (!strcmp(current, "normal"))
+      {
+        if (font_pos == 0)
+          text->font_style = HC_FONT_STYLE_NORMAL;
+	else if (font_pos == 1)
+          text->font_variant = HC_FONT_VARIANT_NORMAL;
+	else if (font_pos == 2)
+          text->font_weight = HC_FONT_WEIGHT_NORMAL;
+	else if (font_pos == 3)
+          text->font_stretch = HC_FONT_STRETCH_NORMAL;
+	else
+          text->line_height = text->font_size * 1.2f;
+      }
+      else if (!strcmp(current, "small-caps"))
+        text->font_variant = HC_FONT_VARIANT_SMALL_CAPS;
+      else if (!strcmp(current, "bold"))
+	text->font_weight = HC_FONT_WEIGHT_BOLD;
+      else if (!strcmp(current, "bolder"))
+	text->font_weight = HC_FONT_WEIGHT_BOLDER;
+      else if (!strcmp(current, "lighter"))
+	text->font_weight = HC_FONT_WEIGHT_LIGHTER;
+      else if (*current >= '1' && *current <= '9' && current[1] == '0' && current[2] == '0' && !current[3])
+	text->font_weight = (hc_font_weight_t)atoi(current);
+      else if (!strcmp(current, "xx-small"))
+	text->font_size = 7.0f;
+      else if (!strcmp(current, "x-small"))
+	text->font_size = 9.0f;
+      else if (!strcmp(current, "small"))
+	text->font_size = 10.0f;
+      else if (!strcmp(current, "smaller"))
+	text->font_size = 10.0f;	/* TODO: Need parent size */
+      else if (!strcmp(current, "medium"))
+	text->font_size = 12.0f;
+      else if (!strcmp(current, "large"))
+	text->font_size = 14.0f;
+      else if (!strcmp(current, "larger"))
+	text->font_size = 14.0f;	/* TODO: Need parent size */
+      else if (!strcmp(current, "x-large"))
+	text->font_size = 18.0f;
+      else if (!strcmp(current, "xx-large"))
+	text->font_size = 24.0f;
+      else if (strchr("0123456789.", *current))
+      {
+        if (saw_slash)
+          text->line_height = hc_get_length(current, text->font_size, text->font_size, css, text);
+        else
+          text->font_size = hc_get_length(current, 12.0f, 72.0f / 96.0f, css, NULL); /* TODO: Need proper max value */
+      }
+      else
+      {
+	for (i = 0; i < (int)(sizeof(stretches) / sizeof(stretches[0])); i ++)
+	{
+	  if (!strcmp(current, stretches[i]))
+	  {
+	    text->font_stretch = (hc_font_stretch_t)i;
+	    break;
+	  }
+	}
+
+	for (i = 0; i < (int)(sizeof(styles) / sizeof(styles[0])); i ++)
+	{
+	  if (!strcmp(current, styles[i]))
+	  {
+	    text->font_style = (hc_font_style_t)i;
+	    break;
+	  }
+	}
+      }
+
+     /*
+      * Restore the separator character...
+      */
+
+      *next = sep;
+      font_pos ++;
+    }
+
+    free(temp);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "font-family")) != NULL)
+    text->font_family = value;
+
+  if ((value = hcDictGetKeyValue(props, "font-size")) != NULL)
+  {
+    if (!strcmp(value, "xx-small"))
+      text->font_size = 7.0f;
+    else if (!strcmp(value, "x-small"))
+      text->font_size = 9.0f;
+    else if (!strcmp(value, "small"))
+      text->font_size = 10.0f;
+    else if (!strcmp(value, "smaller"))
+      text->font_size = 10.0f;	/* TODO: Need parent size */
+    else if (!strcmp(value, "medium"))
+      text->font_size = 12.0f;
+    else if (!strcmp(value, "large"))
+      text->font_size = 14.0f;
+    else if (!strcmp(value, "larger"))
+      text->font_size = 14.0f;	/* TODO: Need parent size */
+    else if (!strcmp(value, "x-large"))
+      text->font_size = 18.0f;
+    else if (!strcmp(value, "xx-large"))
+      text->font_size = 24.0f;
+    else
+      text->font_size = hc_get_length(value, 12.0f, 72.0f / 96.0f, css, NULL); /* TODO: Need proper max value */
+  }
+
+  if ((value = hcDictGetKeyValue(props, "font-size-adjust")) != NULL)
+  {
+    if (!strcmp(value, "none"))
+      text->font_size_adjust = 0.0f;
+    else
+      text->font_size_adjust = hc_get_length(value, 12.0f, 72.0f / 96.0f, css, NULL); /* TODO: Need proper max value */
+  }
+
+  if ((value = hcDictGetKeyValue(props, "font-stretch")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(stretches) / sizeof(stretches[0])); i ++)
+    {
+      if (!strcmp(value, stretches[i]))
+      {
+        text->font_stretch = (hc_font_stretch_t)i;
+        break;
+      }
+    }
+  }
+
+  if ((value = hcDictGetKeyValue(props, "font-style")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(styles) / sizeof(styles[0])); i ++)
+    {
+      if (!strcmp(value, styles[i]))
+      {
+        text->font_style = (hc_font_style_t)i;
+        break;
+      }
+    }
+  }
+
+  if ((value = hcDictGetKeyValue(props, "font-variant")) != NULL)
+  {
+    if (!strcmp(value, "normal"))
+      text->font_variant = HC_FONT_VARIANT_NORMAL;
+    else if (!strcmp(value, "small-caps"))
+      text->font_variant = HC_FONT_VARIANT_SMALL_CAPS;
+  }
+
+  if ((value = hcDictGetKeyValue(props, "font-weight")) != NULL)
+  {
+    if (!strcmp(value, "normal"))
+      text->font_weight = HC_FONT_WEIGHT_NORMAL;
+    else if (!strcmp(value, "bold"))
+      text->font_weight = HC_FONT_WEIGHT_BOLD;
+    else if (!strcmp(value, "bolder"))
+      text->font_weight = HC_FONT_WEIGHT_BOLDER;
+    else if (!strcmp(value, "lighter"))
+      text->font_weight = HC_FONT_WEIGHT_LIGHTER;
+    else if (*value >= '1' && *value <= '9' && value[1] == '0' && value[2] == '0' && !value[3])
+      text->font_weight = (hc_font_weight_t)atoi(value);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "line-height")) != NULL)
+  {
+    if (!strcmp(value, "normal"))
+      text->line_height = text->font_size * 1.2f;
+    else /* TODO: Support inherit */
+      text->line_height = hc_get_length(value, text->font_size, text->font_size, css, text);
+  }
+
+  /* TODO: Lookup font */
+
+  return (1);
 }
 
 
@@ -1166,6 +1626,7 @@ hc_get_color(const char *value,		/* I - Color string */
 static float				/* O - Value in points or 0.0 on error */
 hc_get_length(const char *value,	/* I - Value string */
               float      max_value,	/* I - Maximum value for percentages */
+              float      multiplier,	/* I - Multiplier for plain number values */
               hc_css_t   *css,		/* I - Stylesheet */
               hc_text_t  *text)		/* I - Text properties */
 {
@@ -1175,9 +1636,11 @@ hc_get_length(const char *value,	/* I - Value string */
 
   if (ptr)
   {
-    if (!strcmp(ptr, "%"))
+    if (!*ptr)
+      temp *= multiplier;
+    else if (!strcmp(ptr, "%"))
       temp *= 0.01 * max_value;
-    else if (!strcmp(ptr, "ch"))
+    else if (!strcmp(ptr, "ch") && text)
     {
       hc_rect_t	extents;		/* Font extents */
 
@@ -1186,9 +1649,9 @@ hc_get_length(const char *value,	/* I - Value string */
     }
     else if (!strcmp(ptr, "cm"))
       temp *= 72.0 / 2.54;
-    else if (!strcmp(ptr, "em"))
+    else if (!strcmp(ptr, "em") && text)
       temp *= text->font_size;
-    else if (!strcmp(ptr, "ex"))
+    else if (!strcmp(ptr, "ex") && text)
       temp *= text->font_size * text->font->x_height / text->font->units;
     else if (!strcmp(ptr, "in"))
       temp *= 72.0;

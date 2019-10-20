@@ -27,6 +27,19 @@ extern "C" {
  * Types...
  */
 
+typedef enum				/**** Font stretch ****/
+{
+  HC_FONT_STRETCH_ULTRA_CONDENSED,	/* ultra-condensed */
+  HC_FONT_STRETCH_EXTRA_CONDENSED,	/* extra-condensed */
+  HC_FONT_STRETCH_CONDENSED,		/* condensed */
+  HC_FONT_STRETCH_SEMI_CONDENSED,	/* semi-condensed */
+  HC_FONT_STRETCH_NORMAL,		/* normal */
+  HC_FONT_STRETCH_SEMI_EXPANDED,	/* semi-expanded */
+  HC_FONT_STRETCH_EXPANDED,		/* expanded */
+  HC_FONT_STRETCH_EXTRA_EXPANDED,	/* extra-expanded */
+  HC_FONT_STRETCH_ULTRA_EXPANDED	/* ultra-expanded */
+} hc_font_stretch_t;
+
 typedef enum				/**** Font style ****/
 {
   HC_FONT_STYLE_NORMAL,			/* Normal font */
