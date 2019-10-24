@@ -30,8 +30,15 @@ extern "C" {
  * Types...
  */
 
+typedef struct _hc_font_info_t _hc_font_info_t;
+					/* Font cache information */
+
 struct _hc_pool_s			/* Memory pool */
 {
+  size_t	num_fonts;		/* Number of fonts in pool */
+  size_t	alloc_fonts;		/* Allocated size of fonts array */
+  _hc_font_info_t *fonts;		/* Fonts array */
+
   size_t	num_strings;		/* Number of strings in pool */
   size_t	alloc_strings;		/* Allocated size of strings array */
   char		**strings;		/* Strings array */
@@ -49,6 +56,7 @@ struct _hc_pool_s			/* Memory pool */
  * Functions...
  */
 
+extern void	_hcPoolDeleteFonts(hc_pool_t *pool);
 extern int	_hcPoolError(hc_pool_t *pool, int linenum, const char *message, ...) _HC_FORMAT_ARGS(3, 4);
 extern int	_hcPoolErrorv(hc_pool_t *pool, int linenum, const char *message, va_list ap);
 

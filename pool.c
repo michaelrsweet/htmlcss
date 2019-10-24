@@ -32,6 +32,9 @@ hcPoolDelete(hc_pool_t *pool)	/* I - Memory pool */
 {
   if (pool)
   {
+    if (pool->num_fonts > 0)
+      _hcPoolDeleteFonts(pool);
+
     if (pool->num_strings > 0)
     {
       size_t	i;			/* Looping var */

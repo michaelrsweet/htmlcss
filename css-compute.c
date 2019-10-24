@@ -1182,7 +1182,56 @@ _hcNodeComputeCSSTextFont(
       text->line_height = hc_get_length(value, text->font_size, text->font_size, css, text);
   }
 
-  /* TODO: Lookup font */
+ /*
+  * Lookup font...
+  */
+
+  if (text->font_family)
+  {
+    char	*temp = strdup(text->font_family),
+					/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+
+    for (current = temp; *current && !text->font; current = next)
+    {
+     /*
+      * Skip leading whitespace and commas...
+      */
+
+      while (*current && (isspace(*current & 255) || *current == ','))
+        current ++;
+
+      if (!*current)
+        break;
+
+     /*
+      * Extract a family name...
+      */
+
+      if (*current == '\'' || *current == '\"')
+      {
+        char	quote = *current++;	/* Quote character */
+
+        for (next = current; *next; next ++)
+          if (*next == quote)
+            break;
+      }
+      else
+      {
+        for (next = current; *next; next ++)
+          if (isspace(*next & 255) || *next == ',')
+            break;
+      }
+
+      if (*next)
+	*next++ = '\0';
+
+      text->font = hcFontFind(pool, current, text->font_stretch, text->font_style, text->font_variant, text->font_weight);
+    }
+
+    free(temp);
+  }
 
   return (1);
 }

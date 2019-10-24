@@ -87,6 +87,7 @@ typedef struct hc_rect_s		/* Rectangle */
 
 extern int		hcFontComputeExtents(const hc_font_t *font, float size, const char *s, hc_rect_t *extents);
 extern void		hcFontDelete(hc_font_t *font);
+extern hc_font_t	*hcFontFind(hc_pool_t *pool, const char *family, hc_font_stretch_t stretch, hc_font_style_t style, hc_font_variant_t variant, hc_font_weight_t weight);
 extern const char	*hcFontGetCopyright(hc_font_t *font);
 extern const char	*hcFontGetFamily(hc_font_t *font);
 extern const char	*hcFontGetPostScriptName(hc_font_t *font);

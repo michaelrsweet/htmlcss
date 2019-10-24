@@ -25,6 +25,7 @@
 		27430482223F121E00A65988 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 27430481223F121E00A65988 /* libz.tbd */; };
 		27573DBF2236083C0020E273 /* image.h in Headers */ = {isa = PBXBuildFile; fileRef = 27573DBD2236083A0020E273 /* image.h */; };
 		27573DC02236083C0020E273 /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = 27573DBE2236083B0020E273 /* image.c */; };
+		278AC0C52360E11600274943 /* font-find.c in Sources */ = {isa = PBXBuildFile; fileRef = 278AC0C42360E11600274943 /* font-find.c */; };
 		27CEEFC121BE9B7600793C86 /* dict.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFB821BE9B7600793C86 /* dict.h */; };
 		27CEEFC221BE9B7600793C86 /* htmlcss.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFB921BE9B7600793C86 /* htmlcss.h */; };
 		27CEEFC321BE9B7600793C86 /* common.h in Headers */ = {isa = PBXBuildFile; fileRef = 27CEEFBA21BE9B7600793C86 /* common.h */; };
@@ -102,6 +103,7 @@
 		27430481223F121E00A65988 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		27573DBD2236083A0020E273 /* image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image.h; sourceTree = "<group>"; };
 		27573DBE2236083B0020E273 /* image.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = image.c; sourceTree = "<group>"; };
+		278AC0C42360E11600274943 /* font-find.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "font-find.c"; sourceTree = "<group>"; };
 		27B622AE21BE9AE200397ABE /* libhtmlcss.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libhtmlcss.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		27CEEFB821BE9B7600793C86 /* dict.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dict.h; sourceTree = SOURCE_ROOT; };
 		27CEEFB921BE9B7600793C86 /* htmlcss.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = htmlcss.h; sourceTree = SOURCE_ROOT; };
@@ -221,6 +223,7 @@
 				27F1750521D450160001838C /* file.c */,
 				27CEEFD121BE9BB200793C86 /* font-core.c */,
 				27CEEFD521BE9BB200793C86 /* font-extents.c */,
+				278AC0C42360E11600274943 /* font-find.c */,
 				27CEEFCE21BE9BB200793C86 /* font-private.h */,
 				27CEEFD721BE9BB200793C86 /* html-attr.c */,
 				27CEEFCF21BE9BB200793C86 /* html-core.c */,
@@ -377,6 +380,7 @@
 				27CEEFE521BE9BB200793C86 /* font-core.c in Sources */,
 				27CEEFEC21BE9BB200793C86 /* css-core.c in Sources */,
 				27CEEFEE21BE9BB200793C86 /* css-import.c in Sources */,
+				278AC0C52360E11600274943 /* font-find.c in Sources */,
 				27CEEFE321BE9BB200793C86 /* html-core.c in Sources */,
 				27CEEFE921BE9BB200793C86 /* font-extents.c in Sources */,
 				27CEEFEB21BE9BB200793C86 /* html-attr.c in Sources */,

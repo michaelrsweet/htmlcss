@@ -58,12 +58,6 @@ struct _hc_font_s
 };
 
 
-/*
- * Functions...
- */
-
-
-
 #  ifdef __cplusplus
 }
 #  endif /* __cplusplus */

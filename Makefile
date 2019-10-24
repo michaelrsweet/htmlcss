@@ -54,6 +54,7 @@ LIBOBJS	=	\
 		file.o \
 		font-core.o \
 		font-extents.o \
+		font-find.o \
 		html-attr.o \
 		html-core.o \
 		html-find.o \
