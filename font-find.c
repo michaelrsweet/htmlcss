@@ -68,8 +68,25 @@ hcFontFind(hc_pool_t         *pool,	/* I - Memory pool for cache */
   (void)stretch;
   (void)variant;
 
-  if (!pool)
+  if (!pool || !family)
     return (NULL);
+
+ /*
+  * Map generic font famlilies to real fonts...
+  *
+  * TODO: Provide config options for generic font families...
+  */
+
+  if (!strcasecmp(family, "cursive"))
+    family = "Zapfino";
+  else if (!strcasecmp(family, "fantasy"))
+    family = "Comic Sans MS";
+  else if (!strcasecmp(family, "monospace"))
+    family = "Courier New";
+  else if (!strcasecmp(family, "sans-serif"))
+    family = "Arial";
+  else if (!strcasecmp(family, "serif"))
+    family = "Times New Roman";
 
   if (weight == HC_FONT_WEIGHT_NORMAL)
     weight = HC_FONT_WEIGHT_400;
@@ -354,6 +371,8 @@ hc_load_fonts(hc_pool_t  *pool,		/* I - Memory pool */
 
       hcFontDelete(font);
     }
+    else
+      fprintf(stderr, "%s: ERROR\n", filename);
 
     hcFileDelete(file);
   }

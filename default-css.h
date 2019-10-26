@@ -8,6 +8,7 @@ static const char *default_css =
 "h5, h6, noframes,\n"
 "ol, p, ul, center,\n"
 "dir, hr, menu, pre   { display: block; unicode-bidi: embed; }\n"
+"body            { font: sans-serif 12pt / 1.2; }\n"
 "li              { display: list-item; }\n"
 "head            { display: none; }\n"
 "table           { display: table; }\n"

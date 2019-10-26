@@ -902,7 +902,7 @@ hcNodeComputeCSSText(
       text->word_spacing = hc_get_length(value, css->media.size.width, 72.0f / 96.0f, css, text);
   }
 
-  return (0);
+  return (1);
 }
 
 

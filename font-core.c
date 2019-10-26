@@ -163,6 +163,9 @@ hcFontDelete(hc_font_t *font)		/* I - Font object */
   int	i;				/* Looping var */
 
 
+  if (!font)
+    return;
+
   for (i = 0; i < 256; i ++)
     free(font->widths[i]);
 

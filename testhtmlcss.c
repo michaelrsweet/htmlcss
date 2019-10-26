@@ -218,6 +218,18 @@ main(int  argc,				/* I - Number of command-line arguments */
 
 	  printf(" %s: %s;", key, value);
 	}
+	hc_text_t textinfo;
+	if (hcNodeComputeCSSText(node, HC_COMPUTE_BASE, &textinfo))
+	{
+	  fputs("} {", stdout);
+	  printf(" font-family: %s;", textinfo.font_family);
+	  printf(" font-size: %f;", textinfo.font_size);
+	  printf(" font-stretch: %d;", textinfo.font_stretch);
+	  printf(" font-style: %d;", textinfo.font_style);
+	  printf(" font-variant: %d;", textinfo.font_variant);
+	  printf(" font-weight: %d;", textinfo.font_weight);
+	  printf(" line-height: %f;", textinfo.line_height);
+	}
 	puts("}");
       }
 
