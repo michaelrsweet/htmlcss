@@ -35,6 +35,7 @@ typedef struct _hc_font_info_t _hc_font_info_t;
 
 struct _hc_pool_s			/* Memory pool */
 {
+  int		fonts_loaded;		/* Did we load the fonts? */
   size_t	num_fonts;		/* Number of fonts in pool */
   size_t	alloc_fonts;		/* Allocated size of fonts array */
   _hc_font_info_t *fonts;		/* Fonts array */

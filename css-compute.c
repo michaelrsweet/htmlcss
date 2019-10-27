@@ -925,11 +925,11 @@ _hcNodeComputeCSSTextFont(
 					/* Stylesheet */
   static const char * const stretches[] =
   {					/* font-stretch: values */
+    "normal",
     "ultra-condensed",
     "extra-condensed",
     "condensed",
     "semi-condensed",
-    "normal",
     "semi-expanded",
     "expanded",
     "extra-expanded",
@@ -1095,6 +1095,8 @@ _hcNodeComputeCSSTextFont(
 
   if ((value = hcDictGetKeyValue(props, "font-family")) != NULL)
     text->font_family = value;
+  else if (!text->font_family)
+    text->font_family = "sans-serif";
 
   if ((value = hcDictGetKeyValue(props, "font-size")) != NULL)
   {
@@ -1119,6 +1121,8 @@ _hcNodeComputeCSSTextFont(
     else
       text->font_size = hc_get_length(value, 12.0f, 72.0f / 96.0f, css, NULL); /* TODO: Need proper max value */
   }
+  else if (text->font_size <= 0.0f)
+    text->font_size = 12.0f;
 
   if ((value = hcDictGetKeyValue(props, "font-size-adjust")) != NULL)
   {
@@ -1181,6 +1185,8 @@ _hcNodeComputeCSSTextFont(
     else /* TODO: Support inherit */
       text->line_height = hc_get_length(value, text->font_size, text->font_size, css, text);
   }
+  else if (text->line_height <= 0.0f)
+    text->line_height = text->font_size * 1.2f;
 
  /*
   * Lookup font...

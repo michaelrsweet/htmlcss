@@ -29,11 +29,11 @@ extern "C" {
 
 typedef enum				/**** Font stretch ****/
 {
+  HC_FONT_STRETCH_NORMAL,		/* normal */
   HC_FONT_STRETCH_ULTRA_CONDENSED,	/* ultra-condensed */
   HC_FONT_STRETCH_EXTRA_CONDENSED,	/* extra-condensed */
   HC_FONT_STRETCH_CONDENSED,		/* condensed */
   HC_FONT_STRETCH_SEMI_CONDENSED,	/* semi-condensed */
-  HC_FONT_STRETCH_NORMAL,		/* normal */
   HC_FONT_STRETCH_SEMI_EXPANDED,	/* semi-expanded */
   HC_FONT_STRETCH_EXPANDED,		/* expanded */
   HC_FONT_STRETCH_EXTRA_EXPANDED,	/* extra-expanded */
@@ -85,9 +85,12 @@ typedef struct hc_rect_s		/* Rectangle */
  * Functions...
  */
 
+extern void		hcFontAdd(hc_pool_t *pool, hc_font_t *font, const char *url);
 extern int		hcFontComputeExtents(const hc_font_t *font, float size, const char *s, hc_rect_t *extents);
+extern size_t		hcFontCount(hc_pool_t *pool);
 extern void		hcFontDelete(hc_font_t *font);
 extern hc_font_t	*hcFontFind(hc_pool_t *pool, const char *family, hc_font_stretch_t stretch, hc_font_style_t style, hc_font_variant_t variant, hc_font_weight_t weight);
+extern hc_font_t	*hcFontGet(hc_pool_t *pool, size_t idx);
 extern const char	*hcFontGetCopyright(hc_font_t *font);
 extern const char	*hcFontGetFamily(hc_font_t *font);
 extern const char	*hcFontGetPostScriptName(hc_font_t *font);
