@@ -1233,7 +1233,7 @@ _hcNodeComputeCSSTextFont(
       if (*next)
 	*next++ = '\0';
 
-      text->font = hcFontFind(pool, current, text->font_stretch, text->font_style, text->font_variant, text->font_weight);
+      text->font = hcFontFindCached(pool, current, text->font_stretch, text->font_style, text->font_variant, text->font_weight);
     }
 
     free(temp);

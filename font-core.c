@@ -29,6 +29,8 @@
 #define _HC_OFF_OS_2	0x4f532f32	/* OS/2 and Windows specific metrics */
 #define _HC_OFF_post	0x706f7374	/* PostScript information */
 
+#define _HC_OFF_Unicode		0	/* Unicode platform ID */
+
 #define _HC_OFF_Mac		1	/* Macintosh platform ID */
 #define _HC_OFF_Mac_USEnglish	0	/* Macintosh US English language ID */
 
@@ -147,7 +149,7 @@ static int	read_names(hc_file_t *file, _hc_off_table_t *table, _hc_off_names_t *
 static int	read_os_2(hc_file_t *file, _hc_off_table_t *table, _hc_off_os_2_t *os_2);
 static float	read_post(hc_file_t *file, _hc_off_table_t *table);
 static int	read_short(hc_file_t *file);
-static int	read_table(hc_file_t *file, _hc_off_table_t *table);
+static int	read_table(hc_file_t *file, size_t idx, _hc_off_table_t *table, size_t *num_fonts);
 static unsigned	read_ulong(hc_file_t *file);
 static int	read_ushort(hc_file_t *file);
 static unsigned	seek_table(hc_file_t *file, _hc_off_table_t *table, unsigned tag, unsigned offset);
@@ -192,6 +194,17 @@ const char *				/* O - Family name */
 hcFontGetFamily(hc_font_t *font)	/* I - Font object */
 {
   return (font ? font->family : NULL);
+}
+
+
+/*
+ * 'hcFontGetNumFonts()' - Get the number of fonts in this collection.
+ */
+
+size_t
+hcFontGetNumFonts(hc_font_t *font)	/* I - Font object */
+{
+  return (font ? font->num_fonts : 0);
 }
 
 
@@ -246,7 +259,8 @@ hcFontGetWeight(hc_font_t *font)	/* I - Font object */
 
 hc_font_t *				/* O - New font object */
 hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
-          hc_file_t *file)		/* I - File */
+          hc_file_t *file,		/* I - File */
+          size_t    idx)		/* I - Font number in collection (0-based) */
 {
   hc_font_t		*font = NULL;	/* New font object */
   _hc_off_table_t	table;		/* Offset table */
@@ -259,9 +273,10 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
   _hc_off_head_t	head;		/* head table */
   _hc_off_hhea_t	hhea;		/* hhea table */
   _hc_off_os_2_t	os_2;		/* OS/2 table */
+  size_t		num_fonts;	/* Number of fonts in table */
 
 
-  if (read_table(file, &table))
+  if (read_table(file, idx, &table, &num_fonts))
   {
     fputs("hcFontNew: Unable to read font table.\n", stderr);
     return (NULL);
@@ -282,6 +297,8 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
   }
 
   font->pool            = pool;
+  font->idx             = idx;
+  font->num_fonts       = num_fonts;
   font->copyright       = copy_name(pool, &names, _HC_OFF_Copyright);
   font->family          = copy_name(pool, &names, _HC_OFF_FontFamily);
   font->postscript_name = copy_name(pool, &names, _HC_OFF_PostScriptName);
@@ -315,7 +332,12 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
   font->y_min = head.yMin;
 
   if (head.macStyle & _HC_OFF_macStyle_Italic)
-    font->style = HC_FONT_STYLE_ITALIC;
+  {
+    if (font->postscript_name && strstr(font->postscript_name, "Oblique"))
+      font->style = HC_FONT_STYLE_OBLIQUE;
+    else
+      font->style = HC_FONT_STYLE_ITALIC;
+  }
   else
     font->style = HC_FONT_STYLE_NORMAL;
 
@@ -612,7 +634,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
 
     _HC_DEBUG("read_cmap: table[%d].platform_id=%d, encoding_id=%d, coffset=%u\n", i, platform_id, encoding_id, coffset);
 
-    if (platform_id == _HC_OFF_Windows && encoding_id == _HC_OFF_Windows_UCS2)
+    if (platform_id == _HC_OFF_Unicode || (platform_id == _HC_OFF_Windows && encoding_id == _HC_OFF_Windows_UCS2))
       break;
   }
 
@@ -1107,7 +1129,9 @@ read_short(hc_file_t *file)		/* i - File to read from */
 
 static int				/* O - 0 on success, EOF on failure */
 read_table(hc_file_t       *file,	/* I - File */
-           _hc_off_table_t *table)	/* O - Offset table */
+           size_t          idx,		/* I - Font number within collection */
+           _hc_off_table_t *table,	/* O - Offset table */
+           size_t          *num_fonts)	/* O - Number of fonts */
 {
   int		i;			/* Looping var */
   unsigned	temp;			/* Temporary value */
@@ -1126,13 +1150,58 @@ read_table(hc_file_t       *file,	/* I - File */
 
   memset(table, 0, sizeof(_hc_off_table_t));
 
+  *num_fonts = 0;
+
   /* sfnt version */
-  if ((temp = read_ulong(file)) != 0x10000 && temp != 0x4f54544f)
+  if ((temp = read_ulong(file)) != 0x10000 && temp != 0x4f54544f && temp != 0x74746366)
     return (-1);
+
+  if (temp == 0x74746366)
+  {
+   /*
+    * Font collection, get the number of fonts and then seek to the start of
+    * the offset table for the desired font...
+    */
+
+    _HC_DEBUG("read_table: Font collection\n");
+
+    /* Version */
+    if ((temp = read_ulong(file)) != 0x10000 && temp != 0x20000)
+      return (-1);
+
+    _HC_DEBUG("read_table: Collection version=%d.0\n", temp / 65536);
+
+    /* numFonts */
+    if ((temp = read_ulong(file)) == 0)
+      return (-1);
+
+    *num_fonts = (size_t)temp;
+
+    _HC_DEBUG("read_table: numFonts=%u\n", temp);
+
+    if (idx >= *num_fonts)
+      return (-1);
+
+    /* OffsetTable */
+    temp = read_ulong(file);
+    while (idx > 0)
+    {
+      temp = read_ulong(file);
+      idx --;
+    }
+
+    _HC_DEBUG("read_table: Offset for font %u is %u.\n", (unsigned)idx, temp);
+
+    hcFileSeek(file, temp + 4);
+  }
+  else
+    *num_fonts = 1;
 
   /* numTables */
   if ((table->num_entries = read_ushort(file)) <= 0)
     return (-1);
+
+  _HC_DEBUG("read_table: num_entries=%u\n", (unsigned)table->num_entries);
 
   /* searchRange */
   if (read_ushort(file) < 0)

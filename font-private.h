@@ -37,6 +37,8 @@ typedef struct _hc_font_metric_s	/**** Font metric information ****/
 struct _hc_font_s
 {
   hc_pool_t		*pool;		/* Memory pool */
+  size_t		idx;		/* Font number in file */
+  size_t		num_fonts;	/* Number of fonts in this file */
   const char		*copyright;	/* Copyright string */
   const char		*family;	/* Font family string */
   const char		*postscript_name;

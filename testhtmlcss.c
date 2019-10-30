@@ -57,6 +57,7 @@ main(int  argc,				/* I - Number of command-line arguments */
   int		test_all = 0,		/* Test everything? */
 		show_css = 0,		/* Show flattened CSS? */
 		show_font = 0,		/* Show font information? */
+		show_font_cache = 0,	/* Show cached font information? */
 		show_html = 0;		/* Show HTML? */
 
 
@@ -89,7 +90,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     }
     else if (!strcmp(argv[i], "--font"))
     {
-      show_font = 1;
+      show_font = show_font_cache = 1;
       continue;
     }
     else if (!strcmp(argv[i], "--html"))
@@ -110,17 +111,37 @@ main(int  argc,				/* I - Number of command-line arguments */
 
     if (!strcmp(ext, ".otc") || !strcmp(ext, ".otf") || !strcmp(ext, ".ttc") || !strcmp(ext, ".ttf"))
     {
-      if ((font = hcFontNew(pool, file)) != NULL)
+      show_font_cache = 0;
+
+      if ((font = hcFontNew(pool, file, 0)) != NULL)
       {
         hc_rect_t	extents;	/* Extents of text */
 
-        printf("%s:\n    copyright=\"%s\"\n    family=\"%s\"\n    postscript_name=\"%s\"\n    version=\"%s\"\n", argv[i], hcFontGetCopyright(font), hcFontGetFamily(font), hcFontGetPostScriptName(font), hcFontGetVersion(font));
+        printf("%s:\n    numFonts=%u\n    copyright=\"%s\"\n    family=\"%s\"\n    postscript_name=\"%s\"\n    version=\"%s\"\n    style=%d\n    weight=%d\n", argv[i], (unsigned)hcFontGetNumFonts(font), hcFontGetCopyright(font), hcFontGetFamily(font), hcFontGetPostScriptName(font), hcFontGetVersion(font), (int)hcFontGetStyle(font), hcFontGetWeight(font));
 
         hcFontComputeExtents(font, 10.0f, "Hello, world!", &extents);
         printf("    extents of \"Hello, world!\"=[%.3f %.3f %.3f %.3f]\n", extents.left, extents.bottom, extents.right, extents.top);
 
         hcFontComputeExtents(font, 10.0f, "0123456789", &extents);
         printf("    extents of \"0123456789\"=[%.3f %.3f %.3f %.3f]\n", extents.left, extents.bottom, extents.right, extents.top);
+
+        if (hcFontGetNumFonts(font) > 1)
+        {
+          size_t	i;		/* Looping var */
+          hc_font_t	*fontn;		/* Nth font */
+
+          for (i = 1; i < hcFontGetNumFonts(font); i ++)
+          {
+            hcFileSeek(file, 0);
+
+            if ((fontn = hcFontNew(pool, file, i)) != NULL)
+	      printf("    postscript_name%d=\"%s\"\n    style%d=%d\n    weight%d=%d\n", (int)i, hcFontGetPostScriptName(fontn), (int)i, (int)hcFontGetStyle(fontn), (int)i, hcFontGetWeight(fontn));
+            else
+              printf("    UNABLE TO LOAD FONT #%d\n", (int)i);
+
+            hcFontDelete(fontn);
+          }
+        }
 
         hcFontDelete(font);
       }
@@ -357,6 +378,25 @@ main(int  argc,				/* I - Number of command-line arguments */
       }
 
       puts("}");
+    }
+  }
+
+  if (show_font_cache)
+  {
+    size_t	findex,			/* Font index */
+		num_fonts;		/* Number of cached fonts */
+    hc_font_t	*font;			/* Cached font */
+
+    puts("\nCached Fonts:");
+
+    for (findex = 0, num_fonts = hcFontGetCachedCount(pool); findex < num_fonts; findex ++)
+    {
+      if ((font = hcFontGetCached(pool, findex)) != NULL)
+      {
+        hc_font_style_t style = hcFontGetStyle(font);
+
+        printf("  \"%s\" (%s) %s %d\n", hcFontGetFamily(font), hcFontGetPostScriptName(font), style == HC_FONT_STYLE_NORMAL ? "normal" : style == HC_FONT_STYLE_ITALIC ? "italic" : "oblique", hcFontGetWeight(font));
+      }
     }
   }
 
