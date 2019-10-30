@@ -1,3 +1,4 @@
+#define DEBUG 1
 /*
  * Core font object functions for HTMLCSS library.
  *
@@ -90,6 +91,20 @@ typedef struct _hc_off_cmap4_s		/* Format 4 cmap table */
 			idRangeOffset;	/* Offset for range (modulo 65536) */
   short			idDelta;	/* Delta for range (modulo 65536) */
 } _hc_off_cmap4_t;
+
+typedef struct _hc_off_cmap12_s		/* Format 12 cmap table */
+{
+  unsigned		startCharCode,	/* First character */
+			endCharCode,	/* Last character */
+			startGlyphID;	/* Glyph index for the first character */
+} _hc_off_cmap12_t;
+
+typedef struct _hc_off_cmap13_s		/* Format 13 cmap table */
+{
+  unsigned		startCharCode,	/* First character */
+			endCharCode,	/* Last character */
+			glyphID;	/* Glyph index for all characters */
+} _hc_off_cmap13_t;
 
 typedef struct _hc_off_head_s		/* Font header */
 {
@@ -384,17 +399,18 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
     goto cleanup;
   }
 
-  if (read_os_2(file, &table, &os_2) < 0)
+  if (read_os_2(file, &table, &os_2) >= 0)
+  {
+    font->weight     = (short)os_2.usWeightClass;
+    font->cap_height = os_2.sCapHeight;
+  }
+  else
   {
     _HC_DEBUG("hcFontNew: Unable to read OS/2 table.\n");
-    hcFontDelete(font);
-    font = NULL;
-
-    goto cleanup;
+    font->weight     = 400;
+    font->cap_height = font->ascent;
   }
 
-  font->weight       = (short)os_2.usWeightClass;
-  font->cap_height   = os_2.sCapHeight;
   font->italic_angle = read_post(file, &table);
 
  /*
@@ -594,9 +610,9 @@ read_cmap(hc_file_t       *file,	/* I - File */
 		num_cmap = 0,		/* Number of cmap entries */
 		platform_id,		/* Platform identifier (Windows or Mac) */
 		encoding_id,		/* Encoding identifier (varies) */
-		cformat,		/* Formap of cmap data */
-		clength;		/* Length of cmap data */
-  unsigned	coffset = 0;		/* Offset to cmap data */
+		cformat;		/* Formap of cmap data */
+  unsigned	clength,		/* Length of cmap data */
+		coffset = 0;		/* Offset to cmap data */
   int		*cmapptr;		/* Pointer into cmap */
 
 
@@ -656,13 +672,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
     return (-1);
   }
 
-  if ((clength = read_ushort(file)) < 0)
-  {
-    _HC_DEBUG("read_cmap: Unable to read cmap table length at offset %u.\n", coffset);
-    return (-1);
-  }
-
-  _HC_DEBUG("read_cmap: cformat=%d, clength=%u\n", cformat, clength);
+  _HC_DEBUG("read_cmap: cformat=%d\n", cformat);
 
   switch (cformat)
   {
@@ -690,6 +700,14 @@ read_cmap(hc_file_t       *file,	/* I - File */
           * Read the table...
           */
 
+	  if ((clength = (unsigned)read_ushort(file)) == (unsigned)-1)
+	  {
+	    _HC_DEBUG("read_cmap: Unable to read cmap table length at offset %u.\n", coffset);
+	    return (-1);
+	  }
+
+	  _HC_DEBUG("read_cmap: clength=%u\n", clength);
+
           /* language = */       read_ushort(file);
           segCount             = read_ushort(file) / 2;
 	  /* searchRange = */    read_ushort(file);
@@ -698,7 +716,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
 
           _HC_DEBUG("read_cmap: segCount=%d\n", segCount);
 
-          numGlyphIdArray = (clength - 8 * segCount - 16) / 2;
+          numGlyphIdArray = ((int)clength - 8 * segCount - 16) / 2;
           segments        = (_hc_off_cmap4_t *)calloc((size_t)segCount, sizeof(_hc_off_cmap4_t));
           glyphIdArray    = (int *)calloc((size_t)numGlyphIdArray, sizeof(int));
 
@@ -784,6 +802,155 @@ read_cmap(hc_file_t       *file,	/* I - File */
 	  free(segments);
 	  free(glyphIdArray);
         }
+        break;
+
+    case 12 :
+	{
+	 /*
+	  * Format 12: Segmented coverage
+	  *
+	  * A simple sparse linear segment mapping format.
+	  */
+
+	  unsigned	ch,		/* Current character */
+			gidx,		/* Current group */
+			nGroups;	/* Number of groups */
+	  _hc_off_cmap12_t *groups,	/* Groups */
+			*group;		/* This group */
+
+
+	 /*
+	  * Read the table...
+	  */
+
+          /* reserved */ read_ushort(file);
+
+	  if ((clength = read_ulong(file)) == 0)
+	  {
+	    _HC_DEBUG("read_cmap: Unable to read cmap table length at offset %u.\n", coffset);
+	    return (-1);
+	  }
+
+	  /* language = */ read_ulong(file);
+	  nGroups        = read_ulong(file);
+
+	  _HC_DEBUG("read_cmap: nGroups=%u\n", nGroups);
+
+	  groups = (_hc_off_cmap12_t *)calloc(nGroups, sizeof(_hc_off_cmap12_t));
+
+	  for (gidx = 0, group = groups, num_cmap = 0; gidx < nGroups; gidx ++, group ++)
+	  {
+	    group->startCharCode = read_ulong(file);
+	    group->endCharCode   = read_ulong(file);
+	    group->startGlyphID  = read_ulong(file);
+	    _HC_DEBUG("read_cmap: [%u] startCharCode=%u, endCharCode=%u, startGlyphID=%u\n", gidx, group->startCharCode, group->endCharCode, group->startGlyphID);
+
+            if (group->endCharCode >= (unsigned)num_cmap)
+              num_cmap = (int)group->endCharCode + 1;
+	  }
+
+	 /*
+	  * Based on the end code of the segent table, allocate space for the
+	  * uncompressed cmap table...
+	  */
+
+          _HC_DEBUG("read_cmap: num_cmap=%u\n", (unsigned)num_cmap);
+	  cmapptr = *cmap = (int *)malloc((size_t)num_cmap * sizeof(int));
+
+	  memset(cmapptr, -1, (size_t)num_cmap * sizeof(int));
+
+	 /*
+	  * Now loop through the groups and assign glyph indices from the
+	  * array...
+	  */
+
+	  for (gidx = 0, group = groups; gidx < nGroups; gidx ++, group ++)
+	  {
+            for (ch = group->startCharCode; ch <= group->endCharCode && ch < _HC_FONT_MAX_CHAR; ch ++)
+              cmapptr[ch] = (int)(group->startGlyphID + ch - group->startCharCode);
+          }
+
+	 /*
+	  * Free the group data...
+	  */
+
+	  free(groups);
+	}
+        break;
+
+    case 13 :
+	{
+	 /*
+	  * Format 13: Many-to-one range mappings
+	  *
+	  * Typically used for fonts of last resort where multiple characters
+	  * map to the same glyph.
+	  */
+
+	  unsigned	ch,		/* Current character */
+			gidx,		/* Current group */
+			nGroups;	/* Number of groups */
+	  _hc_off_cmap13_t *groups,	/* Groups */
+			*group;		/* This group */
+
+
+	 /*
+	  * Read the table...
+	  */
+
+          /* reserved */ read_ushort(file);
+
+	  if ((clength = read_ulong(file)) == 0)
+	  {
+	    _HC_DEBUG("read_cmap: Unable to read cmap table length at offset %u.\n", coffset);
+	    return (-1);
+	  }
+
+	  /* language = */ read_ulong(file);
+	  nGroups        = read_ulong(file);
+
+	  _HC_DEBUG("read_cmap: nGroups=%u\n", nGroups);
+
+	  groups = (_hc_off_cmap13_t *)calloc(nGroups, sizeof(_hc_off_cmap13_t));
+
+	  for (gidx = 0, group = groups, num_cmap = 0; gidx < nGroups; gidx ++, group ++)
+	  {
+	    group->startCharCode = read_ulong(file);
+	    group->endCharCode   = read_ulong(file);
+	    group->glyphID       = read_ulong(file);
+	    _HC_DEBUG("read_cmap: [%u] startCharCode=%u, endCharCode=%u, glyphID=%u\n", gidx, group->startCharCode, group->endCharCode, group->glyphID);
+
+            if (group->endCharCode >= (unsigned)num_cmap)
+              num_cmap = (int)group->endCharCode + 1;
+	  }
+
+	 /*
+	  * Based on the end code of the segent table, allocate space for the
+	  * uncompressed cmap table...
+	  */
+
+          _HC_DEBUG("read_cmap: num_cmap=%u\n", (unsigned)num_cmap);
+	  cmapptr = *cmap = (int *)malloc((size_t)num_cmap * sizeof(int));
+
+	  memset(cmapptr, -1, (size_t)num_cmap * sizeof(int));
+
+	 /*
+	  * Now loop through the groups and assign glyph indices from the
+	  * array...
+	  */
+
+	  for (gidx = 0, group = groups; gidx < nGroups; gidx ++, group ++)
+	  {
+            for (ch = group->startCharCode; ch <= group->endCharCode && ch < _HC_FONT_MAX_CHAR; ch ++)
+              cmapptr[ch] = (int)group->glyphID;
+          }
+
+	 /*
+	  * Free the group data...
+	  */
+
+	  free(groups);
+	}
         break;
 
     default :
@@ -1228,6 +1395,8 @@ read_table(hc_file_t       *file,	/* I - File */
     current->checksum = read_ulong(file);
     current->offset   = read_ulong(file);
     current->length   = read_ulong(file);
+
+    _HC_DEBUG("read_table: [%d] tag='%c%c%c%c' checksum=%u offset=%u length=%u\n", i, (current->tag >> 24) & 255, (current->tag >> 16) & 255, (current->tag >> 8) & 255, current->tag & 255, current->checksum, current->offset, current->length);
   }
 
   return (0);

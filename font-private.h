@@ -25,6 +25,13 @@ extern "C" {
 
 
 /*
+ * Constants...
+ */
+
+#  define _HC_FONT_MAX_CHAR	262144
+
+
+/*
  * Types...
  */
 
@@ -44,7 +51,8 @@ struct _hc_font_s
   const char		*postscript_name;
 					/* PostScript name string */
   const char		*version;	/* Font version string */
-  _hc_font_metric_t	*widths[256];	/* Character metrics (sparse array) */
+  _hc_font_metric_t	*widths[_HC_FONT_MAX_CHAR / 256];
+					/* Character metrics (sparse array) */
   float			units;		/* Width units */
   short			ascent,		/* Maximum ascent above baseline */
 			descent,	/* Maximum descent below baseline */
