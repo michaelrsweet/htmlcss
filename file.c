@@ -47,10 +47,14 @@ _hcFileError(hc_file_t  *file,		/* I - File */
   va_list	ap;			/* Pointer to arguments */
 
 
-  if (file->url)
+  if (file->url && file->linenum)
     snprintf(temp, sizeof(temp), "%s:%d: %s", file->url, file->linenum, message);
-  else
+  else if (file->url)
+    snprintf(temp, sizeof(temp), "%s: %s", file->url, message);
+  else if (file->linenum)
     snprintf(temp, sizeof(temp), "%d: %s", file->linenum, message);
+  else
+    snprintf(temp, sizeof(temp), "%s", message);
 
   va_start(ap, message);
   ret = _hcPoolErrorv(file->pool, file->linenum, temp, ap);

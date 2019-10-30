@@ -47,6 +47,7 @@ static void	hc_get_cname(char *cname, size_t cnamesize);
 static void	hc_load_all_fonts(hc_pool_t *pool);
 static void	hc_load_fonts(hc_pool_t *pool, const char *d);
 static void	hc_save_all_fonts(hc_pool_t *pool, const char *cname);
+static void	hc_sort_fonts(hc_pool_t *pool);
 
 
 /*
@@ -62,6 +63,7 @@ hcFontAddCached(hc_pool_t  *pool,	/* I - Memory pool for cache */
     return;
 
   hc_add_font(pool, font, url, 0);
+  hc_sort_fonts(pool);
 }
 
 
@@ -81,7 +83,8 @@ hcFontFindCached(
   size_t		i;		/* Looping var */
   _hc_font_info_t	*info,		/* Current font info */
 			*best_info;	/* Best match */
-  int			score,		/* Current score */
+  int			result,		/* Result of compare */
+			score,		/* Current score */
 			best_score;	/* Best score */
 
 
@@ -120,10 +123,12 @@ hcFontFindCached(
   if (!pool->fonts_loaded)
     hc_load_all_fonts(pool);
 
-  for (i = pool->num_fonts, info = pool->fonts, best_info = NULL, best_score = 999999; i > 0; i --, info ++)
+  for (i = pool->font_index[tolower(*family & 255)], info = pool->fonts + i, best_info = NULL, best_score = 999999; i < pool->num_fonts; i ++, info ++)
   {
-    if (strcasecmp(family, info->font_family))
+    if ((result = strcasecmp(family, info->font_family)) > 0)
       continue;
+    else if (result < 0)
+      break;
 
     if (info->font_weight > weight)
       score = (int)(info->font_weight - weight);
@@ -432,8 +437,6 @@ hc_load_all_fonts(hc_pool_t *pool)	/* I - Memory pool */
     for (i = 0; i < num_dirs; i ++)
       hc_load_fonts(pool, dirs[i]);
 
-    qsort(pool->fonts, pool->num_fonts, sizeof(_hc_font_info_t), (int (*)(const void *, const void *))hc_compare_info);
-
    /*
     * Save the cache...
     */
@@ -448,6 +451,8 @@ hc_load_all_fonts(hc_pool_t *pool)	/* I - Memory pool */
 
     /* TODO: Implement cache load */
   }
+
+  hc_sort_fonts(pool);
 
   pool->fonts_loaded = 1;
 }
@@ -523,8 +528,6 @@ hc_load_fonts(hc_pool_t  *pool,		/* I - Memory pool */
 	}
       }
     }
-    else
-      fprintf(stderr, "%s: ERROR\n", filename);
 
     hcFileDelete(file);
   }
@@ -544,4 +547,40 @@ hc_save_all_fonts(hc_pool_t  *pool,	/* I - Memory pool */
   /* TODO: Implement cache save */
   (void)pool;
   (void)cname;
+}
+
+
+/*
+ * 'hc_sort_fonts()' - Sort and index the fonts in the cache.
+ */
+
+static void
+hc_sort_fonts(hc_pool_t *pool)		/* I - Memory pool */
+{
+  size_t		i;		/* Looping var */
+  _hc_font_info_t	*info;		/* Current font info */
+
+
+ /*
+  * First sort the fonts...
+  */
+
+  if (pool->num_fonts > 1)
+    qsort(pool->fonts, pool->num_fonts, sizeof(_hc_font_info_t), (_hc_compare_func_t)hc_compare_info);
+
+ /*
+  * Then index the fonts based on the initial character...
+  */
+
+  for (i = 0; i < 256; i ++)
+    pool->font_index[i] = pool->num_fonts;
+
+  for (i = 0, info = pool->fonts; i < pool->num_fonts; i ++, info ++)
+  {
+    int ch = tolower(info->font_family[0] & 255);
+					/* Initial character of font, lowercase */
+
+    if (i < pool->font_index[ch])
+      pool->font_index[ch] = i;
+  }
 }

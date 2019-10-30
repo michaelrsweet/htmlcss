@@ -1,4 +1,3 @@
-#define DEBUG 1
 /*
  * Core font object functions for HTMLCSS library.
  *
@@ -15,6 +14,7 @@
  */
 
 #include "font-private.h"
+#include "file-private.h"
 
 
 /*
@@ -294,7 +294,7 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
 
   if (read_table(file, idx, &table, &num_fonts))
   {
-    fputs("hcFontNew: Unable to read font table.\n", stderr);
+    _hcFileError(file, "Unable to read font table.");
     return (NULL);
   }
 
@@ -302,6 +302,7 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
 
   if (read_names(file, &table, &names))
   {
+    _hcFileError(file, "Unable to read names from font.");
     goto cleanup;
   }
 
@@ -334,7 +335,7 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
 
   if (read_head(file, &table, &head) < 0)
   {
-    _HC_DEBUG("hcFontNew: Unable to read head table.\n");
+    _hcFileError(file, "Unable to read head table from font.");
     hcFontDelete(font);
     font = NULL;
 
@@ -359,7 +360,7 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
 
   if (read_hhea(file, &table, &hhea) < 0)
   {
-    _HC_DEBUG("hcFontNew: Unable to read hhea table.\n");
+    _hcFileError(file, "Unable to read hhea table from font.");
     hcFontDelete(font);
     font = NULL;
 
@@ -371,7 +372,7 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
 
   if ((num_glyphs = read_maxp(file, &table)) < 0)
   {
-    _HC_DEBUG("hcFontNew: Unable to read maxp table.\n");
+    _hcFileError(file, "Unable to read maxp table from font.");
     hcFontDelete(font);
     font = NULL;
 
@@ -384,7 +385,7 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
   {
     if ((widths = read_hmtx(file, &table, &hhea)) == NULL)
     {
-      _HC_DEBUG("hcFontNew: Unable to read hmtx table.\n");
+      _hcFileError(file, "Unable to read hmtx table from font.");
       hcFontDelete(font);
       font = NULL;
 
@@ -393,7 +394,7 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
   }
   else
   {
-    _HC_DEBUG("hcFontNew: Number of horizontal metrics is 0.\n");
+    _hcFileError(file, "Number of horizontal metrics is 0.");
     hcFontDelete(font);
     font = NULL;
 
@@ -616,6 +617,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
 		coffset = 0,		/* Offset to cmap data */
 		roman_offset = 0;	/* MacRoman offset */
   int		*cmapptr;		/* Pointer into cmap */
+#if 0
   const int	*unimap = NULL;		/* Unicode character map, if any */
   static const int romanmap[256] =	/* MacRoman to Unicode map */
   {
@@ -652,6 +654,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
     0xF8FF, 0xD2, 0xDA, 0xDB, 0xD9, 0x131, 0x2C6, 0x2DC,
         0xAF, 0x2D8, 0x2D9, 0x2DA, 0xB8, 0x2DD, 0x2DB, 0x2C7
   };
+#endif /* 0 */
 
 
   *cmap = NULL;
@@ -662,19 +665,19 @@ read_cmap(hc_file_t       *file,	/* I - File */
 
   if ((length = seek_table(file, table, _HC_OFF_cmap, 0)) == 0)
   {
-    _HC_DEBUG("read_cmap: Missing cmap table.\n");
+    _hcFileError(file, "Missing cmap table.");
     return (-1);
   }
 
   if ((temp = read_ushort(file)) != 0)
   {
-    _HC_DEBUG("read_cmap: Unknown cmap version %d.\n", temp);
+    _hcFileError(file, "Unknown cmap version %d.", temp);
     return (-1);
   }
 
   if ((num_tables = read_ushort(file)) < 1)
   {
-    _HC_DEBUG("read_cmap: No tables to read.\n");
+    _hcFileError(file, "No cmap tables to read.");
     return (-1);
   }
 
@@ -704,20 +707,20 @@ read_cmap(hc_file_t       *file,	/* I - File */
     }
     else
     {
-      _HC_DEBUG("read_cmap: No matching cmap table.\n");
+      _hcFileError(file, "No usable cmap table.");
       return (-1);
     }
   }
 
   if ((length = seek_table(file, table, _HC_OFF_cmap, coffset)) == 0)
   {
-    _HC_DEBUG("read_cmap: Unable to read cmap table at offset %u.\n", coffset);
+    _hcFileError(file, "Unable to read cmap table at offset %u.", coffset);
     return (-1);
   }
 
   if ((cformat = read_ushort(file)) < 0)
   {
-    _HC_DEBUG("read_cmap: Unable to read cmap table format at offset %u.\n", coffset);
+    _hcFileError(file, "Unable to read cmap table format at offset %u.", coffset);
     return (-1);
   }
 
@@ -751,7 +754,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
 
 	  if ((clength = (unsigned)read_ushort(file)) == (unsigned)-1)
 	  {
-	    _HC_DEBUG("read_cmap: Unable to read cmap table length at offset %u.\n", coffset);
+	    _hcFileError(file, "Unable to read cmap table length at offset %u.", coffset);
 	    return (-1);
 	  }
 
@@ -876,7 +879,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
 
 	  if ((clength = read_ulong(file)) == 0)
 	  {
-	    _HC_DEBUG("read_cmap: Unable to read cmap table length at offset %u.\n", coffset);
+	    _hcFileError(file, "Unable to read cmap table length at offset %u.", coffset);
 	    return (-1);
 	  }
 
@@ -951,7 +954,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
 
 	  if ((clength = read_ulong(file)) == 0)
 	  {
-	    _HC_DEBUG("read_cmap: Unable to read cmap table length at offset %u.\n", coffset);
+	    _hcFileError(file, "Unable to read cmap table length at offset %u.", coffset);
 	    return (-1);
 	  }
 
@@ -1003,7 +1006,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
         break;
 
     default :
-        _HC_DEBUG("read_cmap: Format %d cmap tables are not yet supported.\n", cformat);
+        _hcFileError(file, "Format %d cmap tables are not yet supported.", cformat);
         return (-1);
   }
 
@@ -1113,7 +1116,7 @@ read_hmtx(hc_file_t       *file,	/* I - File */
 
   if (length < (unsigned)(4 * hhea->numberOfHMetrics))
   {
-    _HC_DEBUG("read_hmtx: length=%u, expected at least %d\n", length, 4 * hhea->numberOfHMetrics);
+    _hcFileError(file, "Length of hhea table is only %u, expected at least %d.", length, 4 * hhea->numberOfHMetrics);
     return (NULL);
   }
 

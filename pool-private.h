@@ -39,6 +39,7 @@ struct _hc_pool_s			/* Memory pool */
   size_t	num_fonts;		/* Number of fonts in pool */
   size_t	alloc_fonts;		/* Allocated size of fonts array */
   _hc_font_info_t *fonts;		/* Fonts array */
+  size_t	font_index[256];	/* Index into fonts array */
 
   size_t	num_strings;		/* Number of strings in pool */
   size_t	alloc_strings;		/* Allocated size of strings array */
@@ -48,6 +49,8 @@ struct _hc_pool_s			/* Memory pool */
 
   hc_error_cb_t	error_cb;		/* Error callback */
   void		*error_ctx;		/* Error callback context pointer */
+  char		*last_error;		/* Last error message */
+
   hc_url_cb_t	url_cb;			/* URL callback */
   void		*url_ctx;		/* URL callback context pointer */
 };

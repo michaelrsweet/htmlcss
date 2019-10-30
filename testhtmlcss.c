@@ -147,7 +147,7 @@ main(int  argc,				/* I - Number of command-line arguments */
       }
       else if (show_font)
       {
-        printf("%s: Unable to open (%s)\n", argv[i], strerror(errno));
+        printf("%s: %s\n", argv[i], hcPoolGetLastError(pool));
       }
     }
     else if (!strcmp(ext, ".gif") || !strcmp(ext, ".jpg") || !strcmp(ext, ".jpeg") || !strcmp(ext, ".png") || !strcmp(ext, ".svg") || !strcmp(ext, ".svgz"))

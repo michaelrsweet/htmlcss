@@ -39,6 +39,7 @@ typedef char *(*hc_url_cb_t)(void *ctx, const char *url, char *buffer, size_t bu
  */
 
 extern void		hcPoolDelete(hc_pool_t *pool);
+extern const char	*hcPoolGetLastError(hc_pool_t *pool);
 extern const char	*hcPoolGetString(hc_pool_t *pool, const char *s);
 extern const char	*hcPoolGetURL(hc_pool_t *pool, const char *url, const char *baseurl);
 extern hc_pool_t	*hcPoolNew(void);

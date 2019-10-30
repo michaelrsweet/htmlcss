@@ -46,6 +46,7 @@ hcPoolDelete(hc_pool_t *pool)	/* I - Memory pool */
       free(pool->strings);
     }
 
+    free(pool->last_error);
     free(pool);
   }
 }
@@ -90,7 +91,21 @@ _hcPoolErrorv(
 
   vsnprintf(buffer, sizeof(buffer), message, ap);
 
+  free(pool->last_error);
+  pool->last_error = strdup(buffer);
+
   return ((pool->error_cb)(pool->error_ctx, buffer, linenum));
+}
+
+
+/*
+ * 'hcPoolGetLastError()' - Return the last error message recorded.
+ */
+
+const char *				/* O - Last error message or `NULL` */
+hcPoolGetLastError(hc_pool_t *pool)	/* I - Memory pool */
+{
+  return (pool ? pool->last_error : NULL);
 }
 
 
