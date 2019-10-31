@@ -27,6 +27,7 @@
  * Local functions...
  */
 
+static int	error_cb(void *ctx, const char *message, int linenum);
 static int	test_pool_functions(hc_pool_t *pool);
 static int	test_sha3_functions(void);
 
@@ -66,6 +67,7 @@ main(int  argc,				/* I - Number of command-line arguments */
   */
 
   pool = hcPoolNew();
+  hcPoolSetErrorCallback(pool, error_cb, NULL);
 
   css = hcCSSNew(pool);
   hcCSSImportDefault(css);
@@ -145,6 +147,8 @@ main(int  argc,				/* I - Number of command-line arguments */
 
         hcFontDelete(font);
       }
+      else
+        puts(hcPoolGetLastError(pool));
     }
     else if (!strcmp(ext, ".gif") || !strcmp(ext, ".jpg") || !strcmp(ext, ".jpeg") || !strcmp(ext, ".png") || !strcmp(ext, ".svg") || !strcmp(ext, ".svgz"))
     {
@@ -402,6 +406,23 @@ main(int  argc,				/* I - Number of command-line arguments */
   hcPoolDelete(pool);
 
   return (0);
+}
+
+
+/*
+ * 'error_cb()' - Error callback for HTMLCSS...
+ */
+
+static int				/* O - 1 to continue */
+error_cb(void       *ctx,		/* I - User data (not used) */
+         const char *message,		/* I - Message string (not used) */
+         int        linenum)		/* I - Line number (not used) */
+{
+  (void)ctx;
+  (void)message;
+  (void)linenum;
+
+  return (1);
 }
 
 

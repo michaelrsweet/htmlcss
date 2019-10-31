@@ -1,4 +1,3 @@
-#define DEBUG 1
 /*
  * Core font object functions for HTMLCSS library.
  *
