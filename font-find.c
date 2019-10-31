@@ -107,7 +107,11 @@ hcFontFindCached(
   else if (!strcasecmp(family, "monospace"))
     family = "Courier New";
   else if (!strcasecmp(family, "sans-serif"))
+#if _WIN32
     family = "Arial";
+#else
+    family = "Helvetica";
+#endif /* _WIN32 */
   else if (!strcasecmp(family, "serif"))
     family = "Times New Roman";
 
@@ -125,9 +129,9 @@ hcFontFindCached(
 
   for (i = pool->font_index[tolower(*family & 255)], info = pool->fonts + i, best_info = NULL, best_score = 999999; i < pool->num_fonts; i ++, info ++)
   {
-    if ((result = strcasecmp(family, info->font_family)) > 0)
+    if ((result = strcasecmp(family, info->font_family)) != 0)
       continue;
-    else if (result < 0)
+    else if (result > 0)
       break;
 
     if (info->font_weight > weight)
