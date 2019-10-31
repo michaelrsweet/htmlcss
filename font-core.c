@@ -1,3 +1,4 @@
+#define DEBUG 1
 /*
  * Core font object functions for HTMLCSS library.
  *
@@ -293,10 +294,7 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
 
 
   if (read_table(file, idx, &table, &num_fonts))
-  {
-    _hcFileError(file, "Unable to read font table.");
     return (NULL);
-  }
 
   _HC_DEBUG("hcFontNew: num_entries=%d\n", table.num_entries);
 
@@ -728,6 +726,31 @@ read_cmap(hc_file_t       *file,	/* I - File */
 
   switch (cformat)
   {
+    case 0 :
+        {
+         /*
+          * Format 0: Byte encoding table.
+          *
+          * This is a simple 8-bit mapping.
+          */
+
+	  if ((clength = (unsigned)read_ushort(file)) == (unsigned)-1)
+	  {
+	    _hcFileError(file, "Unable to read cmap table length at offset %u.", coffset);
+	    return (-1);
+	  }
+
+	  _HC_DEBUG("read_cmap: clength=%u\n", clength);
+
+          /* language = */ read_ushort(file);
+
+	  num_cmap = length - 6;;
+	  cmapptr  = *cmap = (int *)malloc((size_t)num_cmap * sizeof(int));
+
+          hcFileRead(file, cmapptr, num_cmap);
+        }
+        break;
+
     case 4 :
         {
          /*
@@ -1379,7 +1402,10 @@ read_table(hc_file_t       *file,	/* I - File */
 
   /* sfnt version */
   if ((temp = read_ulong(file)) != 0x10000 && temp != 0x4f54544f && temp != 0x74746366)
+  {
+    _hcFileError(file, "Invalid font file.");
     return (-1);
+  }
 
   if (temp == 0x74746366)
   {
@@ -1392,13 +1418,19 @@ read_table(hc_file_t       *file,	/* I - File */
 
     /* Version */
     if ((temp = read_ulong(file)) != 0x10000 && temp != 0x20000)
+    {
+      _hcFileError(file, "Unsupported font collection version %f.", temp / 65536.0);
       return (-1);
+    }
 
-    _HC_DEBUG("read_table: Collection version=%d.0\n", temp / 65536);
+    _HC_DEBUG("read_table: Collection version=%f\n", temp / 65536.0);
 
     /* numFonts */
     if ((temp = read_ulong(file)) == 0)
+    {
+      _hcFileError(file, "No fonts in collection.");
       return (-1);
+    }
 
     *num_fonts = (size_t)temp;
 
@@ -1424,28 +1456,43 @@ read_table(hc_file_t       *file,	/* I - File */
 
   /* numTables */
   if ((table->num_entries = read_ushort(file)) <= 0)
+  {
+    _hcFileError(file, "Unable to read font tables.");
     return (-1);
+  }
 
   _HC_DEBUG("read_table: num_entries=%u\n", (unsigned)table->num_entries);
 
   /* searchRange */
   if (read_ushort(file) < 0)
+  {
+    _hcFileError(file, "Unable to read font tables.");
     return (-1);
+  }
 
   /* entrySelector */
   if (read_ushort(file) < 0)
+  {
+    _hcFileError(file, "Unable to read font tables.");
     return (-1);
+  }
 
   /* rangeShift */
   if (read_ushort(file) < 0)
+  {
+    _hcFileError(file, "Unable to read font tables.");
     return (-1);
+  }
 
  /*
   * Read the table entries...
   */
 
   if ((table->entries = calloc((size_t)table->num_entries, sizeof(_hc_off_dir_t))) == NULL)
+  {
+    _hcFileError(file, "Unable to allocate memory for font tables.");
     return (-1);
+  }
 
   for (i = table->num_entries, current = table->entries; i > 0; i --, current ++)
   {

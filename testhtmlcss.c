@@ -145,10 +145,6 @@ main(int  argc,				/* I - Number of command-line arguments */
 
         hcFontDelete(font);
       }
-      else if (show_font)
-      {
-        printf("%s: %s\n", argv[i], hcPoolGetLastError(pool));
-      }
     }
     else if (!strcmp(ext, ".gif") || !strcmp(ext, ".jpg") || !strcmp(ext, ".jpeg") || !strcmp(ext, ".png") || !strcmp(ext, ".svg") || !strcmp(ext, ".svgz"))
     {
