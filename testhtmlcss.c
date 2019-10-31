@@ -243,7 +243,7 @@ main(int  argc,				/* I - Number of command-line arguments */
 	if (hcNodeComputeCSSText(node, HC_COMPUTE_BASE, &textinfo))
 	{
 	  fputs("} {", stdout);
-	  printf(" font=%p(%s)", textinfo.font, hcFontGetPostScriptName(textinfo.font));
+	  printf(" font=%p(%s)", (void *)textinfo.font, hcFontGetPostScriptName(textinfo.font));
 	  printf(" font-family: %s;", textinfo.font_family);
 	  printf(" font-size: %f;", textinfo.font_size);
 	  printf(" font-stretch: %d;", textinfo.font_stretch);

@@ -768,6 +768,12 @@ read_cmap(hc_file_t       *file,	/* I - File */
 
           _HC_DEBUG("read_cmap: segCount=%d\n", segCount);
 
+          if (segCount < 2)
+          {
+	    _hcFileError(file, "Bad cmap table.");
+	    return (-1);
+          }
+
           numGlyphIdArray = ((int)clength - 8 * segCount - 16) / 2;
           segments        = (_hc_off_cmap4_t *)calloc((size_t)segCount, sizeof(_hc_off_cmap4_t));
           glyphIdArray    = (int *)calloc((size_t)numGlyphIdArray, sizeof(int));

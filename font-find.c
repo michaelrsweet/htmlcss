@@ -305,9 +305,9 @@ hc_compare_info(_hc_font_info_t *a,	/* I - First font */
   int	ret = strcmp(a->font_family, b->font_family);
 
   if (!ret)
-    ret = a->font_style - b->font_style;
+    ret = (int)a->font_style - (int)b->font_style;
   if (!ret)
-    ret = a->font_weight - b->font_weight;
+    ret = (int)a->font_weight - (int)b->font_weight;
 
   return (ret);
 }
