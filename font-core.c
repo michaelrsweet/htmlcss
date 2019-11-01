@@ -743,10 +743,11 @@ read_cmap(hc_file_t       *file,	/* I - File */
 
           /* language = */ read_ushort(file);
 
-	  num_cmap = length - 6;;
+	  num_cmap = (int)length - 6;;
 	  cmapptr  = *cmap = (int *)malloc((size_t)num_cmap * sizeof(int));
 
-          hcFileRead(file, cmapptr, num_cmap);
+          for (i = 0; i < num_cmap; i ++)
+            *cmapptr++ = hcFileGetc(file);
         }
         break;
 

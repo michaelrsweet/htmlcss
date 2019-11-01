@@ -57,7 +57,6 @@ main(int  argc,				/* I - Number of command-line arguments */
 		*pvalue;		/* Property value */
   int		test_all = 0,		/* Test everything? */
 		show_css = 0,		/* Show flattened CSS? */
-		show_font = 0,		/* Show font information? */
 		show_font_cache = 0,	/* Show cached font information? */
 		show_html = 0;		/* Show HTML? */
 
@@ -92,7 +91,7 @@ main(int  argc,				/* I - Number of command-line arguments */
     }
     else if (!strcmp(argv[i], "--font"))
     {
-      show_font = show_font_cache = 1;
+      show_font_cache = 1;
       continue;
     }
     else if (!strcmp(argv[i], "--html"))
