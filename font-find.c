@@ -105,11 +105,7 @@ hcFontFindCached(
   else if (!strcasecmp(family, "fantasy"))
     family = "Comic Sans MS";
   else if (!strcasecmp(family, "monospace"))
-#if __APPLE__
-    family = "Menlo";
-#else
     family = "Courier New";
-#endif /* __APPLE_ */
   else if (!strcasecmp(family, "sans-serif"))
 #if _WIN32
     family = "Arial";
@@ -480,6 +476,7 @@ hc_load_fonts(hc_pool_t  *pool,		/* I - Memory pool */
 		*ext;			/* Extension */
   hc_file_t	*file;			/* File */
   hc_font_t	*font;			/* Font */
+  struct stat	info;			/* Information about the current file */
 
 
   if ((dir = opendir(d)) == NULL)
@@ -490,13 +487,28 @@ hc_load_fonts(hc_pool_t  *pool,		/* I - Memory pool */
     if (dent->d_name[0] == '.')
       continue;
 
+    snprintf(filename, sizeof(filename), "%s/%s", d, dent->d_name);
+
+    if (stat(filename, &info))
+      continue;
+
+    if (S_ISDIR(info.st_mode))
+    {
+     /*
+      * TODO: Track previously scanned directories to protect against links...
+      * TODO: Avoid recursion...
+      */
+
+      hc_load_fonts(pool, filename);
+      continue;
+    }
+
     if ((ext = strrchr(dent->d_name, '.')) == NULL)
       continue;
 
     if (strcmp(ext, ".otc") && strcmp(ext, ".otf") && strcmp(ext, ".ttc") && strcmp(ext, ".ttf"))
       continue;
 
-    snprintf(filename, sizeof(filename), "%s/%s", d, dent->d_name);
     file = hcFileNewURL(pool, filename, NULL);
 
     if ((font = hcFontNew(pool, file, 0)) != NULL)
