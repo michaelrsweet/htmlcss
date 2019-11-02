@@ -17,6 +17,7 @@
 #  include "font-private.h"
 #  include "image.h"
 #  include <ctype.h>
+#  include <math.h>
 
 
 /*
@@ -923,6 +924,7 @@ _hcNodeComputeCSSTextFont(
 					/* Memory pool */
   hc_css_t		*css = node->value.element.html->css;
 					/* Stylesheet */
+  hc_text_t		parent_text;	/* Text properties for parent node */
   static const char * const stretches[] =
   {					/* font-stretch: values */
     "normal",
@@ -943,7 +945,18 @@ _hcNodeComputeCSSTextFont(
   };
 
 
+ /*
+  * Initialize default text values...
+  */
+
   memset(text, 0, sizeof(hc_text_t));
+
+  text->font_size   = 12.0f;
+  text->font_weight = HC_FONT_WEIGHT_400;
+
+ /*
+  * Return if there is no node...
+  */
 
   if (!node)
     return (0);
@@ -1020,7 +1033,7 @@ _hcNodeComputeCSSTextFont(
 	else if (font_pos == 1)
           text->font_variant = HC_FONT_VARIANT_NORMAL;
 	else if (font_pos == 2)
-          text->font_weight = HC_FONT_WEIGHT_NORMAL;
+          text->font_weight = HC_FONT_WEIGHT_400;
 	else if (font_pos == 3)
           text->font_stretch = HC_FONT_STRETCH_NORMAL;
 	else
@@ -1029,11 +1042,21 @@ _hcNodeComputeCSSTextFont(
       else if (!strcmp(current, "small-caps"))
         text->font_variant = HC_FONT_VARIANT_SMALL_CAPS;
       else if (!strcmp(current, "bold"))
-	text->font_weight = HC_FONT_WEIGHT_BOLD;
+	text->font_weight = HC_FONT_WEIGHT_700;
       else if (!strcmp(current, "bolder"))
-	text->font_weight = HC_FONT_WEIGHT_BOLDER;
+      {
+        if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text) && (parent_text.font_weight + 300) < HC_FONT_WEIGHT_900)
+          text->font_weight = (hc_font_weight_t)(parent_text.font_weight + 300);
+	else
+	  text->font_weight = HC_FONT_WEIGHT_900;
+      }
       else if (!strcmp(current, "lighter"))
-	text->font_weight = HC_FONT_WEIGHT_LIGHTER;
+      {
+        if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text) && (parent_text.font_weight - 300) > HC_FONT_WEIGHT_100)
+          text->font_weight = (hc_font_weight_t)(parent_text.font_weight - 300);
+	else
+	  text->font_weight = HC_FONT_WEIGHT_100;
+      }
       else if (*current >= '1' && *current <= '9' && current[1] == '0' && current[2] == '0' && !current[3])
 	text->font_weight = (hc_font_weight_t)atoi(current);
       else if (!strcmp(current, "xx-small"))
@@ -1043,13 +1066,23 @@ _hcNodeComputeCSSTextFont(
       else if (!strcmp(current, "small"))
 	text->font_size = 10.0f;
       else if (!strcmp(current, "smaller"))
-	text->font_size = 10.0f;	/* TODO: Need parent size */
+      {
+        if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text))
+          text->font_size = (float)round(parent_text.font_size / 1.2f);
+	else
+	  text->font_size = 10.0f;
+      }
       else if (!strcmp(current, "medium"))
 	text->font_size = 12.0f;
       else if (!strcmp(current, "large"))
 	text->font_size = 14.0f;
       else if (!strcmp(current, "larger"))
-	text->font_size = 14.0f;	/* TODO: Need parent size */
+      {
+        if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text))
+          text->font_size = (float)round(parent_text.font_size * 1.2f);
+	else
+	  text->font_size = 14.0f;
+      }
       else if (!strcmp(current, "x-large"))
 	text->font_size = 18.0f;
       else if (!strcmp(current, "xx-large"))
@@ -1057,9 +1090,16 @@ _hcNodeComputeCSSTextFont(
       else if (strchr("0123456789.", *current))
       {
         if (saw_slash)
+        {
           text->line_height = hc_get_length(current, text->font_size, text->font_size, css, text);
+        }
         else
-          text->font_size = hc_get_length(current, 12.0f, 72.0f / 96.0f, css, NULL); /* TODO: Need proper max value */
+        {
+	  if (!node->parent || !_hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text))
+	    parent_text.font_size = 12.0f;
+
+          text->font_size = hc_get_length(current, parent_text.font_size, 72.0f / 96.0f, css, &parent_text);
+	}
       }
       else
       {
@@ -1107,19 +1147,34 @@ _hcNodeComputeCSSTextFont(
     else if (!strcmp(value, "small"))
       text->font_size = 10.0f;
     else if (!strcmp(value, "smaller"))
-      text->font_size = 10.0f;	/* TODO: Need parent size */
+    {
+      if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text))
+	text->font_size = (float)round(parent_text.font_size / 1.2f);
+      else
+	text->font_size = 10.0f;
+    }
     else if (!strcmp(value, "medium"))
       text->font_size = 12.0f;
     else if (!strcmp(value, "large"))
       text->font_size = 14.0f;
     else if (!strcmp(value, "larger"))
-      text->font_size = 14.0f;	/* TODO: Need parent size */
+    {
+      if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text))
+	text->font_size = (float)round(parent_text.font_size * 1.2f);
+      else
+	text->font_size = 14.0f;
+    }
     else if (!strcmp(value, "x-large"))
       text->font_size = 18.0f;
     else if (!strcmp(value, "xx-large"))
       text->font_size = 24.0f;
-    else
-      text->font_size = hc_get_length(value, 12.0f, 72.0f / 96.0f, css, NULL); /* TODO: Need proper max value */
+    else if (strchr("0123456789.", *value))
+    {
+      if (!node->parent || !_hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text))
+	parent_text.font_size = 12.0f;
+
+      text->font_size = hc_get_length(value, parent_text.font_size, 72.0f / 96.0f, css, &parent_text);
+    }
   }
   else if (text->font_size <= 0.0f)
     text->font_size = 12.0f;
@@ -1128,8 +1183,8 @@ _hcNodeComputeCSSTextFont(
   {
     if (!strcmp(value, "none"))
       text->font_size_adjust = 0.0f;
-    else
-      text->font_size_adjust = hc_get_length(value, 12.0f, 72.0f / 96.0f, css, NULL); /* TODO: Need proper max value */
+    else if (strchr("0123456789.", *value))
+      text->font_size_adjust = hc_get_length(value, text->font_size, 72.0f / 96.0f, css, text);
   }
 
   if ((value = hcDictGetKeyValue(props, "font-stretch")) != NULL)
@@ -1167,13 +1222,23 @@ _hcNodeComputeCSSTextFont(
   if ((value = hcDictGetKeyValue(props, "font-weight")) != NULL)
   {
     if (!strcmp(value, "normal"))
-      text->font_weight = HC_FONT_WEIGHT_NORMAL;
+      text->font_weight = HC_FONT_WEIGHT_400;
     else if (!strcmp(value, "bold"))
-      text->font_weight = HC_FONT_WEIGHT_BOLD;
+      text->font_weight = HC_FONT_WEIGHT_700;
     else if (!strcmp(value, "bolder"))
-      text->font_weight = HC_FONT_WEIGHT_BOLDER;
+    {
+      if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text) && (parent_text.font_weight + 300) < HC_FONT_WEIGHT_900)
+	text->font_weight = (hc_font_weight_t)(parent_text.font_weight + 300);
+      else
+	text->font_weight = HC_FONT_WEIGHT_900;
+    }
     else if (!strcmp(value, "lighter"))
-      text->font_weight = HC_FONT_WEIGHT_LIGHTER;
+    {
+      if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text) && (parent_text.font_weight - 300) > HC_FONT_WEIGHT_100)
+	text->font_weight = (hc_font_weight_t)(parent_text.font_weight - 300);
+      else
+	text->font_weight = HC_FONT_WEIGHT_100;
+    }
     else if (*value >= '1' && *value <= '9' && value[1] == '0' && value[2] == '0' && !value[3])
       text->font_weight = (hc_font_weight_t)atoi(value);
   }
@@ -1182,7 +1247,7 @@ _hcNodeComputeCSSTextFont(
   {
     if (!strcmp(value, "normal"))
       text->line_height = text->font_size * 1.2f;
-    else /* TODO: Support inherit */
+    else if (strchr("0123456789.", *value))
       text->line_height = hc_get_length(value, text->font_size, text->font_size, css, text);
   }
   else if (text->line_height <= 0.0f)

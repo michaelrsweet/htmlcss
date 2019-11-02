@@ -105,7 +105,11 @@ hcFontFindCached(
   else if (!strcasecmp(family, "fantasy"))
     family = "Comic Sans MS";
   else if (!strcasecmp(family, "monospace"))
+#if __APPLE__
+    family = "Menlo";
+#else
     family = "Courier New";
+#endif /* __APPLE_ */
   else if (!strcasecmp(family, "sans-serif"))
 #if _WIN32
     family = "Arial";

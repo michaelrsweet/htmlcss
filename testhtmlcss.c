@@ -241,15 +241,19 @@ main(int  argc,				/* I - Number of command-line arguments */
 	hc_text_t textinfo;
 	if (hcNodeComputeCSSText(node, HC_COMPUTE_BASE, &textinfo))
 	{
+	  static const char * const stretches[] = { "normal", "ultra-condensed", "extra-condensed", "condensed", "semi-condensed", "semi-expanded", "expanded", "extra-expanded", "ultra-expanded" };
+	  static const char * const styles[] = { "normal", "italic", "oblique" };
+	  static const char * const variants[] = { "normal", "small-caps" };
+
 	  fputs("} {", stdout);
 	  printf(" font=%p(%s)", (void *)textinfo.font, hcFontGetPostScriptName(textinfo.font));
 	  printf(" font-family: %s;", textinfo.font_family);
-	  printf(" font-size: %f;", textinfo.font_size);
-	  printf(" font-stretch: %d;", textinfo.font_stretch);
-	  printf(" font-style: %d;", textinfo.font_style);
-	  printf(" font-variant: %d;", textinfo.font_variant);
+	  printf(" font-size: %.1f;", textinfo.font_size);
+	  printf(" font-stretch: %s;", stretches[textinfo.font_stretch]);
+	  printf(" font-style: %s;", styles[textinfo.font_style]);
+	  printf(" font-variant: %s;", variants[textinfo.font_variant]);
 	  printf(" font-weight: %d;", textinfo.font_weight);
-	  printf(" line-height: %f;", textinfo.line_height);
+	  printf(" line-height: %.1f;", textinfo.line_height);
 	}
 	puts("}");
       }
