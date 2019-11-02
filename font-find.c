@@ -18,22 +18,33 @@
 
 #include <dirent.h>
 #include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 
 /*
  * Structure...
  */
 
-struct _hc_font_info_t			/* Font cache information */
+typedef struct _hc_font_cache_s		/* Binary font cache structure */
+{
+  char		font_url[380],		/* Filename */
+		font_family[128];	/* Family name */
+  unsigned char	font_index,		/* Index in font collection */
+		font_style;		/* Style */
+  unsigned short font_weight;		/* Weight */
+} _hc_font_cache_t;
+
+struct _hc_font_info_s			/* Font cache information */
 {
   const char		*font_url;	/* Font filename/URL */
   size_t		font_index;	/* Font number in collection */
   hc_font_t		*font;		/* Loaded font */
-  const char		*font_family;
-  hc_font_stretch_t	font_stretch;
-  hc_font_style_t	font_style;
-  hc_font_variant_t	font_variant;
-  hc_font_weight_t	font_weight;
+  const char		*font_family;	/* Family name */
+  hc_font_stretch_t	font_stretch;	/* Stretch/width (not used) */
+  hc_font_style_t	font_style;	/* Style (normal/italic/oblique) */
+  hc_font_variant_t	font_variant;	/* Variant (not used) */
+  hc_font_weight_t	font_weight;	/* Weight (100 - 900) */
 };
 
 
@@ -45,8 +56,9 @@ static void	hc_add_font(hc_pool_t *pool, hc_font_t *font, const char *url, int d
 static int	hc_compare_info(_hc_font_info_t *a, _hc_font_info_t *b);
 static void	hc_get_cname(char *cname, size_t cnamesize);
 static void	hc_load_all_fonts(hc_pool_t *pool);
-static void	hc_load_fonts(hc_pool_t *pool, const char *d);
-static void	hc_save_all_fonts(hc_pool_t *pool, const char *cname);
+static int	hc_load_cache(hc_pool_t *pool, const char *cname, struct stat *cinfo);
+static time_t	hc_load_fonts(hc_pool_t *pool, const char *d, int scanonly);
+static void	hc_save_cache(hc_pool_t *pool, const char *cname);
 static void	hc_sort_fonts(hc_pool_t *pool);
 
 
@@ -327,33 +339,33 @@ hc_get_cname(char   *cname,		/* I - Cache filename */
 #ifdef __APPLE__
   if (home)
   {
-    snprintf(cname, cnamesize, "%s/Library/Preferences/org.msweet.htmlcss.txt", home);
+    snprintf(cname, cnamesize, "%s/Library/Caches/org.msweet.htmlcss.dat", home);
   }
   else
   {
-    strncpy(cname, "/private/tmp/org.msweet.htmlcss.txt", cnamesize - 1);
+    strncpy(cname, "/private/tmp/org.msweet.htmlcss.dat", cnamesize - 1);
     cname[cnamesize - 1] = '\0';
   }
 
 #elif _WIN32
   if (home)
   {
-    snprintf(cname, cnamesize, "%s/.htmlcss.txt", home);
+    snprintf(cname, cnamesize, "%s/.htmlcss.dat", home);
   }
   else
   {
-    strncpy(cname, "C:/WINDOWS/TEMP/.htmlcss.txt", cnamesize - 1);
+    strncpy(cname, "C:/WINDOWS/TEMP/.htmlcss.dat", cnamesize - 1);
     cname[cnamesize - 1] = '\0';
   }
 
 #else
   if (home)
   {
-    snprintf(cname, cnamesize, "%s/.htmlcss.txt", home);
+    snprintf(cname, cnamesize, "%s/.htmlcss.dat", home);
   }
   else
   {
-    strncpy(cname, "/tmp/.htmlcss.txt", cnamesize - 1);
+    strncpy(cname, "/tmp/.htmlcss.dat", cnamesize - 1);
     cname[cnamesize - 1] = '\0';
   }
 #endif /* __APPLE__ */
@@ -371,7 +383,6 @@ hc_load_all_fonts(hc_pool_t *pool)	/* I - Memory pool */
 		num_dirs = 0;		/* Number of directories */
   const char	*dirs[5];		/* Directories */
   char		dname[1024];		/* Directory filename */
-  struct stat	dinfo;			/* Directory information */
   const char	*home = getenv("HOME");	/* Home directory */
   char		cname[1024];		/* Cache filename */
   struct stat	cinfo;			/* Cache file information */
@@ -420,7 +431,7 @@ hc_load_all_fonts(hc_pool_t *pool)	/* I - Memory pool */
   {
     for (i = 0; i < num_dirs; i ++)
     {
-      if (!stat(dirs[i], &dinfo) && dinfo.st_mtime > cinfo.st_mtime)
+      if (hc_load_fonts(pool, dirs[i], 1) > cinfo.st_mtime)
       {
         rescan = 1;
         break;
@@ -432,6 +443,9 @@ hc_load_all_fonts(hc_pool_t *pool)	/* I - Memory pool */
   * Load the list of system fonts...
   */
 
+  if (!rescan && !hc_load_cache(pool, cname, &cinfo))
+    rescan = 1;
+
   if (rescan)
   {
    /*
@@ -439,21 +453,13 @@ hc_load_all_fonts(hc_pool_t *pool)	/* I - Memory pool */
     */
 
     for (i = 0; i < num_dirs; i ++)
-      hc_load_fonts(pool, dirs[i]);
+      hc_load_fonts(pool, dirs[i], 0);
 
    /*
     * Save the cache...
     */
 
-    hc_save_all_fonts(pool, cname);
-  }
-  else
-  {
-   /*
-    * Load the cache...
-    */
-
-    /* TODO: Implement cache load */
+    hc_save_cache(pool, cname);
   }
 
   hc_sort_fonts(pool);
@@ -463,12 +469,77 @@ hc_load_all_fonts(hc_pool_t *pool)	/* I - Memory pool */
 
 
 /*
+ * 'hc_load_cache()' - Load all fonts from the cache...
+ */
+
+static int				/* O - 1 on success, 0 on failure */
+hc_load_cache(hc_pool_t   *pool,	/* I - Memory pool */
+	      const char  *cname,	/* I - Cache filename */
+	      struct stat *cinfo)	/* I - Cache information */
+{
+  int			cfile;		/* Cache file descriptor */
+  _hc_font_cache_t	rec;		/* File record */
+  _hc_font_info_t	*font;		/* Current font */
+  size_t		i,		/* Looping var */
+			num_fonts;	/* Number of fonts */
+
+
+  if (((size_t)cinfo->st_size % sizeof(_hc_font_cache_t)) != 0)
+  {
+    _hcPoolError(pool, 0, "Invalid font cache file '%s'.", cname);
+    return (0);
+  }
+
+  num_fonts = (size_t)cinfo->st_size / sizeof(_hc_font_cache_t);
+
+  if (num_fonts == 0)
+    return (0);
+
+  if ((cfile = open(cname, O_RDONLY | O_EXCL)) < 0)
+  {
+    if (errno != ENOENT)
+      _hcPoolError(pool, 0, "Unable to open font cache file '%s': %s", cname, strerror(errno));
+    return (0);
+  }
+
+  if ((pool->fonts = (_hc_font_info_t *)calloc(num_fonts, sizeof(_hc_font_info_t))) == NULL)
+  {
+    _hcPoolError(pool, 0, "Unable to allocate font cache: %s", strerror(errno));
+    close(cfile);
+    return (0);
+  }
+
+  pool->alloc_fonts = pool->num_fonts = num_fonts;
+
+  for (i = 0, font = pool->fonts; i < pool->num_fonts; i ++, font ++)
+  {
+    if (read(cfile, &rec, sizeof(rec)) != sizeof(rec))
+    {
+      _hcPoolError(pool, 0, "Unable to load font cache from '%s': %s", cname, strerror(errno));
+      break;
+    }
+
+    font->font_url    = hcPoolGetString(pool, rec.font_url);
+    font->font_index  = (size_t)rec.font_index;
+    font->font_family = hcPoolGetString(pool, rec.font_family);
+    font->font_style  = (hc_font_style_t)rec.font_style;
+    font->font_weight = (hc_font_weight_t)rec.font_weight;
+  }
+
+  close(cfile);
+
+  return (1);
+}
+
+
+/*
  * 'hc_load_fonts()' - Load fonts in a directory...
  */
 
-static void
+static time_t				/* O - Newest mtime */
 hc_load_fonts(hc_pool_t  *pool,		/* I - Memory pool */
-              const char *d)		/* I - Directory to load */
+              const char *d,		/* I - Directory to load */
+              int        scanonly)	/* I - Just scan directory mtimes? */
 {
   DIR		*dir;			/* Directory pointer */
   struct dirent	*dent;			/* Directory entry */
@@ -477,10 +548,11 @@ hc_load_fonts(hc_pool_t  *pool,		/* I - Memory pool */
   hc_file_t	*file;			/* File */
   hc_font_t	*font;			/* Font */
   struct stat	info;			/* Information about the current file */
+  time_t	mtime = 0;		/* Newest mtime */
 
 
   if ((dir = opendir(d)) == NULL)
-    return;
+    return (mtime);
 
   while ((dent = readdir(dir)) != NULL)
   {
@@ -489,19 +561,20 @@ hc_load_fonts(hc_pool_t  *pool,		/* I - Memory pool */
 
     snprintf(filename, sizeof(filename), "%s/%s", d, dent->d_name);
 
-    if (stat(filename, &info))
+    if (lstat(filename, &info))
       continue;
+
+    if (info.st_mtime > mtime)
+      mtime = info.st_mtime;
 
     if (S_ISDIR(info.st_mode))
     {
-     /*
-      * TODO: Track previously scanned directories to protect against links...
-      * TODO: Avoid recursion...
-      */
-
-      hc_load_fonts(pool, filename);
+      hc_load_fonts(pool, filename, scanonly);
       continue;
     }
+
+    if (scanonly)
+      continue;
 
     if ((ext = strrchr(dent->d_name, '.')) == NULL)
       continue;
@@ -553,20 +626,48 @@ hc_load_fonts(hc_pool_t  *pool,		/* I - Memory pool */
   }
 
   closedir(dir);
+
+  return (mtime);
 }
 
 
 /*
- * 'hc_save_all_fonts()' - Save all fonts to the cache...
+ * 'hc_save_cache()' - Save all fonts to the cache...
  */
 
 static void
-hc_save_all_fonts(hc_pool_t  *pool,	/* I - Memory pool */
-		  const char *cname)	/* I - Cache filename */
+hc_save_cache(hc_pool_t  *pool,		/* I - Memory pool */
+	      const char *cname)	/* I - Cache filename */
 {
-  /* TODO: Implement cache save */
-  (void)pool;
-  (void)cname;
+  int			cfile;		/* Cache file descriptor */
+  _hc_font_cache_t	rec;		/* File record */
+  size_t		i;		/* Looping var */
+  _hc_font_info_t	*font;		/* Current font */
+
+
+  if ((cfile = open(cname, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, 0666)) < 0)
+  {
+    _hcPoolError(pool, 0, "Unable to create font cache file '%s': %s", cname, strerror(errno));
+    return;
+  }
+
+  for (i = 0, font = pool->fonts; i < pool->num_fonts; i ++, font ++)
+  {
+    memset(&rec, 0, sizeof(rec));
+    strncpy(rec.font_url, font->font_url, sizeof(rec.font_url) - 1);
+    strncpy(rec.font_family, font->font_family, sizeof(rec.font_family) - 1);
+    rec.font_index  = (unsigned char)font->font_index;
+    rec.font_style  = (unsigned char)font->font_style;
+    rec.font_weight = (unsigned short)font->font_weight;
+
+    if (write(cfile, &rec, sizeof(rec)) != sizeof(rec))
+    {
+      _hcPoolError(pool, 0, "Unable to save font cache to '%s': %s", cname, strerror(errno));
+      break;
+    }
+  }
+
+  close(cfile);
 }
 
 

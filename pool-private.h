@@ -30,7 +30,7 @@ extern "C" {
  * Types...
  */
 
-typedef struct _hc_font_info_t _hc_font_info_t;
+typedef struct _hc_font_info_s _hc_font_info_t;
 					/* Font cache information */
 
 struct _hc_pool_s			/* Memory pool */
