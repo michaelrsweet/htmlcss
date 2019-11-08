@@ -29,6 +29,8 @@ extern "C" {
  * Constants...
  */
 
+#  define HC_MARGIN_AUTO	-999999999.0f
+					/* Automatic margin */
 #  define HC_MAX_BOX_SHADOW	4	/* Maximum number of box shadow values */
 
 

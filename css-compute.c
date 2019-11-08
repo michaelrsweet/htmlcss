@@ -510,26 +510,6 @@ hcNodeComputeCSSBox(
   {
   }
 
-  if ((value = hcDictGetKeyValue(props, "margin")) != NULL)
-  {
-  }
-
-  if ((value = hcDictGetKeyValue(props, "margin-bottom")) != NULL)
-  {
-  }
-
-  if ((value = hcDictGetKeyValue(props, "margin-left")) != NULL)
-  {
-  }
-
-  if ((value = hcDictGetKeyValue(props, "margin-right")) != NULL)
-  {
-  }
-
-  if ((value = hcDictGetKeyValue(props, "margin-top")) != NULL)
-  {
-  }
-
   if ((value = hcDictGetKeyValue(props, "orphans")) != NULL)
   {
   }
@@ -538,24 +518,170 @@ hcNodeComputeCSSBox(
   {
   }
 
+  if ((value = hcDictGetKeyValue(props, "margin")) != NULL)
+  {
+    char	*temp = strdup(value),	/* Copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		num_values = 0;		/* Number of values */
+    float	values[4];		/* Values */
+
+    for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
+    {
+      if (num_values < 4)
+      {
+	if (!strcmp(current, "auto"))
+	  values[num_values] = HC_MARGIN_AUTO;
+	else if (strchr("0123456789+-.", *current))
+	  values[num_values] = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+	else
+	  values[num_values] = 0.0f;
+      }
+
+      num_values ++;
+    }
+
+    switch (num_values)
+    {
+      default :
+          break;
+      case 1 :
+          box->margin.top    = values[0];
+	  box->margin.right  = values[0];
+          box->margin.bottom = values[0];
+	  box->margin.left   = values[0];
+	  break;
+      case 2 :
+          box->margin.top    = values[0];
+	  box->margin.right  = values[1];
+          box->margin.bottom = values[0];
+	  box->margin.left   = values[1];
+	  break;
+      case 3 :
+          box->margin.top    = values[0];
+	  box->margin.right  = values[1];
+          box->margin.bottom = values[2];
+	  box->margin.left   = values[1];
+	  break;
+      case 4 :
+          box->margin.top    = values[0];
+	  box->margin.right  = values[1];
+          box->margin.bottom = values[2];
+	  box->margin.left   = values[3];
+	  break;
+    }
+
+    free(temp);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "margin-bottom")) != NULL)
+  {
+    if (!strcmp(value, "auto"))
+      box->margin.bottom = HC_MARGIN_AUTO;
+    else if (strchr("0123456789+-.", *value))
+      box->margin.bottom = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "margin-left")) != NULL)
+  {
+    if (!strcmp(value, "auto"))
+      box->margin.left = HC_MARGIN_AUTO;
+    else if (strchr("0123456789+-.", *value))
+      box->margin.left = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "margin-right")) != NULL)
+  {
+    if (!strcmp(value, "auto"))
+      box->margin.right = HC_MARGIN_AUTO;
+    else if (strchr("0123456789+-.", *value))
+      box->margin.right = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "margin-top")) != NULL)
+  {
+    if (!strcmp(value, "auto"))
+      box->margin.top = HC_MARGIN_AUTO;
+    else if (strchr("0123456789+-.", *value))
+      box->margin.top = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+  }
+
   if ((value = hcDictGetKeyValue(props, "padding")) != NULL)
   {
+    char	*temp = strdup(value),	/* Copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		num_values = 0;		/* Number of values */
+    float	values[4];		/* Values */
+
+    for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
+    {
+      if (num_values < 4)
+      {
+	if (strchr("0123456789+-.", *current))
+	  values[num_values] = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+	else
+	  values[num_values] = 0.0f;
+      }
+
+      num_values ++;
+    }
+
+    switch (num_values)
+    {
+      default :
+          break;
+      case 1 :
+          box->padding.top    = values[0];
+	  box->padding.right  = values[0];
+          box->padding.bottom = values[0];
+	  box->padding.left   = values[0];
+	  break;
+      case 2 :
+          box->padding.top    = values[0];
+	  box->padding.right  = values[1];
+          box->padding.bottom = values[0];
+	  box->padding.left   = values[1];
+	  break;
+      case 3 :
+          box->padding.top    = values[0];
+	  box->padding.right  = values[1];
+          box->padding.bottom = values[2];
+	  box->padding.left   = values[1];
+	  break;
+      case 4 :
+          box->padding.top    = values[0];
+	  box->padding.right  = values[1];
+          box->padding.bottom = values[2];
+	  box->padding.left   = values[3];
+	  break;
+    }
+
+    free(temp);
   }
 
   if ((value = hcDictGetKeyValue(props, "padding-bottom")) != NULL)
   {
+    if (strchr("0123456789+-.", *value))
+      box->padding.bottom = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "padding-left")) != NULL)
   {
+    if (strchr("0123456789+-.", *value))
+      box->padding.left = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "padding-right")) != NULL)
   {
+    if (strchr("0123456789+-.", *value))
+      box->padding.right = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "padding-top")) != NULL)
   {
+    if (strchr("0123456789+-.", *value))
+      box->padding.top = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "widows")) != NULL)
