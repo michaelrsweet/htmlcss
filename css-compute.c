@@ -469,6 +469,54 @@ hcNodeComputeCSSBox(
   {
   }
 
+  if ((value = hcDictGetKeyValue(props, "border-bottom-width")) != NULL)
+  {
+    if (!strcmp(value, "thin"))
+      box->border.bottom.width = 0.5f;
+    else if (!strcmp(value, "medium"))
+      box->border.bottom.width = 1.0f;
+    else if (!strcmp(value, "thick"))
+      box->border.bottom.width = 2.0f;
+    else if (strchr("0123456789.", *value))
+      box->border.bottom.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);;
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-left-width")) != NULL)
+  {
+    if (!strcmp(value, "thin"))
+      box->border.left.width = 0.5f;
+    else if (!strcmp(value, "medium"))
+      box->border.left.width = 1.0f;
+    else if (!strcmp(value, "thick"))
+      box->border.left.width = 2.0f;
+    else if (strchr("0123456789.", *value))
+      box->border.left.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);;
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-right-width")) != NULL)
+  {
+    if (!strcmp(value, "thin"))
+      box->border.right.width = 0.5f;
+    else if (!strcmp(value, "medium"))
+      box->border.right.width = 1.0f;
+    else if (!strcmp(value, "thick"))
+      box->border.right.width = 2.0f;
+    else if (strchr("0123456789.", *value))
+      box->border.right.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);;
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-top-width")) != NULL)
+  {
+    if (!strcmp(value, "thin"))
+      box->border.top.width = 0.5f;
+    else if (!strcmp(value, "medium"))
+      box->border.top.width = 1.0f;
+    else if (!strcmp(value, "thick"))
+      box->border.top.width = 2.0f;
+    else if (strchr("0123456789.", *value))
+      box->border.top.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);;
+  }
+
   if ((value = hcDictGetKeyValue(props, "border-collapse")) != NULL)
   {
   }
