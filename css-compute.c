@@ -90,12 +90,30 @@ hcNodeComputeCSSBox(
     "repeat-x",
     "repeat-y"
   };
+  static const char * const styles[] =
+  {					/* border-style: values */
+    "hidden",
+    "none",
+    "dotted",
+    "dashed",
+    "solid",
+    "double",
+    "groove",
+    "ridge",
+    "inset",
+    "outset"
+  };
 
 
   if (!box)
     return (0);
 
   memset(box, 0, sizeof(hc_box_t));
+
+  box->border.bottom.width = 1.0f;
+  box->border.left.width   = 1.0f;
+  box->border.right.width  = 1.0f;
+  box->border.top.width    = 1.0f;
 
   box->orphans = 2;
   box->widows  = 2;
@@ -469,6 +487,112 @@ hcNodeComputeCSSBox(
   {
   }
 
+  if ((value = hcDictGetKeyValue(props, "border-bottom")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-left")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-right")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-top")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-color")) != NULL)
+  {
+    if (hc_get_color(value, &box->border.bottom.color))
+      box->border.left.color = box->border.right.color = box->border.top.color = box->border.bottom.color;
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-style")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(styles) / sizeof(styles[0])); i ++)
+    {
+      if (!strcmp(value, styles[i]))
+      {
+        box->border.bottom.style = box->border.left.style = box->border.right.style = box->border.top.style = (hc_border_style_t)i;
+        break;
+      }
+    }
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-width")) != NULL)
+  {
+    if (!strcmp(value, "thin"))
+      box->border.bottom.width = box->border.left.width = box->border.right.width = box->border.top.width = 0.5f;
+    else if (!strcmp(value, "medium"))
+      box->border.bottom.width = box->border.left.width = box->border.right.width = box->border.top.width = 1.0f;
+    else if (!strcmp(value, "thick"))
+      box->border.bottom.width = box->border.left.width = box->border.right.width = box->border.top.width = 2.0f;
+    else if (strchr("0123456789.", *value))
+      box->border.bottom.width = box->border.left.width = box->border.right.width = box->border.top.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-bottom-color")) != NULL)
+    hc_get_color(value, &box->border.bottom.color);
+
+  if ((value = hcDictGetKeyValue(props, "border-left-color")) != NULL)
+    hc_get_color(value, &box->border.left.color);
+
+  if ((value = hcDictGetKeyValue(props, "border-right-color")) != NULL)
+    hc_get_color(value, &box->border.right.color);
+
+  if ((value = hcDictGetKeyValue(props, "border-top-color")) != NULL)
+    hc_get_color(value, &box->border.top.color);
+
+  if ((value = hcDictGetKeyValue(props, "border-bottom-style")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(styles) / sizeof(styles[0])); i ++)
+    {
+      if (!strcmp(value, styles[i]))
+      {
+        box->border.bottom.style = (hc_border_style_t)i;
+        break;
+      }
+    }
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-left-style")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(styles) / sizeof(styles[0])); i ++)
+    {
+      if (!strcmp(value, styles[i]))
+      {
+        box->border.left.style = (hc_border_style_t)i;
+        break;
+      }
+    }
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-right-style")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(styles) / sizeof(styles[0])); i ++)
+    {
+      if (!strcmp(value, styles[i]))
+      {
+        box->border.right.style = (hc_border_style_t)i;
+        break;
+      }
+    }
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-top-style")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(styles) / sizeof(styles[0])); i ++)
+    {
+      if (!strcmp(value, styles[i]))
+      {
+        box->border.top.style = (hc_border_style_t)i;
+        break;
+      }
+    }
+  }
+
   if ((value = hcDictGetKeyValue(props, "border-bottom-width")) != NULL)
   {
     if (!strcmp(value, "thin"))
@@ -478,7 +602,7 @@ hcNodeComputeCSSBox(
     else if (!strcmp(value, "thick"))
       box->border.bottom.width = 2.0f;
     else if (strchr("0123456789.", *value))
-      box->border.bottom.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);;
+      box->border.bottom.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "border-left-width")) != NULL)
@@ -490,7 +614,7 @@ hcNodeComputeCSSBox(
     else if (!strcmp(value, "thick"))
       box->border.left.width = 2.0f;
     else if (strchr("0123456789.", *value))
-      box->border.left.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);;
+      box->border.left.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "border-right-width")) != NULL)
@@ -502,7 +626,7 @@ hcNodeComputeCSSBox(
     else if (!strcmp(value, "thick"))
       box->border.right.width = 2.0f;
     else if (strchr("0123456789.", *value))
-      box->border.right.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);;
+      box->border.right.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "border-top-width")) != NULL)
@@ -514,8 +638,9 @@ hcNodeComputeCSSBox(
     else if (!strcmp(value, "thick"))
       box->border.top.width = 2.0f;
     else if (strchr("0123456789.", *value))
-      box->border.top.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);;
+      box->border.top.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
   }
+
 
   if ((value = hcDictGetKeyValue(props, "border-collapse")) != NULL)
   {
