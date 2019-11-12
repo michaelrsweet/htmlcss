@@ -97,6 +97,9 @@ hcNodeComputeCSSBox(
 
   memset(box, 0, sizeof(hc_box_t));
 
+  box->orphans = 2;
+  box->widows  = 2;
+
   if (!node)
     return (0);
 
@@ -512,9 +515,43 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "orphans")) != NULL)
   {
+    if (!strcmp(value, "inherit"))
+      value = hcDictGetKeyValue(node->parent->value.element.base_props, "widows");
+
+    if (value && isdigit(*value & 255))
+      box->orphans = atoi(value);
   }
 
   if ((value = hcDictGetKeyValue(props, "overflow")) != NULL)
+  {
+    static const char * const overflows[] =
+    {
+      "hidden",
+      "visible",
+      "scroll",
+      "auto"
+    };
+
+    for (i = 0; i < (int)(sizeof(overflows) / sizeof(overflows[0])); i ++)
+    {
+      if (!strcmp(value, overflows[i]))
+      {
+        box->overflow = (hc_overflow_t)i;
+        break;
+      }
+    }
+  }
+
+  if ((value = hcDictGetKeyValue(props, "widows")) != NULL)
+  {
+    if (!strcmp(value, "inherit"))
+      value = hcDictGetKeyValue(node->parent->value.element.base_props, "widows");
+
+    if (value && isdigit(*value & 255))
+      box->widows = atoi(value);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "z-index")) != NULL)
   {
   }
 
@@ -682,14 +719,6 @@ hcNodeComputeCSSBox(
   {
     if (strchr("0123456789+-.", *value))
       box->padding.top = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
-  }
-
-  if ((value = hcDictGetKeyValue(props, "widows")) != NULL)
-  {
-  }
-
-  if ((value = hcDictGetKeyValue(props, "z-index")) != NULL)
-  {
   }
 
   return (1);
