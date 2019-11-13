@@ -1580,6 +1580,10 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "z-index")) != NULL)
   {
+    if (!strcmp(value, "auto"))
+      box->z_index = 0;
+    else if (isdigit(*value & 255))
+      box->z_index = atoi(value);
   }
 
   if ((value = hcDictGetKeyValue(props, "margin")) != NULL)
