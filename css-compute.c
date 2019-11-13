@@ -884,7 +884,7 @@ hcNodeComputeCSSBox(
       }
       else if (strchr("0123456789.", *current))
       {
-	length = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+	length = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -977,7 +977,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-	length = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+	length = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1044,7 +1044,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-	length = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+	length = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1096,7 +1096,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-	length = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+	length = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1144,7 +1144,7 @@ hcNodeComputeCSSBox(
       }
       else if (strchr("0123456789.", *current))
       {
-        radius = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+        radius = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1210,7 +1210,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-        radius = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+        radius = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1242,7 +1242,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-        radius = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+        radius = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1274,7 +1274,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-        radius = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+        radius = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1306,7 +1306,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-        radius = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+        radius = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1338,7 +1338,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-        spacing = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+        spacing = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1360,6 +1360,47 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "box-shadow")) != NULL)
   {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		pos = 0;		/* Position */
+    float	length;			/* Shadow offset/blur/spread length */
+    hc_color_t	color;			/* Shadow color */
+
+    box->box_shadow.color = text.color;
+
+    for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
+    {
+      if (!strcmp(current, "inset"))
+        box->box_shadow.inset = HC_BOOL_TRUE;
+      else if (hc_get_color(current, &color))
+        box->box_shadow.color = color;
+      else if (strchr("0123456789.", *current))
+      {
+        length = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+
+        switch (pos)
+        {
+	  case 0 :
+	      box->box_shadow.horizontal_offset = length;
+	      box->box_shadow.vertical_offset   = length;
+	      break;
+	  case 1 :
+	      box->box_shadow.vertical_offset = length;
+	      break;
+	  case 2 :
+	      box->box_shadow.blur_radius = length;
+	      break;
+	  case 3 :
+	      box->box_shadow.spread_distance = length;
+	      break;
+        }
+
+        pos ++;
+      }
+    }
+
+    free(temp);
   }
 
   if ((value = hcDictGetKeyValue(props, "break-after")) == NULL)
@@ -2013,6 +2054,7 @@ _hcNodeComputeCSSTextFont(
 
   memset(text, 0, sizeof(hc_text_t));
 
+  text->color.alpha = 1.0f;
   text->font_size   = 12.0f;
   text->font_weight = HC_FONT_WEIGHT_400;
 
@@ -2022,6 +2064,9 @@ _hcNodeComputeCSSTextFont(
 
   if (!node)
     return (0);
+
+  if ((value = hcDictGetKeyValue(props, "color")) != NULL)
+    hc_get_color(value, &text->color);
 
   if ((value = hcDictGetKeyValue(props, "font")) != NULL)
   {

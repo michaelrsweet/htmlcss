@@ -31,7 +31,6 @@ extern "C" {
 
 #  define HC_LENGTH_AUTO	-999999999.0f
 					/* Automatic length */
-#  define HC_MAX_BOX_SHADOW	4	/* Maximum number of box shadow values */
 
 
 /*
@@ -260,7 +259,7 @@ typedef struct hc_box_shadow_s		/* Box shadow values */
   float			blur_radius;
   float			spread_distance;
   hc_color_t		color;
-  int			inset;
+  hc_bool_t		inset;
 } hc_box_shadow_t;
 
 /* Higher-level types */
@@ -307,6 +306,7 @@ typedef struct hc_box_s			/* CSS box properties */
   hc_point_t		background_position;
   hc_background_repeat_t background_repeat;
   hc_size_t		background_size;
+  hc_border_t		border;
   hc_border_collapse_t	border_collapse;
   const char		*border_image;
   hc_bool_t		border_image_fill;
@@ -316,9 +316,7 @@ typedef struct hc_box_s			/* CSS box properties */
   hc_rect_t		border_image_width;
   hc_border_radius_t	border_radius;
   hc_size_t		border_spacing;
-  hc_border_t		border;
-  hc_box_shadow_t	box_shadow[HC_MAX_BOX_SHADOW];
-  int			box_shadow_count;
+  hc_box_shadow_t	box_shadow;
   hc_break_t		break_after;
   hc_break_t		break_before;
   hc_break_t		break_inside;
@@ -352,6 +350,7 @@ typedef struct hc_table_s		/* CSS table properties */
 
 typedef struct hc_text_s		/* CSS text properties */
 {
+  hc_color_t		color;
   hc_direction_t	direction;
   hc_font_t		*font;		/* Loaded font */
   const char		*font_family;
