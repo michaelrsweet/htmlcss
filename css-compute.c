@@ -496,19 +496,19 @@ hcNodeComputeCSSBox(
       {
 	box->border.bottom.color = box->border.left.color = box->border.right.color = box->border.top.color = color;
       }
-      else if (!strcmp(value, "thin"))
+      else if (!strcmp(current, "thin"))
       {
 	box->border.bottom.width = box->border.left.width = box->border.right.width = box->border.top.width = 0.5f;
       }
-      else if (!strcmp(value, "medium"))
+      else if (!strcmp(current, "medium"))
       {
 	box->border.bottom.width = box->border.left.width = box->border.right.width = box->border.top.width = 1.0f;
       }
-      else if (!strcmp(value, "thick"))
+      else if (!strcmp(current, "thick"))
       {
 	box->border.bottom.width = box->border.left.width = box->border.right.width = box->border.top.width = 2.0f;
       }
-      else if (strchr("0123456789.", *value))
+      else if (strchr("0123456789.", *current))
       {
 	box->border.bottom.width = box->border.left.width = box->border.right.width = box->border.top.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
       }
@@ -540,19 +540,19 @@ hcNodeComputeCSSBox(
       {
 	box->border.bottom.color = color;
       }
-      else if (!strcmp(value, "thin"))
+      else if (!strcmp(current, "thin"))
       {
 	box->border.bottom.width = 0.5f;
       }
-      else if (!strcmp(value, "medium"))
+      else if (!strcmp(current, "medium"))
       {
 	box->border.bottom.width = 1.0f;
       }
-      else if (!strcmp(value, "thick"))
+      else if (!strcmp(current, "thick"))
       {
 	box->border.bottom.width = 2.0f;
       }
-      else if (strchr("0123456789.", *value))
+      else if (strchr("0123456789.", *current))
       {
 	box->border.bottom.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
       }
@@ -584,21 +584,21 @@ hcNodeComputeCSSBox(
       {
 	box->border.left.color = color;
       }
-      else if (!strcmp(value, "thin"))
+      else if (!strcmp(current, "thin"))
       {
 	box->border.left.width = 0.5f;
       }
-      else if (!strcmp(value, "medium"))
+      else if (!strcmp(current, "medium"))
       {
 	box->border.left.width = 1.0f;
       }
-      else if (!strcmp(value, "thick"))
+      else if (!strcmp(current, "thick"))
       {
 	box->border.left.width = 2.0f;
       }
-      else if (strchr("0123456789.", *value))
+      else if (strchr("0123456789.", *current))
       {
-	box->border.left.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+	box->border.left.width = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
       }
       else
       {
@@ -628,21 +628,21 @@ hcNodeComputeCSSBox(
       {
 	box->border.right.color = color;
       }
-      else if (!strcmp(value, "thin"))
+      else if (!strcmp(current, "thin"))
       {
 	box->border.right.width = 0.5f;
       }
-      else if (!strcmp(value, "medium"))
+      else if (!strcmp(current, "medium"))
       {
 	box->border.right.width = 1.0f;
       }
-      else if (!strcmp(value, "thick"))
+      else if (!strcmp(current, "thick"))
       {
 	box->border.right.width = 2.0f;
       }
-      else if (strchr("0123456789.", *value))
+      else if (strchr("0123456789.", *current))
       {
-	box->border.right.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+	box->border.right.width = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
       }
       else
       {
@@ -672,21 +672,21 @@ hcNodeComputeCSSBox(
       {
 	box->border.top.color = color;
       }
-      else if (!strcmp(value, "thin"))
+      else if (!strcmp(current, "thin"))
       {
 	box->border.top.width = 0.5f;
       }
-      else if (!strcmp(value, "medium"))
+      else if (!strcmp(current, "medium"))
       {
 	box->border.top.width = 1.0f;
       }
-      else if (!strcmp(value, "thick"))
+      else if (!strcmp(current, "thick"))
       {
 	box->border.top.width = 2.0f;
       }
-      else if (strchr("0123456789.", *value))
+      else if (strchr("0123456789.", *current))
       {
-	box->border.top.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+	box->border.top.width = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
       }
       else
       {
@@ -842,13 +842,237 @@ hcNodeComputeCSSBox(
       box->border.top.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
-
   if ((value = hcDictGetKeyValue(props, "border-collapse")) != NULL)
+  {
+    if (!strcmp(value, "collapse"))
+      box->border_collapse = HC_BORDER_COLLAPSE_COLLAPSE;
+    else if (!strcmp(value, "separate"))
+      box->border_collapse = HC_BORDER_COLLAPSE_SEPARATE;
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-image")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-image-outset")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-image-repeat")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-image-slice")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-image-source")) != NULL)
+  {
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-image-width")) != NULL)
   {
   }
 
   if ((value = hcDictGetKeyValue(props, "border-radius")) != NULL)
   {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		pos = 0;		/* Position */
+    float	radius;			/* Radius length */
+
+    for (next = temp, current = strsep(&next, " \t"); current && pos < 8; current = strsep(&next, " \t"))
+    {
+      if (!strcmp(current, "/"))
+      {
+        if (pos <= 4)
+          pos = 4;
+	else
+	  break;
+      }
+      else if (strchr("0123456789.", *current))
+      {
+        radius = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+
+        switch (pos)
+        {
+          case 0 :
+              box->border_radius.top_left.width      = radius;
+              box->border_radius.top_left.height     = radius;
+              box->border_radius.top_right.width     = radius;
+              box->border_radius.top_right.height    = radius;
+              box->border_radius.bottom_right.width  = radius;
+              box->border_radius.bottom_right.height = radius;
+              box->border_radius.bottom_left.width   = radius;
+              box->border_radius.bottom_left.height  = radius;
+              break;
+	  case 1 :
+              box->border_radius.top_right.width     = radius;
+              box->border_radius.top_right.height    = radius;
+              box->border_radius.bottom_right.width  = radius;
+              box->border_radius.bottom_right.height = radius;
+	      break;
+	  case 2 :
+              box->border_radius.bottom_right.width  = radius;
+              box->border_radius.bottom_right.height = radius;
+	      break;
+	  case 3 :
+              box->border_radius.bottom_left.width  = radius;
+              box->border_radius.bottom_left.height = radius;
+	      break;
+
+          case 4 :
+              box->border_radius.top_left.height     = radius;
+              box->border_radius.top_right.height    = radius;
+              box->border_radius.bottom_right.height = radius;
+              box->border_radius.bottom_left.height  = radius;
+              break;
+	  case 5 :
+              box->border_radius.top_right.height    = radius;
+              box->border_radius.bottom_right.height = radius;
+	      break;
+	  case 6 :
+              box->border_radius.bottom_right.height = radius;
+	      break;
+	  case 7 :
+              box->border_radius.bottom_left.height = radius;
+	      break;
+        }
+
+        pos ++;
+      }
+    }
+
+    free(temp);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-bottom-left-radius")) != NULL)
+  {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		pos = 0;		/* Position */
+    float	radius;			/* Radius length */
+
+    for (next = temp, current = strsep(&next, " \t"); current && pos < 2; current = strsep(&next, " \t"))
+    {
+      if (strchr("0123456789.", *current))
+      {
+        radius = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+
+        switch (pos)
+        {
+          case 0 :
+              box->border_radius.bottom_left.width  = radius;
+              box->border_radius.bottom_left.height = radius;
+              break;
+          case 1 :
+              box->border_radius.bottom_left.height = radius;
+              break;
+        }
+
+        pos ++;
+      }
+    }
+
+    free(temp);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-bottom-right-radius")) != NULL)
+  {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		pos = 0;		/* Position */
+    float	radius;			/* Radius length */
+
+    for (next = temp, current = strsep(&next, " \t"); current && pos < 2; current = strsep(&next, " \t"))
+    {
+      if (strchr("0123456789.", *current))
+      {
+        radius = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+
+        switch (pos)
+        {
+          case 0 :
+              box->border_radius.bottom_right.width  = radius;
+              box->border_radius.bottom_right.height = radius;
+              break;
+          case 1 :
+              box->border_radius.bottom_right.height = radius;
+              break;
+        }
+
+        pos ++;
+      }
+    }
+
+    free(temp);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-top-left-radius")) != NULL)
+  {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		pos = 0;		/* Position */
+    float	radius;			/* Radius length */
+
+    for (next = temp, current = strsep(&next, " \t"); current && pos < 2; current = strsep(&next, " \t"))
+    {
+      if (strchr("0123456789.", *current))
+      {
+        radius = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+
+        switch (pos)
+        {
+          case 0 :
+              box->border_radius.top_left.width  = radius;
+              box->border_radius.top_left.height = radius;
+              break;
+          case 1 :
+              box->border_radius.top_left.height = radius;
+              break;
+        }
+
+        pos ++;
+      }
+    }
+
+    free(temp);
+  }
+
+  if ((value = hcDictGetKeyValue(props, "border-top-right-radius")) != NULL)
+  {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		pos = 0;		/* Position */
+    float	radius;			/* Radius length */
+
+    for (next = temp, current = strsep(&next, " \t"); current && pos < 2; current = strsep(&next, " \t"))
+    {
+      if (strchr("0123456789.", *current))
+      {
+        radius = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+
+        switch (pos)
+        {
+          case 0 :
+              box->border_radius.top_right.width  = radius;
+              box->border_radius.top_right.height = radius;
+              break;
+          case 1 :
+              box->border_radius.top_right.height = radius;
+              break;
+        }
+
+        pos ++;
+      }
+    }
+
+    free(temp);
   }
 
   if ((value = hcDictGetKeyValue(props, "border-spacing")) != NULL)
@@ -942,7 +1166,7 @@ hcNodeComputeCSSBox(
       if (num_values < 4)
       {
 	if (!strcmp(current, "auto"))
-	  values[num_values] = HC_MARGIN_AUTO;
+	  values[num_values] = HC_LENGTH_AUTO;
 	else if (strchr("0123456789+-.", *current))
 	  values[num_values] = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
 	else
@@ -988,7 +1212,7 @@ hcNodeComputeCSSBox(
   if ((value = hcDictGetKeyValue(props, "margin-bottom")) != NULL)
   {
     if (!strcmp(value, "auto"))
-      box->margin.bottom = HC_MARGIN_AUTO;
+      box->margin.bottom = HC_LENGTH_AUTO;
     else if (strchr("0123456789+-.", *value))
       box->margin.bottom = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
   }
@@ -996,7 +1220,7 @@ hcNodeComputeCSSBox(
   if ((value = hcDictGetKeyValue(props, "margin-left")) != NULL)
   {
     if (!strcmp(value, "auto"))
-      box->margin.left = HC_MARGIN_AUTO;
+      box->margin.left = HC_LENGTH_AUTO;
     else if (strchr("0123456789+-.", *value))
       box->margin.left = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
   }
@@ -1004,7 +1228,7 @@ hcNodeComputeCSSBox(
   if ((value = hcDictGetKeyValue(props, "margin-right")) != NULL)
   {
     if (!strcmp(value, "auto"))
-      box->margin.right = HC_MARGIN_AUTO;
+      box->margin.right = HC_LENGTH_AUTO;
     else if (strchr("0123456789+-.", *value))
       box->margin.right = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
   }
@@ -1012,7 +1236,7 @@ hcNodeComputeCSSBox(
   if ((value = hcDictGetKeyValue(props, "margin-top")) != NULL)
   {
     if (!strcmp(value, "auto"))
-      box->margin.top = HC_MARGIN_AUTO;
+      box->margin.top = HC_LENGTH_AUTO;
     else if (strchr("0123456789+-.", *value))
       box->margin.top = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
   }

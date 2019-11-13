@@ -29,8 +29,8 @@ extern "C" {
  * Constants...
  */
 
-#  define HC_MARGIN_AUTO	-999999999.0f
-					/* Automatic margin */
+#  define HC_LENGTH_AUTO	-999999999.0f
+					/* Automatic length */
 #  define HC_MAX_BOX_SHADOW	4	/* Maximum number of box shadow values */
 
 
@@ -61,9 +61,24 @@ typedef enum
 
 typedef enum
 {
-  HC_BORDER_COLLAPSE_COLLAPSE,
-  HC_BORDER_COLLAPSE_SEPARATE
+  HC_BOOL_FALSE,
+  HC_BOOL_TRUE
+} hc_bool_t;
+
+typedef enum
+{
+  HC_BORDER_COLLAPSE_SEPARATE,
+  HC_BORDER_COLLAPSE_COLLAPSE
 } hc_border_collapse_t;
+
+typedef enum
+{
+  HC_BORDER_IMAGE_REPEAT_STRETCH,
+  HC_BORDER_IMAGE_REPEAT_REPEAT,
+  HC_BORDER_IMAGE_REPEAT_ROUND,
+  HC_BORDER_IMAGE_REPEAT_SPACE
+} hc_border_image_repeat_t;
+
 
 typedef enum
 {
@@ -293,6 +308,12 @@ typedef struct hc_box_s			/* CSS box properties */
   hc_background_repeat_t background_repeat;
   hc_size_t		background_size;
   hc_border_collapse_t	border_collapse;
+  const char		*border_image;
+  hc_bool_t		border_image_fill;
+  hc_rect_t		border_image_outset;
+  hc_border_image_repeat_t border_image_repeat[2];
+  hc_rect_t		border_image_slice;
+  hc_rect_t		border_image_width;
   hc_border_radius_t	border_radius;
   hc_size_t		border_spacing;
   hc_border_t		border;
