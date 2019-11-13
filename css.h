@@ -96,9 +96,9 @@ typedef enum
 
 typedef enum
 {
-  HC_BREAK_AVOID,			/* Avoid a break */
   HC_BREAK_AUTO,			/* Break as needed */
   HC_BREAK_ALWAYS,			/* Always break */
+  HC_BREAK_AVOID,			/* Avoid a break */
   HC_BREAK_LEFT,			/* Break to the next left-hand page */
   HC_BREAK_RIGHT			/* Break to the next right-hand page */
 } hc_break_t;

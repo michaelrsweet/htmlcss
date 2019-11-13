@@ -84,6 +84,14 @@ hcNodeComputeCSSBox(
     "padding-box",
     "content-box"
   };
+  static const char * const breaks[] =	/* break-xxx: and page-break-xxx: values */
+  {
+    "auto",
+    "always",
+    "avoid",
+    "left",
+    "right"
+  };
   static const char * const repeats[] =
   {					/* background-repeat: values */
     "no-repeat",
@@ -1320,22 +1328,80 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-spacing")) != NULL)
   {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		pos = 0;		/* Position */
+    float	spacing;		/* Spacing length */
+
+    for (next = temp, current = strsep(&next, " \t"); current && pos < 2; current = strsep(&next, " \t"))
+    {
+      if (strchr("0123456789.", *current))
+      {
+        spacing = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+
+        switch (pos)
+        {
+          case 0 :
+              box->border_spacing.width  = spacing;
+              box->border_spacing.height = spacing;
+              break;
+          case 1 :
+              box->border_spacing.height = spacing;
+              break;
+        }
+
+        pos ++;
+      }
+    }
+
+    free(temp);
   }
 
   if ((value = hcDictGetKeyValue(props, "box-shadow")) != NULL)
   {
   }
 
-  if ((value = hcDictGetKeyValue(props, "break-after")) != NULL)
+  if ((value = hcDictGetKeyValue(props, "break-after")) == NULL)
+    value = hcDictGetKeyValue(props, "page-break-after");
+  if (value)
   {
+    for (i = 0; i < (int)(sizeof(breaks) / sizeof(breaks[0])); i ++)
+    {
+      if (!strcmp(value, breaks[i]))
+      {
+        box->break_after = (hc_break_t)i;
+        break;
+      }
+    }
   }
 
-  if ((value = hcDictGetKeyValue(props, "break-before")) != NULL)
+  if ((value = hcDictGetKeyValue(props, "break-before")) == NULL)
+    value = hcDictGetKeyValue(props, "page-break-before");
+  if (value)
   {
+    for (i = 0; i < (int)(sizeof(breaks) / sizeof(breaks[0])); i ++)
+    {
+      if (!strcmp(value, breaks[i]))
+      {
+        box->break_before = (hc_break_t)i;
+        break;
+      }
+    }
   }
 
-  if ((value = hcDictGetKeyValue(props, "break-inside")) != NULL)
+  if ((value = hcDictGetKeyValue(props, "break-inside")) == NULL)
+    value = hcDictGetKeyValue(props, "page-break-inside");
+  if (value)
   {
+    for (i = 0; i < (int)(sizeof(breaks) / sizeof(breaks[0])); i ++)
+    {
+      if (!strcmp(value, breaks[i]))
+      {
+        box->break_inside = (hc_break_t)i;
+        break;
+      }
+    }
   }
 
   if ((value = hcDictGetKeyValue(props, "float")) != NULL)
