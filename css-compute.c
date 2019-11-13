@@ -91,6 +91,13 @@ hcNodeComputeCSSBox(
     "repeat-x",
     "repeat-y"
   };
+  static const char * const image_repeats[] =
+  {					/* border-image-repeat: values */
+    "stretch",
+    "repeat",
+    "round",
+    "space"
+  };
   static const char * const styles[] =
   {					/* border-style: values */
     "hidden",
@@ -852,26 +859,262 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-image")) != NULL)
   {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		pos = 0;		/* Current position */
+    float	length;			/* Width/outset/slice value */
+
+    for (next = temp, current = strsep(&next, " \t"); current && pos < 14; current = strsep(&next, " \t"))
+    {
+      if (!strncmp(current, "url(", 4))
+      {
+	char	url[1024];		/* URL string */
+
+	if (sscanf(current, "url(%1023s)", url) == 1)
+	  box->border_image = hcPoolGetString(node->value.element.html->pool, url);
+      }
+      else if (strchr("0123456789.", *current))
+      {
+	length = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+
+        switch (pos)
+        {
+	  case 0 :
+	      box->border_image_slice.top    = length;
+	      box->border_image_slice.right  = length;
+	      box->border_image_slice.bottom = length;
+	      box->border_image_slice.left   = length;
+	      break;
+	  case 1 :
+	      box->border_image_slice.right = length;
+	      box->border_image_slice.left  = length;
+	      break;
+	  case 2 :
+	      box->border_image_slice.bottom = length;
+	      break;
+	  case 3 :
+	      box->border_image_slice.left = length;
+	      break;
+
+	  case 4 :
+	      box->border_image_width.top    = length;
+	      box->border_image_width.right  = length;
+	      box->border_image_width.bottom = length;
+	      box->border_image_width.left   = length;
+	      break;
+	  case 5 :
+	      box->border_image_width.right = length;
+	      box->border_image_width.left  = length;
+	      break;
+	  case 6 :
+	      box->border_image_width.bottom = length;
+	      break;
+	  case 7 :
+	      box->border_image_width.left = length;
+	      break;
+
+	  case 8 :
+	      box->border_image_outset.top    = length;
+	      box->border_image_outset.right  = length;
+	      box->border_image_outset.bottom = length;
+	      box->border_image_outset.left   = length;
+	      break;
+	  case 9 :
+	      box->border_image_outset.right = length;
+	      box->border_image_outset.left  = length;
+	      break;
+	  case 10 :
+	      box->border_image_outset.bottom = length;
+	      break;
+	  case 11 :
+	      box->border_image_outset.left = length;
+	      break;
+        }
+
+        pos ++;
+      }
+      else
+      {
+	for (i = 0; i < (int)(sizeof(image_repeats) / sizeof(image_repeats[0])); i ++)
+	{
+	  if (!strcmp(current, image_repeats[i]))
+	  {
+	    if (pos <= 12)
+	    {
+	      box->border_image_repeat[0] = (hc_border_image_repeat_t)i;
+	      pos = 12;
+	    }
+
+            box->border_image_repeat[1] = (hc_border_image_repeat_t)i;
+            pos ++;
+	    break;
+	  }
+	}
+      }
+    }
+
+    free(temp);
   }
 
   if ((value = hcDictGetKeyValue(props, "border-image-outset")) != NULL)
   {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		pos = 0;		/* Current position */
+    float	length;			/* Outset value */
+
+    for (next = temp, current = strsep(&next, " \t"); current && pos < 4; current = strsep(&next, " \t"))
+    {
+      if (strchr("0123456789.", *current))
+      {
+	length = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+
+        switch (pos)
+        {
+	  case 0 :
+	      box->border_image_outset.top    = length;
+	      box->border_image_outset.right  = length;
+	      box->border_image_outset.bottom = length;
+	      box->border_image_outset.left   = length;
+	      break;
+	  case 1 :
+	      box->border_image_outset.right = length;
+	      box->border_image_outset.left  = length;
+	      break;
+	  case 2 :
+	      box->border_image_outset.bottom = length;
+	      break;
+	  case 3 :
+	      box->border_image_outset.left = length;
+	      break;
+        }
+
+        pos ++;
+      }
+    }
+
+    free(temp);
   }
 
   if ((value = hcDictGetKeyValue(props, "border-image-repeat")) != NULL)
   {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		pos = 0;		/* Current position */
+
+    for (next = temp, current = strsep(&next, " \t"); current && pos < 2; current = strsep(&next, " \t"))
+    {
+      for (i = 0; i < (int)(sizeof(image_repeats) / sizeof(image_repeats[0])); i ++)
+      {
+	if (!strcmp(current, image_repeats[i]))
+	{
+	  if (pos == 0)
+	    box->border_image_repeat[0] = (hc_border_image_repeat_t)i;
+
+	  box->border_image_repeat[1] = (hc_border_image_repeat_t)i;
+	  pos ++;
+	  break;
+	}
+      }
+    }
+
+    free(temp);
   }
 
   if ((value = hcDictGetKeyValue(props, "border-image-slice")) != NULL)
   {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		pos = 0;		/* Current position */
+    float	length;			/* Slice value */
+
+    for (next = temp, current = strsep(&next, " \t"); current && pos < 4; current = strsep(&next, " \t"))
+    {
+      if (strchr("0123456789.", *current))
+      {
+	length = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+
+        switch (pos)
+        {
+	  case 0 :
+	      box->border_image_slice.top    = length;
+	      box->border_image_slice.right  = length;
+	      box->border_image_slice.bottom = length;
+	      box->border_image_slice.left   = length;
+	      break;
+	  case 1 :
+	      box->border_image_slice.right = length;
+	      box->border_image_slice.left  = length;
+	      break;
+	  case 2 :
+	      box->border_image_slice.bottom = length;
+	      break;
+	  case 3 :
+	      box->border_image_slice.left = length;
+	      break;
+        }
+
+        pos ++;
+      }
+    }
+
+    free(temp);
   }
 
   if ((value = hcDictGetKeyValue(props, "border-image-source")) != NULL)
   {
+    if (!strncmp(value, "url(", 4))
+    {
+      char	url[1024];		/* URL string */
+
+      if (sscanf(value, "url(%1023s)", url) == 1)
+	box->border_image = hcPoolGetString(node->value.element.html->pool, url);
+    }
   }
 
   if ((value = hcDictGetKeyValue(props, "border-image-width")) != NULL)
   {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+    int		pos = 0;		/* Current position */
+    float	length;			/* Width value */
+
+    for (next = temp, current = strsep(&next, " \t"); current && pos < 4; current = strsep(&next, " \t"))
+    {
+      if (strchr("0123456789.", *current))
+      {
+	length = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+
+        switch (pos)
+        {
+	  case 0 :
+	      box->border_image_width.top    = length;
+	      box->border_image_width.right  = length;
+	      box->border_image_width.bottom = length;
+	      box->border_image_width.left   = length;
+	      break;
+	  case 1 :
+	      box->border_image_width.right = length;
+	      box->border_image_width.left  = length;
+	      break;
+	  case 2 :
+	      box->border_image_width.bottom = length;
+	      break;
+	  case 3 :
+	      box->border_image_width.left = length;
+	      break;
+        }
+
+        pos ++;
+      }
+    }
+
+    free(temp);
   }
 
   if ((value = hcDictGetKeyValue(props, "border-radius")) != NULL)
