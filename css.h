@@ -154,7 +154,6 @@ typedef enum
 
 typedef enum
 {
-  HC_LIST_STYLE_TYPE_NONE,
   HC_LIST_STYLE_TYPE_DISC,
   HC_LIST_STYLE_TYPE_CIRCLE,
   HC_LIST_STYLE_TYPE_SQUARE,
@@ -168,7 +167,8 @@ typedef enum
   HC_LIST_STYLE_TYPE_ARMENIAN,
   HC_LIST_STYLE_TYPE_GEORGIAN,
   HC_LIST_STYLE_TYPE_LOWER_ALPHA,
-  HC_LIST_STYLE_TYPE_UPPER_ALPHA
+  HC_LIST_STYLE_TYPE_UPPER_ALPHA,
+  HC_LIST_STYLE_TYPE_NONE
 } hc_list_style_type_t;
 
 typedef enum
@@ -324,6 +324,7 @@ typedef struct hc_box_s			/* CSS box properties */
   const char		*list_style_image;
   hc_list_style_position_t
 			list_style_position;
+  hc_list_style_type_t	list_style_type;
   hc_rect_t		margin;
   int			orphans;
   hc_overflow_t		overflow;

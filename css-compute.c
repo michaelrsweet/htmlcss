@@ -106,8 +106,8 @@ hcNodeComputeCSSBox(
     "round",
     "space"
   };
-  static const char * const styles[] =
-  {					/* border-style: values */
+  static const char * const styles[] =	/* border-style: values */
+  {
     "hidden",
     "none",
     "dotted",
@@ -118,6 +118,25 @@ hcNodeComputeCSSBox(
     "ridge",
     "inset",
     "outset"
+  };
+  static const char * const types[] =	/* list-style-type: values */
+  {
+    "disc",
+    "circle",
+    "square",
+    "decimal",
+    "decimal-leading-zero",
+    "lower-roman",
+    "upper-roman",
+    "lower-greek",
+    "upper-greek",
+    "lower-latin",
+    "upper-latin",
+    "armenian",
+    "georgian",
+    "lower-alpha",
+    "upper-alpha",
+    "none"
   };
 
 
@@ -1447,18 +1466,78 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "float")) != NULL)
   {
+    if (!strcmp(value, "left"))
+      box->float_value = HC_FLOAT_LEFT;
+    else if (!strcmp(value, "none"))
+      box->float_value = HC_FLOAT_NONE;
+    else if (!strcmp(value, "right"))
+      box->float_value = HC_FLOAT_RIGHT;
   }
 
   if ((value = hcDictGetKeyValue(props, "list-style")) != NULL)
   {
+    char	*temp = strdup(value),	/* Temporary copy of value */
+		*current,		/* Current value */
+		*next;			/* Next value */
+
+    for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
+    {
+      if (!strncmp(current, "url(", 4))
+      {
+	char	url[1024];		/* URL value */
+
+	if (sscanf(current, "url(%1023s)", url) == 1)
+	  box->list_style_image = hcPoolGetString(pool, url);
+      }
+      else if (!strcmp(current, "inside"))
+	box->list_style_position = HC_LIST_STYLE_POSITION_INSIDE;
+      else if (!strcmp(current, "outside"))
+	box->list_style_position = HC_LIST_STYLE_POSITION_OUTSIDE;
+      else
+      {
+	for (i = 0; i < (int)(sizeof(types) / sizeof(types[0])); i ++)
+	{
+	  if (!strcmp(current, types[i]))
+	  {
+	    box->list_style_type = (hc_list_style_type_t)i;
+	    break;
+	  }
+	}
+      }
+    }
+
+    free(temp);
   }
 
   if ((value = hcDictGetKeyValue(props, "list-style-image")) != NULL)
   {
+    if (!strncmp(value, "url(", 4))
+    {
+      char	url[1024];		/* URL value */
+
+      if (sscanf(value, "url(%1023s)", url) == 1)
+        box->list_style_image = hcPoolGetString(pool, url);
+    }
   }
 
   if ((value = hcDictGetKeyValue(props, "list-style-position")) != NULL)
   {
+    if (!strcmp(value, "inside"))
+      box->list_style_position = HC_LIST_STYLE_POSITION_INSIDE;
+    else if (!strcmp(value, "outside"))
+      box->list_style_position = HC_LIST_STYLE_POSITION_OUTSIDE;
+  }
+
+  if ((value = hcDictGetKeyValue(props, "list-style-type")) != NULL)
+  {
+    for (i = 0; i < (int)(sizeof(types) / sizeof(types[0])); i ++)
+    {
+      if (!strcmp(value, types[i]))
+      {
+        box->list_style_type = (hc_list_style_type_t)i;
+        break;
+      }
+    }
   }
 
   if ((value = hcDictGetKeyValue(props, "orphans")) != NULL)
