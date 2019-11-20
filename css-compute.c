@@ -65,10 +65,8 @@ hcNodeComputeCSSBox(
 {
   int			i;		/* Looping var */
   const char		*value;		/* Property value */
-  hc_pool_t		*pool = node->value.element.html->pool;
-					/* Memory pool */
-  hc_css_t		*css = node->value.element.html->css;
-					/* Stylesheet */
+  hc_css_t		*css;		/* Stylesheet */
+  hc_pool_t		*pool;		/* Memory pool */
   const hc_dict_t	*props = hcNodeComputeCSSProperties(node, compute);
 					/* Properties */
   hc_text_t		text;		/* Text font properties */
@@ -156,12 +154,16 @@ hcNodeComputeCSSBox(
   if (!node)
     return (0);
 
+  css  = node->value.element.html->css;
+  pool = node->value.element.html->pool;
+
   _hcNodeComputeCSSTextFont(node, props, &text);
 
  /*
   * Size constraint values...
   */
 
+#if 0
   if ((value = hcDictGetKeyValue(props, "min-width")) != NULL)
   {
   }
@@ -177,6 +179,7 @@ hcNodeComputeCSSBox(
   if ((value = hcDictGetKeyValue(props, "max-height")) != NULL)
   {
   }
+#endif /* 0 */
 
  /*
   * Background values (just a single background image is currently supported)
@@ -874,14 +877,6 @@ hcNodeComputeCSSBox(
       box->border.top.width = 2.0f;
     else if (strchr("0123456789.", *value))
       box->border.top.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
-  }
-
-  if ((value = hcDictGetKeyValue(props, "border-collapse")) != NULL)
-  {
-    if (!strcmp(value, "collapse"))
-      box->border_collapse = HC_BORDER_COLLAPSE_COLLAPSE;
-    else if (!strcmp(value, "separate"))
-      box->border_collapse = HC_BORDER_COLLAPSE_SEPARATE;
   }
 
   if ((value = hcDictGetKeyValue(props, "border-image")) != NULL)
@@ -1875,11 +1870,32 @@ hcNodeComputeCSSTable(
     hc_compute_t compute,		/* I - Pseudo-class, if any */
     hc_table_t   *table)		/* O - Table properties */
 {
-  (void)node;
-  (void)compute;
-  (void)table;
+  const char		*value;		/* Property value */
+//  hc_pool_t		*pool = node->value.element.html->pool;
+					/* Memory pool */
+//  hc_css_t		*css = node->value.element.html->css;
+					/* Stylesheet */
+  const hc_dict_t	*props = hcNodeComputeCSSProperties(node, compute);
+					/* Properties */
 
-  return (0);
+
+  if (!table)
+    return (0);
+
+  memset(table, 0, sizeof(hc_table_t));
+
+  if (!node)
+    return (0);
+
+  if ((value = hcDictGetKeyValue(props, "border-collapse")) != NULL)
+  {
+    if (!strcmp(value, "collapse"))
+      table->border_collapse = HC_BORDER_COLLAPSE_COLLAPSE;
+    else if (!strcmp(value, "separate"))
+      table->border_collapse = HC_BORDER_COLLAPSE_SEPARATE;
+  }
+
+  return (1);
 }
 
 
@@ -1895,10 +1911,8 @@ hcNodeComputeCSSText(
 {
   int			i;		/* Looping var */
   const char		*value;		/* Property value */
-  hc_pool_t		*pool = node->value.element.html->pool;
-					/* Memory pool */
-  hc_css_t		*css = node->value.element.html->css;
-					/* Stylesheet */
+  hc_css_t		*css;		/* Stylesheet */
+  hc_pool_t		*pool;		/* Memory pool */
   const hc_dict_t	*props = hcNodeComputeCSSProperties(node, compute);
 					/* Properties */
   static const char * const aligns[] =	/* text-align: values */
@@ -1946,6 +1960,9 @@ hcNodeComputeCSSText(
 
   if (!node)
     return (0);
+
+  css  = node->value.element.html->css;
+  pool = node->value.element.html->pool;
 
   if ((value = hcDictGetKeyValue(props, "direction")) != NULL)
   {

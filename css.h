@@ -307,7 +307,6 @@ typedef struct hc_box_s			/* CSS box properties */
   hc_background_repeat_t background_repeat;
   hc_size_t		background_size;
   hc_border_t		border;
-  hc_border_collapse_t	border_collapse;
   const char		*border_image;
   hc_bool_t		border_image_fill;
   hc_rect_t		border_image_outset;
@@ -344,6 +343,7 @@ typedef struct hc_media_s		/* CSS media properties */
 
 typedef struct hc_table_s		/* CSS table properties */
 {
+  hc_border_collapse_t	border_collapse;
   hc_caption_side_t	caption_side;
   hc_empty_cells_t	empty_cells;
   hc_table_layout_t	table_layout;
