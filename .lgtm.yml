@@ -1,2 +1,2 @@
 queries:
-  - exclude: external/cwe/cwe-190
+  - exclude: cpp/uncontrolled-allocation-size
