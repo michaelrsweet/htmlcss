@@ -3,7 +3,7 @@
 #
 #     https://github.com/michaelrsweet/htmlcss
 #
-# Copyright © 2018-2019 by Michael R Sweet.
+# Copyright © 2018-2020 by Michael R Sweet.
 #
 # Licensed under Apache License v2.0.  See the file "LICENSE" for more
 # information.
@@ -66,6 +66,15 @@ LIBOBJS	=	\
 OBJS	=	testhtmlcss.o $(LIBOBJS)
 TARGETS	=	libhtmlcss.a testhtmlcss
 
+DOCFILES =	\
+		$(HEADERS) \
+		$(LIBOBJS:.o=.c)
+DOCFLAGS =	\
+		--author "Michael R Sweet" \
+		--copyright "Copyright (c) 2018-2020 by Michael R Sweet" \
+		--docversion $(VERSION) \
+		--title "HTMLCSS Programming Manual"
+
 .SUFFIXES:	.a .c .o
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -81,6 +90,9 @@ install:	$(TARGETS)
 	mkdir -p $(libdir)
 	cp libhtmlcss.a $(libdir)
 	ranlib $(libdir)/libhtmlcss.a
+
+doc:
+	codedoc $(DOCFLAGS) $(DOCFILES) >htmlcss.html
 
 test:		testhtmlcss
 	./testhtmlcss --all --css --font --html testhtmlcss.html

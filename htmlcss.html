@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>HTMLCSS Programming Manual</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <meta name="generator" content="codedoc v3.5">
+    <meta name="author" content="Michael R Sweet">
+    <meta name="language" content="en-US">
+    <meta name="copyright" content="Copyright © 2018-2020 by Michael R Sweet">
+    <meta name="version" content="0.1">
+    <style type="text/css"><!--
+body {
+  background: white;
+  color: black;
+  font-family: sans-serif;
+  font-size: 12pt;
+}
+a {
+  color: black;
+}
+a:link, a:visited {
+  color: #00f;
+}
+a:link:hover, a:visited:hover, a:active {
+  color: #c0c;
+}
+body, p, h1, h2, h3, h4, h5, h6 {
+  font-family: sans-serif;
+  line-height: 1.4;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+  page-break-inside: avoid;
+}
+h1 {
+  font-size: 250%;
+  margin: 0;
+}
+h2 {
+  font-size: 250%;
+  margin-top: 1.5em;
+}
+h3 {
+  font-size: 200%;
+  margin-bottom: 0.5em;
+  margin-top: 1.5em;
+}
+h4 {
+  font-size: 150%;
+  margin-bottom: 0.5em;
+  margin-top: 1.5em;
+}
+h5 {
+  font-size: 125%;
+  margin-bottom: 0.5em;
+  margin-top: 1.5em;
+}
+h6 {
+  font-size: 110%;
+  margin-bottom: 0.5em;
+  margin-top: 1.5em;
+}
+img.title {
+  width: 256px;
+}
+div.header h1, div.header p {
+  text-align: center;
+}
+div.contents, div.body, div.footer {
+  page-break-before: always;
+}
+.class, .enumeration, .function, .struct, .typedef, .union {
+  border-bottom: solid 2px gray;
+}
+.description {
+  margin-top: 0.5em;
+}
+.function {
+  margin-bottom: 0;
+}
+blockquote {
+  border: solid thin gray;
+  box-shadow: 3px 3px 5px rgba(127,127,127,0.25);
+  padding: 0px 10px;
+  page-break-inside: avoid;
+}
+p code, li code, p.code, pre, ul.code li {
+  font-family: monospace;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+}
+p.code, pre, ul.code li {
+  background: rgba(127,127,127,0.25);
+  border: thin dotted gray;
+  padding: 10px;
+  page-break-inside: avoid;
+}
+a:link, a:visited {
+  text-decoration: none;
+}
+span.info {
+  background: black;
+  border: solid thin black;
+  color: white;
+  font-size: 80%;
+  font-style: italic;
+  font-weight: bold;
+  white-space: nowrap;
+}
+h1 span.info, h2 span.info, h3 span.info, h4 span.info {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  float: right;
+  padding: 3px 6px;
+}
+ul.code, ul.contents, ul.subcontents {
+  list-style-type: none;
+  margin: 0;
+  padding-left: 0;
+}
+ul.code li {
+  margin: 0;
+}
+ul.contents > li {
+  margin-top: 1em;
+}
+ul.contents li ul.code, ul.contents li ul.subcontents {
+  padding-left: 2em;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+td {
+  border: solid 1px gray;
+  padding: 5px 10px;
+  vertical-align: top;
+}
+td.left {
+  text-align: left;
+}
+td.center {
+  text-align: center;
+}
+td.right {
+  text-align: right;
+}
+th {
+  border-bottom: solid 2px gray;
+  padding: 1px 5px;
+  text-align: center;
+  vertical-align: bottom;
+}
+tr:nth-child(even) {
+  background: rgba(127,127,127,0.25);
+}
+table.list {
+  border-collapse: collapse;
+  width: 100%;
+}
+table.list th {
+  border-bottom: none;
+  border-right: 2px solid gray;
+  font-family: monospace;
+  font-weight: normal;
+  padding: 5px 10px 5px 2px;
+  text-align: right;
+  vertical-align: top;
+}
+table.list td {
+  border: none;
+  padding: 5px 2px 5px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+h2.title, h3.title {
+  border-bottom: solid 2px gray;
+}
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: black;
+    color: #ccc;
+  }
+  a {
+    color: #ccc;
+  }
+  a:link, a:visited {
+    color: #66f;
+  }
+  a:link:hover, a:visited:hover, a:active {
+    color: #f06;
+  }
+}
+/* Show contents on left side in web browser */
+@media screen and (min-width: 800px) {
+  div.contents {
+    border-right: solid thin gray;
+    bottom: 0px;
+    box-shadow: 3px 3px 5px rgba(127,127,127,0.5);
+    font-size: 10pt;
+    left: 0px;
+    overflow: scroll;
+    padding: 1%;
+    position: fixed;
+    top: 0px;
+    width: 18%;
+  }
+  div.contents h2.title {
+    margin-top: 0px;
+  }
+  div.header, div.body, div.footer {
+    margin-left: 20%;
+    padding: 1% 2%;
+  }
+}
+/* Center title page content vertically */
+@media print {
+  div.header {
+    padding-top: 33%;
+  }
+}
+--></style>
+  </head>
+  <body>
+    <div class="header">
+      <h1 class="title">HTMLCSS Programming Manual</h1>
+      <p>Michael R Sweet</p>
+      <p>Copyright © 2018-2020 by Michael R Sweet</p>
+    </div>
+    <div class="contents">
+      <h2 class="title">Contents</h2>
+      <ul class="contents">
+        <li><a href="#FUNCTIONS">Functions</a><ul class="subcontents">
+          <li><a href="#hcCSSDelete">hcCSSDelete</a></li>
+          <li><a href="#hcCSSImport">hcCSSImport</a></li>
+          <li><a href="#hcCSSImportDefault">hcCSSImportDefault</a></li>
+          <li><a href="#hcCSSNew">hcCSSNew</a></li>
+          <li><a href="#hcCSSSetMedia">hcCSSSetMedia</a></li>
+          <li><a href="#hcDictCopy">hcDictCopy</a></li>
+          <li><a href="#hcDictDelete">hcDictDelete</a></li>
+          <li><a href="#hcDictGetCount">hcDictGetCount</a></li>
+          <li><a href="#hcDictGetIndexKeyValue">hcDictGetIndexKeyValue</a></li>
+          <li><a href="#hcDictGetKeyValue">hcDictGetKeyValue</a></li>
+          <li><a href="#hcDictNew">hcDictNew</a></li>
+          <li><a href="#hcDictRemoveKey">hcDictRemoveKey</a></li>
+          <li><a href="#hcDictSetKeyValue">hcDictSetKeyValue</a></li>
+          <li><a href="#hcFileDelete">hcFileDelete</a></li>
+          <li><a href="#hcFileGetc">hcFileGetc</a></li>
+          <li><a href="#hcFileNewBuffer">hcFileNewBuffer</a></li>
+          <li><a href="#hcFileNewString">hcFileNewString</a></li>
+          <li><a href="#hcFileNewURL">hcFileNewURL</a></li>
+          <li><a href="#hcFileRead">hcFileRead</a></li>
+          <li><a href="#hcFileSeek">hcFileSeek</a></li>
+          <li><a href="#hcFileUngetc">hcFileUngetc</a></li>
+          <li><a href="#hcFontAddCached">hcFontAddCached</a></li>
+          <li><a href="#hcFontComputeExtents">hcFontComputeExtents</a></li>
+          <li><a href="#hcFontDelete">hcFontDelete</a></li>
+          <li><a href="#hcFontFindCached">hcFontFindCached</a></li>
+          <li><a href="#hcFontGetCached">hcFontGetCached</a></li>
+          <li><a href="#hcFontGetCachedCount">hcFontGetCachedCount</a></li>
+          <li><a href="#hcFontGetCopyright">hcFontGetCopyright</a></li>
+          <li><a href="#hcFontGetFamily">hcFontGetFamily</a></li>
+          <li><a href="#hcFontGetNumFonts">hcFontGetNumFonts</a></li>
+          <li><a href="#hcFontGetPostScriptName">hcFontGetPostScriptName</a></li>
+          <li><a href="#hcFontGetStyle">hcFontGetStyle</a></li>
+          <li><a href="#hcFontGetVersion">hcFontGetVersion</a></li>
+          <li><a href="#hcFontGetWeight">hcFontGetWeight</a></li>
+          <li><a href="#hcFontNew">hcFontNew</a></li>
+          <li><a href="#hcHTMLDelete">hcHTMLDelete</a></li>
+          <li><a href="#hcHTMLFindNode">hcHTMLFindNode</a></li>
+          <li><a href="#hcHTMLGetCSS">hcHTMLGetCSS</a></li>
+          <li><a href="#hcHTMLGetDOCTYPE">hcHTMLGetDOCTYPE</a></li>
+          <li><a href="#hcHTMLGetRootNode">hcHTMLGetRootNode</a></li>
+          <li><a href="#hcHTMLImport">hcHTMLImport</a></li>
+          <li><a href="#hcHTMLNew">hcHTMLNew</a></li>
+          <li><a href="#hcHTMLNewRootNode">hcHTMLNewRootNode</a></li>
+          <li><a href="#hcImageDelete">hcImageDelete</a></li>
+          <li><a href="#hcImageGetFormat">hcImageGetFormat</a></li>
+          <li><a href="#hcImageGetHeight">hcImageGetHeight</a></li>
+          <li><a href="#hcImageGetSize">hcImageGetSize</a></li>
+          <li><a href="#hcImageGetWidth">hcImageGetWidth</a></li>
+          <li><a href="#hcImageNew">hcImageNew</a></li>
+          <li><a href="#hcNodeAttrGetCount">hcNodeAttrGetCount</a></li>
+          <li><a href="#hcNodeAttrGetIndexNameValue">hcNodeAttrGetIndexNameValue</a></li>
+          <li><a href="#hcNodeAttrGetNameValue">hcNodeAttrGetNameValue</a></li>
+          <li><a href="#hcNodeAttrRemove">hcNodeAttrRemove</a></li>
+          <li><a href="#hcNodeAttrSetNameValue">hcNodeAttrSetNameValue</a></li>
+          <li><a href="#hcNodeComputeCSSBox">hcNodeComputeCSSBox</a></li>
+          <li><a href="#hcNodeComputeCSSContent">hcNodeComputeCSSContent</a></li>
+          <li><a href="#hcNodeComputeCSSDisplay">hcNodeComputeCSSDisplay</a></li>
+          <li><a href="#hcNodeComputeCSSMedia">hcNodeComputeCSSMedia</a></li>
+          <li><a href="#hcNodeComputeCSSProperties">hcNodeComputeCSSProperties</a></li>
+          <li><a href="#hcNodeComputeCSSTable">hcNodeComputeCSSTable</a></li>
+          <li><a href="#hcNodeComputeCSSText">hcNodeComputeCSSText</a></li>
+          <li><a href="#hcNodeDelete">hcNodeDelete</a></li>
+          <li><a href="#hcNodeGetComment">hcNodeGetComment</a></li>
+          <li><a href="#hcNodeGetElement">hcNodeGetElement</a></li>
+          <li><a href="#hcNodeGetFirstChildNode">hcNodeGetFirstChildNode</a></li>
+          <li><a href="#hcNodeGetLastChildNode">hcNodeGetLastChildNode</a></li>
+          <li><a href="#hcNodeGetNextSiblingNode">hcNodeGetNextSiblingNode</a></li>
+          <li><a href="#hcNodeGetParentNode">hcNodeGetParentNode</a></li>
+          <li><a href="#hcNodeGetPrevSiblingNode">hcNodeGetPrevSiblingNode</a></li>
+          <li><a href="#hcNodeGetString">hcNodeGetString</a></li>
+          <li><a href="#hcNodeNewComment">hcNodeNewComment</a></li>
+          <li><a href="#hcNodeNewElement">hcNodeNewElement</a></li>
+          <li><a href="#hcNodeNewString">hcNodeNewString</a></li>
+          <li><a href="#hcPoolDelete">hcPoolDelete</a></li>
+          <li><a href="#hcPoolGetLastError">hcPoolGetLastError</a></li>
+          <li><a href="#hcPoolGetString">hcPoolGetString</a></li>
+          <li><a href="#hcPoolGetURL">hcPoolGetURL</a></li>
+          <li><a href="#hcPoolNew">hcPoolNew</a></li>
+          <li><a href="#hcPoolSetErrorCallback">hcPoolSetErrorCallback</a></li>
+          <li><a href="#hcPoolSetURLCallback">hcPoolSetURLCallback</a></li>
+          <li><a href="#hcSHA3Final">hcSHA3Final</a></li>
+          <li><a href="#hcSHA3Init">hcSHA3Init</a></li>
+          <li><a href="#hcSHA3Update">hcSHA3Update</a></li>
+        </ul></li>
+        <li><a href="#TYPES">Data Types</a><ul class="subcontents">
+          <li><a href="#hc_background_attachment_t">hc_background_attachment_t</a></li>
+          <li><a href="#hc_border_props_t">hc_border_props_t</a></li>
+          <li><a href="#hc_border_radius_t">hc_border_radius_t</a></li>
+          <li><a href="#hc_border_t">hc_border_t</a></li>
+          <li><a href="#hc_box_shadow_t">hc_box_shadow_t</a></li>
+          <li><a href="#hc_box_t">hc_box_t</a></li>
+          <li><a href="#hc_color_t">hc_color_t</a></li>
+          <li><a href="#hc_compute_t">hc_compute_t</a></li>
+          <li><a href="#hc_css_t">hc_css_t</a></li>
+          <li><a href="#hc_dict_t">hc_dict_t</a></li>
+          <li><a href="#hc_html_t">hc_html_t</a></li>
+          <li><a href="#hc_image_t">hc_image_t</a></li>
+          <li><a href="#hc_node_t">hc_node_t</a></li>
+          <li><a href="#hc_file_t">hc_file_t</a></li>
+          <li><a href="#hc_font_stretch_t">hc_font_stretch_t</a></li>
+          <li><a href="#hc_font_style_t">hc_font_style_t</a></li>
+          <li><a href="#hc_font_variant_t">hc_font_variant_t</a></li>
+          <li><a href="#hc_font_t">hc_font_t</a></li>
+          <li><a href="#hc_media_t">hc_media_t</a></li>
+          <li><a href="#hc_point_t">hc_point_t</a></li>
+          <li><a href="#hc_pool_t">hc_pool_t</a></li>
+          <li><a href="#hc_rect_t">hc_rect_t</a></li>
+          <li><a href="#hc_sha3_t">hc_sha3_t</a></li>
+          <li><a href="#hc_size_t">hc_size_t</a></li>
+          <li><a href="#hc_table_t">hc_table_t</a></li>
+          <li><a href="#hc_text_t">hc_text_t</a></li>
+          <li><a href="#hc_url_cb_t">hc_url_cb_t</a></li>
+        </ul></li>
+        <li><a href="#STRUCTURES">Structures</a><ul class="subcontents">
+          <li><a href="#hc_border_props_s">hc_border_props_s</a></li>
+          <li><a href="#hc_border_radius_s">hc_border_radius_s</a></li>
+          <li><a href="#hc_border_s">hc_border_s</a></li>
+          <li><a href="#hc_box_s">hc_box_s</a></li>
+          <li><a href="#hc_box_shadow_s">hc_box_shadow_s</a></li>
+          <li><a href="#hc_color_s">hc_color_s</a></li>
+          <li><a href="#hc_media_s">hc_media_s</a></li>
+          <li><a href="#hc_point_s">hc_point_s</a></li>
+          <li><a href="#hc_rect_s">hc_rect_s</a></li>
+          <li><a href="#hc_sha3_s">hc_sha3_s</a></li>
+          <li><a href="#hc_size_s">hc_size_s</a></li>
+          <li><a href="#hc_table_s">hc_table_s</a></li>
+          <li><a href="#hc_text_s">hc_text_s</a></li>
+        </ul></li>
+        <li><a href="#VARIABLES">Variables</a><ul class="subcontents">
+          <li><a href="#hcElements[HC_ELEMENT_MAX]">hcElements[HC_ELEMENT_MAX]</a></li>
+        </ul></li>
+      </ul>
+    </div>
+    <div class="body">
+      <h2 class="title"><a id="FUNCTIONS">Functions</a></h2>
+<h3 class="function"><a id="hcCSSDelete">hcCSSDelete</a></h3>
+        <p class="description">Free memory associated with a stylesheet.</p>
+<p class="code">
+void hcCSSDelete(<a href="#hc_css_t">hc_css_t</a> *css);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>css</th>
+        <td class="description">Stylesheet</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcCSSImport">hcCSSImport</a></h3>
+        <p class="description">Import CSS definitions from a URL, file, or string.</p>
+<p class="code">
+int hcCSSImport(<a href="#hc_css_t">hc_css_t</a> *css, <a href="#hc_file_t">hc_file_t</a> *file);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>css</th>
+        <td class="description">Stylesheet</td></tr>
+<tr><th>file</th>
+        <td class="description">File</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">1 on success, 0 on error</p>
+<h3 class="function"><a id="hcCSSImportDefault">hcCSSImportDefault</a></h3>
+        <p class="description">Import the default HTML stylesheet.</p>
+<p class="code">
+int hcCSSImportDefault(<a href="#hc_css_t">hc_css_t</a> *css);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>css</th>
+        <td class="description">Stylesheet</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">1 on success, 0 on error</p>
+<h3 class="function"><a id="hcCSSNew">hcCSSNew</a></h3>
+        <p class="description">Allocate a new stylesheet.</p>
+<p class="code">
+<a href="#hc_css_t">hc_css_t</a> *hcCSSNew(<a href="#hc_pool_t">hc_pool_t</a> *pool);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Stylesheet</p>
+<h3 class="function"><a id="hcCSSSetMedia">hcCSSSetMedia</a></h3>
+        <p class="description">Set the base media settings.</p>
+<p class="code">
+int hcCSSSetMedia(<a href="#hc_css_t">hc_css_t</a> *css, const char *type, int color_bits, int monochrome_bits, float width, float height);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>css</th>
+        <td class="description">Stylesheet</td></tr>
+<tr><th>type</th>
+        <td class="description">Media type (&quot;print', etc.)</td></tr>
+<tr><th>color_bits</th>
+        <td class="description">Bits of color supported</td></tr>
+<tr><th>monochrome_bits</th>
+        <td class="description">Bits of grayscale supported</td></tr>
+<tr><th>width</th>
+        <td class="description">Device width</td></tr>
+<tr><th>height</th>
+        <td class="description">Device height</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">1 on success, 0 on failure</p>
+<h3 class="function"><a id="hcDictCopy">hcDictCopy</a></h3>
+        <p class="description">Make a copy of a dictionary.</p>
+<p class="code">
+<a href="#hc_dict_t">hc_dict_t</a> *hcDictCopy(const <a href="#hc_dict_t">hc_dict_t</a> *dict);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>dict</th>
+        <td class="description">Dictionary to copy</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">New dictionary</p>
+<h3 class="function"><a id="hcDictDelete">hcDictDelete</a></h3>
+        <p class="description">Delete a dictionary.</p>
+<p class="code">
+void hcDictDelete(<a href="#hc_dict_t">hc_dict_t</a> *dict);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>dict</th>
+        <td class="description">Dictionary</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcDictGetCount">hcDictGetCount</a></h3>
+        <p class="description">Return the number of key/value pairs in a dictionary.</p>
+<p class="code">
+size_t hcDictGetCount(const <a href="#hc_dict_t">hc_dict_t</a> *dict);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>dict</th>
+        <td class="description">Dictionary</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Number of key/value pairs</p>
+<h3 class="function"><a id="hcDictGetIndexKeyValue">hcDictGetIndexKeyValue</a></h3>
+        <p class="description">Return the key and value for the specified pair.</p>
+<p class="code">
+const char *hcDictGetIndexKeyValue(const <a href="#hc_dict_t">hc_dict_t</a> *dict, size_t idx, const char **key);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>dict</th>
+        <td class="description">Dictionary</td></tr>
+<tr><th>idx</th>
+        <td class="description">Index (0-based)</td></tr>
+<tr><th>key</th>
+        <td class="description">Key or <code>NULL</code> if <code>idx</code> is invalid.</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Value or <code>NULL</code> if <code>idx</code> is invalid.</p>
+<h3 class="function"><a id="hcDictGetKeyValue">hcDictGetKeyValue</a></h3>
+        <p class="description">Get the value for a key in a dictionary.</p>
+<p class="code">
+const char *hcDictGetKeyValue(const <a href="#hc_dict_t">hc_dict_t</a> *dict, const char *key);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>dict</th>
+        <td class="description">Dictionary</td></tr>
+<tr><th>key</th>
+        <td class="description">Key string</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Value or <code>NULL</code> if not found.</p>
+<h3 class="function"><a id="hcDictNew">hcDictNew</a></h3>
+        <p class="description">Create a new dictionary.</p>
+<p class="code">
+<a href="#hc_dict_t">hc_dict_t</a> *hcDictNew(<a href="#hc_pool_t">hc_pool_t</a> *pool);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">New dictionary</p>
+<h3 class="function"><a id="hcDictRemoveKey">hcDictRemoveKey</a></h3>
+        <p class="description">Remove a key/value pair from a dictionary.</p>
+<p class="code">
+void hcDictRemoveKey(<a href="#hc_dict_t">hc_dict_t</a> *dict, const char *key);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>dict</th>
+        <td class="description">Dictionary</td></tr>
+<tr><th>key</th>
+        <td class="description">Key string</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcDictSetKeyValue">hcDictSetKeyValue</a></h3>
+        <p class="description">Set a key/value pair in a dictionary.</p>
+<p class="code">
+void hcDictSetKeyValue(<a href="#hc_dict_t">hc_dict_t</a> *dict, const char *key, const char *value);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>dict</th>
+        <td class="description">Dictionary</td></tr>
+<tr><th>key</th>
+        <td class="description">Key string</td></tr>
+<tr><th>value</th>
+        <td class="description">Value string</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcFileDelete">hcFileDelete</a></h3>
+        <p class="description">Close a file and free any memory associated with it.</p>
+<p class="code">
+void hcFileDelete(<a href="#hc_file_t">hc_file_t</a> *file);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>file</th>
+        <td class="description">File</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcFileGetc">hcFileGetc</a></h3>
+        <p class="description">Get a character from a file.</p>
+<p class="code">
+int hcFileGetc(<a href="#hc_file_t">hc_file_t</a> *file);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>file</th>
+        <td class="description">File</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Character or <code>EOF</code></p>
+<h3 class="function"><a id="hcFileNewBuffer">hcFileNewBuffer</a></h3>
+        <p class="description">Create a new file buffer stream.</p>
+<p class="code">
+<a href="#hc_file_t">hc_file_t</a> *hcFileNewBuffer(<a href="#hc_pool_t">hc_pool_t</a> *pool, const void *buffer, size_t bytes);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+<tr><th>buffer</th>
+        <td class="description">Buffer</td></tr>
+<tr><th>bytes</th>
+        <td class="description">Size of buffer</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">File</p>
+<h3 class="function"><a id="hcFileNewString">hcFileNewString</a></h3>
+        <p class="description">Create a new file string stream.</p>
+<p class="code">
+<a href="#hc_file_t">hc_file_t</a> *hcFileNewString(<a href="#hc_pool_t">hc_pool_t</a> *pool, const char *s);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+<tr><th>s</th>
+        <td class="description">String</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">File</p>
+<h3 class="function"><a id="hcFileNewURL">hcFileNewURL</a></h3>
+        <p class="description">Create a new file URL stream.</p>
+<p class="code">
+<a href="#hc_file_t">hc_file_t</a> *hcFileNewURL(<a href="#hc_pool_t">hc_pool_t</a> *pool, const char *url, const char *baseurl);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+<tr><th>url</th>
+        <td class="description">URL or filename</td></tr>
+<tr><th>baseurl</th>
+        <td class="description">Base URL or <code>NULL</code></td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">File</p>
+<h3 class="function"><a id="hcFileRead">hcFileRead</a></h3>
+        <p class="description">Read bytes from a file.</p>
+<p class="code">
+size_t hcFileRead(<a href="#hc_file_t">hc_file_t</a> *file, void *buffer, size_t bytes);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>file</th>
+        <td class="description">File</td></tr>
+<tr><th>buffer</th>
+        <td class="description">Buffer</td></tr>
+<tr><th>bytes</th>
+        <td class="description">Number of bytes to read</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Number of bytes read</p>
+<h3 class="function"><a id="hcFileSeek">hcFileSeek</a></h3>
+        <p class="description">Randomly access data within a file.</p>
+<p class="code">
+size_t hcFileSeek(<a href="#hc_file_t">hc_file_t</a> *file, size_t offset);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>file</th>
+        <td class="description">File</td></tr>
+<tr><th>offset</th>
+        <td class="description">Offset within file</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">New file offset or 0 on error</p>
+<h3 class="function"><a id="hcFileUngetc">hcFileUngetc</a></h3>
+        <p class="description">Return a character to a file.</p>
+<p class="code">
+void hcFileUngetc(<a href="#hc_file_t">hc_file_t</a> *f, int ch);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>f</th>
+        <td class="description">File</td></tr>
+<tr><th>ch</th>
+        <td class="description">Character</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcFontAddCached">hcFontAddCached</a></h3>
+        <p class="description">Add a font to a memory pool cache.</p>
+<p class="code">
+void hcFontAddCached(<a href="#hc_pool_t">hc_pool_t</a> *pool, <a href="#hc_font_t">hc_font_t</a> *font, const char *url);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool for cache</td></tr>
+<tr><th>font</th>
+        <td class="description">Font to add</td></tr>
+<tr><th>url</th>
+        <td class="description">URL for font</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcFontComputeExtents">hcFontComputeExtents</a></h3>
+        <p class="description">Compute the extents of a string when rendered using the
+given font object, size, style, etc.</p>
+<p class="code">
+int hcFontComputeExtents(const <a href="#hc_font_t">hc_font_t</a> *font, float size, const char *s, <a href="#hc_rect_t">hc_rect_t</a> *extents);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>font</th>
+        <td class="description">Font object</td></tr>
+<tr><th>size</th>
+        <td class="description">Font size</td></tr>
+<tr><th>s</th>
+        <td class="description">String</td></tr>
+<tr><th>extents</th>
+        <td class="description">Extents of the string</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">1 on success, 0 on failure</p>
+<h3 class="function"><a id="hcFontDelete">hcFontDelete</a></h3>
+        <p class="description">Free all memory used for a font family object.</p>
+<p class="code">
+void hcFontDelete(<a href="#hc_font_t">hc_font_t</a> *font);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>font</th>
+        <td class="description">Font object</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcFontFindCached">hcFontFindCached</a></h3>
+        <p class="description">Find a font...</p>
+<p class="code">
+<a href="#hc_font_t">hc_font_t</a> *hcFontFindCached(<a href="#hc_pool_t">hc_pool_t</a> *pool, const char *family, <a href="#hc_font_stretch_t">hc_font_stretch_t</a> stretch, <a href="#hc_font_style_t">hc_font_style_t</a> style, <a href="#hc_font_variant_t">hc_font_variant_t</a> variant, hc_font_weight_t weight);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool for cache</td></tr>
+<tr><th>family</th>
+        <td class="description">Family name</td></tr>
+<tr><th>stretch</th>
+        <td class="description">Stretching of font</td></tr>
+<tr><th>style</th>
+        <td class="description">Style of font</td></tr>
+<tr><th>variant</th>
+        <td class="description">Variant of font</td></tr>
+<tr><th>weight</th>
+        <td class="description">Weight of font</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Matching font or <code>NULL</code></p>
+<h3 class="function"><a id="hcFontGetCached">hcFontGetCached</a></h3>
+        <p class="description">Get a cached font from a pool.</p>
+<p class="code">
+<a href="#hc_font_t">hc_font_t</a> *hcFontGetCached(<a href="#hc_pool_t">hc_pool_t</a> *pool, size_t idx);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+<tr><th>idx</th>
+        <td class="description">Font number (0-based)</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Font</p>
+<h3 class="function"><a id="hcFontGetCachedCount">hcFontGetCachedCount</a></h3>
+        <p class="description">Return the number of cached fonts.</p>
+<p class="code">
+size_t hcFontGetCachedCount(<a href="#hc_pool_t">hc_pool_t</a> *pool);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Number of cached fonts</p>
+<h3 class="function"><a id="hcFontGetCopyright">hcFontGetCopyright</a></h3>
+        <p class="description">Get the copyright text for a font.</p>
+<p class="code">
+const char *hcFontGetCopyright(<a href="#hc_font_t">hc_font_t</a> *font);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>font</th>
+        <td class="description">Font object</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Copyright text</p>
+<h3 class="function"><a id="hcFontGetFamily">hcFontGetFamily</a></h3>
+        <p class="description">Get the family name of a font.</p>
+<p class="code">
+const char *hcFontGetFamily(<a href="#hc_font_t">hc_font_t</a> *font);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>font</th>
+        <td class="description">Font object</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Family name</p>
+<h3 class="function"><a id="hcFontGetNumFonts">hcFontGetNumFonts</a></h3>
+        <p class="description"></p>
+<p class="code">
+size_t hcFontGetNumFonts(<a href="#hc_font_t">hc_font_t</a> *font);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>font</th>
+        <td class="description">Font object</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Get the number of fonts in this collection.</p>
+<h3 class="function"><a id="hcFontGetPostScriptName">hcFontGetPostScriptName</a></h3>
+        <p class="description">Get the PostScript name of a font.</p>
+<p class="code">
+const char *hcFontGetPostScriptName(<a href="#hc_font_t">hc_font_t</a> *font);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>font</th>
+        <td class="description">Font object</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">PostScript name</p>
+<h3 class="function"><a id="hcFontGetStyle">hcFontGetStyle</a></h3>
+        <p class="description">Get the font style.</p>
+<p class="code">
+<a href="#hc_font_style_t">hc_font_style_t</a> hcFontGetStyle(<a href="#hc_font_t">hc_font_t</a> *font);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>font</th>
+        <td class="description">Font object</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Style</p>
+<h3 class="function"><a id="hcFontGetVersion">hcFontGetVersion</a></h3>
+        <p class="description">Get the version number of a font.</p>
+<p class="code">
+const char *hcFontGetVersion(<a href="#hc_font_t">hc_font_t</a> *font);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>font</th>
+        <td class="description">Font object</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Version number</p>
+<h3 class="function"><a id="hcFontGetWeight">hcFontGetWeight</a></h3>
+        <p class="description">Get the weight of a font.</p>
+<p class="code">
+hc_font_weight_t hcFontGetWeight(<a href="#hc_font_t">hc_font_t</a> *font);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>font</th>
+        <td class="description">Font object</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Weight</p>
+<h3 class="function"><a id="hcFontNew">hcFontNew</a></h3>
+        <p class="description">Create a new font object for the named font family.</p>
+<p class="code">
+<a href="#hc_font_t">hc_font_t</a> *hcFontNew(<a href="#hc_pool_t">hc_pool_t</a> *pool, <a href="#hc_file_t">hc_file_t</a> *file, size_t idx);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+<tr><th>file</th>
+        <td class="description">File</td></tr>
+<tr><th>idx</th>
+        <td class="description">Font number in collection (0-based)</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">New font object</p>
+<h3 class="function"><a id="hcHTMLDelete">hcHTMLDelete</a></h3>
+        <p class="description">Free the memory used by a HTML document.</p>
+<p class="code">
+void hcHTMLDelete(<a href="#hc_html_t">hc_html_t</a> *html);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>html</th>
+        <td class="description">HTML document</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcHTMLFindNode">hcHTMLFindNode</a></h3>
+        <p class="description">Find the first node in a document that matches the given
+element and/or ID string.</p>
+<p class="code">
+<a href="#hc_node_t">hc_node_t</a> *hcHTMLFindNode(<a href="#hc_html_t">hc_html_t</a> *html, <a href="#hc_node_t">hc_node_t</a> *current, hc_element_t element, const char *id);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>html</th>
+        <td class="description">HTML document</td></tr>
+<tr><th>current</th>
+        <td class="description">Current node or <code>NULL</code></td></tr>
+<tr><th>element</th>
+        <td class="description">Element or <code>HC_ELEMENT_WILDCARD</code> for any</td></tr>
+<tr><th>id</th>
+        <td class="description">ID string or <code>NULL</code> for any</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">First matching node or <code>NULL</code></p>
+<h3 class="function"><a id="hcHTMLGetCSS">hcHTMLGetCSS</a></h3>
+        <p class="description">Get the stylesheet for a HTML document.</p>
+<p class="code">
+<a href="#hc_css_t">hc_css_t</a> *hcHTMLGetCSS(<a href="#hc_html_t">hc_html_t</a> *html);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>html</th>
+        <td class="description">HTML document</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Stylesheet</p>
+<h3 class="function"><a id="hcHTMLGetDOCTYPE">hcHTMLGetDOCTYPE</a></h3>
+        <p class="description">Get a HTML document's DOCTYPE value, if any.</p>
+<p class="code">
+const char *hcHTMLGetDOCTYPE(<a href="#hc_html_t">hc_html_t</a> *html);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>html</th>
+        <td class="description">HTML document</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">DOCTYPE value</p>
+<h3 class="function"><a id="hcHTMLGetRootNode">hcHTMLGetRootNode</a></h3>
+        <p class="description">Get the root node for a document.</p>
+<p class="code">
+<a href="#hc_node_t">hc_node_t</a> *hcHTMLGetRootNode(<a href="#hc_html_t">hc_html_t</a> *html);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>html</th>
+        <td class="description">HTML document</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Root node or <code>NULL</code> if none</p>
+<h3 class="function"><a id="hcHTMLImport">hcHTMLImport</a></h3>
+        <p class="description">Load a HTML file into a document.</p>
+<p class="code">
+int hcHTMLImport(<a href="#hc_html_t">hc_html_t</a> *html, <a href="#hc_file_t">hc_file_t</a> *file);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>html</th>
+        <td class="description">HTML document</td></tr>
+<tr><th>file</th>
+        <td class="description">File to import</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">1 on success, 0 on failure</p>
+<h3 class="function"><a id="hcHTMLNew">hcHTMLNew</a></h3>
+        <p class="description">Create a new HTML document.</p>
+<p class="code">
+<a href="#hc_html_t">hc_html_t</a> *hcHTMLNew(<a href="#hc_pool_t">hc_pool_t</a> *pool, <a href="#hc_css_t">hc_css_t</a> *css);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+<tr><th>css</th>
+        <td class="description">Base stylesheet</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">HTML document</p>
+<h3 class="function"><a id="hcHTMLNewRootNode">hcHTMLNewRootNode</a></h3>
+        <p class="description">Create a new root node.</p>
+<p class="code">
+<a href="#hc_node_t">hc_node_t</a> *hcHTMLNewRootNode(<a href="#hc_html_t">hc_html_t</a> *html, const char *doctype);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>html</th>
+        <td class="description">HTML document</td></tr>
+<tr><th>doctype</th>
+        <td class="description">DOCTYPE value</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">New root node</p>
+<h3 class="function"><a id="hcImageDelete">hcImageDelete</a></h3>
+        <p class="description">Delete an image object.</p>
+<p class="code">
+void hcImageDelete(<a href="#hc_image_t">hc_image_t</a> *image);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>image</th>
+        <td class="description">Image object</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcImageGetFormat">hcImageGetFormat</a></h3>
+        <p class="description">Get the MIME media type for the image.</p>
+<p class="code">
+const char *hcImageGetFormat(<a href="#hc_image_t">hc_image_t</a> *image);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>image</th>
+        <td class="description">Image object</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">MIME media type</p>
+<h3 class="function"><a id="hcImageGetHeight">hcImageGetHeight</a></h3>
+        <p class="description">Get the height of an image.</p>
+<p class="code">
+int hcImageGetHeight(<a href="#hc_image_t">hc_image_t</a> *image);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>image</th>
+        <td class="description">Image object</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Height in pixels</p>
+<h3 class="function"><a id="hcImageGetSize">hcImageGetSize</a></h3>
+        <p class="description">Get the natural size of an image.</p>
+<p class="code">
+<a href="#hc_size_t">hc_size_t</a> hcImageGetSize(<a href="#hc_image_t">hc_image_t</a> *image);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>image</th>
+        <td class="description">Image object</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">CSS dimensions</p>
+<h3 class="function"><a id="hcImageGetWidth">hcImageGetWidth</a></h3>
+        <p class="description">Get the width of an image.</p>
+<p class="code">
+int hcImageGetWidth(<a href="#hc_image_t">hc_image_t</a> *image);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>image</th>
+        <td class="description">Image object</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Width in pixels</p>
+<h3 class="function"><a id="hcImageNew">hcImageNew</a></h3>
+        <p class="description">Create a new image object.</p>
+<p class="code">
+<a href="#hc_image_t">hc_image_t</a> *hcImageNew(<a href="#hc_pool_t">hc_pool_t</a> *pool, <a href="#hc_file_t">hc_file_t</a> *file);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+<tr><th>file</th>
+        <td class="description">File</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Image object</p>
+<h3 class="function"><a id="hcNodeAttrGetCount">hcNodeAttrGetCount</a></h3>
+        <p class="description">Get the number of attributes for an element.</p>
+<p class="code">
+size_t hcNodeAttrGetCount(<a href="#hc_node_t">hc_node_t</a> *node);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">Element node</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Number of attributes</p>
+<h3 class="function"><a id="hcNodeAttrGetIndexNameValue">hcNodeAttrGetIndexNameValue</a></h3>
+        <p class="description">Get the name and value of a specified attribute.</p>
+<p class="code">
+const char *hcNodeAttrGetIndexNameValue(<a href="#hc_node_t">hc_node_t</a> *node, size_t idx, const char **name);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">Element node</td></tr>
+<tr><th>idx</th>
+        <td class="description">Attribute index (0-based)</td></tr>
+<tr><th>name</th>
+        <td class="description">Attribute name</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Attribute value or <code>NULL</code></p>
+<h3 class="function"><a id="hcNodeAttrGetNameValue">hcNodeAttrGetNameValue</a></h3>
+        <p class="description">Get the value of an element attribute.</p>
+<p class="code">
+const char *hcNodeAttrGetNameValue(<a href="#hc_node_t">hc_node_t</a> *node, const char *name);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">Element node</td></tr>
+<tr><th>name</th>
+        <td class="description">Attribute name</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Value or <code>NULL</code> if not present</p>
+<h3 class="function"><a id="hcNodeAttrRemove">hcNodeAttrRemove</a></h3>
+        <p class="description">Delete an element attribute.</p>
+<p class="code">
+void hcNodeAttrRemove(<a href="#hc_node_t">hc_node_t</a> *node, const char *name);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">Element node</td></tr>
+<tr><th>name</th>
+        <td class="description">Attribute name</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcNodeAttrSetNameValue">hcNodeAttrSetNameValue</a></h3>
+        <p class="description">Add an element attribute.</p>
+<p class="code">
+void hcNodeAttrSetNameValue(<a href="#hc_node_t">hc_node_t</a> *node, const char *name, const char *value);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">Element node</td></tr>
+<tr><th>name</th>
+        <td class="description">Attribute name</td></tr>
+<tr><th>value</th>
+        <td class="description">Attribute value</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcNodeComputeCSSBox">hcNodeComputeCSSBox</a></h3>
+        <p class="description">Compute the box properties for the given HTML node.</p>
+<p class="code">
+int hcNodeComputeCSSBox(<a href="#hc_node_t">hc_node_t</a> *node, <a href="#hc_compute_t">hc_compute_t</a> compute, <a href="#hc_box_t">hc_box_t</a> *box);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+<tr><th>compute</th>
+        <td class="description">Pseudo-class, if any</td></tr>
+<tr><th>box</th>
+        <td class="description">Box properties</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">1 on success, 0 on failure</p>
+<h3 class="function"><a id="hcNodeComputeCSSContent">hcNodeComputeCSSContent</a></h3>
+        <p class="description">Compute the content: value for the given HTML node.</p>
+<p class="code">
+char *hcNodeComputeCSSContent(<a href="#hc_node_t">hc_node_t</a> *node, <a href="#hc_compute_t">hc_compute_t</a> compute);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+<tr><th>compute</th>
+        <td class="description">Pseudo-class, if any</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Content string or <code>NULL</code> if none/error</p>
+<h4 class="discussion">Discussion</h4>
+        <p class="discussion">The returned string must be freed using <code>free()</code>.</p>
+<h3 class="function"><a id="hcNodeComputeCSSDisplay">hcNodeComputeCSSDisplay</a></h3>
+        <p class="description">Compute the display property for the given HTML node.</p>
+<p class="code">
+<a href="#hc_display_t">hc_display_t</a> hcNodeComputeCSSDisplay(<a href="#hc_node_t">hc_node_t</a> *node, <a href="#hc_compute_t">hc_compute_t</a> compute);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+<tr><th>compute</th>
+        <td class="description">Pseudo-class, if any</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">1 on success, 0 on failure</p>
+<h3 class="function"><a id="hcNodeComputeCSSMedia">hcNodeComputeCSSMedia</a></h3>
+        <p class="description">Compute the media properties for the given HTML node.</p>
+<p class="code">
+int hcNodeComputeCSSMedia(<a href="#hc_node_t">hc_node_t</a> *node, <a href="#hc_compute_t">hc_compute_t</a> compute, <a href="#hc_media_t">hc_media_t</a> *media);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+<tr><th>compute</th>
+        <td class="description">Pseudo-class, if any</td></tr>
+<tr><th>media</th>
+        <td class="description">Media properties</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">1 on success, 0 on failure</p>
+<h3 class="function"><a id="hcNodeComputeCSSProperties">hcNodeComputeCSSProperties</a></h3>
+        <p class="description">Compute the properties for the given node.</p>
+<p class="code">
+const <a href="#hc_dict_t">hc_dict_t</a> *hcNodeComputeCSSProperties(<a href="#hc_node_t">hc_node_t</a> *node, <a href="#hc_compute_t">hc_compute_t</a> compute);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+<tr><th>compute</th>
+        <td class="description">Pseudo-class, if any</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Properties or <code>NULL</code> on error</p>
+<h4 class="discussion">Discussion</h4>
+        <p class="discussion">The dictionary is stored in the stylesheet cache and must not be
+deleted using the <code>hcDictDelete</code> function.</p>
+<h3 class="function"><a id="hcNodeComputeCSSTable">hcNodeComputeCSSTable</a></h3>
+        <p class="description">Compute the table properties for the given HTML node.</p>
+<p class="code">
+int hcNodeComputeCSSTable(<a href="#hc_node_t">hc_node_t</a> *node, <a href="#hc_compute_t">hc_compute_t</a> compute, <a href="#hc_table_t">hc_table_t</a> *table);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+<tr><th>compute</th>
+        <td class="description">Pseudo-class, if any</td></tr>
+<tr><th>table</th>
+        <td class="description">Table properties</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">1 on success, 0 on failure</p>
+<h3 class="function"><a id="hcNodeComputeCSSText">hcNodeComputeCSSText</a></h3>
+        <p class="description">Compute the text properties for the given HTML node.</p>
+<p class="code">
+int hcNodeComputeCSSText(<a href="#hc_node_t">hc_node_t</a> *node, <a href="#hc_compute_t">hc_compute_t</a> compute, <a href="#hc_text_t">hc_text_t</a> *text);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+<tr><th>compute</th>
+        <td class="description">Pseudo-class, if any</td></tr>
+<tr><th>text</th>
+        <td class="description">Text properties</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">1 on success, 0 on failure</p>
+<h3 class="function"><a id="hcNodeDelete">hcNodeDelete</a></h3>
+        <p class="description">Delete a HTML node from a document.</p>
+<p class="code">
+void hcNodeDelete(<a href="#hc_html_t">hc_html_t</a> *html, <a href="#hc_node_t">hc_node_t</a> *node);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>html</th>
+        <td class="description">HTML document</td></tr>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcNodeGetComment">hcNodeGetComment</a></h3>
+        <p class="description">Get a HTML node's comment value, if any.</p>
+<p class="code">
+const char *hcNodeGetComment(<a href="#hc_node_t">hc_node_t</a> *node);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Comment value</p>
+<h3 class="function"><a id="hcNodeGetElement">hcNodeGetElement</a></h3>
+        <p class="description">Get a HTML node's element/type.</p>
+<p class="code">
+hc_element_t hcNodeGetElement(<a href="#hc_node_t">hc_node_t</a> *node);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Node element/type</p>
+<h3 class="function"><a id="hcNodeGetFirstChildNode">hcNodeGetFirstChildNode</a></h3>
+        <p class="description">Get a HTML node's first child node, if any.</p>
+<p class="code">
+<a href="#hc_node_t">hc_node_t</a> *hcNodeGetFirstChildNode(<a href="#hc_node_t">hc_node_t</a> *node);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">First child node or <code>NULL</code> if none</p>
+<h3 class="function"><a id="hcNodeGetLastChildNode">hcNodeGetLastChildNode</a></h3>
+        <p class="description">Get a HTML node's last child node, if any.</p>
+<p class="code">
+<a href="#hc_node_t">hc_node_t</a> *hcNodeGetLastChildNode(<a href="#hc_node_t">hc_node_t</a> *node);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Last child node or <code>NULL</code> if none</p>
+<h3 class="function"><a id="hcNodeGetNextSiblingNode">hcNodeGetNextSiblingNode</a></h3>
+        <p class="description">Get a HTML node's next sibling node, if any.</p>
+<p class="code">
+<a href="#hc_node_t">hc_node_t</a> *hcNodeGetNextSiblingNode(<a href="#hc_node_t">hc_node_t</a> *node);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Next sibling node or <code>NULL</code> if none</p>
+<h3 class="function"><a id="hcNodeGetParentNode">hcNodeGetParentNode</a></h3>
+        <p class="description">Get a HTML node's parent node, if any.</p>
+<p class="code">
+<a href="#hc_node_t">hc_node_t</a> *hcNodeGetParentNode(<a href="#hc_node_t">hc_node_t</a> *node);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Parent node or <code>NULL</code> if none</p>
+<h3 class="function"><a id="hcNodeGetPrevSiblingNode">hcNodeGetPrevSiblingNode</a></h3>
+        <p class="description">Get a HTML node's previous sibling node, if any.</p>
+<p class="code">
+<a href="#hc_node_t">hc_node_t</a> *hcNodeGetPrevSiblingNode(<a href="#hc_node_t">hc_node_t</a> *node);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Previous sibling node or <code>NULL</code> if none</p>
+<h3 class="function"><a id="hcNodeGetString">hcNodeGetString</a></h3>
+        <p class="description">Get a HTML node's string value, if any.</p>
+<p class="code">
+const char *hcNodeGetString(<a href="#hc_node_t">hc_node_t</a> *node);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>node</th>
+        <td class="description">HTML node</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">String value</p>
+<h3 class="function"><a id="hcNodeNewComment">hcNodeNewComment</a></h3>
+        <p class="description">Create a new HTML comment node.</p>
+<p class="code">
+<a href="#hc_node_t">hc_node_t</a> *hcNodeNewComment(<a href="#hc_node_t">hc_node_t</a> *parent, const char *c);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>parent</th>
+        <td class="description">Parent node</td></tr>
+<tr><th>c</th>
+        <td class="description">Comment value</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">New HTML comment node</p>
+<h3 class="function"><a id="hcNodeNewElement">hcNodeNewElement</a></h3>
+        <p class="description">Create a new HTML element node.</p>
+<p class="code">
+<a href="#hc_node_t">hc_node_t</a> *hcNodeNewElement(<a href="#hc_node_t">hc_node_t</a> *parent, hc_element_t element);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>parent</th>
+        <td class="description">Parent node</td></tr>
+<tr><th>element</th>
+        <td class="description">HTML element</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">New HTML element node</p>
+<h3 class="function"><a id="hcNodeNewString">hcNodeNewString</a></h3>
+        <p class="description">Create a new HTML string node.</p>
+<p class="code">
+<a href="#hc_node_t">hc_node_t</a> *hcNodeNewString(<a href="#hc_node_t">hc_node_t</a> *parent, const char *s);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>parent</th>
+        <td class="description">Parent node</td></tr>
+<tr><th>s</th>
+        <td class="description">String value</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">New HTML string node</p>
+<h3 class="function"><a id="hcPoolDelete">hcPoolDelete</a></h3>
+        <p class="description">Free the memory used by a pool.</p>
+<p class="code">
+void hcPoolDelete(<a href="#hc_pool_t">hc_pool_t</a> *pool);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcPoolGetLastError">hcPoolGetLastError</a></h3>
+        <p class="description">Return the last error message recorded.</p>
+<p class="code">
+const char *hcPoolGetLastError(<a href="#hc_pool_t">hc_pool_t</a> *pool);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Last error message or <code>NULL</code></p>
+<h3 class="function"><a id="hcPoolGetString">hcPoolGetString</a></h3>
+        <p class="description">Find or copy a string.</p>
+<p class="code">
+const char *hcPoolGetString(<a href="#hc_pool_t">hc_pool_t</a> *pool, const char *s);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+<tr><th>s</th>
+        <td class="description">String to find/copy</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">New string pointer</p>
+<h4 class="discussion">Discussion</h4>
+        <p class="discussion">This function finds or makes a copy of the passed string that will be freed
+when the corresponding memory pool is deleted.  Since the memory pool only
+maintains a single copy of any string, copied strings are immutable.</p>
+<h3 class="function"><a id="hcPoolGetURL">hcPoolGetURL</a></h3>
+        <p class="description">Get a file corresponding to a URL.</p>
+<p class="code">
+const char *hcPoolGetURL(<a href="#hc_pool_t">hc_pool_t</a> *pool, const char *url, const char *baseurl);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+<tr><th>url</th>
+        <td class="description">URL</td></tr>
+<tr><th>baseurl</th>
+        <td class="description">Base URL, if any</td></tr>
+</tbody></table>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">Filename or <code>NULL</code> on error</p>
+<h3 class="function"><a id="hcPoolNew">hcPoolNew</a></h3>
+        <p class="description">Create a new memory pool.</p>
+<p class="code">
+<a href="#hc_pool_t">hc_pool_t</a> *hcPoolNew(void);</p>
+<h4 class="returnvalue">Return Value</h4>
+        <p class="description">New memory pool</p>
+<h3 class="function"><a id="hcPoolSetErrorCallback">hcPoolSetErrorCallback</a></h3>
+        <p class="description">Set the error reporting callback.</p>
+<p class="code">
+void hcPoolSetErrorCallback(<a href="#hc_pool_t">hc_pool_t</a> *pool, <a href="#hc_error_cb_t">hc_error_cb_t</a> cb, void *ctx);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+<tr><th>cb</th>
+        <td class="description">Error callback or <code>NULL</code> for the default</td></tr>
+<tr><th>ctx</th>
+        <td class="description">Context pointer for callback</td></tr>
+</tbody></table>
+<h4 class="discussion">Discussion</h4>
+        <p class="discussion">The default error callback writes the message to <code>stderr</code>.<br>
+<br>
+The error callback returns 1 to continue processing or 0 to stop immediately.</p>
+<h3 class="function"><a id="hcPoolSetURLCallback">hcPoolSetURLCallback</a></h3>
+        <p class="description">Set the URL callback.</p>
+<p class="code">
+void hcPoolSetURLCallback(<a href="#hc_pool_t">hc_pool_t</a> *pool, <a href="#hc_url_cb_t">hc_url_cb_t</a> cb, void *ctx);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>pool</th>
+        <td class="description">Memory pool</td></tr>
+<tr><th>cb</th>
+        <td class="description">URL callback or <code>NULL</code> for the default</td></tr>
+<tr><th>ctx</th>
+        <td class="description">Context pointer for callback</td></tr>
+</tbody></table>
+<h4 class="discussion">Discussion</h4>
+        <p class="discussion">The default URL callback supports local files (only).<br>
+<br>
+The URL callback returns a local pathname (copied to the specified buffer)
+or <code>NULL</code> if the URL cannot be loaded/found.</p>
+<h3 class="function"><a id="hcSHA3Final">hcSHA3Final</a></h3>
+        <p class="description">Finalize the SHA3-256 hash, putting the result in &quot;hash&quot;.</p>
+<p class="code">
+void hcSHA3Final(<a href="#hc_sha3_t">hc_sha3_t</a> *ctx, unsigned char *hash, size_t hashlen);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>ctx</th>
+        <td class="description">Hash context</td></tr>
+<tr><th>hash</th>
+        <td class="description">Hash buffer</td></tr>
+<tr><th>hashlen</th>
+        <td class="description">Bytes to copy from hash</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcSHA3Init">hcSHA3Init</a></h3>
+        <p class="description">Initialize a SHA3-256 hashing context.</p>
+<p class="code">
+void hcSHA3Init(<a href="#hc_sha3_t">hc_sha3_t</a> *ctx);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>ctx</th>
+        <td class="description">Hash context</td></tr>
+</tbody></table>
+<h3 class="function"><a id="hcSHA3Update">hcSHA3Update</a></h3>
+        <p class="description">Update the SHA3-256 hashing context with the given data.</p>
+<p class="code">
+void hcSHA3Update(<a href="#hc_sha3_t">hc_sha3_t</a> *ctx, const void *data, size_t datalen);</p>
+<h4 class="parameters">Parameters</h4>
+<table class="list"><tbody>
+<tr><th>ctx</th>
+        <td class="description">Hash context</td></tr>
+<tr><th>data</th>
+        <td class="description">Data to hash</td></tr>
+<tr><th>datalen</th>
+        <td class="description">Number of bytes of data</td></tr>
+</tbody></table>
+      <h2 class="title"><a id="TYPES">Data Types</a></h2>
+      <h3 class="typedef"><a id="hc_background_attachment_t">hc_background_attachment_t</a></h3>
+        <p class="description">Types...</p>
+      <p class="code">
+typedef enum hc_background_attachment_t;
+</p>
+      <h3 class="typedef"><a id="hc_border_props_t">hc_border_props_t</a></h3>
+        <p class="description">CSS border properties</p>
+      <p class="code">
+typedef struct <a href="#hc_border_props_s">hc_border_props_s</a> hc_border_props_t;
+</p>
+      <h3 class="typedef"><a id="hc_border_radius_t">hc_border_radius_t</a></h3>
+        <p class="description">CSS border-xxx-radius properties</p>
+      <p class="code">
+typedef struct <a href="#hc_border_radius_s">hc_border_radius_s</a> hc_border_radius_t;
+</p>
+      <h3 class="typedef"><a id="hc_border_t">hc_border_t</a></h3>
+        <p class="description">All CSS border properties</p>
+      <p class="code">
+typedef struct <a href="#hc_border_s">hc_border_s</a> hc_border_t;
+</p>
+      <h3 class="typedef"><a id="hc_box_shadow_t">hc_box_shadow_t</a></h3>
+        <p class="description">Box shadow values</p>
+      <p class="code">
+typedef struct <a href="#hc_box_shadow_s">hc_box_shadow_s</a> hc_box_shadow_t;
+</p>
+      <h3 class="typedef"><a id="hc_box_t">hc_box_t</a></h3>
+        <p class="description">CSS box properties</p>
+      <p class="code">
+typedef struct <a href="#hc_box_s">hc_box_s</a> hc_box_t;
+</p>
+      <h3 class="typedef"><a id="hc_color_t">hc_color_t</a></h3>
+        <p class="description">sRGBA color</p>
+      <p class="code">
+typedef struct <a href="#hc_color_s">hc_color_s</a> hc_color_t;
+</p>
+      <h3 class="typedef"><a id="hc_compute_t">hc_compute_t</a></h3>
+        <p class="description">What to compute</p>
+      <p class="code">
+typedef enum hc_compute_t;
+</p>
+      <h3 class="typedef"><a id="hc_css_t">hc_css_t</a></h3>
+        <p class="description">CSS data</p>
+      <p class="code">
+typedef struct _hc_css_s hc_css_t;
+</p>
+      <h3 class="typedef"><a id="hc_dict_t">hc_dict_t</a></h3>
+        <p class="description">Key/value string dictionary</p>
+      <p class="code">
+typedef struct _hc_dict_s hc_dict_t;
+</p>
+      <h3 class="typedef"><a id="hc_html_t">hc_html_t</a></h3>
+        <p class="description">HTML document</p>
+      <p class="code">
+typedef struct _hc_html_s hc_html_t;
+</p>
+      <h3 class="typedef"><a id="hc_image_t">hc_image_t</a></h3>
+        <p class="description">Image object</p>
+      <p class="code">
+typedef struct _hc_image_s hc_image_t;
+</p>
+      <h3 class="typedef"><a id="hc_node_t">hc_node_t</a></h3>
+        <p class="description">HTML element enum</p>
+      <p class="code">
+typedef typedef struct _hc_node_s hc_node_t;
+</p>
+      <h3 class="typedef"><a id="hc_file_t">hc_file_t</a></h3>
+        <p class="description">High-level file/stream</p>
+      <p class="code">
+typedef struct _hc_file_s hc_file_t;
+</p>
+      <h3 class="typedef"><a id="hc_font_stretch_t">hc_font_stretch_t</a></h3>
+        <p class="description">Font stretch</p>
+      <p class="code">
+typedef enum hc_font_stretch_t;
+</p>
+      <h3 class="typedef"><a id="hc_font_style_t">hc_font_style_t</a></h3>
+        <p class="description">Font style</p>
+      <p class="code">
+typedef enum hc_font_style_t;
+</p>
+      <h3 class="typedef"><a id="hc_font_variant_t">hc_font_variant_t</a></h3>
+        <p class="description">Font variant</p>
+      <p class="code">
+typedef enum hc_font_variant_t;
+</p>
+      <h3 class="typedef"><a id="hc_font_t">hc_font_t</a></h3>
+        <p class="description">Font weight</p>
+      <p class="code">
+typedef typedef struct _hc_font_s hc_font_t;
+</p>
+      <h3 class="typedef"><a id="hc_media_t">hc_media_t</a></h3>
+        <p class="description">CSS media properties</p>
+      <p class="code">
+typedef struct <a href="#hc_media_s">hc_media_s</a> hc_media_t;
+</p>
+      <h3 class="typedef"><a id="hc_point_t">hc_point_t</a></h3>
+        <p class="description">Point/coordinate</p>
+      <p class="code">
+typedef struct <a href="#hc_point_s">hc_point_s</a> hc_point_t;
+</p>
+      <h3 class="typedef"><a id="hc_pool_t">hc_pool_t</a></h3>
+        <p class="description">Memory allocation pool</p>
+      <p class="code">
+typedef struct _hc_pool_s hc_pool_t;
+</p>
+      <h3 class="typedef"><a id="hc_rect_t">hc_rect_t</a></h3>
+        <p class="description">Rectangle</p>
+      <p class="code">
+typedef struct <a href="#hc_rect_s">hc_rect_s</a> hc_rect_t;
+</p>
+      <h3 class="typedef"><a id="hc_sha3_t">hc_sha3_t</a></h3>
+        <p class="description">SHA3 hashing context</p>
+      <p class="code">
+typedef struct <a href="#hc_sha3_s">hc_sha3_s</a> hc_sha3_t;
+</p>
+      <h3 class="typedef"><a id="hc_size_t">hc_size_t</a></h3>
+        <p class="description">Point/coordinate</p>
+      <p class="code">
+typedef struct <a href="#hc_size_s">hc_size_s</a> hc_size_t;
+</p>
+      <h3 class="typedef"><a id="hc_table_t">hc_table_t</a></h3>
+        <p class="description">CSS table properties</p>
+      <p class="code">
+typedef struct <a href="#hc_table_s">hc_table_s</a> hc_table_t;
+</p>
+      <h3 class="typedef"><a id="hc_text_t">hc_text_t</a></h3>
+        <p class="description">CSS text properties</p>
+      <p class="code">
+typedef struct <a href="#hc_text_s">hc_text_s</a> hc_text_t;
+</p>
+      <h3 class="typedef"><a id="hc_url_cb_t">hc_url_cb_t</a></h3>
+        <p class="description">Functions...</p>
+      <p class="code">
+typedef char *(*hc_url_cb_t)(void *ctx, const char *url, char *buffer, size_t bufsize);
+</p>
+      <h2 class="title"><a id="STRUCTURES">Structures</a></h2>
+<h3 class="struct"><a id="hc_border_props_s">hc_border_props_s</a></h3>
+        <p class="description">CSS border properties</p>
+<p class="code">struct hc_border_props_s {<br>
+&#160;&#160;&#160;&#160;<a href="#hc_color_t">hc_color_t</a> color;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_border_style_t">hc_border_style_t</a> style;<br>
+&#160;&#160;&#160;&#160;float width;<br>
+};</p>
+<h4 class="members">Members</h4>
+<table class="list"><tbody>
+<tr><th>color </th>
+        <td class="description">Border color</td></tr>
+<tr><th>style </th>
+        <td class="description">Border style</td></tr>
+<tr><th>width </th>
+        <td class="description">Border width</td></tr>
+</tbody></table>
+<h3 class="struct"><a id="hc_border_radius_s">hc_border_radius_s</a></h3>
+        <p class="description">CSS border-xxx-radius properties</p>
+<p class="code">struct hc_border_radius_s {<br>
+&#160;&#160;&#160;&#160;<a href="#hc_size_t">hc_size_t</a> bottom_left;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_size_t">hc_size_t</a> bottom_right;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_size_t">hc_size_t</a> top_left;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_size_t">hc_size_t</a> top_right;<br>
+};</p>
+<h4 class="members">Members</h4>
+<table class="list"><tbody>
+<tr><th>bottom_left </th>
+        <td class="description">Bottom-left border radius</td></tr>
+<tr><th>bottom_right </th>
+        <td class="description">Bottom-right border radius</td></tr>
+<tr><th>top_left </th>
+        <td class="description">Top-left border radius</td></tr>
+<tr><th>top_right </th>
+        <td class="description">Top-right border radius</td></tr>
+</tbody></table>
+<h3 class="struct"><a id="hc_border_s">hc_border_s</a></h3>
+        <p class="description">All CSS border properties</p>
+<p class="code">struct hc_border_s {<br>
+&#160;&#160;&#160;&#160;<a href="#hc_border_props_t">hc_border_props_t</a> bottom;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_border_props_t">hc_border_props_t</a> left;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_border_props_t">hc_border_props_t</a> right;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_border_props_t">hc_border_props_t</a> top;<br>
+};</p>
+<h4 class="members">Members</h4>
+<table class="list"><tbody>
+<tr><th>bottom </th>
+</tr>
+<tr><th>left </th>
+</tr>
+<tr><th>right </th>
+</tr>
+<tr><th>top </th>
+</tr>
+</tbody></table>
+<h3 class="struct"><a id="hc_box_s">hc_box_s</a></h3>
+        <p class="description">CSS box properties</p>
+<p class="code">struct hc_box_s {<br>
+&#160;&#160;&#160;&#160;<a href="#hc_background_attachment_t">hc_background_attachment_t</a> background_attachment;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_background_box_t">hc_background_box_t</a> background_clip;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_color_t">hc_color_t</a> background_color;<br>
+&#160;&#160;&#160;&#160;const char *background_image;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_background_box_t">hc_background_box_t</a> background_origin;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_point_t">hc_point_t</a> background_position;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_background_repeat_t">hc_background_repeat_t</a> background_repeat;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_size_t">hc_size_t</a> background_size;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_border_t">hc_border_t</a> border;<br>
+&#160;&#160;&#160;&#160;const char *border_image;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_bool_t">hc_bool_t</a> border_image_fill;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_rect_t">hc_rect_t</a> border_image_outset;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_border_image_repeat_t">hc_border_image_repeat_t</a> border_image_repeat[2];<br>
+&#160;&#160;&#160;&#160;<a href="#hc_rect_t">hc_rect_t</a> border_image_slice;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_rect_t">hc_rect_t</a> border_image_width;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_border_radius_t">hc_border_radius_t</a> border_radius;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_size_t">hc_size_t</a> border_spacing;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_rect_t">hc_rect_t</a> bounds;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_box_shadow_t">hc_box_shadow_t</a> box_shadow;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_break_t">hc_break_t</a> break_after;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_break_t">hc_break_t</a> break_before;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_break_t">hc_break_t</a> break_inside;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_rect_t">hc_rect_t</a> clip;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_float_t">hc_float_t</a> float_value;<br>
+&#160;&#160;&#160;&#160;const char *list_style_image;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_list_style_position_t">hc_list_style_position_t</a> list_style_position;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_list_style_type_t">hc_list_style_type_t</a> list_style_type;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_rect_t">hc_rect_t</a> margin;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_size_t">hc_size_t</a> max_size;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_size_t">hc_size_t</a> min_size;<br>
+&#160;&#160;&#160;&#160;int orphans;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_overflow_t">hc_overflow_t</a> overflow;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_rect_t">hc_rect_t</a> padding;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_size_t">hc_size_t</a> size;<br>
+&#160;&#160;&#160;&#160;int widows;<br>
+&#160;&#160;&#160;&#160;int z_index;<br>
+};</p>
+<h4 class="members">Members</h4>
+<table class="list"><tbody>
+<tr><th>background_attachment </th>
+</tr>
+<tr><th>background_clip </th>
+</tr>
+<tr><th>background_color </th>
+</tr>
+<tr><th>background_image </th>
+</tr>
+<tr><th>background_origin </th>
+</tr>
+<tr><th>background_position </th>
+</tr>
+<tr><th>background_repeat </th>
+</tr>
+<tr><th>background_size </th>
+</tr>
+<tr><th>border </th>
+</tr>
+<tr><th>border_image </th>
+</tr>
+<tr><th>border_image_fill </th>
+</tr>
+<tr><th>border_image_outset </th>
+</tr>
+<tr><th>border_image_repeat[2] </th>
+</tr>
+<tr><th>border_image_slice </th>
+</tr>
+<tr><th>border_image_width </th>
+</tr>
+<tr><th>border_radius </th>
+</tr>
+<tr><th>border_spacing </th>
+</tr>
+<tr><th>bounds </th>
+        <td class="description">Computed bounds</td></tr>
+<tr><th>box_shadow </th>
+</tr>
+<tr><th>break_after </th>
+</tr>
+<tr><th>break_before </th>
+</tr>
+<tr><th>break_inside </th>
+</tr>
+<tr><th>clip </th>
+        <td class="description">Clip bounds</td></tr>
+<tr><th>float_value </th>
+</tr>
+<tr><th>list_style_image </th>
+</tr>
+<tr><th>list_style_position </th>
+</tr>
+<tr><th>list_style_type </th>
+</tr>
+<tr><th>margin </th>
+</tr>
+<tr><th>max_size </th>
+</tr>
+<tr><th>min_size </th>
+</tr>
+<tr><th>orphans </th>
+</tr>
+<tr><th>overflow </th>
+</tr>
+<tr><th>padding </th>
+</tr>
+<tr><th>size </th>
+        <td class="description">Computed size</td></tr>
+<tr><th>widows </th>
+</tr>
+<tr><th>z_index </th>
+</tr>
+</tbody></table>
+<h3 class="struct"><a id="hc_box_shadow_s">hc_box_shadow_s</a></h3>
+        <p class="description">Box shadow values</p>
+<p class="code">struct hc_box_shadow_s {<br>
+&#160;&#160;&#160;&#160;float blur_radius;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_color_t">hc_color_t</a> color;<br>
+&#160;&#160;&#160;&#160;float horizontal_offset;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_bool_t">hc_bool_t</a> inset;<br>
+&#160;&#160;&#160;&#160;float spread_distance;<br>
+&#160;&#160;&#160;&#160;float vertical_offset;<br>
+};</p>
+<h4 class="members">Members</h4>
+<table class="list"><tbody>
+<tr><th>blur_radius </th>
+</tr>
+<tr><th>color </th>
+</tr>
+<tr><th>horizontal_offset </th>
+</tr>
+<tr><th>inset </th>
+</tr>
+<tr><th>spread_distance </th>
+</tr>
+<tr><th>vertical_offset </th>
+</tr>
+</tbody></table>
+<h3 class="struct"><a id="hc_color_s">hc_color_s</a></h3>
+        <p class="description">sRGBA color</p>
+<p class="code">struct hc_color_s {<br>
+&#160;&#160;&#160;&#160;float alpha;<br>
+&#160;&#160;&#160;&#160;float blue;<br>
+&#160;&#160;&#160;&#160;float green;<br>
+&#160;&#160;&#160;&#160;float red;<br>
+};</p>
+<h4 class="members">Members</h4>
+<table class="list"><tbody>
+<tr><th>alpha </th>
+        <td class="description">Alpha, 0.0 (transparent) to 1.0 (opaque)</td></tr>
+<tr><th>blue </th>
+        <td class="description">Blue, 0.0 to 1.0</td></tr>
+<tr><th>green </th>
+        <td class="description">Green, 0.0 to 1.0</td></tr>
+<tr><th>red </th>
+        <td class="description">Red, 0.0 to 1.0</td></tr>
+</tbody></table>
+<h3 class="struct"><a id="hc_media_s">hc_media_s</a></h3>
+        <p class="description">CSS media properties</p>
+<p class="code">struct hc_media_s {<br>
+&#160;&#160;&#160;&#160;int color_bits;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_rect_t">hc_rect_t</a> margin;<br>
+&#160;&#160;&#160;&#160;int monochrome_bits;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_size_t">hc_size_t</a> size;<br>
+&#160;&#160;&#160;&#160;const char *type;<br>
+};</p>
+<h4 class="members">Members</h4>
+<table class="list"><tbody>
+<tr><th>color_bits </th>
+        <td class="description">Color bits</td></tr>
+<tr><th>margin </th>
+        <td class="description">Margins</td></tr>
+<tr><th>monochrome_bits </th>
+        <td class="description">Grayscale bits</td></tr>
+<tr><th>size </th>
+        <td class="description">Dimensions</td></tr>
+<tr><th>type </th>
+        <td class="description">&quot;print&quot;, &quot;screen&quot;, etc.</td></tr>
+</tbody></table>
+<h3 class="struct"><a id="hc_point_s">hc_point_s</a></h3>
+        <p class="description">Point/coordinate</p>
+<p class="code">struct hc_point_s {<br>
+&#160;&#160;&#160;&#160;float left;<br>
+&#160;&#160;&#160;&#160;float top;<br>
+};</p>
+<h4 class="members">Members</h4>
+<table class="list"><tbody>
+<tr><th>left </th>
+        <td class="description">Horizontal position</td></tr>
+<tr><th>top </th>
+        <td class="description">Vertical position</td></tr>
+</tbody></table>
+<h3 class="struct"><a id="hc_rect_s">hc_rect_s</a></h3>
+        <p class="description">Rectangle</p>
+<p class="code">struct hc_rect_s {<br>
+&#160;&#160;&#160;&#160;float bottom;<br>
+&#160;&#160;&#160;&#160;float left;<br>
+&#160;&#160;&#160;&#160;float right;<br>
+&#160;&#160;&#160;&#160;float top;<br>
+};</p>
+<h4 class="members">Members</h4>
+<table class="list"><tbody>
+<tr><th>bottom </th>
+        <td class="description">Bottom offset</td></tr>
+<tr><th>left </th>
+        <td class="description">Left offset</td></tr>
+<tr><th>right </th>
+        <td class="description">Right offset</td></tr>
+<tr><th>top </th>
+        <td class="description">Top offset</td></tr>
+</tbody></table>
+<h3 class="struct"><a id="hc_sha3_s">hc_sha3_s</a></h3>
+        <p class="description">SHA3 hashing context</p>
+<p class="code">struct hc_sha3_s {<br>
+&#160;&#160;&#160;&#160;unsigned char used, block, state[200];<br>
+};</p>
+<h4 class="members">Members</h4>
+<table class="list"><tbody>
+<tr><th>state[200] </th>
+        <td class="description">SHA3 state</td></tr>
+</tbody></table>
+<h3 class="struct"><a id="hc_size_s">hc_size_s</a></h3>
+        <p class="description">Point/coordinate</p>
+<p class="code">struct hc_size_s {<br>
+&#160;&#160;&#160;&#160;float height;<br>
+&#160;&#160;&#160;&#160;float width;<br>
+};</p>
+<h4 class="members">Members</h4>
+<table class="list"><tbody>
+<tr><th>height </th>
+        <td class="description">Height</td></tr>
+<tr><th>width </th>
+        <td class="description">Width</td></tr>
+</tbody></table>
+<h3 class="struct"><a id="hc_table_s">hc_table_s</a></h3>
+        <p class="description">CSS table properties</p>
+<p class="code">struct hc_table_s {<br>
+&#160;&#160;&#160;&#160;<a href="#hc_border_collapse_t">hc_border_collapse_t</a> border_collapse;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_caption_side_t">hc_caption_side_t</a> caption_side;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_empty_cells_t">hc_empty_cells_t</a> empty_cells;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_table_layout_t">hc_table_layout_t</a> table_layout;<br>
+};</p>
+<h4 class="members">Members</h4>
+<table class="list"><tbody>
+<tr><th>border_collapse </th>
+</tr>
+<tr><th>caption_side </th>
+</tr>
+<tr><th>empty_cells </th>
+</tr>
+<tr><th>table_layout </th>
+</tr>
+</tbody></table>
+<h3 class="struct"><a id="hc_text_s">hc_text_s</a></h3>
+        <p class="description">CSS text properties</p>
+<p class="code">struct hc_text_s {<br>
+&#160;&#160;&#160;&#160;<a href="#hc_color_t">hc_color_t</a> color;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_direction_t">hc_direction_t</a> direction;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_font_t">hc_font_t</a> *font;<br>
+&#160;&#160;&#160;&#160;const char *font_family;<br>
+&#160;&#160;&#160;&#160;float font_size;<br>
+&#160;&#160;&#160;&#160;float font_size_adjust;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_font_stretch_t">hc_font_stretch_t</a> font_stretch;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_font_style_t">hc_font_style_t</a> font_style;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_font_variant_t">hc_font_variant_t</a> font_variant;<br>
+&#160;&#160;&#160;&#160;hc_font_weight_t font_weight;<br>
+&#160;&#160;&#160;&#160;float letter_spacing;<br>
+&#160;&#160;&#160;&#160;float line_height;<br>
+&#160;&#160;&#160;&#160;const char *quotes[4];<br>
+&#160;&#160;&#160;&#160;<a href="#hc_text_align_t">hc_text_align_t</a> text_align;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_text_decoration_t">hc_text_decoration_t</a> text_decoration;<br>
+&#160;&#160;&#160;&#160;float text_indent;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_text_transform_t">hc_text_transform_t</a> text_transform;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_unicode_bidi_t">hc_unicode_bidi_t</a> unicode_bidi;<br>
+&#160;&#160;&#160;&#160;<a href="#hc_white_space_t">hc_white_space_t</a> white_space;<br>
+&#160;&#160;&#160;&#160;float word_spacing;<br>
+};</p>
+<h4 class="members">Members</h4>
+<table class="list"><tbody>
+<tr><th>color </th>
+</tr>
+<tr><th>direction </th>
+</tr>
+<tr><th>font </th>
+        <td class="description">Loaded font</td></tr>
+<tr><th>font_family </th>
+</tr>
+<tr><th>font_size </th>
+</tr>
+<tr><th>font_size_adjust </th>
+</tr>
+<tr><th>font_stretch </th>
+</tr>
+<tr><th>font_style </th>
+</tr>
+<tr><th>font_variant </th>
+</tr>
+<tr><th>font_weight </th>
+</tr>
+<tr><th>letter_spacing </th>
+</tr>
+<tr><th>line_height </th>
+</tr>
+<tr><th>quotes[4] </th>
+</tr>
+<tr><th>text_align </th>
+</tr>
+<tr><th>text_decoration </th>
+</tr>
+<tr><th>text_indent </th>
+</tr>
+<tr><th>text_transform </th>
+</tr>
+<tr><th>unicode_bidi </th>
+</tr>
+<tr><th>white_space </th>
+</tr>
+<tr><th>word_spacing </th>
+</tr>
+</tbody></table>
+      <h2 class="title"><a id="VARIABLES">Variables</a></h2>
+      <h3 class="variable"><a id="hcElements[HC_ELEMENT_MAX]">hcElements[HC_ELEMENT_MAX]</a></h3>
+        <p class="description">Functions...</p>
+      <p class="code">extern const char *const hcElements[HC_ELEMENT_MAX];</p>
+    </div>
+  </body>
+</html>

@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2015-2018 Michael R Sweet. All rights reserved.
+ * Copyright © 2015-2020 Michael R Sweet. All rights reserved.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -68,9 +68,9 @@
  * Local types...
  */
 
-typedef unsigned char UINT8;
-typedef unsigned long long int UINT64;
-typedef UINT64 tKeccakLane;
+typedef unsigned char UINT8;		/* @private@ */
+typedef unsigned long long int UINT64;	/* @private@ */
+typedef UINT64 tKeccakLane;		/* @private@ */
 
 
 /*
