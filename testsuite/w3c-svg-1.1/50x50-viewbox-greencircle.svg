@@ -1,5 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="50" height="50" xmlns="http://www.w3.org/2000/svg"
-  xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="40" stroke="lime" fill="lime"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50" height="50" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#0f0" stroke="#0f0"/></svg>
