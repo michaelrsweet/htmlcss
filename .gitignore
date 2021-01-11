@@ -1,3 +1,4 @@
 *.o
-libhtmlcss.a
-testhtmlcss
+/libhtmlcss.a
+/testhtmlcss
+/testhtmlcss.log
