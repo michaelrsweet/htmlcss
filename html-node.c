@@ -327,12 +327,15 @@ html_new(hc_node_t    *parent,		/* I - Parent node or `NULL` if root node */
     node->element = element;
     node->parent  = parent;
 
-    if (element == HC_ELEMENT_STRING)
-      memcpy(node->value.string, s, slen);
-    else if (element == HC_ELEMENT_COMMENT)
-      memcpy(node->value.comment, s, slen);
-    else if (element == HC_ELEMENT_UNKNOWN)
-      memcpy(node->value.unknown, s, slen);
+    if (s && slen > 0)
+    {
+      if (element == HC_ELEMENT_STRING)
+        memcpy(node->value.string, s, slen);
+      else if (element == HC_ELEMENT_COMMENT)
+        memcpy(node->value.comment, s, slen);
+      else if (element == HC_ELEMENT_UNKNOWN)
+        memcpy(node->value.unknown, s, slen);
+    }
 
     if (parent)
     {
