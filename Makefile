@@ -79,10 +79,13 @@ DOCFLAGS =	\
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+
 all:		$(TARGETS)
+
 
 clean:
 	rm -f $(TARGETS) $(OBJS)
+
 
 install:	$(TARGETS)
 	mkdir -p $(includedir)/htmlcss
@@ -91,21 +94,27 @@ install:	$(TARGETS)
 	cp libhtmlcss.a $(libdir)
 	ranlib $(libdir)/libhtmlcss.a
 
+
 doc:
 	codedoc $(DOCFLAGS) $(DOCFILES) >htmlcss.html
+
 
 test:		testhtmlcss
 	./testhtmlcss --all --css --font --html testhtmlcss.html >testhtmlcss.log || (cat testhtmlcss.log; exit 1)
 
+
 test-fonts:	testhtmlcss
 	./testhtmlcss --font testsuite/*.ttf testsuite/*.otf
+
 
 testhtmlcss:	testhtmlcss.o libhtmlcss.a
 	$(CC) $(LDFLAGS) -o testhtmlcss testhtmlcss.o libhtmlcss.a $(LIBS)
 
+
 libhtmlcss.a:	$(LIBOBJS)
 	ar -rcv libhtmlcss.a $(LIBOBJS)
 	ranlib libhtmlcss.a
+
 
 css-import.o:	default-css.h
 
@@ -116,12 +125,14 @@ default-css.h:	default.css Makefile
 
 $(OBJS):	Makefile $(HEADERS) $(PHEADERS)
 
+
 # Scan code with the Clang static analyzer <https://clang-analyzer.llvm.org>
 clang:
-	clang $(CPPFLAGS) -Werror --analyze $(OBJS:.o=.c)
+	clang $(CPPFLAGS) -DDEBUG -Werror --analyze $(OBJS:.o=.c)
 	rm -rf $(OBJS:.o=.plist)
+
 
 # Scan the code using Cppcheck <http://cppcheck.sourceforge.net>
 cppcheck:
-	cppcheck $(CPPFLAGS) --template=gcc --addon=cert.py --suppress=cert-MSC24-C --suppress=cert-EXP05-C --suppress=cert-API01-C $(OBJS:.o=.c) 2>cppcheck.log
+	cppcheck --template=gcc --addon=cert.py --suppress=cert-MSC24-C --suppress=cert-EXP05-C --suppress=cert-API01-C $(CPPFLAGS) $(OBJS:.o=.c) 2>cppcheck.log
 	@test -s cppcheck.log && (echo ""; echo "Errors detected:"; echo ""; cat cppcheck.log; exit 1) || exit 0

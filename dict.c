@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -138,7 +138,8 @@ hcDictGetKeyValue(
   if (!dict || dict->num_pairs == 0)
     return (NULL);
 
-  temp.key = key;
+  temp.key   = key;
+  temp.value = NULL;
 
   if ((ptr = (_hc_pair_t *)bsearch(&temp, dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (_hc_compare_func_t)compare_pairs)) != NULL)
     return (ptr->value);
@@ -180,7 +181,8 @@ hcDictRemoveKey(hc_dict_t  *dict,	/* I - Dictionary */
   if (!dict || dict->num_pairs == 0)
     return;
 
-  temp.key = key;
+  temp.key   = key;
+  temp.value = NULL;
 
   if ((ptr = (_hc_pair_t *)bsearch(&temp, dict->pairs, dict->num_pairs, sizeof(_hc_pair_t), (_hc_compare_func_t)compare_pairs)) != NULL)
   {

@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018-2019 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -660,7 +660,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
   * Find the cmap table...
   */
 
-  if ((length = seek_table(file, table, _HC_OFF_cmap, 0)) == 0)
+  if (seek_table(file, table, _HC_OFF_cmap, 0) == 0)
   {
     _hcFileError(file, "Missing cmap table.");
     return (-1);
@@ -906,7 +906,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
 
           /* reserved */ read_ushort(file);
 
-	  if ((clength = read_ulong(file)) == 0)
+	  if (read_ulong(file) == 0)
 	  {
 	    _hcFileError(file, "Unable to read cmap table length at offset %u.", coffset);
 	    return (-1);
@@ -981,7 +981,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
 
           /* reserved */ read_ushort(file);
 
-	  if ((clength = read_ulong(file)) == 0)
+	  if (read_ulong(file) == 0)
 	  {
 	    _hcFileError(file, "Unable to read cmap table length at offset %u.", coffset);
 	    return (-1);
@@ -1064,7 +1064,7 @@ read_head(hc_file_t       *file,	/* I - File */
 
   memset(head, 0, sizeof(_hc_off_head_t));
 
-  if ((length = seek_table(file, table, _HC_OFF_head, 0)) == 0)
+  if (seek_table(file, table, _HC_OFF_head, 0) == 0)
     return (-1);
 
   /* majorVersion */       read_ushort(file);
@@ -1100,7 +1100,7 @@ read_hhea(hc_file_t       *file,	/* I - File */
 
   memset(hhea, 0, sizeof(_hc_off_hhea_t));
 
-  if ((length = seek_table(file, table, _HC_OFF_hhea, 0)) == 0)
+  if (seek_table(file, table, _HC_OFF_hhea, 0) == 0)
     return (-1);
 
   /* majorVersion */        read_ushort(file);
@@ -1281,7 +1281,7 @@ read_os_2(hc_file_t       *file,	/* I - File */
   * Find the OS/2 table...
   */
 
-  if ((length = seek_table(file, table, _HC_OFF_OS_2, 0)) == 0)
+  if (seek_table(file, table, _HC_OFF_OS_2, 0) == 0)
     return (-1);
 
   if ((version = read_ushort(file)) < 0)
@@ -1343,7 +1343,7 @@ read_post(hc_file_t       *file,	/* I - File */
   unsigned	length;			/* Length of post table */
 
 
-  if ((length = seek_table(file, table, _HC_OFF_post, 0)) == 0)
+  if (seek_table(file, table, _HC_OFF_post, 0) == 0)
     return (0.0f);
 
   /* version */ read_ulong(file);

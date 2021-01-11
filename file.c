@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018-2019 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -198,7 +198,7 @@ hcFileRead(hc_file_t *file,		/* I - File */
   else if ((rbytes = gzread(file->fp, buffer, (unsigned)bytes)) < 0)
     return (0);
   else
-    return ((size_t)bytes);
+    return ((size_t)rbytes);
 }
 
 
