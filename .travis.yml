@@ -16,7 +16,7 @@ before_install:
 env:
   - ASAN_OPTIONS=leak_check_at_exit=false
 
-script: make && make test test-fonts && make cppcheck
+script: make && make test && make cppcheck
 
 addons:
   apt:
