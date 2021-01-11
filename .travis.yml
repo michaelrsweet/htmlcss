@@ -18,6 +18,9 @@ env:
 
 script: make && make test && make cppcheck
 
+os: linux
+dist: focal
+
 addons:
   apt:
     packages: [cppcheck]
