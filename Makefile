@@ -3,7 +3,7 @@
 #
 #     https://github.com/michaelrsweet/htmlcss
 #
-# Copyright © 2018-2020 by Michael R Sweet.
+# Copyright © 2018-2021 by Michael R Sweet.
 #
 # Licensed under Apache License v2.0.  See the file "LICENSE" for more
 # information.
@@ -17,13 +17,13 @@ libdir	=	$(prefix)/lib
 mandir	=	$(prefix)/share/man
 
 CC	=	gcc
-CFLAGS	=	$(OPTIM) -Wall '-DVERSION="$(VERSION)"' $(OPTIONS)
+CFLAGS	=	$(OPTIM) $(OPTIONS)
 LDFLAGS	=	$(OPTIM)
 LIBS	=	-lz -lm
 #OPTIM	=	-Os -g
 OPTIM	=	-g -fsanitize=address
-OPTIONS	=
-#OPTIONS	=	-DDEBUG
+OPTIONS	=	-Wall '-DVERSION="$(VERSION)"'
+#OPTIONS	=	-Wall '-DVERSION="$(VERSION)"' -DDEBUG
 
 HEADERS	=	\
 		common.h \
@@ -115,3 +115,13 @@ default-css.h:	default.css Makefile
 	echo ";" >>default-css.h
 
 $(OBJS):	Makefile $(HEADERS) $(PHEADERS)
+
+# Scan code with the Clang static analyzer <https://clang-analyzer.llvm.org>
+clang:
+	clang $(OPTIONS) -Werror --analyze $(OBJS:.o=.c)
+	rm -rf $(OBJS:.o=.plist)
+
+# Scan the code using Cppcheck <http://cppcheck.sourceforge.net>
+cppcheck:
+	cppcheck $(OPTIONS) --template=gcc --addon=cert.py --suppress=cert-MSC24-C --suppress=cert-EXP05-C --suppress=cert-API01-C $(OBJS:.o=.c) 2>cppcheck.log
+	@test -s cppcheck.log && (echo ""; echo "Errors detected:"; echo ""; cat cppcheck.log; exit 1) || exit 0

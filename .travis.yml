@@ -1,0 +1,37 @@
+#
+# Travis CI configuration file for HTMLCSS.
+#
+
+language: c
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "gSL/W/yBo3ksNCWfCR/HesA+rsMDGkIGoXAr8iS2m9T5KGbPaA9rbzsmoMTzKJKfxmv5CHELiOxoyW79+6s7Ff7JJEBCpgiLlCeWC4VAUxiamUH8JUjiglVrdF195Kd9Oyd7rRv0t1rQzEQY6RPD2QhyZqYZPkiRtWMYOqSWqYxe+vlPHvk6BmmzuWphGIxrT0UGHwCsAbzQJYeb6XJVfKXS0DE3OMaE4Qxb94mljS68RcSIBNNqQ2ZAUBix/7gIkRlT0JWUSxIlZfgFxUCRhxCCmBPUOxzbhHLUuaQxHW79/BhuKYbqDpjFExS5PMBgRVmw1U0rgAlofGA5La5JJ8O+y/wXnLVrIGeJ+X+KjIGEq89aAFrRRB/t5xAu6BKnLrDuseGhLEwHn3WTkIqbBO1+xud6Hg+Plm8D2vxqa/mDmt3ytYS0bZJ1KMetj9x3E94EmaH5p+WHN8qjTTW1Ew65L+B1CaqsvubKF8ynHL6HSUFtxFTDqZcZXFZnZ5BfIlO3iDXBSHZ0gbuUA/HLnFN3ifb2vZZlw5pfQX2ohJMSNpDKKveLXR54G+gqGZrkI2Yi6NNXgEvVv4SJSPsaBx8+8C4Xya3UDlewZuZC3PbOZjfACwMjxRUfKN4ibE4u36SWy98cnKvGiqezugknmCapZcquqDuJWjernTx494Y="
+
+before_install:
+  - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
+env:
+  - ASAN_OPTIONS=leak_check_at_exit=false
+
+script: make && make test test-fonts && make cppcheck
+
+addons:
+  apt:
+    packages: [cppcheck]
+
+  coverity_scan:
+    project:
+      name: "michaelrsweet/htmlcss"
+      description: "Lightweight HTML/CSS Library"
+    notification_email: michael.r.sweet@gmail.com
+    build_command_prepend: "make clean"
+    build_command: "make"
+    branch_pattern: coverity_scan
+
+notifications:
+  email:
+    recipients:
+      - msweet@msweet.org
