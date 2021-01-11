@@ -1059,9 +1059,6 @@ read_head(hc_file_t       *file,	/* I - File */
           _hc_off_table_t *table,	/* I - Offset table */
           _hc_off_head_t  *head)	/* O - head table data */
 {
-  unsigned	length;			/* Length of head table */
-
-
   memset(head, 0, sizeof(_hc_off_head_t));
 
   if (seek_table(file, table, _HC_OFF_head, 0) == 0)
@@ -1095,9 +1092,6 @@ read_hhea(hc_file_t       *file,	/* I - File */
           _hc_off_table_t *table,	/* I - Offset table */
           _hc_off_hhea_t  *hhea)	/* O - hhea table data */
 {
-  unsigned	length;			/* Length of hhea table */
-
-
   memset(hhea, 0, sizeof(_hc_off_hhea_t));
 
   if (seek_table(file, table, _HC_OFF_hhea, 0) == 0)
@@ -1270,7 +1264,6 @@ read_os_2(hc_file_t       *file,	/* I - File */
           _hc_off_table_t *table,	/* I - Offset table */
           _hc_off_os_2_t  *os_2)	/* O - OS/2 table */
 {
-  unsigned	length;			/* Length of OS/2 table */
   int		version;		/* OS/2 table version */
   unsigned char	panose[10];		/* panose value */
 
@@ -1340,9 +1333,6 @@ static float				/* O - italicAngle value or 0.0 */
 read_post(hc_file_t       *file,	/* I - File */
           _hc_off_table_t *table)	/* I - Offset table */
 {
-  unsigned	length;			/* Length of post table */
-
-
   if (seek_table(file, table, _HC_OFF_post, 0) == 0)
     return (0.0f);
 
