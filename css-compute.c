@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018-2019 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -2123,10 +2123,8 @@ _hcNodeComputeCSSTextFont(
 {
   int			i;		/* Looping var */
   const char		*value;		/* Property value */
-  hc_pool_t		*pool = node->value.element.html->pool;
-					/* Memory pool */
-  hc_css_t		*css = node->value.element.html->css;
-					/* Stylesheet */
+  hc_pool_t		*pool;		/* Memory pool */
+  hc_css_t		*css;		/* Stylesheet */
   hc_text_t		parent_text;	/* Text properties for parent node */
   static const char * const stretches[] =
   {					/* font-stretch: values */
@@ -2164,6 +2162,9 @@ _hcNodeComputeCSSTextFont(
 
   if (!node)
     return (0);
+
+  pool = node->value.element.html->pool;
+  css  = node->value.element.html->css;
 
   if ((value = hcDictGetKeyValue(props, "color")) != NULL)
     hc_get_color(value, &text->color);
@@ -2296,6 +2297,7 @@ _hcNodeComputeCSSTextFont(
 	text->font_size = 24.0f;
       else if (strchr("0123456789.", *current))
       {
+        // TODO: "saw_slash" isn't set anywhere
         if (saw_slash)
         {
           text->line_height = hc_get_length(current, text->font_size, text->font_size, css, text);
@@ -2611,7 +2613,7 @@ hc_create_props(hc_node_t    *node,	/* I - HTML node */
   static const char * const pseudo_classes[] =
   {					/* Pseudo-classes for each enum */
     NULL,
-    "before"
+    "before",
     "after",
     "first-line",
     "first-letter"
@@ -3303,9 +3305,6 @@ hc_match_rule(hc_node_t  *node,		/* I  - HTML node */
             if ((curscore = hc_match_node(curnode, cursel, NULL)) < 0)
               return (-1);
 	  }
-
-          if (!curnode)
-            return (-1);
 
           score += curscore;
           break;

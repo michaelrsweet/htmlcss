@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2019 by Michael R Sweet.
+ * Copyright © 2019-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -141,7 +141,7 @@ hcFontFindCached(
 
   for (i = pool->font_index[tolower(*family & 255)], info = pool->fonts + i, best_info = NULL, best_score = 999999; i < pool->num_fonts; i ++, info ++)
   {
-    if ((result = strcasecmp(family, info->font_family)) != 0)
+    if ((result = strcasecmp(family, info->font_family)) <= 0)
       continue;
     else if (result > 0)
       break;
