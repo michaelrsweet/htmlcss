@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -104,7 +104,7 @@ typedef unsigned char _hc_uchar_t;	/* Unsigned 8-bit byte */
  * Functions...
  */
 
-extern int	_hcDefaultErrorCB(void *ctx, const char *message, int linenum);
+extern bool	_hcDefaultErrorCB(void *ctx, const char *message, int linenum);
 extern char	*_hcDefaultURLCB(void *ctx, const char *url, char *buffer, size_t bufsize);
 
 

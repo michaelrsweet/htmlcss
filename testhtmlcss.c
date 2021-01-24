@@ -27,7 +27,7 @@
  * Local functions...
  */
 
-static int	error_cb(void *ctx, const char *message, int linenum);
+static bool	error_cb(void *ctx, const char *message, int linenum);
 static int	test_pool_functions(hc_pool_t *pool);
 static int	test_sha3_functions(void);
 
@@ -416,7 +416,7 @@ main(int  argc,				/* I - Number of command-line arguments */
  * 'error_cb()' - Error callback for HTMLCSS...
  */
 
-static int				/* O - 1 to continue */
+static bool				/* O - `true` to continue */
 error_cb(void       *ctx,		/* I - User data (not used) */
          const char *message,		/* I - Message string (not used) */
          int        linenum)		/* I - Line number (not used) */
@@ -425,7 +425,7 @@ error_cb(void       *ctx,		/* I - User data (not used) */
   (void)message;
   (void)linenum;
 
-  return (1);
+  return (true);
 }
 
 

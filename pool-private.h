@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -61,8 +61,8 @@ struct _hc_pool_s			/* Memory pool */
  */
 
 extern void	_hcPoolDeleteFonts(hc_pool_t *pool);
-extern int	_hcPoolError(hc_pool_t *pool, int linenum, const char *message, ...) _HC_FORMAT_ARGS(3, 4);
-extern int	_hcPoolErrorv(hc_pool_t *pool, int linenum, const char *message, va_list ap);
+extern bool	_hcPoolError(hc_pool_t *pool, int linenum, const char *message, ...) _HC_FORMAT_ARGS(3, 4);
+extern bool	_hcPoolErrorv(hc_pool_t *pool, int linenum, const char *message, va_list ap);
 
 #  ifdef __cplusplus
 }

@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -187,7 +187,7 @@ extern hc_node_t	*hcHTMLFindNode(hc_html_t *html, hc_node_t *current, hc_element
 extern hc_css_t		*hcHTMLGetCSS(hc_html_t *html);
 extern const char	*hcHTMLGetDOCTYPE(hc_html_t *html);
 extern hc_node_t	*hcHTMLGetRootNode(hc_html_t *html);
-extern int		hcHTMLImport(hc_html_t *html, hc_file_t *file);
+extern bool		hcHTMLImport(hc_html_t *html, hc_file_t *file);
 extern hc_html_t	*hcHTMLNew(hc_pool_t *pool, hc_css_t *css);
 extern hc_node_t	*hcHTMLNewRootNode(hc_html_t *html, const char *doctype);
 extern void		hcHTMLSetErrorCallback(hc_html_t *html, hc_error_cb_t cb, void *ctx);

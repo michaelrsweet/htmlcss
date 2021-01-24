@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -30,7 +30,7 @@ extern "C" {
 
 typedef struct _hc_pool_s hc_pool_t;	/* Memory allocation pool */
 
-typedef int (*hc_error_cb_t)(void *ctx, const char *message, int linenum);
+typedef bool (*hc_error_cb_t)(void *ctx, const char *message, int linenum);
 typedef char *(*hc_url_cb_t)(void *ctx, const char *url, char *buffer, size_t bufsize);
 
 

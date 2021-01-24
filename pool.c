@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -56,14 +56,14 @@ hcPoolDelete(hc_pool_t *pool)	/* I - Memory pool */
  * '_hcPoolError()' - Display an error message.
  */
 
-int					/* O - 1 to continue, 0 to stop */
+bool					/* O - `true` to continue, `false` to stop */
 _hcPoolError(
     hc_pool_t  *pool,			/* I - Memory pool */
     int        linenum,			/* I - Line number in file or 0 */
     const char *message,		/* I - Printf-style message string */
     ...)				/* I - Additional arguments as needed */
 {
-  int		ret;			/* Return value */
+  bool		ret;			/* Return value */
   va_list	ap;			/* Pointer to additional arguments */
 
 
@@ -79,7 +79,7 @@ _hcPoolError(
  * '_hcPoolErrorv()' - Display an error message.
  */
 
-int					/* O - 1 to continue, 0 to stop */
+bool					/* O - `true` to continue, `false` to stop */
 _hcPoolErrorv(
     hc_pool_t  *pool,			/* I - Memory pool */
     int        linenum,			/* I - Line number in file or 0 */

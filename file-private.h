@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -45,7 +45,7 @@ struct _hc_file_s			/* High-level file/stream */
  * Functions...
  */
 
-extern int	_hcFileError(hc_file_t *file, const char *message, ...) _HC_FORMAT_ARGS(2,3);
+extern bool	_hcFileError(hc_file_t *file, const char *message, ...) _HC_FORMAT_ARGS(2,3);
 
 
 #  ifdef __cplusplus

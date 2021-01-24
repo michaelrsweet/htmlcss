@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -37,10 +37,10 @@
 
 static int	html_compare_elements(const char **a, const char **b);
 static int	html_parse_attr(hc_file_t *file, int ch, hc_node_t *node);
-static int	html_parse_comment(hc_file_t *file, hc_node_t **parent);
-static int	html_parse_doctype(hc_file_t *file, hc_html_t *html, hc_node_t **parent);
-static int	html_parse_element(hc_file_t *file, int ch, hc_html_t *html, hc_node_t **parent);
-static int	html_parse_unknown(hc_file_t *file, hc_node_t **parent, const char *unk);
+static bool	html_parse_comment(hc_file_t *file, hc_node_t **parent);
+static bool	html_parse_doctype(hc_file_t *file, hc_html_t *html, hc_node_t **parent);
+static bool	html_parse_element(hc_file_t *file, int ch, hc_html_t *html, hc_node_t **parent);
+static bool	html_parse_unknown(hc_file_t *file, hc_node_t **parent, const char *unk);
 
 
 /*
@@ -66,13 +66,13 @@ _hcElementLookup(const char *s)		/* I - String */
  * 'hcHTMLImport()' - Load a HTML file into a document.
  */
 
-int					/* O - 1 on success, 0 on failure */
+bool					/* O - `true` on success, `false` on error */
 hcHTMLImport(hc_html_t *html,		/* I - HTML document */
 	     hc_file_t *file)		/* I - File to import */
 {
   hc_node_t	*parent = NULL;		/* Parent node */
-  int		status = 1,		/* Load status */
-		ch;			/* Current character */
+  bool		status = true;		/* Load status */
+  int		ch;			/* Current character */
   char		buffer[8192],		/* Temporary buffer */
 		*bufptr,		/* Pointer into buffer */
 		*bufend;		/* End of buffer */
@@ -83,7 +83,7 @@ hcHTMLImport(hc_html_t *html,		/* I - HTML document */
   */
 
   if (!html || html->root || !file)
-    return (0);
+    return (false);
 
 //  f.parent       = NULL;
 
@@ -114,7 +114,7 @@ hcHTMLImport(hc_html_t *html,		/* I - HTML document */
 
         if (!_hcFileError(file, "Unquoted '<'."))
         {
-          status = 0;
+          status = false;
           break;
         }
 
@@ -132,7 +132,7 @@ hcHTMLImport(hc_html_t *html,		/* I - HTML document */
 	  }
 	  else
 	  {
-	    status = 0;
+	    status = false;
 	    _hcFileError(file, "Text without leading element or directive.");
 	    break;
 	  }
@@ -166,7 +166,7 @@ hcHTMLImport(hc_html_t *html,		/* I - HTML document */
 	  }
 	  else
 	  {
-	    status = 0;
+	    status = false;
 	    _hcFileError(file, "Text without leading element or directive.");
 	    break;
 	  }
@@ -191,7 +191,7 @@ hcHTMLImport(hc_html_t *html,		/* I - HTML document */
 	}
 	else
 	{
-	  status = 0;
+	  status = false;
 	  _hcFileError(file, "Text without leading element or directive.");
 	}
       }
@@ -212,7 +212,7 @@ hcHTMLImport(hc_html_t *html,		/* I - HTML document */
     }
     else
     {
-      status = 0;
+      status = false;
       _hcFileError(file, "Text without leading element or directive.");
     }
   }
@@ -323,7 +323,7 @@ html_parse_attr(hc_file_t *file,	/* I - File to read from */
  * 'html_parse_comment()' - Parse a comment.
  */
 
-static int				/* O  - 1 to continue, 0 to stop */
+static bool				/* O  - `true` to continue, `false` to stop */
 html_parse_comment(hc_file_t *file,	/* I  - File to read from */
                    hc_node_t **parent)	/* IO - Parent node */
 {
@@ -350,7 +350,7 @@ html_parse_comment(hc_file_t *file,	/* I  - File to read from */
     else if (bufptr < bufend)
       *bufptr++ = (char)ch;
     else if (!_hcFileError(file, "Comment too long."))
-      return (0);
+      return (false);
     else
       break;
   }
@@ -364,7 +364,7 @@ html_parse_comment(hc_file_t *file,	/* I  - File to read from */
   else if (ch != '>')
     return (_hcFileError(file, "Comment too long."));
   else
-    return (1);
+    return (true);
 }
 
 
@@ -372,7 +372,7 @@ html_parse_comment(hc_file_t *file,	/* I  - File to read from */
  * 'html_parse_doctype()' - Parse a DOCTYPE element.
  */
 
-static int				/* O  - 1 to continue, 0 to stop */
+static bool				/* O  - `true` to continue, `false` to stop */
 html_parse_doctype(hc_file_t *file,	/* I  - File to read from */
                    hc_html_t *html,	/* I  - HTML document */
 		   hc_node_t **parent)	/* IO - Parent node */
@@ -420,7 +420,7 @@ html_parse_doctype(hc_file_t *file,	/* I  - File to read from */
   if (ch == EOF)
   {
     _hcFileError(file, "Unexpected end-of-file.");
-    return (0);
+    return (false);
   }
   else if (ch != '>')
     _hcFileError(file, "<!DOCTYPE ...> too long.");
@@ -435,7 +435,7 @@ html_parse_doctype(hc_file_t *file,	/* I  - File to read from */
  * 'html_parse_element()' - Parse an element.
  */
 
-static int				/* O  - 1 to continue, 0 to stop */
+static bool				/* O  - `true` to continue, `false` to stop */
 html_parse_element(hc_file_t *file,	/* I  - File to read from */
                    int       ch,	/* I  - Initial character after '<' */
                    hc_html_t *html,	/* I  - HTML document */
@@ -446,7 +446,7 @@ html_parse_element(hc_file_t *file,	/* I  - File to read from */
 		*bufend;		/* End of buffer */
   hc_element_t	element;		/* Element index */
   hc_node_t	*node;			/* New node */
-  int		close_el = ch == '/';	/* Close element? */
+  bool		close_el = ch == '/';	/* Close element? */
 
 
  /*
@@ -465,7 +465,7 @@ html_parse_element(hc_file_t *file,	/* I  - File to read from */
     else if (bufptr < bufend)
       *bufptr++ = (char)ch;
     else if (!_hcFileError(file, "Element name too long."))
-      return (0);
+      return (false);
     else
       break;
 
@@ -483,7 +483,7 @@ html_parse_element(hc_file_t *file,	/* I  - File to read from */
   if (ch == EOF)
   {
     _hcFileError(file, "Unexpected end-of-file.");
-    return (0);
+    return (false);
   }
 
   *bufptr = '\0';
@@ -497,7 +497,7 @@ html_parse_element(hc_file_t *file,	/* I  - File to read from */
     element = _hcElementLookup(buffer);
 
     if (element == HC_ELEMENT_UNKNOWN && !_hcFileError(file, "Unknown element '%s'.", buffer))
-      return (0);
+      return (false);
   }
   else
   {
@@ -514,12 +514,12 @@ html_parse_element(hc_file_t *file,	/* I  - File to read from */
     if (close_el)
     {
       _hcFileError(file, "Invalid </!DOCTYPE> seem.");
-      return (0);
+      return (false);
     }
     else if (html->root)
     {
       _hcFileError(file, "Duplicate <!DOCTYPE> seen.");
-      return (0);
+      return (false);
     }
 
     return (html_parse_doctype(file, html, parent));
@@ -527,7 +527,7 @@ html_parse_element(hc_file_t *file,	/* I  - File to read from */
   else if (!*parent)
   {
     if (!_hcFileError(file, "Missing <!DOCTYPE html> directive."))
-      return (0);
+      return (false);
 
     *parent = hcHTMLNewRootNode(html, "html");
   }
@@ -561,7 +561,7 @@ html_parse_element(hc_file_t *file,	/* I  - File to read from */
     */
 
     if (ch != '>' && !_hcFileError(file, "Invalid </%s> element.", buffer))
-      return (0);
+      return (false);
 
     for (node = *parent; node; node = node->parent)
     {
@@ -572,9 +572,9 @@ html_parse_element(hc_file_t *file,	/* I  - File to read from */
     if (node)
       *parent = node->parent;
     else if (!_hcFileError(file, "Missing <%s> for </%s> element.", buffer, buffer))
-      return (0);
+      return (false);
 
-    return (1);
+    return (true);
   }
 
  /*
@@ -645,7 +645,7 @@ html_parse_element(hc_file_t *file,	/* I  - File to read from */
       else if (node->element == HC_ELEMENT_TABLE || html_istable(node->element))
       {
         if (!_hcFileError(file, "No <tr> element before <%s> element.", buffer))
-          return (0);
+          return (false);
 
         node = hcNodeNewElement(*parent, HC_ELEMENT_TR);
         break;
@@ -689,7 +689,7 @@ html_parse_element(hc_file_t *file,	/* I  - File to read from */
  * 'html_parse_unknown()' - Parse an unknown element or processing directive.
  */
 
-static int				/* O  - 1 to continue, 0 to stop */
+static bool				/* O  - `true` to continue, `false` to stop */
 html_parse_unknown(hc_file_t  *file,	/* I  - File to read from */
                    hc_node_t  **parent,	/* IO - Parent node */
                    const char *unk)	/* I  - Start of unknown markup */
@@ -737,7 +737,7 @@ html_parse_unknown(hc_file_t  *file,	/* I  - File to read from */
   if (ch == EOF)
   {
     _hcFileError(file, "Unexpected end-of-file.");
-    return (0);
+    return (false);
   }
   else if (ch != '>')
     _hcFileError(file, "Element too long.");

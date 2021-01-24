@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -20,7 +20,7 @@
  * '_hcDefaultErrorCB()' - Default error callback.
  */
 
-int					/* O - 1 to continue, 0 to stop */
+bool					/* O - `true` to continue, `false` to stop */
 _hcDefaultErrorCB(
     void       *ctx,			/* I - Context pointer (unused) */
     const char *message,		/* I - Message string */
@@ -32,7 +32,7 @@ _hcDefaultErrorCB(
   fputs(message, stderr);
   putc('\n', stderr);
 
-  return (1);
+  return (true);
 }
 
 

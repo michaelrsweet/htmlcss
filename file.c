@@ -37,12 +37,12 @@ hcFileDelete(hc_file_t *file)		/* I - File */
  * '_hcFileError()' - Report an error while reading the specified file.
  */
 
-int					/* O - 1 to continue, 0 to stop */
+bool					/* O - `true` to continue, `false` to stop */
 _hcFileError(hc_file_t  *file,		/* I - File */
              const char *message,	/* I - Printf-style message */
              ...)			/* I - Additional arguments as needed */
 {
-  int		ret;			/* Return value */
+  bool		ret;			/* Return value */
   char		temp[1024];		/* Temporary message buffer */
   va_list	ap;			/* Pointer to arguments */
 
