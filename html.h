@@ -199,13 +199,13 @@ extern const char	*hcNodeAttrGetNameValue(hc_node_t *node, const char *name);
 extern void		hcNodeAttrRemove(hc_node_t *node, const char *name);
 extern void		hcNodeAttrSetNameValue(hc_node_t *node, const char *name, const char *value);
 
-extern int		hcNodeComputeCSSBox(hc_node_t *node, hc_compute_t compute, hc_box_t *box);
+extern bool		hcNodeComputeCSSBox(hc_node_t *node, hc_compute_t compute, hc_box_t *box);
 extern char		*hcNodeComputeCSSContent(hc_node_t *node, hc_compute_t compute);
 extern hc_display_t	hcNodeComputeCSSDisplay(hc_node_t *node, hc_compute_t compute);
-extern int		hcNodeComputeCSSMedia(hc_node_t *node, hc_compute_t compute, hc_media_t *media);
+extern bool		hcNodeComputeCSSMedia(hc_node_t *node, hc_compute_t compute, hc_media_t *media);
 extern const hc_dict_t	*hcNodeComputeCSSProperties(hc_node_t *node, hc_compute_t compute);
-extern int		hcNodeComputeCSSTable(hc_node_t *node, hc_compute_t compute, hc_table_t *table);
-extern int		hcNodeComputeCSSText(hc_node_t *node, hc_compute_t compute, hc_text_t *text);
+extern bool		hcNodeComputeCSSTable(hc_node_t *node, hc_compute_t compute, hc_table_t *table);
+extern bool		hcNodeComputeCSSText(hc_node_t *node, hc_compute_t compute, hc_text_t *text);
 
 extern void		hcNodeDelete(hc_html_t *html, hc_node_t *node);
 extern const char	*hcNodeGetComment(hc_node_t *node);

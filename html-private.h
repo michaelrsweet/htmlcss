@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -67,7 +67,7 @@ struct _hc_html_s
  * Private functions...
  */
 
-extern int		_hcNodeComputeCSSTextFont(hc_node_t *node, const hc_dict_t *props, hc_text_t *text);
+extern bool		_hcNodeComputeCSSTextFont(hc_node_t *node, const hc_dict_t *props, hc_text_t *text);
 extern hc_element_t	_hcElementLookup(const char *s);
 extern hc_node_t	*_hcNodeNewUnknown(hc_node_t *parent, const char *unk);
 

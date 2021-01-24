@@ -47,7 +47,7 @@ typedef struct _hc_css_match_s		/* Matching rule set */
 
 static int		hc_compare_matches(_hc_css_match_t *a, _hc_css_match_t *b);
 static const hc_dict_t	*hc_create_props(hc_node_t *node, hc_compute_t compute);
-static int		hc_get_color(const char *value, hc_color_t *color);
+static bool		hc_get_color(const char *value, hc_color_t *color);
 static float		hc_get_length(const char *value, float max_value, float multiplier, hc_css_t *css, hc_text_t *text);
 static int		hc_match_node(hc_node_t *node, _hc_css_sel_t *sel, const char *pseudo_class);
 static int		hc_match_rule(hc_node_t *node, _hc_rule_t *rule, const char *pseudo_class);
@@ -57,7 +57,7 @@ static int		hc_match_rule(hc_node_t *node, _hc_rule_t *rule, const char *pseudo_
  * 'hcNodeComputeCSSBox()' - Compute the box properties for the given HTML node.
  */
 
-int					/* O - 1 on success, 0 on failure */
+bool					/* O - `true` on success, `false` on failure */
 hcNodeComputeCSSBox(
     hc_node_t    *node,			/* I - HTML node */
     hc_compute_t compute,		/* I - Pseudo-class, if any */
@@ -139,7 +139,7 @@ hcNodeComputeCSSBox(
 
 
   if (!box)
-    return (0);
+    return (false);
 
   memset(box, 0, sizeof(hc_box_t));
 
@@ -152,7 +152,7 @@ hcNodeComputeCSSBox(
   box->widows  = 2;
 
   if (!node)
-    return (0);
+    return (false);
 
   css  = node->value.element.html->css;
   pool = node->value.element.html->pool;
@@ -1747,7 +1747,7 @@ hcNodeComputeCSSBox(
       box->padding.top = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
-  return (1);
+  return (true);
 }
 
 
@@ -1817,7 +1817,7 @@ hcNodeComputeCSSDisplay(
  * 'hcNodeComputeCSSMedia()' - Compute the media properties for the given HTML node.
  */
 
-int					/* O - 1 on success, 0 on failure */
+bool					/* O - `true` on success, `false` on failure */
 hcNodeComputeCSSMedia(
     hc_node_t    *node,			/* I - HTML node */
     hc_compute_t compute,		/* I - Pseudo-class, if any */
@@ -1827,7 +1827,7 @@ hcNodeComputeCSSMedia(
   (void)compute;
   (void)media;
 
-  return (0);
+  return (false);
 }
 
 
@@ -1864,7 +1864,7 @@ hcNodeComputeCSSProperties(
  * 'hcNodeComputeCSSTable()' - Compute the table properties for the given HTML node.
  */
 
-int					/* O - 1 on success, 0 on failure */
+bool					/* O - `true` on success, `false` on failure */
 hcNodeComputeCSSTable(
     hc_node_t    *node,			/* I - HTML node */
     hc_compute_t compute,		/* I - Pseudo-class, if any */
@@ -1880,12 +1880,12 @@ hcNodeComputeCSSTable(
 
 
   if (!table)
-    return (0);
+    return (false);
 
   memset(table, 0, sizeof(hc_table_t));
 
   if (!node)
-    return (0);
+    return (false);
 
   if ((value = hcDictGetKeyValue(props, "border-collapse")) != NULL)
   {
@@ -1895,7 +1895,7 @@ hcNodeComputeCSSTable(
       table->border_collapse = HC_BORDER_COLLAPSE_SEPARATE;
   }
 
-  return (1);
+  return (true);
 }
 
 
@@ -1903,7 +1903,7 @@ hcNodeComputeCSSTable(
  * 'hcNodeComputeCSSText()' - Compute the text properties for the given HTML node.
  */
 
-int					/* O - 1 on success, 0 on failure */
+bool					/* O - `true` on success, `false` on failure */
 hcNodeComputeCSSText(
     hc_node_t    *node,			/* I - HTML node */
     hc_compute_t compute,		/* I - Pseudo-class, if any */
@@ -1953,13 +1953,13 @@ hcNodeComputeCSSText(
 
 
   if (!text)
-    return (0);
+    return (false);
 
   if (!_hcNodeComputeCSSTextFont(node, props, text))
-    return (0);
+    return (false);
 
   if (!node)
-    return (0);
+    return (false);
 
   css  = node->value.element.html->css;
   pool = node->value.element.html->pool;
@@ -2106,7 +2106,7 @@ hcNodeComputeCSSText(
       text->word_spacing = hc_get_length(value, css->media.size.width, 72.0f / 96.0f, css, text);
   }
 
-  return (1);
+  return (true);
 }
 
 
@@ -2115,7 +2115,7 @@ hcNodeComputeCSSText(
  *                                 given HTML node.
  */
 
-int					/* O - 1 on success, 0 on failure */
+bool					/* O - `true` on success, `false` on failure */
 _hcNodeComputeCSSTextFont(
     hc_node_t       *node,		/* I - HTML node */
     const hc_dict_t *props,		/* I - Property dictionary */
@@ -2161,7 +2161,7 @@ _hcNodeComputeCSSTextFont(
   */
 
   if (!node)
-    return (0);
+    return (false);
 
   pool = node->value.element.html->pool;
   css  = node->value.element.html->css;
@@ -2513,7 +2513,7 @@ _hcNodeComputeCSSTextFont(
     free(temp);
   }
 
-  return (1);
+  return (true);
 }
 
 
@@ -2774,7 +2774,7 @@ hc_create_props(hc_node_t    *node,	/* I - HTML node */
  * 'hc_get_color()' - Get the color for a named color.
  */
 
-static int				/* O - 1 on success, 0 on failure */
+static bool				/* O - `true` on success, `false` on failure */
 hc_get_color(const char *value,		/* I - Color string */
              hc_color_t *color)		/* O - Color values */
 {
@@ -2821,7 +2821,7 @@ hc_get_color(const char *value,		/* I - Color string */
       rgba.red /= 255.0f;
     }
     if (*ptr != ',')
-      return (0);
+      return (false);
 
     rgba.green = (float)strtod(ptr + 1, &ptr);
     if (*ptr == '%')
@@ -2834,7 +2834,7 @@ hc_get_color(const char *value,		/* I - Color string */
       rgba.green /= 255.0f;
     }
     if (*ptr != ',')
-      return (0);
+      return (false);
 
     rgba.blue = (float)strtod(ptr + 1, &ptr);
     if (*ptr == '%')
@@ -2852,7 +2852,7 @@ hc_get_color(const char *value,		/* I - Color string */
     rgba.alpha = 1.0f;
     *color     = rgba;
 
-    return (1);
+    return (true);
   }
   else if (!strncmp(value, "rgba(", 5))
   {
@@ -2867,7 +2867,7 @@ hc_get_color(const char *value,		/* I - Color string */
       rgba.red /= 255.0f;
     }
     if (*ptr != ',')
-      return (0);
+      return (false);
 
     rgba.green = (float)strtod(ptr + 1, &ptr);
     if (*ptr == '%')
@@ -2880,7 +2880,7 @@ hc_get_color(const char *value,		/* I - Color string */
       rgba.green /= 255.0f;
     }
     if (*ptr != ',')
-      return (0);
+      return (false);
 
     rgba.blue = (float)strtod(ptr + 1, &ptr);
     if (*ptr == '%')
@@ -2893,7 +2893,7 @@ hc_get_color(const char *value,		/* I - Color string */
       rgba.blue /= 255.0f;
     }
     if (*ptr != ',')
-      return (0);
+      return (false);
     rgba.alpha = (float)strtod(ptr + 1, &ptr);
     if (*ptr == '%')
     {
@@ -2901,11 +2901,11 @@ hc_get_color(const char *value,		/* I - Color string */
       rgba.alpha /= 100.0f;
     }
     if (*ptr != ')')
-      return (0);
+      return (false);
 
     *color = rgba;
 
-    return (1);
+    return (true);
   }
   else if (*value == '#')
   {
@@ -2918,7 +2918,7 @@ hc_get_color(const char *value,		/* I - Color string */
       color->blue  = (i & 15) / 15.0f;
       color->alpha = 1.0f;
 
-      return (1);
+      return (true);
     }
     else if (len == 7 && (i = (int)strtol(value + 1, &ptr, 16)) >= 0 && !*ptr)
     {
@@ -2927,10 +2927,10 @@ hc_get_color(const char *value,		/* I - Color string */
       color->blue  = (i & 255) / 255.0f;
       color->alpha = 1.0f;
 
-      return (1);
+      return (true);
     }
     else
-      return (0);
+      return (false);
   }
   else
   {
@@ -2939,12 +2939,12 @@ hc_get_color(const char *value,		/* I - Color string */
       if (!strcmp(value, colors[i].name))
       {
         *color = colors[i].rgba;
-        return (1);
+        return (true);
       }
     }
   }
 
-  return (0);
+  return (false);
 }
 
 
