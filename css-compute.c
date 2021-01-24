@@ -1386,7 +1386,7 @@ hcNodeComputeCSSBox(
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
       if (!strcmp(current, "inset"))
-        box->box_shadow.inset = HC_BOOL_TRUE;
+        box->box_shadow.inset = true;
       else if (hc_get_color(current, &color))
         box->box_shadow.color = color;
       else if (strchr("0123456789.", *current))

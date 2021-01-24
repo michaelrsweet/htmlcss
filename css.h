@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018-2019 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -57,12 +57,6 @@ typedef enum
   HC_BACKGROUND_REPEAT_REPEAT_X,
   HC_BACKGROUND_REPEAT_REPEAT_Y
 } hc_background_repeat_t;
-
-typedef enum
-{
-  HC_BOOL_FALSE,
-  HC_BOOL_TRUE
-} hc_bool_t;
 
 typedef enum
 {
@@ -259,7 +253,7 @@ typedef struct hc_box_shadow_s		/* Box shadow values */
   float			blur_radius;
   float			spread_distance;
   hc_color_t		color;
-  hc_bool_t		inset;
+  bool			inset;
 } hc_box_shadow_t;
 
 /* Higher-level types */
@@ -308,7 +302,7 @@ typedef struct hc_box_s			/* CSS box properties */
   hc_size_t		background_size;
   hc_border_t		border;
   const char		*border_image;
-  hc_bool_t		border_image_fill;
+  bool			border_image_fill;
   hc_rect_t		border_image_outset;
   hc_border_image_repeat_t border_image_repeat[2];
   hc_rect_t		border_image_slice;
@@ -382,8 +376,8 @@ typedef struct _hc_css_s hc_css_t;		/* CSS data */
 
 extern void	hcCSSDelete(hc_css_t *css);
 extern hc_css_t	*hcCSSNew(hc_pool_t *pool);
-extern int	hcCSSImport(hc_css_t *css, hc_file_t *file);
-extern int	hcCSSImportDefault(hc_css_t *css);
+extern bool	hcCSSImport(hc_css_t *css, hc_file_t *file);
+extern bool	hcCSSImportDefault(hc_css_t *css);
 extern void	hcCSSSetErrorCallback(hc_css_t *css, hc_error_cb_t cb, void *ctx);
 extern void	hcCSSSetURLCallback(hc_css_t *css, hc_url_cb_t cb, void *ctx);
 extern int	hcCSSSetMedia(hc_css_t *css, const char *type, int color_bits, int grayscale_bits, float width, float height);

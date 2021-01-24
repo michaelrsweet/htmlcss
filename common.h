@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018 by Michael R Sweet.
+ * Copyright © 2018-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -18,6 +18,7 @@
 
 #  include <stdio.h>
 #  include <stdlib.h>
+#  include <stdbool.h>
 #  include <string.h>
 #  include <ctype.h>
 #  include <errno.h>

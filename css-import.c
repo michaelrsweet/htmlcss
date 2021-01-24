@@ -69,11 +69,11 @@ static char		*hc_read_value(hc_file_t *file, char *buffer, size_t bufsize);
  * 'hcCSSImport()' - Import CSS definitions from a URL, file, or string.
  */
 
-int					/* O - 1 on success, 0 on error */
+bool					/* O - `true` on success, `false` on error */
 hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
             hc_file_t *file)		/* I - File */
 {
-  int		ret = 1;		/* Return value */
+  bool		ret = true;		/* Return value */
   char		buffer[256];		/* Current value */
   _hc_type_t	type;			/* Value type */
   int		skip = 0;		/* Skip current definitions */
@@ -91,7 +91,7 @@ hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
   if (!css || !file)
   {
     errno = EINVAL;
-    return (0);
+    return (false);
   }
 
  /*
@@ -123,7 +123,7 @@ hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
         else
         {
 	  _hcFileError(file, "Unexpected %s token seen.", buffer);
-	  ret = 0;
+	  ret = false;
 	  break;
         }
       }
@@ -147,7 +147,7 @@ hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
       if (strcmp(buffer, ";"))
       {
 	_hcFileError(file, "Unexpected %s token seen.", buffer);
-	ret = 0;
+	ret = false;
 	break;
       }
     }
@@ -165,7 +165,7 @@ hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
     else if (buffer[0] == '@')
     {
       _hcFileError(file, "Unknown %s seen.", buffer);
-      ret = 0;
+      ret = false;
       break;
     }
     else if (!strcmp(buffer, "}"))
@@ -178,7 +178,7 @@ hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
       else
       {
 	_hcFileError(file, "Unexpected %s seen.", buffer);
-	ret = 0;
+	ret = false;
 	break;
       }
     }
@@ -186,7 +186,7 @@ hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
     {
       if ((sels[num_sels] = hc_read_sel(css, file, &type, buffer, sizeof(buffer))) == NULL)
       {
-	ret = 0;
+	ret = false;
 	break;
       }
 
@@ -221,14 +221,14 @@ hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
       else if (strcmp(buffer, ","))
       {
 	_hcFileError(file, "Unexpected %s seen.", buffer);
-	ret = 0;
+	ret = false;
 	break;
       }
     }
     else
     {
       _hcFileError(file, "Too many selectors seen.");
-      ret = 0;
+      ret = false;
       break;
     }
   }
@@ -241,12 +241,12 @@ hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
  * 'hcCSSImportDefault()' - Import the default HTML stylesheet.
  */
 
-int					/* O - 1 on success, 0 on error */
+bool					/* O - `true` on success, `false` on error */
 hcCSSImportDefault(hc_css_t *css)	/* I - Stylesheet */
 {
   hc_file_t	*file = hcFileNewString(css->pool, default_css);
 					/* String file */
-  int		ret = hcCSSImport(css, file);
+  bool		ret = hcCSSImport(css, file);
 					/* Return value */
 
   hcFileDelete(file);
