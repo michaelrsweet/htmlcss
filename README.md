@@ -1,5 +1,12 @@
-HTMLCSS
-=======
+HTMLCSS - Lightweight HTML/CSS Library
+======================================
+
+![Version](https://img.shields.io/github/v/release/michaelrsweet/htmlcss?include_prereleases)
+![Apache 2.0](https://img.shields.io/github/license/michaelrsweet/htmlcss)
+[![Build](https://github.com/michaelrsweet/htmlcss/workflows/Build/badge.svg)](https://github.com/michaelrsweet/htmlcss/actions/workflows/build.yml)
+[![Coverity Scan Status](https://img.shields.io/coverity/scan/22390.svg)](https://scan.coverity.com/projects/michaelrsweet-htmlcss)
+[![LGTM Grade](https://img.shields.io/lgtm/grade/cpp/github/michaelrsweet/htmlcss)](https://lgtm.com/projects/g/michaelrsweet/htmlcss/context:cpp)
+[![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/michaelrsweet/htmlcss)](https://lgtm.com/projects/g/michaelrsweet/htmlcss/)
 
 HTMLCSS is a lightweight HTML/CSS parser written in C that allows applications
 to prepare a HTML document for rendering or conversion.  HTMLCSS is extremely
