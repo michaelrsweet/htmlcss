@@ -519,6 +519,11 @@ hc_load_cache(hc_pool_t   *pool,	/* I - Memory pool */
       break;
     }
 
+    // Ensure cache URL and family are nul-terminated, should the cache file
+    // become corrupted or somebody tries to be "funny"...
+    rec.font_url[sizeof(rec.font_url) - 1] = '\0';
+    rec.font_family[sizeof(rec.font_family) - 1] = '\0';
+
     font->font_url    = hcPoolGetString(pool, rec.font_url);
     font->font_index  = (size_t)rec.font_index;
     font->font_family = hcPoolGetString(pool, rec.font_family);

@@ -2175,8 +2175,8 @@ _hcNodeComputeCSSTextFont(
 		*current,		/* Current value */
 		*next,			/* Next value */
 		sep;			/* Separator character */
-    int		saw_slash = 0,		/* Did we see a slash? */
-		font_pos = 0;		/* Position within the font value */
+    bool	saw_slash = false;	/* Did we see a slash? */
+    int		font_pos = 0;		/* Position within the font value */
 
     for (current = temp; *current; current = next)
     {
@@ -2184,7 +2184,7 @@ _hcNodeComputeCSSTextFont(
       * Extract one value...
       */
 
-      int	saw_comma = 0;		/* Saw a comma? */
+      bool saw_comma = false;		/* Saw a comma? */
 
       while (isspace(*current & 255) && *current)
         current ++;
@@ -2197,7 +2197,7 @@ _hcNodeComputeCSSTextFont(
         if (isspace(*next & 255) && !saw_comma)
           break;
 	else if (*next == ',')
-	  saw_comma = 1;
+	  saw_comma = true;
 	else if (*next == '/')
 	{
 	  if (next == current)
@@ -2208,7 +2208,7 @@ _hcNodeComputeCSSTextFont(
 	{
 	  int quote = *next++;
 
-	  saw_comma = 0;
+	  saw_comma = false;
 
           while (*next)
           {
@@ -2222,7 +2222,7 @@ _hcNodeComputeCSSTextFont(
 	  }
 	}
 	else
-	  saw_comma = 0;
+	  saw_comma = false;
       }
 
       sep   = *next;
@@ -2295,9 +2295,10 @@ _hcNodeComputeCSSTextFont(
 	text->font_size = 18.0f;
       else if (!strcmp(current, "xx-large"))
 	text->font_size = 24.0f;
+      else if (!strcmp(current, "/"))
+        saw_slash = true;
       else if (strchr("0123456789.", *current))
       {
-        // TODO: "saw_slash" isn't set anywhere
         if (saw_slash)
         {
           text->line_height = hc_get_length(current, text->font_size, text->font_size, css, text);
@@ -3275,6 +3276,9 @@ hc_match_rule(hc_node_t  *node,		/* I  - HTML node */
 
     cursel = cursel->prev;
 
+    if (!curnode)
+      return (-1);
+
     switch (relation)
     {
       case _HC_RELATION_CHILD :
@@ -3291,9 +3295,6 @@ hc_match_rule(hc_node_t  *node,		/* I  - HTML node */
           break;
 
       case _HC_RELATION_IMMED_CHILD :
-          if (!curnode)
-            return (-1);
-
           curnode = curnode->parent;
 
           if (!curnode || (curscore = hc_match_node(curnode, cursel, NULL)) < 0)
