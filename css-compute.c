@@ -3291,6 +3291,9 @@ hc_match_rule(hc_node_t  *node,		/* I  - HTML node */
           break;
 
       case _HC_RELATION_IMMED_CHILD :
+          if (!curnode)
+            return (-1);
+
           curnode = curnode->parent;
 
           if (!curnode || (curscore = hc_match_node(curnode, cursel, NULL)) < 0)
