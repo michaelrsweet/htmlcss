@@ -71,7 +71,7 @@ See the file [DOCUMENTATION.md]() for documentation on using the library.
 Legal Stuff
 -----------
 
-HTMLCSS is Copyright © 2018-2021 by Michael R Sweet.
+HTMLCSS is Copyright © 2018-2022 by Michael R Sweet.
 
 HTMLCSS is licensed under the Apache License Version 2.0 with an exception to
 allow linking against GPL2/LGPL2-only software.  See the files "LICENSE" and

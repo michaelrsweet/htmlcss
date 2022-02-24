@@ -3,7 +3,7 @@
  *
  *     https://github.com/michaelrsweet/htmlcss
  *
- * Copyright © 2018-2021 by Michael R Sweet.
+ * Copyright © 2018-2022 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -43,18 +43,36 @@ _hcFileError(hc_file_t  *file,		/* I - File */
              ...)			/* I - Additional arguments as needed */
 {
   bool		ret;			/* Return value */
-  char		temp[1024];		/* Temporary message buffer */
+  char		saniurl[1024],		/* Sanitized URL */
+		*ptr,			/* Pointer into URL */
+		temp[1024];		/* Temporary message buffer */
   va_list	ap;			/* Pointer to arguments */
 
 
-  if (file->url && file->linenum)
-    snprintf(temp, sizeof(temp), "%s:%d: %s", file->url, file->linenum, message);
-  else if (file->url)
-    snprintf(temp, sizeof(temp), "%s: %s", file->url, message);
+  if (file->url)
+  {
+    // Sanitize the URL/filename...
+    strncpy(saniurl, file->url, sizeof(saniurl) - 1);
+    saniurl[sizeof(saniurl) - 1] = '\0';
+    for (ptr = saniurl; *ptr; ptr ++)
+    {
+      if (*ptr < ' ' || *ptr == '%')
+        *ptr = '_';
+    }
+
+    if (file->linenum)
+      snprintf(temp, sizeof(temp), "%s:%d: %s", saniurl, file->linenum, message);
+    else if (file->url)
+      snprintf(temp, sizeof(temp), "%s: %s", saniurl, message);
+  }
   else if (file->linenum)
+  {
     snprintf(temp, sizeof(temp), "%d: %s", file->linenum, message);
+  }
   else
+  {
     snprintf(temp, sizeof(temp), "%s", message);
+  }
 
   va_start(ap, message);
   ret = _hcPoolErrorv(file->pool, file->linenum, temp, ap);
