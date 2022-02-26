@@ -44,38 +44,40 @@ _hcFileError(hc_file_t  *file,		/* I - File */
 {
   bool		ret;			/* Return value */
   char		saniurl[1024],		/* Sanitized URL */
-		*ptr,			/* Pointer into URL */
+		*saniptr,		/* Pointer into sanitized URL */
 		temp[1024];		/* Temporary message buffer */
+  const char	*urlptr;		/* Pointer into URL */
   va_list	ap;			/* Pointer to arguments */
 
 
   if (file->url)
   {
     // Sanitize the URL/filename...
-    strncpy(saniurl, file->url, sizeof(saniurl) - 1);
-    saniurl[sizeof(saniurl) - 1] = '\0';
-    for (ptr = saniurl; *ptr; ptr ++)
+    for (saniptr = saniurl, urlptr = file->url; *urlptr && saniptr < (saniurl + sizeof(saniurl) - 1); urlptr ++)
     {
-      if (*ptr < ' ' || *ptr == '%')
-        *ptr = '_';
+      if (*urlptr < ' ' || *urlptr == '%')
+        *saniptr++ = '_';
+      else
+        *saniptr++ = *urlptr;
     }
+    *saniptr = '\0';
 
+    // Create a new message format string with the correct prefix...
     if (file->linenum)
       snprintf(temp, sizeof(temp), "%s:%d: %s", saniurl, file->linenum, message);
     else if (file->url)
       snprintf(temp, sizeof(temp), "%s: %s", saniurl, message);
+    message = temp;
   }
   else if (file->linenum)
   {
+    // Create a new message format string with a line number prefix...
     snprintf(temp, sizeof(temp), "%d: %s", file->linenum, message);
-  }
-  else
-  {
-    snprintf(temp, sizeof(temp), "%s", message);
+    message = temp;
   }
 
   va_start(ap, message);
-  ret = _hcPoolErrorv(file->pool, file->linenum, temp, ap);
+  ret = _hcPoolErrorv(file->pool, file->linenum, message, ap);
   va_end(ap);
 
   return (ret);
