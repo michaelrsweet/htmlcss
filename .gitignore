@@ -1,5 +1,10 @@
 *.o
+/autom4te.cache
+/libhtmlcss.1.dylib
 /libhtmlcss.a
+/libhtmlcss.dylib
+/libhtmlcss.so
+/libhtmlcss.so.1
 /testhtmlcss
 /testhtmlcss.log
 xcshareddata

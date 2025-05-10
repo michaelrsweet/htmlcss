@@ -5,8 +5,6 @@ HTMLCSS - Lightweight HTML/CSS Library
 ![Apache 2.0](https://img.shields.io/github/license/michaelrsweet/htmlcss)
 [![Build](https://github.com/michaelrsweet/htmlcss/workflows/Build/badge.svg)](https://github.com/michaelrsweet/htmlcss/actions/workflows/build.yml)
 [![Coverity Scan Status](https://img.shields.io/coverity/scan/22390.svg)](https://scan.coverity.com/projects/michaelrsweet-htmlcss)
-[![LGTM Grade](https://img.shields.io/lgtm/grade/cpp/github/michaelrsweet/htmlcss)](https://lgtm.com/projects/g/michaelrsweet/htmlcss/context:cpp)
-[![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/michaelrsweet/htmlcss)](https://lgtm.com/projects/g/michaelrsweet/htmlcss/)
 
 HTMLCSS is a lightweight HTML/CSS parser written in C that allows applications
 to prepare a HTML document for rendering or conversion.  HTMLCSS is extremely
@@ -14,9 +12,9 @@ portable and only requires a C99 compiler like GCC, Clang, Visual C, etc.
 HTMLCSS is also extremely memory efficient, utilizing a shared string pool and
 smart CSS cache to minimize the size of a HTML document in memory.
 
-I'm providing HTMLCSS as open source under the Apache License Version 2.0 with
-exceptions for use with GPL2/LGPL2 applications which allows you do pretty much
-do whatever you like with it.  Please do provide feedback and report bugs to the
+I'm providing HTMLCSS as open source under the Apache License Version 2.0 which
+allows you do pretty much do whatever you like with it.  Please do provide
+feedback and report bugs to the
 [Github project page](https://github.com/michaelrsweet/htmlcss) so that everyone
 can benefit.
 
@@ -71,7 +69,7 @@ See the file [DOCUMENTATION.md]() for documentation on using the library.
 Legal Stuff
 -----------
 
-HTMLCSS is Copyright © 2018-2022 by Michael R Sweet.
+HTMLCSS is Copyright © 2018-2025 by Michael R Sweet.
 
 HTMLCSS is licensed under the Apache License Version 2.0 with an exception to
 allow linking against GPL2/LGPL2-only software.  See the files "LICENSE" and

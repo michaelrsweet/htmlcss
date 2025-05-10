@@ -1,0 +1,260 @@
+#
+# Makefile for HTMLCSS library.
+#
+#     https://github.com/michaelrsweet/htmlcss
+#
+# Copyright © 2018-2025 by Michael R Sweet.
+#
+# Licensed under Apache License v2.0.  See the file "LICENSE" for more
+# information.
+#
+
+# POSIX makefile
+.POSIX:
+
+
+# Build silently
+.SILENT:
+
+
+# Version numbers...
+HTMLCSS_VERSION		=	@HTMLCSS_VERSION@
+HTMLCSS_VERSION_MAJOR	=	@HTMLCSS_VERSION_MAJOR@
+HTMLCSS_VERSION_MINOR	=	@HTMLCSS_VERSION_MINOR@
+
+
+# Programs and options...
+AR		=	@AR@
+ARFLAGS		=	@ARFLAGS@
+CC		=	@CC@
+CFLAGS		=	@CFLAGS@ $(CPPFLAGS) $(OPTIM) $(WARNINGS)
+CODE_SIGN	=	@CODE_SIGN@
+CODESIGN_IDENTITY =	-
+CPPFLAGS	=	@CPPFLAGS@ '-DVERSION="$(HTMLCSS_VERSION)"'
+CSFLAGS		=	-s "$(CODESIGN_IDENTITY)" @CSFLAGS@ --timestamp
+DSOFLAGS	=	@DSOFLAGS@ $(CFLAGS)
+INSTALL		=	@INSTALL@
+LDFLAGS		=	@LDFLAGS@ $(OPTIM)
+LIBS		=	@LIBS@ -lm
+LN		=	@LN@
+OPTIM		=	@OPTIM@
+RANLIB		=	@RANLIB@
+RM		=	@RM@ -f
+RMDIR		=	@RMDIR@
+SHELL		=	/bin/sh
+WARNINGS	=	@WARNINGS@
+
+
+# Targets
+LIBHTMLCSS	=	@LIBHTMLCSS@
+LIBHTMLCSS_STATIC =	@LIBHTMLCSS_STATIC@
+
+
+# Directories...
+bindir		=	@bindir@
+datadir		=	@datadir@
+datarootdir	=	@datarootdir@
+exec_prefix	=	@exec_prefix@
+includedir	=	@includedir@
+infodir		=	@infodir@
+libdir		=	@libdir@
+libexecdir	=	@libexecdir@
+localstatedir	=	@localstatedir@
+mandir		=	@mandir@
+oldincludedir	=	@oldincludedir@
+prefix		=	@prefix@
+sbindir		=	@sbindir@
+sharedstatedir	=	@sharedstatedir@
+srcdir		=	@srcdir@
+sysconfdir	=	@sysconfdir@
+top_srcdir	=	@top_srcdir@
+
+BUILDROOT	=	$(DSTROOT)$(RPM_BUILD_ROOT)$(DESTDIR)
+
+
+# Build commands...
+.SUFFIXES:	.c .h .o
+.c.o:
+	echo Compiling $<...
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+
+# Files...
+PUBHEADERS =	\
+		common.h \
+		css.h \
+		dict.h \
+		file.h \
+		font.h \
+		html.h \
+		htmlcss.h \
+		image.h \
+		pool.h \
+		run.h \
+		sha3.h
+
+PRIVHEADERS =	\
+		common-private.h \
+		css-private.h \
+		file-private.h \
+		font-private.h \
+		html-private.h \
+		pool-private.h
+
+LIBOBJS	=	\
+		common.o \
+		css-compute.o \
+		css-core.o \
+		css-import.o \
+		css-rule.o \
+		dict.o \
+		file.o \
+		font-core.o \
+		font-extents.o \
+		font-find.o \
+		html-attr.o \
+		html-core.o \
+		html-find.o \
+		html-load.o \
+		html-node.o \
+		image.o \
+		pool.o \
+		sha3.o
+
+OBJS	=	testhtmlcss.o $(LIBOBJS)
+
+TARGETS	=	\
+		$(LIBHTMLCSS) \
+		$(LIBHTMLCSS_STATIC) \
+		testhtmlcss
+
+DOCFILES =	\
+		htmlcss.html \
+		htmlcss.epub \
+		htmlcss-512.png
+DOCFLAGS =	\
+		--author "Michael R Sweet" \
+		--copyright "Copyright (c) 2018-2025 by Michael R Sweet" \
+		--docversion $(VERSION) \
+		--title "HTMLCSS Programming Manual"
+DOCSOURCES =	\
+		$(PUBHEADERS) \
+		$(LIBOBJS:.o=.c)
+
+
+# Make everything
+all:		$(TARGETS)
+
+
+# Clean everything
+clean:
+	rm -f $(TARGETS) $(OBJS)
+
+
+# Install everything
+install:	$(TARGETS)
+	echo Installing header files to $(BUILDROOT)$(includedir)...
+	$(INSTALL) -d -m 755 $(BUILDROOT)$(includedir)
+	for file in $(PUBHEADERS); do \
+		$(INSTALL) -c -m 644 $$file $(BUILDROOT)$(includedir); \
+	done
+	echo Installing library files to $(BUILDROOT)$(libdir)...
+	$(INSTALL) -d -m 755 $(BUILDROOT)$(libdir)
+	if test "x$(LIBHTMLCSS_STATIC)" != x; then \
+		$(INSTALL) -c -m 644 $(LIBHTMLCSS_STATIC) $(BUILDROOT)$(libdir); \
+		$(RANLIB) $(BUILDROOT)$(libdir)/$(LIBHTMLCSS_STATIC); \
+	fi
+	if test "x$(LIBHTMLCSS)" = xlibhtmlcss.so.1; then \
+		$(INSTALL) -c -m 755 libhtmlcss.so.1 $(BUILDROOT)$(libdir); \
+		ln -sf libhtmlcss.so.1 $(BUILDROOT)$(libdir)/libhtmlcss.so; \
+	elif test "x$(LIBHTMLCSS)" = xlibhtmlcss.1.dylib; then \
+		$(INSTALL) -c -m 755 libhtmlcss.1.dylib $(BUILDROOT)$(libdir); \
+		codesign -s "$(CODESIGN_IDENTITY)" -o runtime --timestamp $(BUILDROOT)$(libdir)/libhtmlcss.1.dylib; \
+		ln -sf libhtmlcss.1.dylib $(BUILDROOT)$(libdir)/libhtmlcss.dylib; \
+	else \
+		$(INSTALL) -c -m 644 $(LIBHTMLCSS) $(BUILDROOT)$(libdir); \
+		$(RANLIB) $(BUILDROOT)$(libdir)/$(LIBHTMLCSS); \
+	fi
+	echo Installing pkg-config files to $(BUILDROOT)$(libdir)/pkgconfig...
+	$(INSTALL) -d -m 755 $(BUILDROOT)$(libdir)/pkgconfig
+	$(INSTALL) -c -m 644 htmlcss.pc $(BUILDROOT)$(libdir)/pkgconfig
+	echo Installing documentation to $(BUILDROOT)$(datadir)/doc/htmlcss...
+	$(INSTALL) -d -m 755 $(BUILDROOT)$(datadir)/doc/htmlcss
+	for file in $(DOCFILES); do \
+		$(INSTALL) -c -m 644 $$file $(BUILDROOT)$(datadir)/doc/htmlcss; \
+	done
+	echo Installing man page to $(BUILDROOT)$(mandir)/man3...
+	$(INSTALL) -d -m 755 $(BUILDROOT)$(mandir)/man3
+	$(INSTALL) -c -m 644 doc/htmlcss.3 $(BUILDROOT)$(mandir)/man3
+
+
+# Make documentation
+doc:
+	codedoc $(DOCFLAGS) $(DOCSOURCES) >htmlcss.html
+
+
+# Run unit tests
+test:		testhtmlcss
+	./testhtmlcss --all --css --font --html testhtmlcss.html >testhtmlcss.log || (cat testhtmlcss.log; exit 1)
+
+
+test-fonts:	testhtmlcss
+	./testhtmlcss --font testsuite/*.ttf testsuite/*.otf
+
+
+# Unit test program
+testhtmlcss:	testhtmlcss.o libhtmlcss.a
+	$(CC) $(LDFLAGS) -o testhtmlcss testhtmlcss.o libhtmlcss.a $(LIBS)
+
+
+# Library
+libhtmlcss.a:	$(LIBOBJS)
+	echo Archiving $@...
+	$(RM) $@
+	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
+	$(RANLIB) $@
+
+libhtmlcss.so.1: $(LIBOBJS)
+	echo Linking $@...
+	$(CC) $(DSOFLAGS) -shared -o $@ -Wl,-soname,$@ $(LIBOBJS) $(LIBS)
+
+libhtmlcss.1.dylib: $(LIBOBJS)
+	echo Linking $@...
+	$(CC) $(DSOFLAGS) -dynamiclib -o $@ -install_name $(libdir)/$@ -current_version $(PDFIO_VERSION_MAJOR).$(PDFIO_VERSION_MINOR) -compatibility_version 1.0 $(LIBOBJS) $(LIBS)
+
+
+# htmlcss1.def (Windows DLL exports file...)
+#
+# I'd love to use __declspec(dllexport) but MS puts it before the function
+# declaration instead of after like everyone else, and it breaks Codedoc and
+# other tools I rely on...
+htmlcss1.def: $(LIBOBJS) Makefile
+	echo Generating $@...
+	echo "LIBRARY htmlcss1" >$@
+	echo "VERSION $(HTMLCSS_VERSION_MAJOR).$(HTMLCSS_VERSION_MINOR)" >>$@
+	echo "EXPORTS" >>$@
+	nm $(LIBOBJS) 2>/dev/null | grep "T _" | awk '{print $$3}' | \
+		grep -v '^_ttf' | sed -e '1,$$s/^_//' | sort >>$@
+
+
+# Dependencies
+css-import.o:	default-css.h
+
+default-css.h:	default.css Makefile
+	echo "static const char *default_css =" >default-css.h
+	sed -e '1,$$s/\\/\\\\/g' -e '1,$$s/"/\\"/g' <default.css | awk '{print "\"" $$0 "\\n\""}' >>default-css.h
+	echo ";" >>default-css.h
+
+$(OBJS):	Makefile $(PUBHEADERS) $(PRIVHEADERS)
+
+
+# Scan code with the Clang static analyzer <https://clang-analyzer.llvm.org>
+clang:
+	clang $(CPPFLAGS) -DDEBUG -Werror --analyze $(LIBOBJS:.o=.c)
+	rm -rf $(LIBOBJS:.o=.plist)
+
+
+# Scan the code using Cppcheck <http://cppcheck.sourceforge.net>
+cppcheck:
+	cppcheck --template=gcc --addon=cert.py --suppress=cert-API01-C --suppress=cert-EXP05-C --suppress=cert-INT31-c --suppress=cert-MSC24-C --suppress=cert-STR05-C $(CPPFLAGS) $(LIBOBJS:.o=.c) 2>cppcheck.log
+	@test -s cppcheck.log && (echo ""; echo "Errors detected:"; echo ""; cat cppcheck.log; exit 1) || exit 0
