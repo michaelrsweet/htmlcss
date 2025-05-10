@@ -12,20 +12,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: update build environment
+    - name: Checkout HTMLCSS sources
+      uses: actions/checkout@v4
+    - name: Update Build Environment
       run: sudo apt-get update --fix-missing -y
-    - name: install prerequisites
+    - name: Install Prerequisites
       run: sudo apt-get install -y cppcheck zlib1g-dev
-    - name: make
-      run: make "OPTIM=-g -fsanitize=address"
-    - name: test
+    - name: Configure HTMLCSS
+      run: ./configure --enable-debug --enable-sanitizer --enable-maintainer
+    - name: Make HTMLCSS
+      run: make
+    - name: Test HTMLCSS
       env:
         ASAN_OPTIONS: leak_check_at_exit=false
       run: make test
-    - name: clang static analyzer
+    - name: Run Clang Static Analyzer
       run: make CC=clang "GHA_ERROR=::error::" clang
-    - name: cppcheck
+    - name: Run cppcheck
       run: make "GHA_ERROR=::error::" cppcheck
 
   build-macos:
@@ -33,12 +36,17 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: make
-      run: make "COMMONFLAGS=-g -fsanitize=address"
-    - name: test
+    - name: Checkout HTMLCSS sources
+      uses: actions/checkout@v4
+    - name: Configure HTMLCSS
+      run: ./configure --enable-debug --enable-sanitizer --enable-maintainer
+    - name: Make HTMLCSS
+      run: make
+    - name: Test HTMLCSS
+      env:
+        ASAN_OPTIONS: leak_check_at_exit=false
       run: make test
-    - name: clang static analyzer
+    - name: Run Clang Static Analyzer
       run: make CC=clang "GHA_ERROR=::error::" clang
 
 #  build-windows:

@@ -7,11 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: Coverity
     steps:
-      - uses: actions/checkout@v2
-      - name: update build environment
+      - name: Checkout HTMLCSS sources
+        uses: actions/checkout@v4
+      - name: Update Build Environment
         run: sudo apt-get update --fix-missing -y
-      - name: install prerequisites
-        run: sudo apt-get install -y zlib1g-dev
+      - name: Install Prerequisites
+        run: sudo apt-get install -y cppcheck zlib1g-dev
       - name: Download Coverity Build Tool
         run: |
           wget -q https://scan.coverity.com/download/linux64 --post-data token="$TOKEN&project=$GITHUB_REPOSITORY" -O cov-analysis-linux64.tar.gz
