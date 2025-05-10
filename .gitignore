@@ -1,5 +1,8 @@
 *.o
+/Makefile
 /autom4te.cache
+/config.status
+/htmlcss.pc
 /libhtmlcss.1.dylib
 /libhtmlcss.a
 /libhtmlcss.dylib
