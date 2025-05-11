@@ -1,17 +1,17 @@
-/*
- * CSS computation functions for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018-2021 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// CSS computation functions for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #  include "css-private.h"
 #  include "font-private.h"
@@ -20,30 +20,30 @@
 #  include <math.h>
 
 
-/*
- * Local types...
- */
+//
+// Local types...
+//
 
-typedef struct _hc_attrmap_s		/* HTML attribute to CSS mapping */
+typedef struct _hc_attrmap_s		// HTML attribute to CSS mapping
 {
-  hc_element_t	element;		/* HTML element */
-  const char	*attr_name,		/* HTML attribute name */
-		*prop_name,		/* CSS property name */
-		*prop_value;		/* CSS property value (if any) */
+  hc_element_t	element;		// HTML element
+  const char	*attr_name,		// HTML attribute name
+		*prop_name,		// CSS property name
+		*prop_value;		// CSS property value (if any)
 } _hc_attrmap_t;
 
 
-typedef struct _hc_css_match_s		/* Matching rule set */
+typedef struct _hc_css_match_s		// Matching rule set
 {
-  int		score;			/* Score */
-  int		order;			/* Order in collection */
-  _hc_rule_t	*rule;			/* Rule set */
+  int		score;			// Score
+  int		order;			// Order in collection
+  _hc_rule_t	*rule;			// Rule set
 } _hc_css_match_t;
 
 
-/*
- * Local functions...
- */
+//
+// Local functions...
+//
 
 static int		hc_compare_matches(_hc_css_match_t *a, _hc_css_match_t *b);
 static const hc_dict_t	*hc_create_props(hc_node_t *node, hc_compute_t compute);
@@ -53,36 +53,36 @@ static int		hc_match_node(hc_node_t *node, _hc_css_sel_t *sel, const char *pseud
 static int		hc_match_rule(hc_node_t *node, _hc_rule_t *rule, const char *pseudo_class);
 
 
-/*
- * 'hcNodeComputeCSSBox()' - Compute the box properties for the given HTML node.
- */
+//
+// 'hcNodeComputeCSSBox()' - Compute the box properties for the given HTML node.
+//
 
-bool					/* O - `true` on success, `false` on failure */
+bool					// O - `true` on success, `false` on failure
 hcNodeComputeCSSBox(
-    hc_node_t    *node,			/* I - HTML node */
-    hc_compute_t compute,		/* I - Pseudo-class, if any */
-    hc_box_t     *box)			/* O - Box properties */
+    hc_node_t    *node,			// I - HTML node
+    hc_compute_t compute,		// I - Pseudo-class, if any
+    hc_box_t     *box)			// O - Box properties
 {
-  int			i;		/* Looping var */
-  const char		*value;		/* Property value */
-  hc_css_t		*css;		/* Stylesheet */
-  hc_pool_t		*pool;		/* Memory pool */
+  int			i;		// Looping var
+  const char		*value;		// Property value
+  hc_css_t		*css;		// Stylesheet
+  hc_pool_t		*pool;		// Memory pool
   const hc_dict_t	*props = hcNodeComputeCSSProperties(node, compute);
-					/* Properties */
-  hc_text_t		text;		/* Text font properties */
-  hc_color_t		color;		/* Color value */
+					// Properties
+  hc_text_t		text;		// Text font properties
+  hc_color_t		color;		// Color value
   const char		*bg_pos_size[4] =
-  {					/* Background position/size values (late binding) */
-    NULL, NULL,				/* X, Y */
-    NULL, NULL				/* WIDTH, HEIGHT */
+  {					// Background position/size values (late binding)
+    NULL, NULL,				// X, Y
+    NULL, NULL				// WIDTH, HEIGHT
   };
   static const char * const boxes[] =
-  {					/* background-clip/origin: values */
+  {					// background-clip/origin: values
     "border-box",
     "padding-box",
     "content-box"
   };
-  static const char * const breaks[] =	/* break-xxx: and page-break-xxx: values */
+  static const char * const breaks[] =	// break-xxx: and page-break-xxx: values
   {
     "auto",
     "always",
@@ -91,20 +91,20 @@ hcNodeComputeCSSBox(
     "right"
   };
   static const char * const repeats[] =
-  {					/* background-repeat: values */
+  {					// background-repeat: values
     "no-repeat",
     "repeat",
     "repeat-x",
     "repeat-y"
   };
   static const char * const image_repeats[] =
-  {					/* border-image-repeat: values */
+  {					// border-image-repeat: values
     "stretch",
     "repeat",
     "round",
     "space"
   };
-  static const char * const styles[] =	/* border-style: values */
+  static const char * const styles[] =	// border-style: values
   {
     "hidden",
     "none",
@@ -117,7 +117,7 @@ hcNodeComputeCSSBox(
     "inset",
     "outset"
   };
-  static const char * const types[] =	/* list-style-type: values */
+  static const char * const types[] =	// list-style-type: values
   {
     "disc",
     "circle",
@@ -179,7 +179,7 @@ hcNodeComputeCSSBox(
   if ((value = hcDictGetKeyValue(props, "max-height")) != NULL)
   {
   }
-#endif /* 0 */
+#endif // 0
 
  /*
   * Background values (just a single background image is currently supported)
@@ -187,11 +187,11 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "background")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		first_box = 1,		/* First box value? */
-		pos_size = 0;		/* X/Y position/size */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		first_box = 1,		// First box value?
+		pos_size = 0;		// X/Y position/size
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
@@ -205,7 +205,7 @@ hcNodeComputeCSSBox(
       }
       else if (!strncmp(current, "url(", 4))
       {
-        char	url[1024];		/* URL string */
+        char	url[1024];		// URL string
 
         if (sscanf(current, "url(%1023s)", url) == 1)
           box->background_image = hcPoolGetString(pool, url);
@@ -313,7 +313,7 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "background-image")) != NULL)
   {
-    char	url[1024];		/* URL string */
+    char	url[1024];		// URL string
 
     if (sscanf(value, "url(%1023s)", url) == 1)
       box->background_image = hcPoolGetString(node->value.element.html->pool, url);
@@ -333,10 +333,10 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "background-position")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		pos_size = 0;		/* X/Y position/size */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		pos_size = 0;		// X/Y position/size
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
@@ -383,10 +383,10 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "background-size")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		pos_size = 2;		/* X/Y position/size */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		pos_size = 2;		// X/Y position/size
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
@@ -418,7 +418,7 @@ hcNodeComputeCSSBox(
 
   if (box->background_image)
   {
-    hc_file_t *bg_file  = hcFileNewURL(pool, box->background_image, NULL /* TODO: Track dirname of parent document */);
+    hc_file_t *bg_file  = hcFileNewURL(pool, box->background_image, NULL); // TODO: Track dirname of parent document
     hc_image_t *bg_image = hcImageNew(pool, bg_file);
     hc_size_t bg_size = hcImageGetSize(bg_image);
 
@@ -523,9 +523,9 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
@@ -567,9 +567,9 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-bottom")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
@@ -611,9 +611,9 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-left")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
@@ -655,9 +655,9 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-right")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
@@ -699,9 +699,9 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-top")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
@@ -881,17 +881,17 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-image")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		pos = 0;		/* Current position */
-    float	length;			/* Width/outset/slice value */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		pos = 0;		// Current position
+    float	length;			// Width/outset/slice value
 
     for (next = temp, current = strsep(&next, " \t"); current && pos < 14; current = strsep(&next, " \t"))
     {
       if (!strncmp(current, "url(", 4))
       {
-	char	url[1024];		/* URL string */
+	char	url[1024];		// URL string
 
 	if (sscanf(current, "url(%1023s)", url) == 1)
 	  box->border_image = hcPoolGetString(node->value.element.html->pool, url);
@@ -981,11 +981,11 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-image-outset")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		pos = 0;		/* Current position */
-    float	length;			/* Outset value */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		pos = 0;		// Current position
+    float	length;			// Outset value
 
     for (next = temp, current = strsep(&next, " \t"); current && pos < 4; current = strsep(&next, " \t"))
     {
@@ -1022,10 +1022,10 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-image-repeat")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		pos = 0;		/* Current position */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		pos = 0;		// Current position
 
     for (next = temp, current = strsep(&next, " \t"); current && pos < 2; current = strsep(&next, " \t"))
     {
@@ -1048,11 +1048,11 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-image-slice")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		pos = 0;		/* Current position */
-    float	length;			/* Slice value */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		pos = 0;		// Current position
+    float	length;			// Slice value
 
     for (next = temp, current = strsep(&next, " \t"); current && pos < 4; current = strsep(&next, " \t"))
     {
@@ -1091,7 +1091,7 @@ hcNodeComputeCSSBox(
   {
     if (!strncmp(value, "url(", 4))
     {
-      char	url[1024];		/* URL string */
+      char	url[1024];		// URL string
 
       if (sscanf(value, "url(%1023s)", url) == 1)
 	box->border_image = hcPoolGetString(node->value.element.html->pool, url);
@@ -1100,11 +1100,11 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-image-width")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		pos = 0;		/* Current position */
-    float	length;			/* Width value */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		pos = 0;		// Current position
+    float	length;			// Width value
 
     for (next = temp, current = strsep(&next, " \t"); current && pos < 4; current = strsep(&next, " \t"))
     {
@@ -1141,11 +1141,11 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-radius")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		pos = 0;		/* Position */
-    float	radius;			/* Radius length */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		pos = 0;		// Position
+    float	radius;			// Radius length
 
     for (next = temp, current = strsep(&next, " \t"); current && pos < 8; current = strsep(&next, " \t"))
     {
@@ -1214,11 +1214,11 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-bottom-left-radius")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		pos = 0;		/* Position */
-    float	radius;			/* Radius length */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		pos = 0;		// Position
+    float	radius;			// Radius length
 
     for (next = temp, current = strsep(&next, " \t"); current && pos < 2; current = strsep(&next, " \t"))
     {
@@ -1246,11 +1246,11 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-bottom-right-radius")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		pos = 0;		/* Position */
-    float	radius;			/* Radius length */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		pos = 0;		// Position
+    float	radius;			// Radius length
 
     for (next = temp, current = strsep(&next, " \t"); current && pos < 2; current = strsep(&next, " \t"))
     {
@@ -1278,11 +1278,11 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-top-left-radius")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		pos = 0;		/* Position */
-    float	radius;			/* Radius length */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		pos = 0;		// Position
+    float	radius;			// Radius length
 
     for (next = temp, current = strsep(&next, " \t"); current && pos < 2; current = strsep(&next, " \t"))
     {
@@ -1310,11 +1310,11 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-top-right-radius")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		pos = 0;		/* Position */
-    float	radius;			/* Radius length */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		pos = 0;		// Position
+    float	radius;			// Radius length
 
     for (next = temp, current = strsep(&next, " \t"); current && pos < 2; current = strsep(&next, " \t"))
     {
@@ -1342,11 +1342,11 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-spacing")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		pos = 0;		/* Position */
-    float	spacing;		/* Spacing length */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		pos = 0;		// Position
+    float	spacing;		// Spacing length
 
     for (next = temp, current = strsep(&next, " \t"); current && pos < 2; current = strsep(&next, " \t"))
     {
@@ -1374,12 +1374,12 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "box-shadow")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		pos = 0;		/* Position */
-    float	length;			/* Shadow offset/blur/spread length */
-    hc_color_t	color;			/* Shadow color */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		pos = 0;		// Position
+    float	length;			// Shadow offset/blur/spread length
+    hc_color_t	color;			// Shadow color
 
     box->box_shadow.color = text.color;
 
@@ -1471,15 +1471,15 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "list-style")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
       if (!strncmp(current, "url(", 4))
       {
-	char	url[1024];		/* URL value */
+	char	url[1024];		// URL value
 
 	if (sscanf(current, "url(%1023s)", url) == 1)
 	  box->list_style_image = hcPoolGetString(pool, url);
@@ -1508,7 +1508,7 @@ hcNodeComputeCSSBox(
   {
     if (!strncmp(value, "url(", 4))
     {
-      char	url[1024];		/* URL value */
+      char	url[1024];		// URL value
 
       if (sscanf(value, "url(%1023s)", url) == 1)
         box->list_style_image = hcPoolGetString(pool, url);
@@ -1583,11 +1583,11 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "margin")) != NULL)
   {
-    char	*temp = strdup(value),	/* Copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		num_values = 0;		/* Number of values */
-    float	values[4];		/* Values */
+    char	*temp = strdup(value),	// Copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		num_values = 0;		// Number of values
+    float	values[4];		// Values
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
@@ -1671,11 +1671,11 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "padding")) != NULL)
   {
-    char	*temp = strdup(value),	/* Copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
-    int		num_values = 0;		/* Number of values */
-    float	values[4];		/* Values */
+    char	*temp = strdup(value),	// Copy of value
+		*current,		// Current value
+		*next;			// Next value
+    int		num_values = 0;		// Number of values
+    float	values[4];		// Values
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
@@ -1751,16 +1751,16 @@ hcNodeComputeCSSBox(
 }
 
 
-/*
- * 'hcNodeComputeCSSContent()' - Compute the content: value for the given HTML node.
- *
- * The returned string must be freed using `free()`.
- */
+//
+// 'hcNodeComputeCSSContent()' - Compute the content: value for the given HTML node.
+//
+// The returned string must be freed using `free()`.
+//
 
-char *					/* O - Content string or `NULL` if none/error */
+char *					// O - Content string or `NULL` if none/error
 hcNodeComputeCSSContent(
-    hc_node_t    *node,			/* I - HTML node */
-    hc_compute_t compute)		/* I - Pseudo-class, if any */
+    hc_node_t    *node,			// I - HTML node
+    hc_compute_t compute)		// I - Pseudo-class, if any
 {
   (void)node;
   (void)compute;
@@ -1769,21 +1769,21 @@ hcNodeComputeCSSContent(
 }
 
 
-/*
- * 'hcNodeComputeCSSDisplay()' - Compute the display property for the given HTML node.
- */
+//
+// 'hcNodeComputeCSSDisplay()' - Compute the display property for the given HTML node.
+//
 
-hc_display_t				/* O - 1 on success, 0 on failure */
+hc_display_t				// O - 1 on success, 0 on failure
 hcNodeComputeCSSDisplay(
-    hc_node_t    *node,			/* I - HTML node */
-    hc_compute_t compute)		/* I - Pseudo-class, if any */
+    hc_node_t    *node,			// I - HTML node
+    hc_compute_t compute)		// I - Pseudo-class, if any
 {
-  int			i;		/* Looping var */
-  const char		*value;		/* Property value */
+  int			i;		// Looping var
+  const char		*value;		// Property value
   const hc_dict_t	*props = hcNodeComputeCSSProperties(node, compute);
-					/* Properties */
+					// Properties
   static const char	* const displays[] =
-  {					/* display: values */
+  {					// display: values
     "none",
     "block",
     "inline",
@@ -1813,15 +1813,15 @@ hcNodeComputeCSSDisplay(
 }
 
 
-/*
- * 'hcNodeComputeCSSMedia()' - Compute the media properties for the given HTML node.
- */
+//
+// 'hcNodeComputeCSSMedia()' - Compute the media properties for the given HTML node.
+//
 
-bool					/* O - `true` on success, `false` on failure */
+bool					// O - `true` on success, `false` on failure
 hcNodeComputeCSSMedia(
-    hc_node_t    *node,			/* I - HTML node */
-    hc_compute_t compute,		/* I - Pseudo-class, if any */
-    hc_media_t   *media)		/* O - Media properties */
+    hc_node_t    *node,			// I - HTML node
+    hc_compute_t compute,		// I - Pseudo-class, if any
+    hc_media_t   *media)		// O - Media properties
 {
   (void)node;
   (void)compute;
@@ -1831,19 +1831,19 @@ hcNodeComputeCSSMedia(
 }
 
 
-/*
- * 'hcNodeComputeCSSProperties()' - Compute the properties for the given node.
- *
- * The dictionary is stored in the stylesheet cache and must not be
- * deleted using the `hcDictDelete` function.
- */
+//
+// 'hcNodeComputeCSSProperties()' - Compute the properties for the given node.
+//
+// The dictionary is stored in the stylesheet cache and must not be
+// deleted using the `hcDictDelete` function.
+//
 
-const hc_dict_t *			/* O - Properties or `NULL` on error */
+const hc_dict_t *			// O - Properties or `NULL` on error
 hcNodeComputeCSSProperties(
-    hc_node_t    *node,			/* I - HTML node */
-    hc_compute_t compute)		/* I - Pseudo-class, if any */
+    hc_node_t    *node,			// I - HTML node
+    hc_compute_t compute)		// I - Pseudo-class, if any
 {
-  const hc_dict_t	*props;		/* Properties */
+  const hc_dict_t	*props;		// Properties
 
 
   if (!node || node->element < HC_ELEMENT_DOCTYPE)
@@ -1860,23 +1860,23 @@ hcNodeComputeCSSProperties(
 }
 
 
-/*
- * 'hcNodeComputeCSSTable()' - Compute the table properties for the given HTML node.
- */
+//
+// 'hcNodeComputeCSSTable()' - Compute the table properties for the given HTML node.
+//
 
-bool					/* O - `true` on success, `false` on failure */
+bool					// O - `true` on success, `false` on failure
 hcNodeComputeCSSTable(
-    hc_node_t    *node,			/* I - HTML node */
-    hc_compute_t compute,		/* I - Pseudo-class, if any */
-    hc_table_t   *table)		/* O - Table properties */
+    hc_node_t    *node,			// I - HTML node
+    hc_compute_t compute,		// I - Pseudo-class, if any
+    hc_table_t   *table)		// O - Table properties
 {
-  const char		*value;		/* Property value */
+  const char		*value;		// Property value
 //  hc_pool_t		*pool = node->value.element.html->pool;
-					/* Memory pool */
+					// Memory pool
 //  hc_css_t		*css = node->value.element.html->css;
-					/* Stylesheet */
+					// Stylesheet
   const hc_dict_t	*props = hcNodeComputeCSSProperties(node, compute);
-					/* Properties */
+					// Properties
 
 
   if (!table)
@@ -1899,23 +1899,23 @@ hcNodeComputeCSSTable(
 }
 
 
-/*
- * 'hcNodeComputeCSSText()' - Compute the text properties for the given HTML node.
- */
+//
+// 'hcNodeComputeCSSText()' - Compute the text properties for the given HTML node.
+//
 
-bool					/* O - `true` on success, `false` on failure */
+bool					// O - `true` on success, `false` on failure
 hcNodeComputeCSSText(
-    hc_node_t    *node,			/* I - HTML node */
-    hc_compute_t compute,		/* I - Pseudo-class, if any */
-    hc_text_t    *text)			/* O - Text properties */
+    hc_node_t    *node,			// I - HTML node
+    hc_compute_t compute,		// I - Pseudo-class, if any
+    hc_text_t    *text)			// O - Text properties
 {
-  int			i;		/* Looping var */
-  const char		*value;		/* Property value */
-  hc_css_t		*css;		/* Stylesheet */
-  hc_pool_t		*pool;		/* Memory pool */
+  int			i;		// Looping var
+  const char		*value;		// Property value
+  hc_css_t		*css;		// Stylesheet
+  hc_pool_t		*pool;		// Memory pool
   const hc_dict_t	*props = hcNodeComputeCSSProperties(node, compute);
-					/* Properties */
-  static const char * const aligns[] =	/* text-align: values */
+					// Properties
+  static const char * const aligns[] =	// text-align: values
   {
     "left",
     "right",
@@ -1923,27 +1923,27 @@ hcNodeComputeCSSText(
     "justify"
   };
   static const char * const decorations[] =
-  {					/* text-decoration: values */
+  {					// text-decoration: values
     "none",
     "underline",
     "overline",
     "line-through"
   };
   static const char * const transforms[] =
-  {					/* text-transform: values */
+  {					// text-transform: values
     "none",
     "capitalize",
     "lowercase",
     "uppercase"
   };
   static const char * const unicode_bidis[] =
-  {					/* unicode-bidi: values */
+  {					// unicode-bidi: values
     "normal",
     "embed",
     "override"
   };
   static const char * const white_spaces[] =
-  {					/* white-space: values */
+  {					// white-space: values
     "normal",
     "nowrap",
     "pre",
@@ -1982,11 +1982,11 @@ hcNodeComputeCSSText(
 
   if ((value = hcDictGetKeyValue(props, "quotes")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next,			/* Next value */
-		sep;			/* Separator character */
-    int		quotes_pos = 0;		/* quotes: position */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next,			// Next value
+		sep;			// Separator character
+    int		quotes_pos = 0;		// quotes: position
 
     for (current = temp; *current && quotes_pos < 4; current = next)
     {
@@ -2110,24 +2110,24 @@ hcNodeComputeCSSText(
 }
 
 
-/*
- * '_hcNodeComputeCSSTextFont()' - Compute the text font properties for the
- *                                 given HTML node.
- */
+//
+// '_hcNodeComputeCSSTextFont()' - Compute the text font properties for the
+//                                 given HTML node.
+//
 
-bool					/* O - `true` on success, `false` on failure */
+bool					// O - `true` on success, `false` on failure
 _hcNodeComputeCSSTextFont(
-    hc_node_t       *node,		/* I - HTML node */
-    const hc_dict_t *props,		/* I - Property dictionary */
-    hc_text_t       *text)		/* O - Text properties */
+    hc_node_t       *node,		// I - HTML node
+    const hc_dict_t *props,		// I - Property dictionary
+    hc_text_t       *text)		// O - Text properties
 {
-  int			i;		/* Looping var */
-  const char		*value;		/* Property value */
-  hc_pool_t		*pool;		/* Memory pool */
-  hc_css_t		*css;		/* Stylesheet */
-  hc_text_t		parent_text;	/* Text properties for parent node */
+  int			i;		// Looping var
+  const char		*value;		// Property value
+  hc_pool_t		*pool;		// Memory pool
+  hc_css_t		*css;		// Stylesheet
+  hc_text_t		parent_text;	// Text properties for parent node
   static const char * const stretches[] =
-  {					/* font-stretch: values */
+  {					// font-stretch: values
     "normal",
     "ultra-condensed",
     "extra-condensed",
@@ -2139,7 +2139,7 @@ _hcNodeComputeCSSTextFont(
     "ultra-expanded"
   };
   static const char * const styles[] =
-  {					/* font-style: values */
+  {					// font-style: values
     "normal",
     "italic",
     "oblique"
@@ -2171,12 +2171,12 @@ _hcNodeComputeCSSTextFont(
 
   if ((value = hcDictGetKeyValue(props, "font")) != NULL)
   {
-    char	*temp = strdup(value),	/* Temporary copy of value */
-		*current,		/* Current value */
-		*next,			/* Next value */
-		sep;			/* Separator character */
-    bool	saw_slash = false;	/* Did we see a slash? */
-    int		font_pos = 0;		/* Position within the font value */
+    char	*temp = strdup(value),	// Temporary copy of value
+		*current,		// Current value
+		*next,			// Next value
+		sep;			// Separator character
+    bool	saw_slash = false;	// Did we see a slash?
+    int		font_pos = 0;		// Position within the font value
 
     for (current = temp; *current; current = next)
     {
@@ -2184,7 +2184,7 @@ _hcNodeComputeCSSTextFont(
       * Extract one value...
       */
 
-      bool saw_comma = false;		/* Saw a comma? */
+      bool saw_comma = false;		// Saw a comma?
 
       while (isspace(*current & 255) && *current)
         current ++;
@@ -2470,9 +2470,9 @@ _hcNodeComputeCSSTextFont(
   if (text->font_family)
   {
     char	*temp = strdup(text->font_family),
-					/* Temporary copy of value */
-		*current,		/* Current value */
-		*next;			/* Next value */
+					// Temporary copy of value
+		*current,		// Current value
+		*next;			// Next value
 
     for (current = temp; *current && !text->font; current = next)
     {
@@ -2492,7 +2492,7 @@ _hcNodeComputeCSSTextFont(
 
       if (*current == '\'' || *current == '\"')
       {
-        char	quote = *current++;	/* Quote character */
+        char	quote = *current++;	// Quote character
 
         for (next = current; *next; next ++)
           if (*next == quote)
@@ -2518,13 +2518,13 @@ _hcNodeComputeCSSTextFont(
 }
 
 
-/*
- * 'hc_compare_matches()' - Compare two matches...
- */
+//
+// 'hc_compare_matches()' - Compare two matches...
+//
 
-static int				/* O - Result of comparison */
-hc_compare_matches(_hc_css_match_t *a,	/* I - First match */
-                   _hc_css_match_t *b)	/* I - Second match */
+static int				// O - Result of comparison
+hc_compare_matches(_hc_css_match_t *a,	// I - First match
+                   _hc_css_match_t *b)	// I - Second match
 {
   int	result = a->score - b->score;
 
@@ -2535,30 +2535,30 @@ hc_compare_matches(_hc_css_match_t *a,	/* I - First match */
 }
 
 
-/*
- * 'hc_create_props()' - Create a property dictionary for a node.
- */
+//
+// 'hc_create_props()' - Create a property dictionary for a node.
+//
 
-static const hc_dict_t *		/* O - Dictionary */
-hc_create_props(hc_node_t    *node,	/* I - HTML node */
-                hc_compute_t compute)	/* I - Pseudo-class, if any */
+static const hc_dict_t *		// O - Dictionary
+hc_create_props(hc_node_t    *node,	// I - HTML node
+                hc_compute_t compute)	// I - Pseudo-class, if any
 {
-  hc_dict_t		*props;		/* Properties */
-  size_t		i, j,		/* Looping vars */
-			count,		/* Number of properties */
-			num_matches = 0,/* Number of matches */
+  hc_dict_t		*props;		// Properties
+  size_t		i, j,		// Looping vars
+			count,		// Number of properties
+			num_matches = 0,// Number of matches
 			alloc_matches = 0;
-					/* Allocated matches */
-  hc_css_t		*css;		/* Stylesheet */
-  _hc_rulecol_t		*rulecol;	/* Current rule collection */
-  _hc_rule_t		*rule;		/* Current rule */
-  _hc_css_match_t	*matches = NULL,/* Matches */
-			*match;		/* Current match */
-  const char		*key,		/* Key from style */
-			*value;		/* Value from style */
-  hc_sha3_t		ctx;		/* SHA3 hashing context */
-  hc_sha3_256_t		hash;		/* Hash for matches */
-  static _hc_attrmap_t	attrs[] =	/* HTML attributes that map to CSS properties */
+					// Allocated matches
+  hc_css_t		*css;		// Stylesheet
+  _hc_rulecol_t		*rulecol;	// Current rule collection
+  _hc_rule_t		*rule;		// Current rule
+  _hc_css_match_t	*matches = NULL,// Matches
+			*match;		// Current match
+  const char		*key,		// Key from style
+			*value;		// Value from style
+  hc_sha3_t		ctx;		// SHA3 hashing context
+  hc_sha3_256_t		hash;		// Hash for matches
+  static _hc_attrmap_t	attrs[] =	// HTML attributes that map to CSS properties
   {
     { HC_ELEMENT_WILDCARD, "align",       "text-align",       NULL },
     { HC_ELEMENT_BODY,     "background",  "background-image", NULL },
@@ -2612,7 +2612,7 @@ hc_create_props(hc_node_t    *node,	/* I - HTML node */
     { HC_ELEMENT_TH,       "width",       "width",            NULL }
   };
   static const char * const pseudo_classes[] =
-  {					/* Pseudo-classes for each enum */
+  {					// Pseudo-classes for each enum
     NULL,
     "before",
     "after",
@@ -2630,7 +2630,7 @@ hc_create_props(hc_node_t    *node,	/* I - HTML node */
   for (i = 0, rulecol = css->rules + HC_ELEMENT_WILDCARD; i < rulecol->num_rules; i ++)
   {
     int score = hc_match_rule(node, rulecol->rules[i], pseudo_classes[compute]);
-					/* Score for current rule */
+					// Score for current rule
 
     if (score >= 0)
     {
@@ -2658,7 +2658,7 @@ hc_create_props(hc_node_t    *node,	/* I - HTML node */
   for (i = 0, rulecol = css->rules + node->element; i < rulecol->num_rules; i ++)
   {
     int score = hc_match_rule(node, rulecol->rules[i], pseudo_classes[compute]);
-					/* Score for current rule */
+					// Score for current rule
 
     if (score >= 0)
     {
@@ -2750,7 +2750,7 @@ hc_create_props(hc_node_t    *node,	/* I - HTML node */
   for (i = num_matches, match = matches; i > 0; i --, match ++)
   {
     hc_dict_t *dict = match->rule->props;
-					/* Dictionary for this match */
+					// Dictionary for this match
 
     for (j = 0, count = hcDictGetCount(dict); j < count; j ++)
     {
@@ -2771,21 +2771,21 @@ hc_create_props(hc_node_t    *node,	/* I - HTML node */
 }
 
 
-/*
- * 'hc_get_color()' - Get the color for a named color.
- */
+//
+// 'hc_get_color()' - Get the color for a named color.
+//
 
-static bool				/* O - `true` on success, `false` on failure */
-hc_get_color(const char *value,		/* I - Color string */
-             hc_color_t *color)		/* O - Color values */
+static bool				// O - `true` on success, `false` on failure
+hc_get_color(const char *value,		// I - Color string
+             hc_color_t *color)		// O - Color values
 {
-  int		i;			/* Looping var */
-  char		*ptr;			/* Pointer into value */
-  hc_color_t	rgba;			/* Color values */
+  int		i;			// Looping var
+  char		*ptr;			// Pointer into value
+  hc_color_t	rgba;			// Color values
   static struct
   {
-    const char	*name;			/* Color name */
-    hc_color_t	rgba;			/* Color values */
+    const char	*name;			// Color name
+    hc_color_t	rgba;			// Color values
   }		colors[] =
   {
     { "black",		{ 0.0f, 0.0f, 0.0f, 1.0f } },
@@ -2949,20 +2949,20 @@ hc_get_color(const char *value,		/* I - Color string */
 }
 
 
-/*
- * 'hc_get_length()' - Get a length/measurement value.
- */
+//
+// 'hc_get_length()' - Get a length/measurement value.
+//
 
-static float				/* O - Value in points or 0.0 on error */
-hc_get_length(const char *value,	/* I - Value string */
-              float      max_value,	/* I - Maximum value for percentages */
-              float      multiplier,	/* I - Multiplier for plain number values */
-              hc_css_t   *css,		/* I - Stylesheet */
-              hc_text_t  *text)		/* I - Text properties */
+static float				// O - Value in points or 0.0 on error
+hc_get_length(const char *value,	// I - Value string
+              float      max_value,	// I - Maximum value for percentages
+              float      multiplier,	// I - Multiplier for plain number values
+              hc_css_t   *css,		// I - Stylesheet
+              hc_text_t  *text)		// I - Text properties
 {
-  char		*ptr;			/* Pointer to units after value */
+  char		*ptr;			// Pointer to units after value
   double	temp = strtod(value, &ptr);
-					/* Interim value */
+					// Interim value
 
   if (ptr)
   {
@@ -2972,7 +2972,7 @@ hc_get_length(const char *value,	/* I - Value string */
       temp *= 0.01 * max_value;
     else if (!strcmp(ptr, "ch") && text)
     {
-      hc_rect_t	extents;		/* Font extents */
+      hc_rect_t	extents;		// Font extents
 
       hcFontComputeExtents(text->font, text->font_size, "0", &extents);
       temp *= extents.right;
@@ -2991,7 +2991,7 @@ hc_get_length(const char *value,	/* I - Value string */
       temp *= 72.0 / 6.0;
     else if (!strcmp(ptr, "px"))
       temp *= 72.0 / 96.0;
-    else if (!strcmp(ptr, "Q"))	/* Quarter-millimeters */
+    else if (!strcmp(ptr, "Q"))	// Quarter-millimeters
       temp *= 72.0 / 25.4 / 4.0;
     else if (!strcmp(ptr, "vh"))
       temp *= 0.01 * css->media.size.height;
@@ -3013,7 +3013,7 @@ hc_get_length(const char *value,	/* I - Value string */
       temp *= 0.01 * css->media.size.width;
     else if (strcmp(ptr, "pt"))
     {
-      /* TODO: Show error */
+      // TODO: Show error
       temp = 0.0;
     }
   }
@@ -3022,20 +3022,20 @@ hc_get_length(const char *value,	/* I - Value string */
 }
 
 
-/*
- * 'hc_match_node()' - Match a node to a selector...
- */
+//
+// 'hc_match_node()' - Match a node to a selector...
+//
 
-static int				/* O - Score */
+static int				// O - Score
 hc_match_node(
-    hc_node_t     *node,		/* I - HTML node */
-    _hc_css_sel_t *sel,			/* I - CSS selector */
-    const char    *pseudo_class)	/* I - Pseudo class, if any */
+    hc_node_t     *node,		// I - HTML node
+    _hc_css_sel_t *sel,			// I - CSS selector
+    const char    *pseudo_class)	// I - Pseudo class, if any
 {
-  int		score = 0;		/* Match score */
-  size_t	i;			/* Looping var */
-  _hc_css_selstmt_t *stmt;		/* Current statement */
-  const char	*value;			/* Value */
+  int		score = 0;		// Match score
+  size_t	i;			// Looping var
+  _hc_css_selstmt_t *stmt;		// Current statement
+  const char	*value;			// Value
 
 
   if (node->element != sel->element && sel->element != HC_ELEMENT_WILDCARD)
@@ -3073,8 +3073,8 @@ hc_match_node(
           break;
       case _HC_MATCH_ATTR_ENDS :
           {
-            size_t	svaluelen,	/* Length of statement value */
-			valuelen;	/* Length of attribute value */
+            size_t	svaluelen,	// Length of statement value
+			valuelen;	// Length of attribute value
 
 	    if ((value = hcNodeAttrGetNameValue(node, stmt->name)) == NULL || (svaluelen = strlen(stmt->value)) > (valuelen = strlen(value)) || strncmp(value + valuelen - svaluelen, stmt->value, svaluelen))
 	      return (-1);
@@ -3084,7 +3084,7 @@ hc_match_node(
           break;
       case _HC_MATCH_ATTR_LANG :
           {
-            size_t	svaluelen;	/* Length of statement value */
+            size_t	svaluelen;	// Length of statement value
 
 	    if ((value = hcNodeAttrGetNameValue(node, stmt->name)) == NULL || strncmp(value, stmt->value, svaluelen = strlen(stmt->value)) || (svaluelen <= strlen(value) && value[svaluelen] != '-' && value[svaluelen]))
 	      return (-1);
@@ -3094,7 +3094,7 @@ hc_match_node(
           break;
       case _HC_MATCH_ATTR_SPACE :
           {
-            const char	*ptr;		/* Pointer to match */
+            const char	*ptr;		// Pointer to match
 
 	    if ((value = hcNodeAttrGetNameValue(node, stmt->name)) == NULL || (ptr = strstr(value, stmt->value)) == NULL)
 	      return (-1);
@@ -3139,7 +3139,7 @@ hc_match_node(
 	    * TODO: Add support for :only-of-type pseudo-class.
 	    */
 
-	    int node_matches = 0;	/* Does this node match? */
+	    int node_matches = 0;	// Does this node match?
 
 	    if (node->element == HC_ELEMENT_A && hcNodeAttrGetNameValue(node, "href") && !strcmp(stmt->name, "link"))
 	    {
@@ -3184,8 +3184,8 @@ hc_match_node(
 	      * :nth-child(MULTn-OFFSET)
 	      */
 
-              long	n = 1;		/* Child number */
-              hc_node_t	*curnode;	/* Current node */
+              long	n = 1;		// Child number
+              hc_node_t	*curnode;	// Current node
 
 	     /*
 	      * Calculate the child number...
@@ -3208,9 +3208,9 @@ hc_match_node(
 	      }
 	      else if (strchr("0123456789-+", stmt->value[0]))
 	      {
-                long	mult,		/* Multiplier */
-			offset;		/* Offset */
-	        char	*valptr;	/* Pointer into value */
+                long	mult,		// Multiplier
+			offset;		// Offset
+	        char	*valptr;	// Pointer into value
 
                 if ((mult = strtol(stmt->value, &valptr, 10)) == 0 && stmt->value[0] == '-' && stmt->value[1] == 'n')
                 {
@@ -3251,19 +3251,19 @@ hc_match_node(
 }
 
 
-/*
- * 'hc_match_rule()' - Match a rule against the specified node...
- */
+//
+// 'hc_match_rule()' - Match a rule against the specified node...
+//
 
-static int				/* O  - Number of matches */
-hc_match_rule(hc_node_t  *node,		/* I  - HTML node */
-              _hc_rule_t *rule,		/* I  - Rule */
-              const char *pseudo_class)	/* I - Pseudo-class, if any */
+static int				// O  - Number of matches
+hc_match_rule(hc_node_t  *node,		// I  - HTML node
+              _hc_rule_t *rule,		// I  - Rule
+              const char *pseudo_class)	// I - Pseudo-class, if any
 {
-  int		score,			/* Overall score */
-		curscore;		/* Current score */
-  hc_node_t	*curnode = node;	/* Current node */
-  _hc_css_sel_t	*cursel = rule->sel;	/* Current selector */
+  int		score,			// Overall score
+		curscore;		// Current score
+  hc_node_t	*curnode = node;	// Current node
+  _hc_css_sel_t	*cursel = rule->sel;	// Current selector
 
 
   if ((score = hc_match_node(curnode, cursel, pseudo_class)) < 0)
@@ -3272,7 +3272,7 @@ hc_match_rule(hc_node_t  *node,		/* I  - HTML node */
   while (cursel->prev)
   {
     _hc_relation_t relation = cursel->relation;
-					/* Relation to previous selector */
+					// Relation to previous selector
 
     cursel = cursel->prev;
 

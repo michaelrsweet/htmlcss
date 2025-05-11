@@ -1,41 +1,35 @@
-/*
- * CSS header file for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018-2021 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// CSS header file for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
 #ifndef HTMLCSS_CSS_H
 #  define HTMLCSS_CSS_H
-
-/*
- * Include necessary headers...
- */
-
 #  include "dict.h"
 #  include "file.h"
 #  include "font.h"
-
 #  ifdef __cplusplus
 extern "C" {
-#  endif /* __cplusplus */
+#  endif // __cplusplus
 
 
-/*
- * Constants...
- */
+//
+// Constants...
+//
 
 #  define HC_LENGTH_AUTO	-999999999.0f
-					/* Automatic length */
+					// Automatic length
 
 
-/*
- * Types...
- */
+//
+// Types...
+//
 
 typedef enum
 {
@@ -89,11 +83,11 @@ typedef enum
 
 typedef enum
 {
-  HC_BREAK_AUTO,			/* Break as needed */
-  HC_BREAK_ALWAYS,			/* Always break */
-  HC_BREAK_AVOID,			/* Avoid a break */
-  HC_BREAK_LEFT,			/* Break to the next left-hand page */
-  HC_BREAK_RIGHT			/* Break to the next right-hand page */
+  HC_BREAK_AUTO,			// Break as needed
+  HC_BREAK_ALWAYS,			// Always break
+  HC_BREAK_AVOID,			// Avoid a break
+  HC_BREAK_LEFT,			// Break to the next left-hand page
+  HC_BREAK_RIGHT			// Break to the next right-hand page
 } hc_break_t;
 
 typedef enum
@@ -104,8 +98,8 @@ typedef enum
 
 typedef enum
 {
-  HC_DIRECTION_LTR,			/* Left to right */
-  HC_DIRECTION_RTL			/* Right to left */
+  HC_DIRECTION_LTR,			// Left to right
+  HC_DIRECTION_RTL			// Right to left
 } hc_direction_t;
 
 typedef enum
@@ -219,34 +213,34 @@ typedef enum
   HC_WHITE_SPACE_PRE_WRAP
 } hc_white_space_t;
 
-typedef struct hc_color_s		/* sRGBA color */
+typedef struct hc_color_s		// sRGBA color
 {
-  float			red;		/* Red, 0.0 to 1.0 */
-  float			green;		/* Green, 0.0 to 1.0 */
-  float			blue;		/* Blue, 0.0 to 1.0 */
-  float			alpha;		/* Alpha, 0.0 (transparent) to 1.0 (opaque) */
+  float			red;		// Red, 0.0 to 1.0
+  float			green;		// Green, 0.0 to 1.0
+  float			blue;		// Blue, 0.0 to 1.0
+  float			alpha;		// Alpha, 0.0 (transparent) to 1.0 (opaque)
 } hc_color_t;
 
-typedef struct hc_point_s		/* Point/coordinate */
+typedef struct hc_point_s		// Point/coordinate
 {
-  float			left;		/* Horizontal position */
-  float			top;		/* Vertical position */
+  float			left;		// Horizontal position
+  float			top;		// Vertical position
 } hc_point_t;
 
-typedef struct hc_size_s		/* Point/coordinate */
+typedef struct hc_size_s		// Point/coordinate
 {
-  float			width;		/* Width */
-  float			height;		/* Height */
+  float			width;		// Width
+  float			height;		// Height
 } hc_size_t;
 
-typedef struct hc_border_props_s	/* CSS border properties */
+typedef struct hc_border_props_s	// CSS border properties
 {
-  hc_color_t		color;		/* Border color */
-  hc_border_style_t	style;		/* Border style */
-  float			width;		/* Border width */
+  hc_color_t		color;		// Border color
+  hc_border_style_t	style;		// Border style
+  float			width;		// Border width
 } hc_border_props_t;
 
-typedef struct hc_box_shadow_s		/* Box shadow values */
+typedef struct hc_box_shadow_s		// Box shadow values
 {
   float			horizontal_offset;
   float			vertical_offset;
@@ -256,19 +250,19 @@ typedef struct hc_box_shadow_s		/* Box shadow values */
   bool			inset;
 } hc_box_shadow_t;
 
-/* Higher-level types */
+// Higher-level types */
 
 
-typedef enum				/* What to compute */
+typedef enum				// What to compute
 {
-  HC_COMPUTE_BASE,			/* Base content */
-  HC_COMPUTE_BEFORE,			/* Content before element */
-  HC_COMPUTE_AFTER,			/* Content after element */
-  HC_COMPUTE_FIRST_LINE,		/* First line of block */
-  HC_COMPUTE_FIRST_LETTER		/* First letter of block */
+  HC_COMPUTE_BASE,			// Base content
+  HC_COMPUTE_BEFORE,			// Content before element
+  HC_COMPUTE_AFTER,			// Content after element
+  HC_COMPUTE_FIRST_LINE,		// First line of block
+  HC_COMPUTE_FIRST_LETTER		// First letter of block
 } hc_compute_t;
 
-typedef struct hc_border_s		/* All CSS border properties */
+typedef struct hc_border_s		// All CSS border properties
 {
   hc_border_props_t	left;
   hc_border_props_t	top;
@@ -276,19 +270,19 @@ typedef struct hc_border_s		/* All CSS border properties */
   hc_border_props_t	bottom;
 } hc_border_t;
 
-typedef struct hc_border_radius_s	/* CSS border-xxx-radius properties */
+typedef struct hc_border_radius_s	// CSS border-xxx-radius properties
 {
-  hc_size_t		bottom_left;	/* Bottom-left border radius */
-  hc_size_t		bottom_right;	/* Bottom-right border radius */
-  hc_size_t		top_left;	/* Top-left border radius */
-  hc_size_t		top_right;	/* Top-right border radius */
+  hc_size_t		bottom_left;	// Bottom-left border radius
+  hc_size_t		bottom_right;	// Bottom-right border radius
+  hc_size_t		top_left;	// Top-left border radius
+  hc_size_t		top_right;	// Top-right border radius
 } hc_border_radius_t;
 
-typedef struct hc_box_s			/* CSS box properties */
+typedef struct hc_box_s			// CSS box properties
 {
-  hc_rect_t		bounds;		/* Computed bounds */
-  hc_size_t		size;		/* Computed size */
-  hc_rect_t		clip;		/* Clip bounds */
+  hc_rect_t		bounds;		// Computed bounds
+  hc_size_t		size;		// Computed size
+  hc_rect_t		clip;		// Clip bounds
   hc_size_t		max_size;
   hc_size_t		min_size;
   hc_background_attachment_t
@@ -326,16 +320,16 @@ typedef struct hc_box_s			/* CSS box properties */
   int			z_index;
 } hc_box_t;
 
-typedef struct hc_media_s		/* CSS media properties */
+typedef struct hc_media_s		// CSS media properties
 {
-  const char		*type;		/* "print", "screen", etc. */
-  int			color_bits;	/* Color bits */
-  int			monochrome_bits;/* Grayscale bits */
-  hc_rect_t		margin;		/* Margins */
-  hc_size_t		size;		/* Dimensions */
+  const char		*type;		// "print", "screen", etc.
+  int			color_bits;	// Color bits
+  int			monochrome_bits;// Grayscale bits
+  hc_rect_t		margin;		// Margins
+  hc_size_t		size;		// Dimensions
 } hc_media_t;
 
-typedef struct hc_table_s		/* CSS table properties */
+typedef struct hc_table_s		// CSS table properties
 {
   hc_border_collapse_t	border_collapse;
   hc_caption_side_t	caption_side;
@@ -343,11 +337,11 @@ typedef struct hc_table_s		/* CSS table properties */
   hc_table_layout_t	table_layout;
 } hc_table_t;
 
-typedef struct hc_text_s		/* CSS text properties */
+typedef struct hc_text_s		// CSS text properties
 {
   hc_color_t		color;
   hc_direction_t	direction;
-  hc_font_t		*font;		/* Loaded font */
+  hc_font_t		*font;		// Loaded font
   const char		*font_family;
   float			font_size;
   float			font_size_adjust;
@@ -367,12 +361,12 @@ typedef struct hc_text_s		/* CSS text properties */
   float			word_spacing;
 } hc_text_t;
 
-typedef struct _hc_css_s hc_css_t;		/* CSS data */
+typedef struct _hc_css_s hc_css_t;		// CSS data
 
 
-/*
- * Functions...
- */
+//
+// Functions...
+//
 
 extern void	hcCSSDelete(hc_css_t *css);
 extern hc_css_t	*hcCSSNew(hc_pool_t *pool);
@@ -385,6 +379,5 @@ extern int	hcCSSSetMedia(hc_css_t *css, const char *type, int color_bits, int gr
 
 #  ifdef __cplusplus
 }
-#  endif /* __cplusplus */
-
-#endif /* !HTMLCSS_CSS_H */
+#  endif // __cplusplus
+#endif // !HTMLCSS_CSS_H

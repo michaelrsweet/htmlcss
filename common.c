@@ -1,30 +1,30 @@
-/*
- * Common functions for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018-2021 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// Common functions for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #include "common-private.h"
 
 
-/*
- * '_hcDefaultErrorCB()' - Default error callback.
- */
+//
+// '_hcDefaultErrorCB()' - Default error callback.
+//
 
-bool					/* O - `true` to continue, `false` to stop */
+bool					// O - `true` to continue, `false` to stop
 _hcDefaultErrorCB(
-    void       *ctx,			/* I - Context pointer (unused) */
-    const char *message,		/* I - Message string */
-    int        linenum)			/* I - Line number (unused) */
+    void       *ctx,			// I - Context pointer (unused)
+    const char *message,		// I - Message string
+    int        linenum)			// I - Line number (unused)
 {
   (void)ctx;
   (void)linenum;
@@ -36,16 +36,16 @@ _hcDefaultErrorCB(
 }
 
 
-/*
- * '_hcDefaultURLCB()' - Default URL callback.
- */
+//
+// '_hcDefaultURLCB()' - Default URL callback.
+//
 
-char *					/* O - Local path to URL or `NULL` */
+char *					// O - Local path to URL or `NULL`
 _hcDefaultURLCB(
-    void       *ctx,			/* I - Context pointer (unused) */
-    const char *url,			/* I - URL or filename */
-    char       *buffer,			/* I - Filename buffer */
-    size_t     bufsize)			/* I - Size of filename buffer */
+    void       *ctx,			// I - Context pointer (unused)
+    const char *url,			// I - URL or filename
+    char       *buffer,			// I - Filename buffer
+    size_t     bufsize)			// I - Size of filename buffer
 {
   (void)ctx;
 
@@ -60,12 +60,12 @@ _hcDefaultURLCB(
   }
   else if (!strncmp(url, "file:///", 8))
   {
-    char	*bufptr,		/* Pointer into buffer */
-		*bufend;		/* End of buffer */
+    char	*bufptr,		// Pointer into buffer
+		*bufend;		// End of buffer
 
     for (url += 7, bufptr = buffer, bufend = buffer + bufsize - 1; *url; url ++)
     {
-      int ch = *url;			/* Current character */
+      int ch = *url;			// Current character
 
       if (ch == '%' && isxdigit(url[1] & 255) && isxdigit(url[2] & 255))
       {

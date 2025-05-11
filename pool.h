@@ -1,42 +1,35 @@
-/*
- * Memory pool header for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018-2021 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// Memory pool header for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
 #ifndef HTMLCSS_POOL_H
 #  define HTMLCSS_POOL_H
-
-/*
- * Include necessary headers...
- */
-
 #  include "common.h"
-
-
 #  ifdef __cplusplus
 extern "C" {
-#  endif /* __cplusplus */
+#  endif // __cplusplus
 
 
-/*
- * Types...
- */
+//
+// Types...
+//
 
-typedef struct _hc_pool_s hc_pool_t;	/* Memory allocation pool */
+typedef struct _hc_pool_s hc_pool_t;	// Memory allocation pool
 
 typedef bool (*hc_error_cb_t)(void *ctx, const char *message, int linenum);
 typedef char *(*hc_url_cb_t)(void *ctx, const char *url, char *buffer, size_t bufsize);
 
 
-/*
- * Functions...
- */
+//
+// Functions...
+//
 
 extern void		hcPoolDelete(hc_pool_t *pool);
 extern const char	*hcPoolGetLastError(hc_pool_t *pool);
@@ -49,6 +42,5 @@ extern void		hcPoolSetURLCallback(hc_pool_t *pool, hc_url_cb_t cb, void *ctx);
 
 #  ifdef __cplusplus
 }
-#  endif /* __cplusplus */
-
-#endif /* !HTMLCSS_POOL_H */
+#  endif // __cplusplus
+#endif // !HTMLCSS_POOL_H

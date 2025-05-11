@@ -1,38 +1,32 @@
-/*
- * File handling header for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018-2019 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// File handling header for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
 #ifndef HTMLCSS_FILE_H
 #  define HTMLCSS_FILE_H
-
-/*
- * Include necessary headers...
- */
-
 #  include "pool.h"
-
 #  ifdef __cplusplus
 extern "C" {
-#  endif /* __cplusplus */
+#  endif // __cplusplus
 
 
-/*
- * Types...
- */
+//
+// Types...
+//
 
-typedef struct _hc_file_s hc_file_t;	/* High-level file/stream */
+typedef struct _hc_file_s hc_file_t;	// High-level file/stream
 
 
-/*
- * Functions...
- */
+//
+// Functions...
+//
 
 extern void		hcFileDelete(hc_file_t *file);
 extern int		hcFileGetc(hc_file_t *file);
@@ -46,6 +40,5 @@ extern void		hcFileUngetc(hc_file_t *file, int ch);
 
 #  ifdef __cplusplus
 }
-#  endif /* __cplusplus */
-
-#endif /* !HTMLCSS_FILE_H */
+#  endif // __cplusplus
+#endif // !HTMLCSS_FILE_H

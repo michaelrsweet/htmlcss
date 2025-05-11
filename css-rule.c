@@ -1,41 +1,41 @@
-/*
- * CSS rule set support functions for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// CSS rule set support functions for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #  include "css-private.h"
 #  include "pool-private.h"
 
 
-/*
- * Local functions...
- */
+//
+// Local functions...
+//
 
 static int	hc_compare_rules(_hc_rule_t **a, _hc_rule_t **b);
 
 
-/*
- * '_hcCSSSelAddStmt()' - Add a matching statement to a selector.
- */
+//
+// '_hcCSSSelAddStmt()' - Add a matching statement to a selector.
+//
 
 void
-_hcCSSSelAddStmt(hc_css_t      *css,	/* I - Stylesheet */
-                 _hc_css_sel_t *sel,	/* I - Selector */
-                 _hc_match_t   match,	/* I - Match type */
-                 const char    *name,	/* I - Name, if any */
-                 const char    *value)	/* I - Value, if any */
+_hcCSSSelAddStmt(hc_css_t      *css,	// I - Stylesheet
+                 _hc_css_sel_t *sel,	// I - Selector
+                 _hc_match_t   match,	// I - Match type
+                 const char    *name,	// I - Name, if any
+                 const char    *value)	// I - Value, if any
 {
-  _hc_css_selstmt_t	*temp;		/* Current statement */
+  _hc_css_selstmt_t	*temp;		// Current statement
 
 
   if ((temp = realloc(sel->stmts, (sel->num_stmts + 1) * sizeof(_hc_css_selstmt_t))) != NULL)
@@ -53,14 +53,14 @@ _hcCSSSelAddStmt(hc_css_t      *css,	/* I - Stylesheet */
 }
 
 
-/*
- * '_hcCSSSelDelete()' - Free the memory used by a list of selectors.
- */
+//
+// '_hcCSSSelDelete()' - Free the memory used by a list of selectors.
+//
 
 void
-_hcCSSSelDelete(_hc_css_sel_t *sel)	/* I - Selectors */
+_hcCSSSelDelete(_hc_css_sel_t *sel)	// I - Selectors
 {
-  _hc_css_sel_t *prev;			/* Previous selector */
+  _hc_css_sel_t *prev;			// Previous selector
 
 
   while (sel)
@@ -77,15 +77,15 @@ _hcCSSSelDelete(_hc_css_sel_t *sel)	/* I - Selectors */
 }
 
 
-/*
- * '_hcCSSSelHash()' - Create a SHA3-256 hash of a list of selectors.
- */
+//
+// '_hcCSSSelHash()' - Create a SHA3-256 hash of a list of selectors.
+//
 
 void
-_hcCSSSelHash(_hc_css_sel_t *sel,	/* I - Selectors */
-              hc_sha3_256_t hash)	/* O - Hash of selectors */
+_hcCSSSelHash(_hc_css_sel_t *sel,	// I - Selectors
+              hc_sha3_256_t hash)	// O - Hash of selectors
 {
-  hc_sha3_t	ctx;			/* SHA3 hashing context */
+  hc_sha3_t	ctx;			// SHA3 hashing context
 
 
   hcSHA3Init(&ctx);
@@ -104,17 +104,17 @@ _hcCSSSelHash(_hc_css_sel_t *sel,	/* I - Selectors */
 }
 
 
-/*
- * '_hcCSSSelNew()' - Create a new CSS selector.
- */
+//
+// '_hcCSSSelNew()' - Create a new CSS selector.
+//
 
-_hc_css_sel_t *				/* O - New selector */
-_hcCSSSelNew(hc_css_t       *css,	/* I - Stylesheet */
-             _hc_css_sel_t  *prev,	/* I - Previous selector, if any */
-             hc_element_t   element,	/* I - Element or `HD_ELEMENT_WILDCARD` */
-             _hc_relation_t rel)	/* I - Relation to previous selector */
+_hc_css_sel_t *				// O - New selector
+_hcCSSSelNew(hc_css_t       *css,	// I - Stylesheet
+             _hc_css_sel_t  *prev,	// I - Previous selector, if any
+             hc_element_t   element,	// I - Element or `HD_ELEMENT_WILDCARD`
+             _hc_relation_t rel)	// I - Relation to previous selector
 {
-  _hc_css_sel_t	*sel;			/* New selector */
+  _hc_css_sel_t	*sel;			// New selector
 
 
   if ((sel = (_hc_css_sel_t *)calloc(1, sizeof(_hc_css_sel_t))) != NULL)
@@ -130,21 +130,21 @@ _hcCSSSelNew(hc_css_t       *css,	/* I - Stylesheet */
 }
 
 
-/*
- * '_hcRuleColAdd()' - Add a rule set to a collection.
- */
+//
+// '_hcRuleColAdd()' - Add a rule set to a collection.
+//
 
 void
-_hcRuleColAdd(hc_css_t      *css,	/* I - Stylesheet */
-              _hc_rulecol_t *col,	/* I - Rule set collection */
-              _hc_rule_t    *rule)	/* I - Rule set to add */
+_hcRuleColAdd(hc_css_t      *css,	// I - Stylesheet
+              _hc_rulecol_t *col,	// I - Rule set collection
+              _hc_rule_t    *rule)	// I - Rule set to add
 {
-  _hc_rule_t	**ptr;			/* New rule array pointer */
+  _hc_rule_t	**ptr;			// New rule array pointer
 
 
   if (col->num_rules >= col->alloc_rules)
   {
-    size_t	alloc_rules;		/* New allocation */
+    size_t	alloc_rules;		// New allocation
 
     if (col->alloc_rules == 0)
       alloc_rules = 1;
@@ -171,19 +171,19 @@ _hcRuleColAdd(hc_css_t      *css,	/* I - Stylesheet */
 }
 
 
-/*
- * '_hcRuleColClear()' - Empty a collection, optionally freeing the rule sets in it.
- */
+//
+// '_hcRuleColClear()' - Empty a collection, optionally freeing the rule sets in it.
+//
 
 void
 _hcRuleColClear(
-    _hc_rulecol_t *col,			/* I - Rule set collection */
-    int           delete_rules)		/* I - 1 to delete rules, 0 to just clear collection */
+    _hc_rulecol_t *col,			// I - Rule set collection
+    int           delete_rules)		// I - 1 to delete rules, 0 to just clear collection
 {
   if (delete_rules && col->num_rules)
   {
-    size_t	i;			/* Looping var */
-    _hc_rule_t	**ptr;			/* Pointer into array */
+    size_t	i;			// Looping var
+    _hc_rule_t	**ptr;			// Pointer into array
 
     for (i = col->num_rules, ptr = col->rules; i > 0; i --, ptr ++)
       _hcRuleDelete(*ptr);
@@ -201,18 +201,18 @@ _hcRuleColClear(
 }
 
 
-/*
- * '_hcRuleColFindHash()' - Find a rule set using its hash.
- */
+//
+// '_hcRuleColFindHash()' - Find a rule set using its hash.
+//
 
-_hc_rule_t *				/* O - Matching rule or `NULL` */
+_hc_rule_t *				// O - Matching rule or `NULL`
 _hcRuleColFindHash(
-    _hc_rulecol_t       *col,		/* I - Rule set collection */
-    const hc_sha3_256_t hash)		/* I - SHA3-256 hash */
+    _hc_rulecol_t       *col,		// I - Rule set collection
+    const hc_sha3_256_t hash)		// I - SHA3-256 hash
 {
-  _hc_rule_t	key,			/* Search key */
-		*ptr,			/* Pointer to key */
-		**match;		/* Matching rule */
+  _hc_rule_t	key,			// Search key
+		*ptr,			// Pointer to key
+		**match;		// Matching rule
 
 
   if (col->needs_sort)
@@ -231,12 +231,12 @@ _hcRuleColFindHash(
 }
 
 
-/*
- * '_hcRuleDelete()' - Free memory used by a rule set.
- */
+//
+// '_hcRuleDelete()' - Free memory used by a rule set.
+//
 
 void
-_hcRuleDelete(_hc_rule_t *rule)		/* I - Rule set */
+_hcRuleDelete(_hc_rule_t *rule)		// I - Rule set
 {
   _hcCSSSelDelete(rule->sel);
   hcDictDelete(rule->props);
@@ -244,18 +244,18 @@ _hcRuleDelete(_hc_rule_t *rule)		/* I - Rule set */
 }
 
 
-/*
- * '_hcRuleNew()' - Create a new rule set.
- */
+//
+// '_hcRuleNew()' - Create a new rule set.
+//
 
-_hc_rule_t *				/* I - Rule set */
+_hc_rule_t *				// I - Rule set
 _hcRuleNew(
-    hc_css_t            *css,		/* I - Stylesheet */
-    const hc_sha3_256_t hash,		/* I - SHA3-256 hash */
-    _hc_css_sel_t       *sel,		/* I - Selectors */
-    hc_dict_t           *props)		/* I - Properties dictionary */
+    hc_css_t            *css,		// I - Stylesheet
+    const hc_sha3_256_t hash,		// I - SHA3-256 hash
+    _hc_css_sel_t       *sel,		// I - Selectors
+    hc_dict_t           *props)		// I - Properties dictionary
 {
-  _hc_rule_t	*rule;			/* New rule */
+  _hc_rule_t	*rule;			// New rule
 
 
   if ((rule = calloc(1, sizeof(_hc_rule_t))) != NULL)
@@ -271,13 +271,13 @@ _hcRuleNew(
 }
 
 
-/*
- * 'hc_compare_rules()' - Compare two rules in a collection.
- */
+//
+// 'hc_compare_rules()' - Compare two rules in a collection.
+//
 
-static int				/* O - Result of comparison */
-hc_compare_rules(_hc_rule_t **a,	/* I - First rule */
-                 _hc_rule_t **b)	/* I - Second rule */
+static int				// O - Result of comparison
+hc_compare_rules(_hc_rule_t **a,	// I - First rule
+                 _hc_rule_t **b)	// I - Second rule
 {
   return (memcmp((*a)->hash, (*b)->hash, sizeof((*a)->hash)));
 }

@@ -1,29 +1,29 @@
-/*
- * HTML core functions for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// HTML core functions for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #include "html-private.h"
 #include <stdarg.h>
 
 
-/*
- * HTML element strings...
- */
+//
+// HTML element strings...
+//
 
 const char * const	hcElements[HC_ELEMENT_MAX] =
 {
-  "", /* "*" */
+  "", // "*"
   "!--",
   "!DOCTYPE",
   "a",
@@ -158,12 +158,12 @@ const char * const	hcElements[HC_ELEMENT_MAX] =
 };
 
 
-/*
- * 'hcHTMLDelete()' - Free the memory used by a HTML document.
- */
+//
+// 'hcHTMLDelete()' - Free the memory used by a HTML document.
+//
 
 void
-hcHTMLDelete(hc_html_t *html)		/* I - HTML document */
+hcHTMLDelete(hc_html_t *html)		// I - HTML document
 {
   if (html)
   {
@@ -173,26 +173,26 @@ hcHTMLDelete(hc_html_t *html)		/* I - HTML document */
 }
 
 
-/*
- * 'hcHTMLGetCSS()' - Get the stylesheet for a HTML document.
- */
+//
+// 'hcHTMLGetCSS()' - Get the stylesheet for a HTML document.
+//
 
-hc_css_t *					/* O - Stylesheet */
-hcHTMLGetCSS(hc_html_t *html)		/* I - HTML document */
+hc_css_t *					// O - Stylesheet
+hcHTMLGetCSS(hc_html_t *html)		// I - HTML document
 {
   return (html ? html->css : NULL);
 }
 
 
-/*
- * 'hcNodeNew()' - Create a new HTML document.
- */
+//
+// 'hcNodeNew()' - Create a new HTML document.
+//
 
-hc_html_t *				/* O - HTML document */
-hcHTMLNew(hc_pool_t *pool,		/* I - Memory pool */
-          hc_css_t  *css)		/* I - Base stylesheet */
+hc_html_t *				// O - HTML document
+hcHTMLNew(hc_pool_t *pool,		// I - Memory pool
+          hc_css_t  *css)		// I - Base stylesheet
 {
-  hc_html_t *html;			/* New HTML document */
+  hc_html_t *html;			// New HTML document
 
 
   if ((html = (hc_html_t *)calloc(1, sizeof(hc_html_t))) != NULL)

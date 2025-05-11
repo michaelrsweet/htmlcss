@@ -1,56 +1,56 @@
-/*
- * HTML attribute functions for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018-2021 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// HTML attribute functions for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #include "common-private.h"
 #include "dict.h"
 
 
-/*
- * Private types...
- */
+//
+// Private types...
+//
 
-typedef struct _hc_pair_s		/* Key/value pair */
+typedef struct _hc_pair_s		// Key/value pair
 {
-  const char	*key;			/* Key */
-  const char	*value;			/* Value */
+  const char	*key;			// Key
+  const char	*value;			// Value
 } _hc_pair_t;
 
-struct _hc_dict_s			/* Dictionary */
+struct _hc_dict_s			// Dictionary
 {
-  hc_pool_t	*pool;			/* Memory pool */
-  size_t	num_pairs;		/* Number of pairs */
-  size_t	alloc_pairs;		/* Allocated pairs */
-  _hc_pair_t	*pairs;			/* Key/value pairs */
+  hc_pool_t	*pool;			// Memory pool
+  size_t	num_pairs;		// Number of pairs
+  size_t	alloc_pairs;		// Allocated pairs
+  _hc_pair_t	*pairs;			// Key/value pairs
 };
 
 
-/*
- * Local functions...
- */
+//
+// Local functions...
+//
 
 static int	compare_pairs(_hc_pair_t *a, _hc_pair_t *b);
 
 
-/*
- * 'hcDictCopy()' - Make a copy of a dictionary.
- */
+//
+// 'hcDictCopy()' - Make a copy of a dictionary.
+//
 
-hc_dict_t *				/* O - New dictionary */
-hcDictCopy(const hc_dict_t *dict)	/* I - Dictionary to copy */
+hc_dict_t *				// O - New dictionary
+hcDictCopy(const hc_dict_t *dict)	// I - Dictionary to copy
 {
-  hc_dict_t	*newdict;		/* New dictionary */
+  hc_dict_t	*newdict;		// New dictionary
 
 
   if (!dict)
@@ -75,12 +75,12 @@ hcDictCopy(const hc_dict_t *dict)	/* I - Dictionary to copy */
 }
 
 
-/*
- * 'hcDictDelete()' - Delete a dictionary.
- */
+//
+// 'hcDictDelete()' - Delete a dictionary.
+//
 
 void
-hcDictDelete(hc_dict_t *dict)		/* I - Dictionary */
+hcDictDelete(hc_dict_t *dict)		// I - Dictionary
 {
   if (dict)
   {
@@ -92,26 +92,26 @@ hcDictDelete(hc_dict_t *dict)		/* I - Dictionary */
 }
 
 
-/*
- * 'hcDictGetCount()' - Return the number of key/value pairs in a dictionary.
- */
+//
+// 'hcDictGetCount()' - Return the number of key/value pairs in a dictionary.
+//
 
-size_t					/* O - Number of key/value pairs */
-hcDictGetCount(const hc_dict_t *dict)	/* I - Dictionary */
+size_t					// O - Number of key/value pairs
+hcDictGetCount(const hc_dict_t *dict)	// I - Dictionary
 {
   return (dict ? dict->num_pairs : 0);
 }
 
 
-/*
- * 'hcDictGetIndexKeyValue()' - Return the key and value for the specified pair.
- */
+//
+// 'hcDictGetIndexKeyValue()' - Return the key and value for the specified pair.
+//
 
-const char *				/* O - Value or `NULL` if `idx` is invalid. */
+const char *				// O - Value or `NULL` if `idx` is invalid.
 hcDictGetIndexKeyValue(
-    const hc_dict_t *dict,		/* I - Dictionary */
-    size_t          idx,		/* I - Index (0-based) */
-    const char      **key)		/* O - Key or `NULL` if `idx` is invalid. */
+    const hc_dict_t *dict,		// I - Dictionary
+    size_t          idx,		// I - Index (0-based)
+    const char      **key)		// O - Key or `NULL` if `idx` is invalid.
 {
   if (!dict || idx >= dict->num_pairs || !key)
     return (NULL);
@@ -122,17 +122,17 @@ hcDictGetIndexKeyValue(
 }
 
 
-/*
- * 'hcDictGetKeyValue()' - Get the value for a key in a dictionary.
- */
+//
+// 'hcDictGetKeyValue()' - Get the value for a key in a dictionary.
+//
 
-const char *				/* O - Value or `NULL` if not found. */
+const char *				// O - Value or `NULL` if not found.
 hcDictGetKeyValue(
-    const hc_dict_t *dict,		/* I - Dictionary */
-    const char      *key)		/* I - Key string */
+    const hc_dict_t *dict,		// I - Dictionary
+    const char      *key)		// I - Key string
 {
-  _hc_pair_t	temp,			/* Temporary search key */
-		*ptr;			/* Pointer to match */
+  _hc_pair_t	temp,			// Temporary search key
+		*ptr;			// Pointer to match
 
 
   if (!dict || dict->num_pairs == 0)
@@ -148,14 +148,14 @@ hcDictGetKeyValue(
 }
 
 
-/*
- * 'hcDictNew()' - Create a new dictionary.
- */
+//
+// 'hcDictNew()' - Create a new dictionary.
+//
 
-hc_dict_t *				/* O - New dictionary */
-hcDictNew(hc_pool_t *pool)		/* I - Memory pool */
+hc_dict_t *				// O - New dictionary
+hcDictNew(hc_pool_t *pool)		// I - Memory pool
 {
-  hc_dict_t	*dict;			/* New dictionary */
+  hc_dict_t	*dict;			// New dictionary
 
 
   if ((dict = (hc_dict_t *)calloc(1, sizeof(hc_dict_t))) != NULL)
@@ -165,17 +165,17 @@ hcDictNew(hc_pool_t *pool)		/* I - Memory pool */
 }
 
 
-/*
- * 'hcDictRemoveKey()' - Remove a key/value pair from a dictionary.
- */
+//
+// 'hcDictRemoveKey()' - Remove a key/value pair from a dictionary.
+//
 
 void
-hcDictRemoveKey(hc_dict_t  *dict,	/* I - Dictionary */
-                const char *key)	/* I - Key string */
+hcDictRemoveKey(hc_dict_t  *dict,	// I - Dictionary
+                const char *key)	// I - Key string
 {
-  _hc_pair_t	temp,			/* Temporary search key */
-		*ptr;			/* Pointer to match */
-  size_t	idx;			/* Index into dictionary */
+  _hc_pair_t	temp,			// Temporary search key
+		*ptr;			// Pointer to match
+  size_t	idx;			// Index into dictionary
 
 
   if (!dict || dict->num_pairs == 0)
@@ -196,17 +196,17 @@ hcDictRemoveKey(hc_dict_t  *dict,	/* I - Dictionary */
 }
 
 
-/*
- * 'hcDictSetKeyValue()' - Set a key/value pair in a dictionary.
- */
+//
+// 'hcDictSetKeyValue()' - Set a key/value pair in a dictionary.
+//
 
 void
-hcDictSetKeyValue(hc_dict_t  *dict,	/* I - Dictionary */
-	          const char *key,	/* I - Key string */
-	          const char *value)	/* I - Value string */
+hcDictSetKeyValue(hc_dict_t  *dict,	// I - Dictionary
+	          const char *key,	// I - Key string
+	          const char *value)	// I - Value string
 {
-  _hc_pair_t	temp,			/* Search key */
-		*ptr = NULL;		/* New key/value pair */
+  _hc_pair_t	temp,			// Search key
+		*ptr = NULL;		// New key/value pair
 
 
   _HC_DEBUG("hcDictSetKeyValue(dict=%p, key=\"%s\", value=\"%s\")\n", (void *)dict, key, value);
@@ -255,21 +255,21 @@ hcDictSetKeyValue(hc_dict_t  *dict,	/* I - Dictionary */
   _HC_DEBUG("hxDictSetKeyValue: num_pairs=%d\n", (int)dict->num_pairs);
   for (i = 0, ptr = dict->pairs; i < dict->num_pairs; i ++, ptr ++)
     _HC_DEBUG("hcDictSetKeyValue: pairs[%d].key=\"%s\", .value=\"%s\"\n", (int)i, ptr->key, ptr->value);
-#endif /* DEBUG */
+#endif // DEBUG
 }
 
 
-/*
- * 'compare_pairs()' - Compare two key/value pairs.
- */
+//
+// 'compare_pairs()' - Compare two key/value pairs.
+//
 
-static int				/* O - Result of comparison */
-compare_pairs(_hc_pair_t *a,		/* I - First pair */
-              _hc_pair_t *b)		/* I - Second pair */
+static int				// O - Result of comparison
+compare_pairs(_hc_pair_t *a,		// I - First pair
+              _hc_pair_t *b)		// I - Second pair
 {
 #ifdef _WIN32
   return (_stricmp(a->key, b->key));
 #else
   return (strcasecmp(a->key, b->key));
-#endif /* _WIN32 */
+#endif // _WIN32
 }

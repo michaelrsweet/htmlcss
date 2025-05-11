@@ -1,27 +1,27 @@
-/*
- * HTML attribute functions for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// HTML attribute functions for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #include "html-private.h"
 
 
-/*
- * 'hcNodeAttrGetCount()' - Get the number of attributes for an element.
- */
+//
+// 'hcNodeAttrGetCount()' - Get the number of attributes for an element.
+//
 
-size_t					/* O - Number of attributes */
-hcNodeAttrGetCount(hc_node_t *node)	/* I - Element node */
+size_t					// O - Number of attributes
+hcNodeAttrGetCount(hc_node_t *node)	// I - Element node
 {
   if (!node || node->element < HC_ELEMENT_DOCTYPE)
     return (0);
@@ -30,15 +30,15 @@ hcNodeAttrGetCount(hc_node_t *node)	/* I - Element node */
 }
 
 
-/*
- * 'hcNodeAttrGetIndexNameValue()' - Get the name and value of a specified attribute.
- */
+//
+// 'hcNodeAttrGetIndexNameValue()' - Get the name and value of a specified attribute.
+//
 
-const char *				/* O - Attribute value or `NULL` */
+const char *				// O - Attribute value or `NULL`
 hcNodeAttrGetIndexNameValue(
-    hc_node_t  *node,			/* I - Element node */
-    size_t     idx,			/* I - Attribute index (0-based) */
-    const char **name)			/* O - Attribute name */
+    hc_node_t  *node,			// I - Element node
+    size_t     idx,			// I - Attribute index (0-based)
+    const char **name)			// O - Attribute name
 {
   if (!node || node->element < HC_ELEMENT_DOCTYPE || !name)
     return (NULL);
@@ -47,14 +47,14 @@ hcNodeAttrGetIndexNameValue(
 }
 
 
-/*
- * 'hcNodeAttrGetNameValue()' - Get the value of an element attribute.
- */
+//
+// 'hcNodeAttrGetNameValue()' - Get the value of an element attribute.
+//
 
-const char *				/* O - Value or `NULL` if not present */
+const char *				// O - Value or `NULL` if not present
 hcNodeAttrGetNameValue(
-    hc_node_t  *node,			/* I - Element node */
-    const char *name)			/* I - Attribute name */
+    hc_node_t  *node,			// I - Element node
+    const char *name)			// I - Attribute name
 {
   if (!node || node->element < HC_ELEMENT_DOCTYPE || !name)
     return (NULL);
@@ -63,13 +63,13 @@ hcNodeAttrGetNameValue(
 }
 
 
-/*
- * 'hcNodeAttrRemove()' - Delete an element attribute.
- */
+//
+// 'hcNodeAttrRemove()' - Delete an element attribute.
+//
 
 void
-hcNodeAttrRemove(hc_node_t  *node,	/* I - Element node */
-                 const char *name)	/* I - Attribute name */
+hcNodeAttrRemove(hc_node_t  *node,	// I - Element node
+                 const char *name)	// I - Attribute name
 {
   if (!node || node->element < HC_ELEMENT_DOCTYPE || !name)
     return;
@@ -78,15 +78,15 @@ hcNodeAttrRemove(hc_node_t  *node,	/* I - Element node */
 }
 
 
-/*
- * 'hcNodeAttrSetNameValue()' - Add an element attribute.
- */
+//
+// 'hcNodeAttrSetNameValue()' - Add an element attribute.
+//
 
 void
 hcNodeAttrSetNameValue(
-    hc_node_t  *node,			/* I - Element node */
-    const char *name,			/* I - Attribute name */
-    const char *value)			/* I - Attribute value */
+    hc_node_t  *node,			// I - Element node
+    const char *name,			// I - Attribute name
+    const char *value)			// I - Attribute value
 {
   if (!node || node->element < HC_ELEMENT_DOCTYPE || !name || !value)
     return;

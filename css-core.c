@@ -1,30 +1,30 @@
-/*
- * CSS import functions for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// CSS import functions for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #  include "css-private.h"
 #  include "pool.h"
 
 
-/*
- * 'hcCSSDelete()' - Free memory associated with a stylesheet.
- */
+//
+// 'hcCSSDelete()' - Free memory associated with a stylesheet.
+//
 
 void
-hcCSSDelete(hc_css_t *css)		/* I - Stylesheet */
+hcCSSDelete(hc_css_t *css)		// I - Stylesheet
 {
-  hc_element_t	element;		/* Current element */
+  hc_element_t	element;		// Current element
 
 
   if (!css)
@@ -38,15 +38,15 @@ hcCSSDelete(hc_css_t *css)		/* I - Stylesheet */
 }
 
 
-/*
- * 'hcCSSNew()' - Allocate a new stylesheet.
- */
+//
+// 'hcCSSNew()' - Allocate a new stylesheet.
+//
 
-hc_css_t *				/* O - Stylesheet */
-hcCSSNew(hc_pool_t *pool)		/* I - Memory pool */
+hc_css_t *				// O - Stylesheet
+hcCSSNew(hc_pool_t *pool)		// I - Memory pool
 {
   hc_css_t	*css = (hc_css_t *)calloc(1, sizeof(hc_css_t));
-					/* Stylesheet */
+					// Stylesheet
 
 
   if (css)
@@ -65,18 +65,18 @@ hcCSSNew(hc_pool_t *pool)		/* I - Memory pool */
 }
 
 
-/*
- * 'hcCSSSetMedia()' - Set the base media settings.
- */
+//
+// 'hcCSSSetMedia()' - Set the base media settings.
+//
 
-int					/* O - 1 on success, 0 on failure */
+int					// O - 1 on success, 0 on failure
 hcCSSSetMedia(
-    hc_css_t   *css,			/* I - Stylesheet */
-    const char *type,			/* I - Media type ("print', etc.) */
-    int        color_bits,		/* I - Bits of color supported */
-    int        monochrome_bits,		/* I - Bits of grayscale supported */
-    float      width,			/* I - Device width */
-    float      height)			/* I - Device height */
+    hc_css_t   *css,			// I - Stylesheet
+    const char *type,			// I - Media type ("print', etc.)
+    int        color_bits,		// I - Bits of color supported
+    int        monochrome_bits,		// I - Bits of grayscale supported
+    float      width,			// I - Device width
+    float      height)			// I - Device height
 {
   if (!css || !type || color_bits < 0 || monochrome_bits < 0 || width <= 0.0f || height <= 0.0f)
     return (0);

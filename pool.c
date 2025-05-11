@@ -1,34 +1,34 @@
-/*
- * Memory pool functions for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018-2021 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// Memory pool functions for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #include "pool-private.h"
 
 
-/*
- * Local functions...
- */
+//
+// Local functions...
+//
 
 static int	compare_strings(char **a, char **b);
 
 
-/*
- * 'hcPoolDelete()' - Free the memory used by a pool.
- */
+//
+// 'hcPoolDelete()' - Free the memory used by a pool.
+//
 
 void
-hcPoolDelete(hc_pool_t *pool)	/* I - Memory pool */
+hcPoolDelete(hc_pool_t *pool)	// I - Memory pool
 {
   if (pool)
   {
@@ -37,8 +37,8 @@ hcPoolDelete(hc_pool_t *pool)	/* I - Memory pool */
 
     if (pool->num_strings > 0)
     {
-      size_t	i;			/* Looping var */
-      char	**temp;			/* String pointer */
+      size_t	i;			// Looping var
+      char	**temp;			// String pointer
 
       for (i = pool->num_strings, temp = pool->strings; i > 0; i --, temp ++)
         free(*temp);
@@ -52,19 +52,19 @@ hcPoolDelete(hc_pool_t *pool)	/* I - Memory pool */
 }
 
 
-/*
- * '_hcPoolError()' - Display an error message.
- */
+//
+// '_hcPoolError()' - Display an error message.
+//
 
-bool					/* O - `true` to continue, `false` to stop */
+bool					// O - `true` to continue, `false` to stop
 _hcPoolError(
-    hc_pool_t  *pool,			/* I - Memory pool */
-    int        linenum,			/* I - Line number in file or 0 */
-    const char *message,		/* I - Printf-style message string */
-    ...)				/* I - Additional arguments as needed */
+    hc_pool_t  *pool,			// I - Memory pool
+    int        linenum,			// I - Line number in file or 0
+    const char *message,		// I - Printf-style message string
+    ...)				// I - Additional arguments as needed
 {
-  bool		ret;			/* Return value */
-  va_list	ap;			/* Pointer to additional arguments */
+  bool		ret;			// Return value
+  va_list	ap;			// Pointer to additional arguments
 
 
   va_start(ap, message);
@@ -75,18 +75,18 @@ _hcPoolError(
 }
 
 
-/*
- * '_hcPoolErrorv()' - Display an error message.
- */
+//
+// '_hcPoolErrorv()' - Display an error message.
+//
 
-bool					/* O - `true` to continue, `false` to stop */
+bool					// O - `true` to continue, `false` to stop
 _hcPoolErrorv(
-    hc_pool_t  *pool,			/* I - Memory pool */
-    int        linenum,			/* I - Line number in file or 0 */
-    const char *message,		/* I - Printf-style message string */
-    va_list    ap)			/* I - Pointer to additional arguments */
+    hc_pool_t  *pool,			// I - Memory pool
+    int        linenum,			// I - Line number in file or 0
+    const char *message,		// I - Printf-style message string
+    va_list    ap)			// I - Pointer to additional arguments
 {
-  char		buffer[8192];		/* Message buffer */
+  char		buffer[8192];		// Message buffer
 
 
   vsnprintf(buffer, sizeof(buffer), message, ap);
@@ -98,32 +98,32 @@ _hcPoolErrorv(
 }
 
 
-/*
- * 'hcPoolGetLastError()' - Return the last error message recorded.
- */
+//
+// 'hcPoolGetLastError()' - Return the last error message recorded.
+//
 
-const char *				/* O - Last error message or `NULL` */
-hcPoolGetLastError(hc_pool_t *pool)	/* I - Memory pool */
+const char *				// O - Last error message or `NULL`
+hcPoolGetLastError(hc_pool_t *pool)	// I - Memory pool
 {
   return (pool ? pool->last_error : NULL);
 }
 
 
-/*
- * 'hcPoolGetString()' - Find or copy a string.
- *
- * This function finds or makes a copy of the passed string that will be freed
- * when the corresponding memory pool is deleted.  Since the memory pool only
- * maintains a single copy of any string, copied strings are immutable.
- */
+//
+// 'hcPoolGetString()' - Find or copy a string.
+//
+// This function finds or makes a copy of the passed string that will be freed
+// when the corresponding memory pool is deleted.  Since the memory pool only
+// maintains a single copy of any string, copied strings are immutable.
+//
 
-const char *				/* O - New string pointer */
+const char *				// O - New string pointer
 hcPoolGetString(
-    hc_pool_t  *pool,			/* I - Memory pool */
-    const char *s)			/* I - String to find/copy */
+    hc_pool_t  *pool,			// I - Memory pool
+    const char *s)			// I - String to find/copy
 {
-  char	*news,				/* New string */
-	**temp;				/* Temporary string pointer */
+  char	*news,				// New string
+	**temp;				// Temporary string pointer
 
 
   if (!pool || !s)
@@ -167,19 +167,19 @@ hcPoolGetString(
 }
 
 
-/*
- * 'hcPoolGetURL()' - Get a file corresponding to a URL.
- */
+//
+// 'hcPoolGetURL()' - Get a file corresponding to a URL.
+//
 
-const char *				/* O - Filename or `NULL` on error */
-hcPoolGetURL(hc_pool_t  *pool,		/* I - Memory pool */
-             const char *url,		/* I - URL */
-             const char *baseurl)	/* I - Base URL, if any */
+const char *				// O - Filename or `NULL` on error
+hcPoolGetURL(hc_pool_t  *pool,		// I - Memory pool
+             const char *url,		// I - URL
+             const char *baseurl)	// I - Base URL, if any
 {
-  const char	*mapped;		/* Mapped file */
-  char		*ptr,			/* Pointer into URL */
-		temp[1024],		/* Temporary path */
-		newurl[1024];		/* New URL */
+  const char	*mapped;		// Mapped file
+  char		*ptr,			// Pointer into URL
+		temp[1024],		// Temporary path
+		newurl[1024];		// New URL
 
 
   if (*url == '/')
@@ -248,15 +248,15 @@ hcPoolGetURL(hc_pool_t  *pool,		/* I - Memory pool */
 }
 
 
-/*
- * 'hcPoolNew()' - Create a new memory pool.
- */
+//
+// 'hcPoolNew()' - Create a new memory pool.
+//
 
-hc_pool_t *			/* O - New memory pool */
+hc_pool_t *			// O - New memory pool
 hcPoolNew(void)
 {
   hc_pool_t *pool = (hc_pool_t *)calloc(1, sizeof(hc_pool_t));
-				/* New memory pool */
+				// New memory pool
 
   if (pool)
   {
@@ -268,19 +268,19 @@ hcPoolNew(void)
 }
 
 
-/*
- * 'hcPoolSetErrorCallback()' - Set the error reporting callback.
- *
- * The default error callback writes the message to `stderr`.
- *
- * The error callback returns 1 to continue processing or 0 to stop immediately.
- */
+//
+// 'hcPoolSetErrorCallback()' - Set the error reporting callback.
+//
+// The default error callback writes the message to `stderr`.
+//
+// The error callback returns 1 to continue processing or 0 to stop immediately.
+//
 
 void
 hcPoolSetErrorCallback(
-    hc_pool_t     *pool,		/* I - Memory pool */
-    hc_error_cb_t cb,			/* I - Error callback or `NULL` for the default */
-    void          *ctx)			/* I - Context pointer for callback */
+    hc_pool_t     *pool,		// I - Memory pool
+    hc_error_cb_t cb,			// I - Error callback or `NULL` for the default
+    void          *ctx)			// I - Context pointer for callback
 {
   if (!pool)
     return;
@@ -290,20 +290,20 @@ hcPoolSetErrorCallback(
 }
 
 
-/*
- * 'hcPoolSetURLCallback()' - Set the URL callback.
- *
- * The default URL callback supports local files (only).
- *
- * The URL callback returns a local pathname (copied to the specified buffer)
- * or `NULL` if the URL cannot be loaded/found.
- */
+//
+// 'hcPoolSetURLCallback()' - Set the URL callback.
+//
+// The default URL callback supports local files (only).
+//
+// The URL callback returns a local pathname (copied to the specified buffer)
+// or `NULL` if the URL cannot be loaded/found.
+//
 
 void
 hcPoolSetURLCallback(
-    hc_pool_t   *pool,			/* I - Memory pool */
-    hc_url_cb_t cb,			/* I - URL callback or `NULL` for the default */
-    void        *ctx)			/* I - Context pointer for callback */
+    hc_pool_t   *pool,			// I - Memory pool
+    hc_url_cb_t cb,			// I - URL callback or `NULL` for the default
+    void        *ctx)			// I - Context pointer for callback
 {
   if (!pool)
     return;
@@ -313,13 +313,13 @@ hcPoolSetURLCallback(
 }
 
 
-/*
- * 'compare_strings()' - Compare two strings...
- */
+//
+// 'compare_strings()' - Compare two strings...
+//
 
-static int				/* O - Result of comparison */
-compare_strings(char **a,		/* I - First string */
-                char **b)		/* I - Second string */
+static int				// O - Result of comparison
+compare_strings(char **a,		// I - First string
+                char **b)		// I - Second string
 {
   return (strcmp(*a, *b));
 }

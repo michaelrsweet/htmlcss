@@ -1,120 +1,120 @@
-/*
- * Core font object functions for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018-2021 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// Core font object functions for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #include "font-private.h"
 #include "file-private.h"
 
 
-/*
- * OFF/TTF tag constants...
- */
+//
+// OFF/TTF tag constants...
+//
 
-#define _HC_OFF_cmap	0x636d6170	/* Character to glyph mapping */
-#define _HC_OFF_head	0x68656164	/* Font header */
-#define _HC_OFF_hhea	0x68686561	/* Horizontal header */
-#define _HC_OFF_hmtx	0x686d7478	/* Horizontal metrics */
-#define _HC_OFF_maxp	0x6d617870	/* Maximum profile */
-#define _HC_OFF_name	0x6e616d65	/* Naming table */
-#define _HC_OFF_OS_2	0x4f532f32	/* OS/2 and Windows specific metrics */
-#define _HC_OFF_post	0x706f7374	/* PostScript information */
+#define _HC_OFF_cmap	0x636d6170	// Character to glyph mapping
+#define _HC_OFF_head	0x68656164	// Font header
+#define _HC_OFF_hhea	0x68686561	// Horizontal header
+#define _HC_OFF_hmtx	0x686d7478	// Horizontal metrics
+#define _HC_OFF_maxp	0x6d617870	// Maximum profile
+#define _HC_OFF_name	0x6e616d65	// Naming table
+#define _HC_OFF_OS_2	0x4f532f32	// OS/2 and Windows specific metrics
+#define _HC_OFF_post	0x706f7374	// PostScript information
 
-#define _HC_OFF_Unicode		0	/* Unicode platform ID */
+#define _HC_OFF_Unicode		0	// Unicode platform ID
 
-#define _HC_OFF_Mac		1	/* Macintosh platform ID */
-#define _HC_OFF_Mac_Roman	0	/* Macintosh Roman encoding ID */
-#define _HC_OFF_Mac_USEnglish	0	/* Macintosh US English language ID */
+#define _HC_OFF_Mac		1	// Macintosh platform ID
+#define _HC_OFF_Mac_Roman	0	// Macintosh Roman encoding ID
+#define _HC_OFF_Mac_USEnglish	0	// Macintosh US English language ID
 
-#define _HC_OFF_Windows		3	/* Windows platform ID */
-#define _HC_OFF_Windows_English 9	/* Windows English language ID base */
-#define _HC_OFF_Windows_UCS2	1	/* Windows UCS-2 encoding */
-#define _HC_OFF_Windows_UCS4	10	/* Windows UCS-4 encoding */
+#define _HC_OFF_Windows		3	// Windows platform ID
+#define _HC_OFF_Windows_English 9	// Windows English language ID base
+#define _HC_OFF_Windows_UCS2	1	// Windows UCS-2 encoding
+#define _HC_OFF_Windows_UCS4	10	// Windows UCS-4 encoding
 
-#define _HC_OFF_Copyright	0	/* Copyright naming string */
-#define _HC_OFF_FontFamily	1	/* Font family naming string ("Arial") */
-#define _HC_OFF_FontSubfamily	2	/* Font sub-family naming string ("Bold") */
-#define _HC_OFF_FontFullName	4	/* Font full name ("Arial Bold") */
-#define _HC_OFF_FontVersion	5	/* Font version number */
-#define _HC_OFF_PostScriptName	6	/* Font PostScript name */
+#define _HC_OFF_Copyright	0	// Copyright naming string
+#define _HC_OFF_FontFamily	1	// Font family naming string ("Arial")
+#define _HC_OFF_FontSubfamily	2	// Font sub-family naming string ("Bold")
+#define _HC_OFF_FontFullName	4	// Font full name ("Arial Bold")
+#define _HC_OFF_FontVersion	5	// Font version number
+#define _HC_OFF_PostScriptName	6	// Font PostScript name
 
 
-/*
- * Local types...
- */
+//
+// Local types...
+//
 
-typedef struct _hc_off_dir_s		/* OFF/TTF directory entry */
+typedef struct _hc_off_dir_s		// OFF/TTF directory entry
 {
-  unsigned	tag;			/* Table identifier */
-  unsigned	checksum;		/* Checksum of table */
-  unsigned	offset;			/* Offset from the beginning of the file */
-  unsigned	length;			/* Length */
+  unsigned	tag;			// Table identifier
+  unsigned	checksum;		// Checksum of table
+  unsigned	offset;			// Offset from the beginning of the file
+  unsigned	length;			// Length
 } _hc_off_dir_t;
 
-typedef struct _hc_off_table_s		/* OFF/TTF offset table */
+typedef struct _hc_off_table_s		// OFF/TTF offset table
 {
-  int		num_entries;		/* Number of table entries */
-  _hc_off_dir_t	*entries;		/* Table entries */
+  int		num_entries;		// Number of table entries
+  _hc_off_dir_t	*entries;		// Table entries
 } _hc_off_table_t;
 
-typedef struct _hc_off_name_s		/* OFF/TTF name string */
+typedef struct _hc_off_name_s		// OFF/TTF name string
 {
-  unsigned short	platform_id,	/* Platform identifier */
-			encoding_id,	/* Encoding identifier */
-			language_id,	/* Language identifier */
-			name_id,	/* Name identifier */
-			length,		/* Length of string */
-			offset;		/* Offset from start of storage area */
+  unsigned short	platform_id,	// Platform identifier
+			encoding_id,	// Encoding identifier
+			language_id,	// Language identifier
+			name_id,	// Name identifier
+			length,		// Length of string
+			offset;		// Offset from start of storage area
 } _hc_off_name_t;
 
-typedef struct _hc_off_names_s		/* OFF/TTF naming table */
+typedef struct _hc_off_names_s		// OFF/TTF naming table
 {
-  int			num_names;	/* Number of names */
-  _hc_off_name_t	*names;		/* Names */
-  unsigned char		*storage;	/* Storage area */
-  unsigned		storage_size;	/* Size of storage area */
+  int			num_names;	// Number of names
+  _hc_off_name_t	*names;		// Names
+  unsigned char		*storage;	// Storage area
+  unsigned		storage_size;	// Size of storage area
 } _hc_off_names_t;
 
-typedef struct _hc_off_cmap4_s		/* Format 4 cmap table */
+typedef struct _hc_off_cmap4_s		// Format 4 cmap table
 {
-  unsigned short	startCode,	/* First character */
-			endCode,	/* Last character */
-			idRangeOffset;	/* Offset for range (modulo 65536) */
-  short			idDelta;	/* Delta for range (modulo 65536) */
+  unsigned short	startCode,	// First character
+			endCode,	// Last character
+			idRangeOffset;	// Offset for range (modulo 65536)
+  short			idDelta;	// Delta for range (modulo 65536)
 } _hc_off_cmap4_t;
 
-typedef struct _hc_off_cmap12_s		/* Format 12 cmap table */
+typedef struct _hc_off_cmap12_s		// Format 12 cmap table
 {
-  unsigned		startCharCode,	/* First character */
-			endCharCode,	/* Last character */
-			startGlyphID;	/* Glyph index for the first character */
+  unsigned		startCharCode,	// First character
+			endCharCode,	// Last character
+			startGlyphID;	// Glyph index for the first character
 } _hc_off_cmap12_t;
 
-typedef struct _hc_off_cmap13_s		/* Format 13 cmap table */
+typedef struct _hc_off_cmap13_s		// Format 13 cmap table
 {
-  unsigned		startCharCode,	/* First character */
-			endCharCode,	/* Last character */
-			glyphID;	/* Glyph index for all characters */
+  unsigned		startCharCode,	// First character
+			endCharCode,	// Last character
+			glyphID;	// Glyph index for all characters
 } _hc_off_cmap13_t;
 
-typedef struct _hc_off_head_s		/* Font header */
+typedef struct _hc_off_head_s		// Font header
 {
-  unsigned short	unitsPerEm;	/* Units for widths/coordinates */
-  short			xMin,		/* Bounding box of all glyphs */
+  unsigned short	unitsPerEm;	// Units for widths/coordinates
+  short			xMin,		// Bounding box of all glyphs
 			yMin,
 			xMax,
 			yMax;
-  unsigned short	macStyle;	/* Mac style bits */
+  unsigned short	macStyle;	// Mac style bits
 } _hc_off_head_t;
 
 #define _HC_OFF_macStyle_Bold		0x01
@@ -125,21 +125,21 @@ typedef struct _hc_off_head_s		/* Font header */
 #define _HC_OFF_macStyle_Condensed	0x20
 #define _HC_OFF_macStyle_Extended	0x40
 
-typedef struct _hc_off_hhea_s		/* Horizontal header */
+typedef struct _hc_off_hhea_s		// Horizontal header
 {
-  short			ascender,	/* Ascender */
-			descender;	/* Descender */
+  short			ascender,	// Ascender
+			descender;	// Descender
   int			numberOfHMetrics;
-					/* Number of horizontal metrics */
+					// Number of horizontal metrics
 } _hc_off_hhea_t;
 
-typedef struct _hc_off_os_2_s		/* OS/2 information */
+typedef struct _hc_off_os_2_s		// OS/2 information
 {
-  unsigned short	usWeightClass,	/* Font weight */
-			fsType;		/* Type bits */
-  short			sTypoAscender,	/* Ascender */
-			sTypoDescender,	/* Descender */
-			sCapHeight;	/* CapHeight */
+  unsigned short	usWeightClass,	// Font weight
+			fsType;		// Type bits
+  short			sTypoAscender,	// Ascender
+			sTypoDescender,	// Descender
+			sCapHeight;	// CapHeight
 } _hc_off_os_2_t;
 
 #define _HC_OFF_fsType_	0x
@@ -151,9 +151,9 @@ typedef struct _hc_off_os_2_s		/* OS/2 information */
 #define _HC_OFF_fsType_	0x
 
 
-/*
- * Local functions...
- */
+//
+// Local functions...
+//
 
 static const char *copy_name(hc_pool_t *pool, _hc_off_names_t *names, unsigned name_id);
 static int	read_cmap(hc_file_t *file, _hc_off_table_t *table, int **cmap);
@@ -171,14 +171,14 @@ static int	read_ushort(hc_file_t *file);
 static unsigned	seek_table(hc_file_t *file, _hc_off_table_t *table, unsigned tag, unsigned offset);
 
 
-/*
- * 'hcFontDelete()' - Free all memory used for a font family object.
- */
+//
+// 'hcFontDelete()' - Free all memory used for a font family object.
+//
 
 void
-hcFontDelete(hc_font_t *font)		/* I - Font object */
+hcFontDelete(hc_font_t *font)		// I - Font object
 {
-  int	i;				/* Looping var */
+  int	i;				// Looping var
 
 
   if (!font)
@@ -191,105 +191,105 @@ hcFontDelete(hc_font_t *font)		/* I - Font object */
 }
 
 
-/*
- * 'hcFontGetCopyright()' - Get the copyright text for a font.
- */
+//
+// 'hcFontGetCopyright()' - Get the copyright text for a font.
+//
 
-const char *				/* O - Copyright text */
-hcFontGetCopyright(hc_font_t *font)	/* I - Font object */
+const char *				// O - Copyright text
+hcFontGetCopyright(hc_font_t *font)	// I - Font object
 {
   return (font ? font->copyright : NULL);
 }
 
 
-/*
- * 'hcFontGetFamily()' - Get the family name of a font.
- */
+//
+// 'hcFontGetFamily()' - Get the family name of a font.
+//
 
-const char *				/* O - Family name */
-hcFontGetFamily(hc_font_t *font)	/* I - Font object */
+const char *				// O - Family name
+hcFontGetFamily(hc_font_t *font)	// I - Font object
 {
   return (font ? font->family : NULL);
 }
 
 
-/*
- * 'hcFontGetNumFonts()' - Get the number of fonts in this collection.
- */
+//
+// 'hcFontGetNumFonts()' - Get the number of fonts in this collection.
+//
 
 size_t
-hcFontGetNumFonts(hc_font_t *font)	/* I - Font object */
+hcFontGetNumFonts(hc_font_t *font)	// I - Font object
 {
   return (font ? font->num_fonts : 0);
 }
 
 
-/*
- * 'hcFontGetPostScriptName()' - Get the PostScript name of a font.
- */
+//
+// 'hcFontGetPostScriptName()' - Get the PostScript name of a font.
+//
 
-const char *				/* O - PostScript name */
+const char *				// O - PostScript name
 hcFontGetPostScriptName(
-    hc_font_t *font)			/* I - Font object */
+    hc_font_t *font)			// I - Font object
 {
   return (font ? font->postscript_name : NULL);
 }
 
 
-/*
- * 'hcFontGetStyle()' - Get the font style.
- */
+//
+// 'hcFontGetStyle()' - Get the font style.
+//
 
-hc_font_style_t				/* O - Style */
-hcFontGetStyle(hc_font_t *font)		/* I - Font object */
+hc_font_style_t				// O - Style
+hcFontGetStyle(hc_font_t *font)		// I - Font object
 {
   return (font ? font->style : HC_FONT_STYLE_NORMAL);
 }
 
 
-/*
- * 'hcFontGetVersion()' - Get the version number of a font.
- */
+//
+// 'hcFontGetVersion()' - Get the version number of a font.
+//
 
-const char *				/* O - Version number */
-hcFontGetVersion(hc_font_t *font)	/* I - Font object */
+const char *				// O - Version number
+hcFontGetVersion(hc_font_t *font)	// I - Font object
 {
   return (font ? font->version : NULL);
 }
 
 
-/*
- * 'hcFontGetWeight()' - Get the weight of a font.
- */
+//
+// 'hcFontGetWeight()' - Get the weight of a font.
+//
 
-hc_font_weight_t			/* O - Weight */
-hcFontGetWeight(hc_font_t *font)	/* I - Font object */
+hc_font_weight_t			// O - Weight
+hcFontGetWeight(hc_font_t *font)	// I - Font object
 {
   return (font ? (hc_font_weight_t)font->weight : HC_FONT_WEIGHT_400);
 }
 
 
-/*
- * 'hcFontNew()' - Create a new font object for the named font family.
- */
+//
+// 'hcFontNew()' - Create a new font object for the named font family.
+//
 
-hc_font_t *				/* O - New font object */
-hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
-          hc_file_t *file,		/* I - File */
-          size_t    idx)		/* I - Font number in collection (0-based) */
+hc_font_t *				// O - New font object
+hcFontNew(hc_pool_t *pool,		// I - Memory pool
+          hc_file_t *file,		// I - File
+          size_t    idx)		// I - Font number in collection (0-based)
 {
-  hc_font_t		*font = NULL;	/* New font object */
-  _hc_off_table_t	table;		/* Offset table */
-  _hc_off_names_t	names;		/* Names */
-  int			i,		/* Looping var */
-			num_cmap,	/* Number of Unicode character to glyph mappings */
-			*cmap = NULL,	/* Unicode character to glyph mappings */
-			num_glyphs;	/* Numnber of glyphs */
-  _hc_font_metric_t	*widths = NULL;	/* Glyph metrics */
-  _hc_off_head_t	head;		/* head table */
-  _hc_off_hhea_t	hhea;		/* hhea table */
-  _hc_off_os_2_t	os_2;		/* OS/2 table */
-  size_t		num_fonts;	/* Number of fonts in table */
+  hc_font_t		*font = NULL;	// New font object
+  _hc_off_table_t	table;		// Offset table
+  _hc_off_names_t	names;		// Names
+  int			i,		// Looping var
+			num_cmap,	// Number of Unicode character to glyph mappings
+			*cmap = NULL,	// Unicode character to glyph mappings
+			num_glyphs;	// Numnber of glyphs
+  _hc_font_metric_t	*widths = NULL;	// Glyph metrics
+  _hc_off_head_t	head;		// head table
+  _hc_off_hhea_t	hhea;		// hhea table
+  _hc_off_os_2_t	os_2;		// OS/2 table
+  size_t		num_fonts;	// Number of fonts in table
 
 
   if (read_table(file, idx, &table, &num_fonts))
@@ -420,8 +420,8 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
   {
     if (cmap[i] >= 0)
     {
-      int	bin = i / 256,		/* Sub-array bin */
-		glyph = cmap[i];	/* Glyph index */
+      int	bin = i / 256,		// Sub-array bin
+		glyph = cmap[i];	// Glyph index
 
 
       if (!font->widths[bin])
@@ -449,17 +449,17 @@ hcFontNew(hc_pool_t *pool,		/* I - Memory pool */
 }
 
 
-/*
- * 'copy_name()' - Copy a name string from a font.
- */
+//
+// 'copy_name()' - Copy a name string from a font.
+//
 
-static const char *			/* O - Name string or `NULL` */
-copy_name(hc_pool_t       *pool,	/* I - String pool */
-          _hc_off_names_t *names,	/* I - Names table */
-          unsigned        name_id)	/* I - Name identifier */
+static const char *			// O - Name string or `NULL`
+copy_name(hc_pool_t       *pool,	// I - String pool
+          _hc_off_names_t *names,	// I - Names table
+          unsigned        name_id)	// I - Name identifier
 {
-  int			i;		/* Looping var */
-  _hc_off_name_t	*name;		/* Current name */
+  int			i;		// Looping var
+  _hc_off_name_t	*name;		// Current name
 
 
   for (i = names->num_names, name = names->names; i > 0; i --, name ++)
@@ -468,11 +468,11 @@ copy_name(hc_pool_t       *pool,	/* I - String pool */
         ((name->platform_id == _HC_OFF_Mac && name->language_id == _HC_OFF_Mac_USEnglish) ||
          (name->platform_id == _HC_OFF_Windows && (name->language_id & 0xff) == _HC_OFF_Windows_English)))
     {
-      char	temp[1024],	/* Temporary string buffer */
-		*tempptr,	/* Pointer into temporary string */
-		*storptr;	/* Pointer into storage */
-      int	chars,		/* Length of string to copy in characters */
-		bpc;		/* Bytes per character */
+      char	temp[1024],	// Temporary string buffer
+		*tempptr,	// Pointer into temporary string
+		*storptr;	// Pointer into storage
+      int	chars,		// Length of string to copy in characters
+		bpc;		// Bytes per character
 
       if ((name->offset + name->length) > names->storage_size)
       {
@@ -501,7 +501,7 @@ copy_name(hc_pool_t       *pool,	/* I - String pool */
 
       for (tempptr = temp; chars > 0; storptr += bpc, chars --)
       {
-        int ch;				/* Current character */
+        int ch;				// Current character
 
        /*
         * Convert to Unicode...
@@ -593,30 +593,30 @@ copy_name(hc_pool_t       *pool,	/* I - String pool */
 }
 
 
-/*
- * 'read_cmap()' - Read the cmap table, getting the Unicode mapping table.
- */
+//
+// 'read_cmap()' - Read the cmap table, getting the Unicode mapping table.
+//
 
-static int				/* O - Number of cmap entries or -1 on error */
-read_cmap(hc_file_t       *file,	/* I - File */
-          _hc_off_table_t *table,	/* I - Offset table */
-          int             **cmap)	/* O - cmap entries */
+static int				// O - Number of cmap entries or -1 on error
+read_cmap(hc_file_t       *file,	// I - File
+          _hc_off_table_t *table,	// I - Offset table
+          int             **cmap)	// O - cmap entries
 {
-  unsigned	length;			/* Length of cmap table */
-  int		i,			/* Looping var */
-		temp,			/* Temporary value */
-		num_tables,		/* Number of cmap tables */
-		num_cmap = 0,		/* Number of cmap entries */
-		platform_id,		/* Platform identifier (Windows or Mac) */
-		encoding_id,		/* Encoding identifier (varies) */
-		cformat;		/* Formap of cmap data */
-  unsigned	clength,		/* Length of cmap data */
-		coffset = 0,		/* Offset to cmap data */
-		roman_offset = 0;	/* MacRoman offset */
-  int		*cmapptr;		/* Pointer into cmap */
+  unsigned	length;			// Length of cmap table
+  int		i,			// Looping var
+		temp,			// Temporary value
+		num_tables,		// Number of cmap tables
+		num_cmap = 0,		// Number of cmap entries
+		platform_id,		// Platform identifier (Windows or Mac)
+		encoding_id,		// Encoding identifier (varies)
+		cformat;		// Formap of cmap data
+  unsigned	clength,		// Length of cmap data
+		coffset = 0,		// Offset to cmap data
+		roman_offset = 0;	// MacRoman offset
+  int		*cmapptr;		// Pointer into cmap
 #if 0
-  const int	*unimap = NULL;		/* Unicode character map, if any */
-  static const int romanmap[256] =	/* MacRoman to Unicode map */
+  const int	*unimap = NULL;		// Unicode character map, if any
+  static const int romanmap[256] =	// MacRoman to Unicode map
   {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
@@ -651,7 +651,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
     0xF8FF, 0xD2, 0xDA, 0xDB, 0xD9, 0x131, 0x2C6, 0x2DC,
         0xAF, 0x2D8, 0x2D9, 0x2DA, 0xB8, 0x2DD, 0x2DB, 0x2C7
   };
-#endif /* 0 */
+#endif // 0
 
 
   *cmap = NULL;
@@ -741,7 +741,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
 
 	  _HC_DEBUG("read_cmap: clength=%u\n", clength);
 
-          /* language = */ read_ushort(file);
+          // language = read_ushort(file);
 
 	  num_cmap = (int)length - 6;;
 	  cmapptr  = *cmap = (int *)malloc((size_t)num_cmap * sizeof(int));
@@ -761,14 +761,14 @@ read_cmap(hc_file_t       *file,	/* I - File */
           * arithmetic...
           */
 
-          int		ch,		/* Current character */
-			seg,		/* Current segment */
-			glyph,		/* Current glyph */
-			segCount,	/* Number of segments */
-			numGlyphIdArray,/* Number of glyph IDs */
-			*glyphIdArray;	/* Glyph IDs */
-          _hc_off_cmap4_t *segments,	/* Segment data */
-			*segment;	/* This segment */
+          int		ch,		// Current character
+			seg,		// Current segment
+			glyph,		// Current glyph
+			segCount,	// Number of segments
+			numGlyphIdArray,// Number of glyph IDs
+			*glyphIdArray;	// Glyph IDs
+          _hc_off_cmap4_t *segments,	// Segment data
+			*segment;	// This segment
 
 
          /*
@@ -783,11 +783,11 @@ read_cmap(hc_file_t       *file,	/* I - File */
 
 	  _HC_DEBUG("read_cmap: clength=%u\n", clength);
 
-          /* language = */       read_ushort(file);
+          // language =       read_ushort(file);
           segCount             = read_ushort(file) / 2;
-	  /* searchRange = */    read_ushort(file);
-	  /* entrySelectoed = */ read_ushort(file);
-	  /* rangeShift = */     read_ushort(file);
+	  // searchRange =    read_ushort(file);
+	  // entrySelectoed = read_ushort(file);
+	  // rangeShift =     read_ushort(file);
 
           _HC_DEBUG("read_cmap: segCount=%d\n", segCount);
 
@@ -806,7 +806,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
           for (i = 0; i < segCount; i ++)
             segments[i].endCode = (unsigned short)read_ushort(file);
 
-	  /* reservedPad = */ read_ushort(file);
+	  // reservedPad = read_ushort(file);
 
           for (i = 0; i < segCount; i ++)
             segments[i].startCode = (unsigned short)read_ushort(file);
@@ -826,14 +826,14 @@ read_cmap(hc_file_t       *file,	/* I - File */
 
           for (i = 0; i < numGlyphIdArray; i ++)
             _HC_DEBUG("read_cmap: glyphIdArray[%d]=%d\n", i, glyphIdArray[i]);
-#endif /* DEBUG */
+#endif // DEBUG
 
          /*
           * Based on the end code of the segent table, allocate space for the
           * uncompressed cmap table...
           */
 
-          segCount --;			/* Last segment is not used (sigh) */
+          segCount --;			// Last segment is not used (sigh)
 
 	  num_cmap = segments[segCount - 1].endCode + 1;
 	  cmapptr  = *cmap = (int *)malloc((size_t)num_cmap * sizeof(int));
@@ -893,18 +893,18 @@ read_cmap(hc_file_t       *file,	/* I - File */
 	  * A simple sparse linear segment mapping format.
 	  */
 
-	  unsigned	ch,		/* Current character */
-			gidx,		/* Current group */
-			nGroups;	/* Number of groups */
-	  _hc_off_cmap12_t *groups,	/* Groups */
-			*group;		/* This group */
+	  unsigned	ch,		// Current character
+			gidx,		// Current group
+			nGroups;	// Number of groups
+	  _hc_off_cmap12_t *groups,	// Groups
+			*group;		// This group
 
 
 	 /*
 	  * Read the table...
 	  */
 
-          /* reserved */ read_ushort(file);
+          // reserved read_ushort(file);
 
 	  if (read_ulong(file) == 0)
 	  {
@@ -912,7 +912,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
 	    return (-1);
 	  }
 
-	  /* language = */ read_ulong(file);
+	  // language = read_ulong(file);
 	  nGroups        = read_ulong(file);
 
 	  _HC_DEBUG("read_cmap: nGroups=%u\n", nGroups);
@@ -968,18 +968,18 @@ read_cmap(hc_file_t       *file,	/* I - File */
 	  * map to the same glyph.
 	  */
 
-	  unsigned	ch,		/* Current character */
-			gidx,		/* Current group */
-			nGroups;	/* Number of groups */
-	  _hc_off_cmap13_t *groups,	/* Groups */
-			*group;		/* This group */
+	  unsigned	ch,		// Current character
+			gidx,		// Current group
+			nGroups;	// Number of groups
+	  _hc_off_cmap13_t *groups,	// Groups
+			*group;		// This group
 
 
 	 /*
 	  * Read the table...
 	  */
 
-          /* reserved */ read_ushort(file);
+          // reserved read_ushort(file);
 
 	  if (read_ulong(file) == 0)
 	  {
@@ -987,7 +987,7 @@ read_cmap(hc_file_t       *file,	/* I - File */
 	    return (-1);
 	  }
 
-	  /* language = */ read_ulong(file);
+	  // language = read_ulong(file);
 	  nGroups        = read_ulong(file);
 
 	  _HC_DEBUG("read_cmap: nGroups=%u\n", nGroups);
@@ -1044,35 +1044,35 @@ read_cmap(hc_file_t       *file,	/* I - File */
   for (i = 0; i < num_cmap && i < 127; i ++)
     if (cmapptr[i] >= 0)
       _HC_DEBUG("read_cmap; cmap[%d]=%d\n", i, cmapptr[i]);
-#endif /* DEBUG */
+#endif // DEBUG
 
   return (num_cmap);
 }
 
 
-/*
- * 'read_head()' - Read the head table.
- */
+//
+// 'read_head()' - Read the head table.
+//
 
-static int				/* O - 0 on success, -1 on error */
-read_head(hc_file_t       *file,	/* I - File */
-          _hc_off_table_t *table,	/* I - Offset table */
-          _hc_off_head_t  *head)	/* O - head table data */
+static int				// O - 0 on success, -1 on error
+read_head(hc_file_t       *file,	// I - File
+          _hc_off_table_t *table,	// I - Offset table
+          _hc_off_head_t  *head)	// O - head table data
 {
   memset(head, 0, sizeof(_hc_off_head_t));
 
   if (seek_table(file, table, _HC_OFF_head, 0) == 0)
     return (-1);
 
-  /* majorVersion */       read_ushort(file);
-  /* minorVersion */       read_ushort(file);
-  /* fontRevision */       read_ulong(file);
-  /* checkSumAdjustment */ read_ulong(file);
-  /* magicNumber */        read_ulong(file);
-  /* flags */              read_ushort(file);
+  // majorVersion       read_ushort(file);
+  // minorVersion       read_ushort(file);
+  // fontRevision       read_ulong(file);
+  // checkSumAdjustment read_ulong(file);
+  // magicNumber        read_ulong(file);
+  // flags              read_ushort(file);
   head->unitsPerEm       = (unsigned short)read_ushort(file);
-  /* created */            read_ulong(file); read_ulong(file);
-  /* modified */           read_ulong(file); read_ulong(file);
+  // created            read_ulong(file); read_ulong(file);
+  // modified           read_ulong(file); read_ulong(file);
   head->xMin             = (short)read_short(file);
   head->yMin             = (short)read_short(file);
   head->xMax             = (short)read_short(file);
@@ -1083,55 +1083,55 @@ read_head(hc_file_t       *file,	/* I - File */
 }
 
 
-/*
- * 'read_hhea()' - Read the hhea table.
- */
+//
+// 'read_hhea()' - Read the hhea table.
+//
 
-static int				/* O - 0 on success, -1 on error */
-read_hhea(hc_file_t       *file,	/* I - File */
-          _hc_off_table_t *table,	/* I - Offset table */
-          _hc_off_hhea_t  *hhea)	/* O - hhea table data */
+static int				// O - 0 on success, -1 on error
+read_hhea(hc_file_t       *file,	// I - File
+          _hc_off_table_t *table,	// I - Offset table
+          _hc_off_hhea_t  *hhea)	// O - hhea table data
 {
   memset(hhea, 0, sizeof(_hc_off_hhea_t));
 
   if (seek_table(file, table, _HC_OFF_hhea, 0) == 0)
     return (-1);
 
-  /* majorVersion */        read_ushort(file);
-  /* minorVersion */        read_ushort(file);
+  // majorVersion        read_ushort(file);
+  // minorVersion        read_ushort(file);
   hhea->ascender          = (short)read_short(file);
   hhea->descender         = (short)read_short(file);
-  /* lineGap */             read_short(file);
-  /* advanceWidthMax */     read_ushort(file);
-  /* minLeftSideBearing */  read_short(file);
-  /* minRightSideBearing */ read_short(file);
-  /* mMaxExtent */          read_short(file);
-  /* caretSlopeRise */      read_short(file);
-  /* caretSlopeRun */       read_short(file);
-  /* caretOffset */         read_short(file);
-  /* (reserved) */          read_short(file);
-  /* (reserved) */          read_short(file);
-  /* (reserved) */          read_short(file);
-  /* (reserved) */          read_short(file);
-  /* metricDataFormat */    read_short(file);
+  // lineGap             read_short(file);
+  // advanceWidthMax     read_ushort(file);
+  // minLeftSideBearing  read_short(file);
+  // minRightSideBearing read_short(file);
+  // mMaxExtent          read_short(file);
+  // caretSlopeRise      read_short(file);
+  // caretSlopeRun       read_short(file);
+  // caretOffset         read_short(file);
+  // (reserved)          read_short(file);
+  // (reserved)          read_short(file);
+  // (reserved)          read_short(file);
+  // (reserved)          read_short(file);
+  // metricDataFormat    read_short(file);
   hhea->numberOfHMetrics  = (unsigned short)read_ushort(file);
 
   return (0);
 }
 
 
-/*
- * 'read_hmtx()' - Read the horizontal metrics from the font.
- */
+//
+// 'read_hmtx()' - Read the horizontal metrics from the font.
+//
 
-static _hc_font_metric_t *		/* O - Array of glyph metrics */
-read_hmtx(hc_file_t       *file,	/* I - File */
-          _hc_off_table_t *table,	/* I - Offset table */
-          _hc_off_hhea_t  *hhea)	/* O - hhea table data */
+static _hc_font_metric_t *		// O - Array of glyph metrics
+read_hmtx(hc_file_t       *file,	// I - File
+          _hc_off_table_t *table,	// I - Offset table
+          _hc_off_hhea_t  *hhea)	// O - hhea table data
 {
-  unsigned		length;		/* Length of hmtx table */
-  int			i;		/* Looping var */
-  _hc_font_metric_t	*widths;	/* Glyph metrics array */
+  unsigned		length;		// Length of hmtx table
+  int			i;		// Looping var
+  _hc_font_metric_t	*widths;	// Glyph metrics array
 
 
   if ((length = seek_table(file, table, _HC_OFF_hmtx, 0)) == 0)
@@ -1156,13 +1156,13 @@ read_hmtx(hc_file_t       *file,	/* I - File */
 }
 
 
-/*
- * 'read_maxp()' - Read the number of glyphs in the font.
- */
+//
+// 'read_maxp()' - Read the number of glyphs in the font.
+//
 
-static int				/* O - Number of glyphs or -1 on error */
-read_maxp(hc_file_t       *file,	/* I - File */
-          _hc_off_table_t *table)	/* I - Offset table */
+static int				// O - Number of glyphs or -1 on error
+read_maxp(hc_file_t       *file,	// I - File
+          _hc_off_table_t *table)	// I - Offset table
 {
  /*
   * All we care about is the number of glyphs, so get grab that...
@@ -1175,20 +1175,20 @@ read_maxp(hc_file_t       *file,	/* I - File */
 }
 
 
-/*
- * 'read_names()' - Read the name strings from a font.
- */
+//
+// 'read_names()' - Read the name strings from a font.
+//
 
-static int				/* O - 0 on success, -1 on error */
-read_names(hc_file_t       *file,	/* I - File */
-           _hc_off_table_t *table,	/* I - Offset table */
-           _hc_off_names_t *names)	/* O - Names */
+static int				// O - 0 on success, -1 on error
+read_names(hc_file_t       *file,	// I - File
+           _hc_off_table_t *table,	// I - Offset table
+           _hc_off_names_t *names)	// O - Names
 {
-  unsigned	length;			/* Length of names table */
-  int		i,			/* Looping var */
-		format,			/* Name table format */
-		offset;			/* Offset to storage */
-  _hc_off_name_t *name;			/* Current name */
+  unsigned	length;			// Length of names table
+  int		i,			// Looping var
+		format,			// Name table format
+		offset;			// Offset to storage
+  _hc_off_name_t *name;			// Current name
 
 
   memset(names, 0, sizeof(_hc_off_names_t));
@@ -1237,14 +1237,14 @@ read_names(hc_file_t       *file,	/* I - File */
     * Skip language_id table...
     */
 
-    int count = read_ushort(file);	/* Number of language IDs */
+    int count = read_ushort(file);	// Number of language IDs
 
     _HC_DEBUG("read_names: Skipping language_id table...\n");
 
     while (count > 0)
     {
-      read_ushort(file); /* length */
-      read_ushort(file); /* offset */
+      read_ushort(file); // length
+      read_ushort(file); // offset
       count --;
     }
   }
@@ -1255,17 +1255,17 @@ read_names(hc_file_t       *file,	/* I - File */
 }
 
 
-/*
- * 'read_os_2()' - Read the OS/2 table.
- */
+//
+// 'read_os_2()' - Read the OS/2 table.
+//
 
-static int				/* O - 0 on success, -1 on error */
-read_os_2(hc_file_t       *file,	/* I - File */
-          _hc_off_table_t *table,	/* I - Offset table */
-          _hc_off_os_2_t  *os_2)	/* O - OS/2 table */
+static int				// O - 0 on success, -1 on error
+read_os_2(hc_file_t       *file,	// I - File
+          _hc_off_table_t *table,	// I - Offset table
+          _hc_off_os_2_t  *os_2)	// O - OS/2 table
 {
-  int		version;		/* OS/2 table version */
-  unsigned char	panose[10];		/* panose value */
+  int		version;		// OS/2 table version
+  unsigned char	panose[10];		// panose value
 
 
   memset(os_2, 0, sizeof(_hc_off_os_2_t));
@@ -1282,42 +1282,42 @@ read_os_2(hc_file_t       *file,	/* I - File */
 
   _HC_DEBUG("read_names: version=%d\n", version);
 
-  /* xAvgCharWidth */       read_short(file);
+  // xAvgCharWidth       read_short(file);
   os_2->usWeightClass     = (unsigned short)read_ushort(file);
-  /* usWidthClass */        read_ushort(file);
+  // usWidthClass        read_ushort(file);
   os_2->fsType            = (unsigned short)read_ushort(file);
-  /* ySubscriptXSize */     read_short(file);
-  /* ySubscriptYSize */     read_short(file);
-  /* ySubscriptXOffset */   read_short(file);
-  /* ySubscriptYOffset */   read_short(file);
-  /* ySuperscriptXSize */   read_short(file);
-  /* ySuperscriptYSize */   read_short(file);
-  /* ySuperscriptXOffset */ read_short(file);
-  /* ySuperscriptYOffset */ read_short(file);
-  /* yStrikeoutSize */      read_short(file);
-  /* yStrikeoutOffset */    read_short(file);
-  /* sFamilyClass */        read_short(file);
-  /* panose[10] */          hcFileRead(file, panose, sizeof(panose));
-  /* ulUnicodeRange1 */     read_ulong(file);
-  /* ulUnicodeRange2 */     read_ulong(file);
-  /* ulUnicodeRange3 */     read_ulong(file);
-  /* ulUnicodeRange4 */     read_ulong(file);
-  /* achVendID */           read_ulong(file); read_ulong(file);
+  // ySubscriptXSize     read_short(file);
+  // ySubscriptYSize     read_short(file);
+  // ySubscriptXOffset   read_short(file);
+  // ySubscriptYOffset   read_short(file);
+  // ySuperscriptXSize   read_short(file);
+  // ySuperscriptYSize   read_short(file);
+  // ySuperscriptXOffset read_short(file);
+  // ySuperscriptYOffset read_short(file);
+  // yStrikeoutSize      read_short(file);
+  // yStrikeoutOffset    read_short(file);
+  // sFamilyClass        read_short(file);
+  // panose[10]          hcFileRead(file, panose, sizeof(panose));
+  // ulUnicodeRange1     read_ulong(file);
+  // ulUnicodeRange2     read_ulong(file);
+  // ulUnicodeRange3     read_ulong(file);
+  // ulUnicodeRange4     read_ulong(file);
+  // achVendID           read_ulong(file); read_ulong(file);
                             read_ulong(file); read_ulong(file);
-  /* fsSelection */         read_ushort(file);
-  /* usFirstCharIndex */    read_ushort(file);
-  /* usLastCharIndex */     read_ushort(file);
+  // fsSelection         read_ushort(file);
+  // usFirstCharIndex    read_ushort(file);
+  // usLastCharIndex     read_ushort(file);
   os_2->sTypoAscender     = (short)read_short(file);
   os_2->sTypoDescender    = (short)read_short(file);
-  /* sTypoLineGap */        read_short(file);
-  /* usWinAscent */         read_ushort(file);
-  /* usWinDescent */        read_ushort(file);
+  // sTypoLineGap        read_short(file);
+  // usWinAscent         read_ushort(file);
+  // usWinDescent        read_ushort(file);
 
   if (version >= 4)
   {
-    /* ulCodePageRange1 */  read_ulong(file);
-    /* ulCodePageRange2 */  read_ulong(file);
-    /* sxHeight */          read_short(file);
+    // ulCodePageRange1  read_ulong(file);
+    // ulCodePageRange2  read_ulong(file);
+    // sxHeight          read_short(file);
     os_2->sCapHeight      = (short)read_short(file);
   }
 
@@ -1325,31 +1325,31 @@ read_os_2(hc_file_t       *file,	/* I - File */
 }
 
 
-/*
- * 'read_post()' - Read the italicAngle value from the post table.
- */
+//
+// 'read_post()' - Read the italicAngle value from the post table.
+//
 
-static float				/* O - italicAngle value or 0.0 */
-read_post(hc_file_t       *file,	/* I - File */
-          _hc_off_table_t *table)	/* I - Offset table */
+static float				// O - italicAngle value or 0.0
+read_post(hc_file_t       *file,	// I - File
+          _hc_off_table_t *table)	// I - Offset table
 {
   if (seek_table(file, table, _HC_OFF_post, 0) == 0)
     return (0.0f);
 
-  /* version */ read_ulong(file);
+  // version read_ulong(file);
 
   return ((int)read_ulong(file) / 65536.0f);
 }
 
 
-/*
- * 'read_short()' - Read a 16-bit signed integer.
- */
+//
+// 'read_short()' - Read a 16-bit signed integer.
+//
 
-static int				/* O - 16-bit signed integer value or EOF */
-read_short(hc_file_t *file)		/* i - File to read from */
+static int				// O - 16-bit signed integer value or EOF
+read_short(hc_file_t *file)		// i - File to read from
 {
-  unsigned char	buffer[2];		/* Read buffer */
+  unsigned char	buffer[2];		// Read buffer
 
 
   if (hcFileRead(file, buffer, sizeof(buffer)) != sizeof(buffer))
@@ -1361,19 +1361,19 @@ read_short(hc_file_t *file)		/* i - File to read from */
 }
 
 
-/*
- * 'read_table()' - Read an OFF/TTF offset table.
- */
+//
+// 'read_table()' - Read an OFF/TTF offset table.
+//
 
-static int				/* O - 0 on success, EOF on failure */
-read_table(hc_file_t       *file,	/* I - File */
-           size_t          idx,		/* I - Font number within collection */
-           _hc_off_table_t *table,	/* O - Offset table */
-           size_t          *num_fonts)	/* O - Number of fonts */
+static int				// O - 0 on success, EOF on failure
+read_table(hc_file_t       *file,	// I - File
+           size_t          idx,		// I - Font number within collection
+           _hc_off_table_t *table,	// O - Offset table
+           size_t          *num_fonts)	// O - Number of fonts
 {
-  int		i;			/* Looping var */
-  unsigned	temp;			/* Temporary value */
-  _hc_off_dir_t	*current;		/* Current table entry */
+  int		i;			// Looping var
+  unsigned	temp;			// Temporary value
+  _hc_off_dir_t	*current;		// Current table entry
 
 
  /*
@@ -1390,7 +1390,7 @@ read_table(hc_file_t       *file,	/* I - File */
 
   *num_fonts = 0;
 
-  /* sfnt version */
+  // sfnt version
   if ((temp = read_ulong(file)) != 0x10000 && temp != 0x4f54544f && temp != 0x74746366)
   {
     _hcFileError(file, "Invalid font file.");
@@ -1406,7 +1406,7 @@ read_table(hc_file_t       *file,	/* I - File */
 
     _HC_DEBUG("read_table: Font collection\n");
 
-    /* Version */
+    // Version
     if ((temp = read_ulong(file)) != 0x10000 && temp != 0x20000)
     {
       _hcFileError(file, "Unsupported font collection version %f.", temp / 65536.0);
@@ -1415,7 +1415,7 @@ read_table(hc_file_t       *file,	/* I - File */
 
     _HC_DEBUG("read_table: Collection version=%f\n", temp / 65536.0);
 
-    /* numFonts */
+    // numFonts
     if ((temp = read_ulong(file)) == 0)
     {
       _hcFileError(file, "No fonts in collection.");
@@ -1429,7 +1429,7 @@ read_table(hc_file_t       *file,	/* I - File */
     if (idx >= *num_fonts)
       return (-1);
 
-    /* OffsetTable */
+    // OffsetTable
     temp = read_ulong(file);
     while (idx > 0)
     {
@@ -1444,7 +1444,7 @@ read_table(hc_file_t       *file,	/* I - File */
   else
     *num_fonts = 1;
 
-  /* numTables */
+  // numTables
   if ((table->num_entries = read_ushort(file)) <= 0)
   {
     _hcFileError(file, "Unable to read font tables.");
@@ -1453,21 +1453,21 @@ read_table(hc_file_t       *file,	/* I - File */
 
   _HC_DEBUG("read_table: num_entries=%u\n", (unsigned)table->num_entries);
 
-  /* searchRange */
+  // searchRange
   if (read_ushort(file) < 0)
   {
     _hcFileError(file, "Unable to read font tables.");
     return (-1);
   }
 
-  /* entrySelector */
+  // entrySelector
   if (read_ushort(file) < 0)
   {
     _hcFileError(file, "Unable to read font tables.");
     return (-1);
   }
 
-  /* rangeShift */
+  // rangeShift
   if (read_ushort(file) < 0)
   {
     _hcFileError(file, "Unable to read font tables.");
@@ -1498,14 +1498,14 @@ read_table(hc_file_t       *file,	/* I - File */
 }
 
 
-/*
- * 'read_ulong()' - Read a 32-bit unsigned integer.
- */
+//
+// 'read_ulong()' - Read a 32-bit unsigned integer.
+//
 
-static unsigned				/* O - 32-bit unsigned integer value or EOF */
-read_ulong(hc_file_t *file)		/* I - File to read from */
+static unsigned				// O - 32-bit unsigned integer value or EOF
+read_ulong(hc_file_t *file)		// I - File to read from
 {
-  unsigned char	buffer[4];		/* Read buffer */
+  unsigned char	buffer[4];		// Read buffer
 
 
   if (hcFileRead(file, buffer, sizeof(buffer)) != sizeof(buffer))
@@ -1515,14 +1515,14 @@ read_ulong(hc_file_t *file)		/* I - File to read from */
 }
 
 
-/*
- * 'read_ushort()' - Read a 16-bit unsigned integer.
- */
+//
+// 'read_ushort()' - Read a 16-bit unsigned integer.
+//
 
-static int				/* O - 16-bit unsigned integer value or EOF */
-read_ushort(hc_file_t *file)		/* i - File to read from */
+static int				// O - 16-bit unsigned integer value or EOF
+read_ushort(hc_file_t *file)		// i - File to read from
 {
-  unsigned char	buffer[2];		/* Read buffer */
+  unsigned char	buffer[2];		// Read buffer
 
 
   if (hcFileRead(file, buffer, sizeof(buffer)) != sizeof(buffer))
@@ -1532,18 +1532,18 @@ read_ushort(hc_file_t *file)		/* i - File to read from */
 }
 
 
-/*
- * 'seek_table()' - Seek to a specific table in a font.
- */
+//
+// 'seek_table()' - Seek to a specific table in a font.
+//
 
-static unsigned				/* O - Length of table or 0 if not found */
-seek_table(hc_file_t       *file,	/* I - File */
-           _hc_off_table_t *table,	/* I - Font table */
-           unsigned        tag,		/* I - Tag to find */
-           unsigned        offset)	/* I - Additional offset */
+static unsigned				// O - Length of table or 0 if not found
+seek_table(hc_file_t       *file,	// I - File
+           _hc_off_table_t *table,	// I - Font table
+           unsigned        tag,		// I - Tag to find
+           unsigned        offset)	// I - Additional offset
 {
-  int		i;			/* Looping var */
-  _hc_off_dir_t	*current;		/* Current entry */
+  int		i;			// Looping var
+  _hc_off_dir_t	*current;		// Current entry
 
 
   for (i = table->num_entries, current = table->entries; i  > 0; i --, current ++)

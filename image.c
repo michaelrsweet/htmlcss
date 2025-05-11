@@ -1,95 +1,95 @@
-/*
- * Image handling functions for HTMLCSS library.
- *
- * Note: The purpose of these functions is currently just to discover the
- * dimensions and format of an image file and not to decode or transform the
- * contents of an image.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2019 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// Image handling functions for HTMLCSS library.
+//
+// Note: The purpose of these functions is currently just to discover the
+// dimensions and format of an image file and not to decode or transform the
+// contents of an image.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2019-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #include "image.h"
 #include "common-private.h"
 
 
-/*
- * Types...
- */
+//
+// Types...
+//
 
 typedef enum _hc_res_e
 {
-  _HC_RES_NONE,				/* No units */
-  _HC_RES_PER_INCH,			/* Pixels per inch */
-  _HC_RES_PER_CM			/* Pixels per cm */
+  _HC_RES_NONE,				// No units
+  _HC_RES_PER_INCH,			// Pixels per inch
+  _HC_RES_PER_CM			// Pixels per cm
 } _hc_res_t;
 
 struct _hc_image_s
 {
-  hc_pool_t	*pool;			/* Memory pool */
-  const char	*format;		/* MIME media type */
-  int		width,			/* Width in pixels */
-		height;			/* Height in pixels */
-  int		xres,			/* Width resolution */
-		yres;			/* Height resolution */
-  _hc_res_t	units;			/* Resolution units */
+  hc_pool_t	*pool;			// Memory pool
+  const char	*format;		// MIME media type
+  int		width,			// Width in pixels
+		height;			// Height in pixels
+  int		xres,			// Width resolution
+		yres;			// Height resolution
+  _hc_res_t	units;			// Resolution units
 };
 
 
-/*
- * Local functions...
- */
+//
+// Local functions...
+//
 
 
-/*
- * 'hcImageDelete()' - Delete an image object.
- */
+//
+// 'hcImageDelete()' - Delete an image object.
+//
 
 void
-hcImageDelete(hc_image_t *image)	/* I - Image object */
+hcImageDelete(hc_image_t *image)	// I - Image object
 {
   free(image);
 }
 
 
-/*
- * 'hcImageGetFormat()' - Get the MIME media type for the image.
- */
+//
+// 'hcImageGetFormat()' - Get the MIME media type for the image.
+//
 
-const char *				/* O - MIME media type */
-hcImageGetFormat(hc_image_t *image)	/* I - Image object */
+const char *				// O - MIME media type
+hcImageGetFormat(hc_image_t *image)	// I - Image object
 {
   return (image ? image->format : NULL);
 }
 
 
-/*
- * 'hcImageGetHeight()' - Get the height of an image.
- */
+//
+// 'hcImageGetHeight()' - Get the height of an image.
+//
 
-int					/* O - Height in pixels */
-hcImageGetHeight(hc_image_t *image)	/* I - Image object */
+int					// O - Height in pixels
+hcImageGetHeight(hc_image_t *image)	// I - Image object
 {
   return (image ? image->height : 0);
 }
 
 
-/*
- * 'hcImageGetSize()' - Get the natural size of an image.
- */
+//
+// 'hcImageGetSize()' - Get the natural size of an image.
+//
 
-hc_size_t				/* O - CSS dimensions */
-hcImageGetSize(hc_image_t *image)	/* I - Image object */
+hc_size_t				// O - CSS dimensions
+hcImageGetSize(hc_image_t *image)	// I - Image object
 {
-  hc_size_t	size;			/* CSS dimensions */
+  hc_size_t	size;			// CSS dimensions
 
 
   if (image)
@@ -135,28 +135,28 @@ hcImageGetSize(hc_image_t *image)	/* I - Image object */
 }
 
 
-/*
- * 'hcImageGetWidth()' - Get the width of an image.
- */
+//
+// 'hcImageGetWidth()' - Get the width of an image.
+//
 
-int					/* O - Width in pixels */
-hcImageGetWidth(hc_image_t *image)	/* I - Image object */
+int					// O - Width in pixels
+hcImageGetWidth(hc_image_t *image)	// I - Image object
 {
   return (image ? image->width : 0);
 }
 
 
-/*
- * 'hcImageNew()' - Create a new image object.
- */
+//
+// 'hcImageNew()' - Create a new image object.
+//
 
-hc_image_t *				/* O - Image object */
-hcImageNew(hc_pool_t *pool,		/* I - Memory pool */
-           hc_file_t *file)		/* I - File */
+hc_image_t *				// O - Image object
+hcImageNew(hc_pool_t *pool,		// I - Memory pool
+           hc_file_t *file)		// I - File
 {
-  hc_image_t	*image;			/* Image object */
-  unsigned char	buffer[2048];		/* Buffer */
-  size_t	bytes;			/* Bytes in buffer */
+  hc_image_t	*image;			// Image object
+  unsigned char	buffer[2048];		// Buffer
+  size_t	bytes;			// Bytes in buffer
 
 
   _HC_DEBUG("hcImageNew(pool=%p, file=%p)\n", (void *)pool, (void *)file);
@@ -201,10 +201,10 @@ hcImageNew(hc_pool_t *pool,		/* I - Memory pool */
     */
 
     unsigned char	*bufptr = buffer + 2,
-					/* Pointer into buffer */
+					// Pointer into buffer
 			*bufend = buffer + bytes;
-					/* End of buffer */
-    size_t		length;		/* Length of marker */
+					// End of buffer
+    size_t		length;		// Length of marker
 
     image->format = "image/jpeg";
 

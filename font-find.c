@@ -1,17 +1,17 @@
-/*
- * Font search/cache functions for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2019-2021 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// Font search/cache functions for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2019-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #include "font-private.h"
 #include "pool-private.h"
@@ -22,35 +22,35 @@
 #include <unistd.h>
 
 
-/*
- * Structure...
- */
+//
+// Structure...
+//
 
-typedef struct _hc_font_cache_s		/* Binary font cache structure */
+typedef struct _hc_font_cache_s		// Binary font cache structure
 {
-  char		font_url[380],		/* Filename */
-		font_family[128];	/* Family name */
-  unsigned char	font_index,		/* Index in font collection */
-		font_style;		/* Style */
-  unsigned short font_weight;		/* Weight */
+  char		font_url[380],		// Filename
+		font_family[128];	// Family name
+  unsigned char	font_index,		// Index in font collection
+		font_style;		// Style
+  unsigned short font_weight;		// Weight
 } _hc_font_cache_t;
 
-struct _hc_font_info_s			/* Font cache information */
+struct _hc_font_info_s			// Font cache information
 {
-  const char		*font_url;	/* Font filename/URL */
-  size_t		font_index;	/* Font number in collection */
-  hc_font_t		*font;		/* Loaded font */
-  const char		*font_family;	/* Family name */
-  hc_font_stretch_t	font_stretch;	/* Stretch/width (not used) */
-  hc_font_style_t	font_style;	/* Style (normal/italic/oblique) */
-  hc_font_variant_t	font_variant;	/* Variant (not used) */
-  hc_font_weight_t	font_weight;	/* Weight (100 - 900) */
+  const char		*font_url;	// Font filename/URL
+  size_t		font_index;	// Font number in collection
+  hc_font_t		*font;		// Loaded font
+  const char		*font_family;	// Family name
+  hc_font_stretch_t	font_stretch;	// Stretch/width (not used)
+  hc_font_style_t	font_style;	// Style (normal/italic/oblique)
+  hc_font_variant_t	font_variant;	// Variant (not used)
+  hc_font_weight_t	font_weight;	// Weight (100 - 900)
 };
 
 
-/*
- * Local functions...
- */
+//
+// Local functions...
+//
 
 static void	hc_add_font(hc_pool_t *pool, hc_font_t *font, const char *url, int delete_it);
 static int	hc_compare_info(_hc_font_info_t *a, _hc_font_info_t *b);
@@ -62,14 +62,14 @@ static void	hc_save_cache(hc_pool_t *pool, const char *cname);
 static void	hc_sort_fonts(hc_pool_t *pool);
 
 
-/*
- * 'hcFontAddCached()' - Add a font to a memory pool cache.
- */
+//
+// 'hcFontAddCached()' - Add a font to a memory pool cache.
+//
 
 void
-hcFontAddCached(hc_pool_t  *pool,	/* I - Memory pool for cache */
-                hc_font_t  *font,	/* I - Font to add */
-                const char *url)	/* I - URL for font */
+hcFontAddCached(hc_pool_t  *pool,	// I - Memory pool for cache
+                hc_font_t  *font,	// I - Font to add
+                const char *url)	// I - URL for font
 {
   if (!pool || !font)
     return;
@@ -79,25 +79,25 @@ hcFontAddCached(hc_pool_t  *pool,	/* I - Memory pool for cache */
 }
 
 
-/*
- * 'hcFontFind()' - Find a font...
- */
+//
+// 'hcFontFind()' - Find a font...
+//
 
-hc_font_t *				/* O - Matching font or `NULL` */
+hc_font_t *				// O - Matching font or `NULL`
 hcFontFindCached(
-    hc_pool_t         *pool,		/* I - Memory pool for cache */
-    const char        *family,		/* I - Family name */
-    hc_font_stretch_t stretch,		/* I - Stretching of font */
-    hc_font_style_t   style,		/* I - Style of font */
-    hc_font_variant_t variant,		/* I - Variant of font */
-    hc_font_weight_t  weight)		/* I - Weight of font */
+    hc_pool_t         *pool,		// I - Memory pool for cache
+    const char        *family,		// I - Family name
+    hc_font_stretch_t stretch,		// I - Stretching of font
+    hc_font_style_t   style,		// I - Style of font
+    hc_font_variant_t variant,		// I - Variant of font
+    hc_font_weight_t  weight)		// I - Weight of font
 {
-  size_t		i;		/* Looping var */
-  _hc_font_info_t	*info,		/* Current font info */
-			*best_info;	/* Best match */
-  int			result,		/* Result of compare */
-			score,		/* Current score */
-			best_score;	/* Best score */
+  size_t		i;		// Looping var
+  _hc_font_info_t	*info,		// Current font info
+			*best_info;	// Best match
+  int			result,		// Result of compare
+			score,		// Current score
+			best_score;	// Best score
 
 
   (void)stretch;
@@ -123,7 +123,7 @@ hcFontFindCached(
     family = "Arial";
 #else
     family = "Helvetica";
-#endif /* _WIN32 */
+#endif // _WIN32
   else if (!strcasecmp(family, "serif"))
     family = "Times New Roman";
 
@@ -182,15 +182,15 @@ hcFontFindCached(
 }
 
 
-/*
- * 'hcFontGetCached()' - Get a cached font from a pool.
- */
+//
+// 'hcFontGetCached()' - Get a cached font from a pool.
+//
 
-hc_font_t *				/* O - Font */
-hcFontGetCached(hc_pool_t *pool,	/* I - Memory pool */
-                size_t    idx)		/* I - Font number (0-based) */
+hc_font_t *				// O - Font
+hcFontGetCached(hc_pool_t *pool,	// I - Memory pool
+                size_t    idx)		// I - Font number (0-based)
 {
-  _hc_font_info_t	*info;		/* Font information */
+  _hc_font_info_t	*info;		// Font information
 
 
   if (!pool)
@@ -207,7 +207,7 @@ hcFontGetCached(hc_pool_t *pool,	/* I - Memory pool */
   if (!info->font)
   {
     hc_file_t	*file = hcFileNewURL(pool, info->font_url, NULL);
-					/* Font file */
+					// Font file
 
     info->font = hcFontNew(pool, file, info->font_index);
 
@@ -218,12 +218,12 @@ hcFontGetCached(hc_pool_t *pool,	/* I - Memory pool */
 }
 
 
-/*
- * 'hcFontGetCachedCount()' - Return the number of cached fonts.
- */
+//
+// 'hcFontGetCachedCount()' - Return the number of cached fonts.
+//
 
-size_t					/* O - Number of cached fonts */
-hcFontGetCachedCount(hc_pool_t *pool)	/* I - Memory pool */
+size_t					// O - Number of cached fonts
+hcFontGetCachedCount(hc_pool_t *pool)	// I - Memory pool
 {
   if (!pool)
     return (0);
@@ -235,17 +235,17 @@ hcFontGetCachedCount(hc_pool_t *pool)	/* I - Memory pool */
 }
 
 
-/*
- * '_hcPoolDeleteFonts()' - Free any cached fonts.
- */
+//
+// '_hcPoolDeleteFonts()' - Free any cached fonts.
+//
 
 void
-_hcPoolDeleteFonts(hc_pool_t *pool)	/* I - Memory pool */
+_hcPoolDeleteFonts(hc_pool_t *pool)	// I - Memory pool
 {
   if (pool->fonts)
   {
-    size_t		i;		/* Looping var */
-    _hc_font_info_t	*font;		/* Current font */
+    size_t		i;		// Looping var
+    _hc_font_info_t	*font;		// Current font
 
     for (i = pool->num_fonts, font = pool->fonts; i > 0; i --, font ++)
       hcFontDelete(font->font);
@@ -259,17 +259,17 @@ _hcPoolDeleteFonts(hc_pool_t *pool)	/* I - Memory pool */
 }
 
 
-/*
- * 'hc_add_font()' - Add a font to the cache, optionally deleting it.
- */
+//
+// 'hc_add_font()' - Add a font to the cache, optionally deleting it.
+//
 
 static void
-hc_add_font(hc_pool_t  *pool,		/* I - Memory pool */
-            hc_font_t  *font,		/* I - Font */
-            const char *url,		/* I - Filename/URL */
-            int        delete_it)	/* I - Delete font after adding? */
+hc_add_font(hc_pool_t  *pool,		// I - Memory pool
+            hc_font_t  *font,		// I - Font
+            const char *url,		// I - Filename/URL
+            int        delete_it)	// I - Delete font after adding?
 {
-  _hc_font_info_t	*info;		/* Font information */
+  _hc_font_info_t	*info;		// Font information
 
 
   if (!font->family)
@@ -306,13 +306,13 @@ hc_add_font(hc_pool_t  *pool,		/* I - Memory pool */
 }
 
 
-/*
- * 'hc_compare_info()' - Compare the information for two fonts.
- */
+//
+// 'hc_compare_info()' - Compare the information for two fonts.
+//
 
-static int				/* O - Result of comparison */
-hc_compare_info(_hc_font_info_t *a,	/* I - First font */
-                _hc_font_info_t *b)	/* I - Second font */
+static int				// O - Result of comparison
+hc_compare_info(_hc_font_info_t *a,	// I - First font
+                _hc_font_info_t *b)	// I - Second font
 {
   int	ret = strcmp(a->font_family, b->font_family);
 
@@ -325,15 +325,15 @@ hc_compare_info(_hc_font_info_t *a,	/* I - First font */
 }
 
 
-/*
- * 'hc_get_cname()' - Get the name of the font cache file.
- */
+//
+// 'hc_get_cname()' - Get the name of the font cache file.
+//
 
 static void
-hc_get_cname(char   *cname,		/* I - Cache filename */
-             size_t cnamesize)		/* I - Size of buffer */
+hc_get_cname(char   *cname,		// I - Cache filename
+             size_t cnamesize)		// I - Size of buffer
 {
-  const char	*home = getenv("HOME");	/* Home directory */
+  const char	*home = getenv("HOME");	// Home directory
 
 
 #ifdef __APPLE__
@@ -368,25 +368,25 @@ hc_get_cname(char   *cname,		/* I - Cache filename */
     strncpy(cname, "/tmp/.htmlcss.dat", cnamesize - 1);
     cname[cnamesize - 1] = '\0';
   }
-#endif /* __APPLE__ */
+#endif // __APPLE__
 }
 
 
-/*
- * 'hc_load_all_fonts()' - Load all fonts available to the user.
- */
+//
+// 'hc_load_all_fonts()' - Load all fonts available to the user.
+//
 
 static void
-hc_load_all_fonts(hc_pool_t *pool)	/* I - Memory pool */
+hc_load_all_fonts(hc_pool_t *pool)	// I - Memory pool
 {
-  int		i,			/* Looping var */
-		num_dirs = 0;		/* Number of directories */
-  const char	*dirs[5];		/* Directories */
-  char		dname[1024];		/* Directory filename */
-  const char	*home = getenv("HOME");	/* Home directory */
-  char		cname[1024];		/* Cache filename */
-  struct stat	cinfo;			/* Cache file information */
-  int		rescan = 0;		/* Rescan fonts? */
+  int		i,			// Looping var
+		num_dirs = 0;		// Number of directories
+  const char	*dirs[5];		// Directories
+  char		dname[1024];		// Directory filename
+  const char	*home = getenv("HOME");	// Home directory
+  char		cname[1024];		// Cache filename
+  struct stat	cinfo;			// Cache file information
+  int		rescan = 0;		// Rescan fonts?
 
 
  /*
@@ -404,7 +404,7 @@ hc_load_all_fonts(hc_pool_t *pool)	/* I - Memory pool */
   }
 
 #elif _WIN32
-  dirs[num_dirs ++] = "C:/Windows/Fonts"; /* TODO: fix me */
+  dirs[num_dirs ++] = "C:/Windows/Fonts"; // TODO: fix me
 
 #else
   dirs[num_dirs ++] = "/usr/X11R6/lib/X11/fonts";
@@ -416,7 +416,7 @@ hc_load_all_fonts(hc_pool_t *pool)	/* I - Memory pool */
     snprintf(dname, sizeof(dname), "%s/.fonts", home);
     dirs[num_dirs ++] = dname;
   }
-#endif /* __APPLE__ */
+#endif // __APPLE__
 
  /*
   * See if we need to re-scan the font directories...
@@ -468,20 +468,20 @@ hc_load_all_fonts(hc_pool_t *pool)	/* I - Memory pool */
 }
 
 
-/*
- * 'hc_load_cache()' - Load all fonts from the cache...
- */
+//
+// 'hc_load_cache()' - Load all fonts from the cache...
+//
 
-static int				/* O - 1 on success, 0 on failure */
-hc_load_cache(hc_pool_t   *pool,	/* I - Memory pool */
-	      const char  *cname,	/* I - Cache filename */
-	      struct stat *cinfo)	/* I - Cache information */
+static int				// O - 1 on success, 0 on failure
+hc_load_cache(hc_pool_t   *pool,	// I - Memory pool
+	      const char  *cname,	// I - Cache filename
+	      struct stat *cinfo)	// I - Cache information
 {
-  int			cfile;		/* Cache file descriptor */
-  _hc_font_cache_t	rec;		/* File record */
-  _hc_font_info_t	*font;		/* Current font */
-  size_t		i,		/* Looping var */
-			num_fonts;	/* Number of fonts */
+  int			cfile;		// Cache file descriptor
+  _hc_font_cache_t	rec;		// File record
+  _hc_font_info_t	*font;		// Current font
+  size_t		i,		// Looping var
+			num_fonts;	// Number of fonts
 
 
   if (((size_t)cinfo->st_size % sizeof(_hc_font_cache_t)) != 0)
@@ -537,23 +537,23 @@ hc_load_cache(hc_pool_t   *pool,	/* I - Memory pool */
 }
 
 
-/*
- * 'hc_load_fonts()' - Load fonts in a directory...
- */
+//
+// 'hc_load_fonts()' - Load fonts in a directory...
+//
 
-static time_t				/* O - Newest mtime */
-hc_load_fonts(hc_pool_t  *pool,		/* I - Memory pool */
-              const char *d,		/* I - Directory to load */
-              int        scanonly)	/* I - Just scan directory mtimes? */
+static time_t				// O - Newest mtime
+hc_load_fonts(hc_pool_t  *pool,		// I - Memory pool
+              const char *d,		// I - Directory to load
+              int        scanonly)	// I - Just scan directory mtimes?
 {
-  DIR		*dir;			/* Directory pointer */
-  struct dirent	*dent;			/* Directory entry */
-  char		filename[1024],		/* Filename */
-		*ext;			/* Extension */
-  hc_file_t	*file;			/* File */
-  hc_font_t	*font;			/* Font */
-  struct stat	info;			/* Information about the current file */
-  time_t	mtime = 0;		/* Newest mtime */
+  DIR		*dir;			// Directory pointer
+  struct dirent	*dent;			// Directory entry
+  char		filename[1024],		// Filename
+		*ext;			// Extension
+  hc_file_t	*file;			// File
+  hc_font_t	*font;			// Font
+  struct stat	info;			// Information about the current file
+  time_t	mtime = 0;		// Newest mtime
 
 
   if ((dir = opendir(d)) == NULL)
@@ -603,13 +603,13 @@ hc_load_fonts(hc_pool_t  *pool,		/* I - Memory pool */
       else
       {
         size_t	num_fonts = hcFontGetNumFonts(font);
-					/* Number of fonts */
+					// Number of fonts
 
         hc_add_font(pool, font, filename, 1);
 
 	if (num_fonts > 1)
 	{
-	  size_t	i;		/* Looping var */
+	  size_t	i;		// Looping var
 
 	  for (i = 1; i < num_fonts; i ++)
 	  {
@@ -636,18 +636,18 @@ hc_load_fonts(hc_pool_t  *pool,		/* I - Memory pool */
 }
 
 
-/*
- * 'hc_save_cache()' - Save all fonts to the cache...
- */
+//
+// 'hc_save_cache()' - Save all fonts to the cache...
+//
 
 static void
-hc_save_cache(hc_pool_t  *pool,		/* I - Memory pool */
-	      const char *cname)	/* I - Cache filename */
+hc_save_cache(hc_pool_t  *pool,		// I - Memory pool
+	      const char *cname)	// I - Cache filename
 {
-  int			cfile;		/* Cache file descriptor */
-  _hc_font_cache_t	rec;		/* File record */
-  size_t		i;		/* Looping var */
-  _hc_font_info_t	*font;		/* Current font */
+  int			cfile;		// Cache file descriptor
+  _hc_font_cache_t	rec;		// File record
+  size_t		i;		// Looping var
+  _hc_font_info_t	*font;		// Current font
 
 
   if ((cfile = open(cname, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, 0666)) < 0)
@@ -676,15 +676,15 @@ hc_save_cache(hc_pool_t  *pool,		/* I - Memory pool */
 }
 
 
-/*
- * 'hc_sort_fonts()' - Sort and index the fonts in the cache.
- */
+//
+// 'hc_sort_fonts()' - Sort and index the fonts in the cache.
+//
 
 static void
-hc_sort_fonts(hc_pool_t *pool)		/* I - Memory pool */
+hc_sort_fonts(hc_pool_t *pool)		// I - Memory pool
 {
-  size_t		i;		/* Looping var */
-  _hc_font_info_t	*info;		/* Current font info */
+  size_t		i;		// Looping var
+  _hc_font_info_t	*info;		// Current font info
 
 
  /*
@@ -704,7 +704,7 @@ hc_sort_fonts(hc_pool_t *pool)		/* I - Memory pool */
   for (i = 0, info = pool->fonts; i < pool->num_fonts; i ++, info ++)
   {
     int ch = tolower(info->font_family[0] & 255);
-					/* Initial character of font, lowercase */
+					// Initial character of font, lowercase
 
     if (i < pool->font_index[ch])
       pool->font_index[ch] = i;

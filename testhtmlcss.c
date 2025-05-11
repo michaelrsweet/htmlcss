@@ -1,21 +1,21 @@
-/*
- * Unit test program for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018-2019 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- *
- * Usage:
- *
- *   ./testhtmlcss [--all] [--css] [--font] [--html] [files]
- */
+//
+// Unit test program for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
+// Usage:
+//
+//   ./testhtmlcss [--all] [--css] [--font] [--html] [files]
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #include "htmlcss.h"
 #include "css-private.h"
@@ -23,42 +23,42 @@
 #include "sha3.h"
 
 
-/*
- * Local functions...
- */
+//
+// Local functions...
+//
 
 static bool	error_cb(void *ctx, const char *message, int linenum);
 static int	test_pool_functions(hc_pool_t *pool);
 static int	test_sha3_functions(void);
 
 
-/*
- * 'main()' - Main entry for unit tests.
- */
+//
+// 'main()' - Main entry for unit tests.
+//
 
-int					/* O - Exit status */
-main(int  argc,				/* I - Number of command-line arguments */
-     char *argv[])			/* I - Command-line arguments */
+int					// O - Exit status
+main(int  argc,				// I - Number of command-line arguments
+     char *argv[])			// I - Command-line arguments
 {
-  int		i;			/* Looping var */
-  const char	*ext;			/* Filename extension */
-  hc_pool_t	*pool;			/* Memory pool */
-  hc_css_t	*css;			/* Stylesheet */
-  hc_html_t	*html;			/* HTML document */
-  hc_font_t	*font;			/* Font */
-  hc_node_t	*node,			/* Current node */
-		*next;			/* Next node */
-  int		level;			/* Indentation level */
-  _hc_rule_t	*rule;			/* CSS rule */
-  _hc_css_sel_t	*sel;			/* CSS selector */
-  size_t	pindex,			/* Property index */
-		pcount;			/* Property count */
-  const char	*pname,			/* Property name */
-		*pvalue;		/* Property value */
-  int		test_all = 0,		/* Test everything? */
-		show_css = 0,		/* Show flattened CSS? */
-		show_font_cache = 0,	/* Show cached font information? */
-		show_html = 0;		/* Show HTML? */
+  int		i;			// Looping var
+  const char	*ext;			// Filename extension
+  hc_pool_t	*pool;			// Memory pool
+  hc_css_t	*css;			// Stylesheet
+  hc_html_t	*html;			// HTML document
+  hc_font_t	*font;			// Font
+  hc_node_t	*node,			// Current node
+		*next;			// Next node
+  int		level;			// Indentation level
+  _hc_rule_t	*rule;			// CSS rule
+  _hc_css_sel_t	*sel;			// CSS selector
+  size_t	pindex,			// Property index
+		pcount;			// Property count
+  const char	*pname,			// Property name
+		*pvalue;		// Property value
+  int		test_all = 0,		// Test everything?
+		show_css = 0,		// Show flattened CSS?
+		show_font_cache = 0,	// Show cached font information?
+		show_html = 0;		// Show HTML?
 
 
  /*
@@ -116,7 +116,7 @@ main(int  argc,				/* I - Number of command-line arguments */
 
       if ((font = hcFontNew(pool, file, 0)) != NULL)
       {
-        hc_rect_t	extents;	/* Extents of text */
+        hc_rect_t	extents;	// Extents of text
 
         printf("%s:\n    numFonts=%u\n    copyright=\"%s\"\n    family=\"%s\"\n    postscript_name=\"%s\"\n    version=\"%s\"\n    style=%d\n    weight=%d\n", argv[i], (unsigned)hcFontGetNumFonts(font), hcFontGetCopyright(font), hcFontGetFamily(font), hcFontGetPostScriptName(font), hcFontGetVersion(font), (int)hcFontGetStyle(font), hcFontGetWeight(font));
 
@@ -128,8 +128,8 @@ main(int  argc,				/* I - Number of command-line arguments */
 
         if (hcFontGetNumFonts(font) > 1)
         {
-          size_t	i;		/* Looping var */
-          hc_font_t	*fontn;		/* Nth font */
+          size_t	i;		// Looping var
+          hc_font_t	*fontn;		// Nth font
 
           for (i = 1; i < hcFontGetNumFonts(font); i ++)
           {
@@ -152,12 +152,12 @@ main(int  argc,				/* I - Number of command-line arguments */
     else if (!strcmp(ext, ".gif") || !strcmp(ext, ".jpg") || !strcmp(ext, ".jpeg") || !strcmp(ext, ".png") || !strcmp(ext, ".svg") || !strcmp(ext, ".svgz"))
     {
       hc_image_t *image = hcImageNew(pool, file);
-					/* Image */
+					// Image
 
       if (image)
       {
         hc_size_t size = hcImageGetSize(image);
-					/* Image size */
+					// Image size
 
         printf("%s: %dx%d pixels, %.1fx%.1f points (%s)\n", argv[i], hcImageGetWidth(image), hcImageGetHeight(image), size.width, size.height, hcImageGetFormat(image));
         hcImageDelete(image);
@@ -286,9 +286,9 @@ main(int  argc,				/* I - Number of command-line arguments */
 
     for (i = 0; i < (int)css->all_rules.num_rules; i ++)
     {
-      int			j;		/* Looping var */
-      int			num_sels = 0;	/* Number of selectors */
-      _hc_css_sel_t	*sels[100];	/* Selectors */
+      int			j;		// Looping var
+      int			num_sels = 0;	// Number of selectors
+      _hc_css_sel_t	*sels[100];	// Selectors
 
       rule = css->all_rules.rules[i];
 
@@ -300,22 +300,22 @@ main(int  argc,				/* I - Number of command-line arguments */
 
       while (num_sels > 0)
       {
-	_hc_css_selstmt_t *stmt;	/* Matching statement */
+	_hc_css_selstmt_t *stmt;	// Matching statement
 
 	num_sels --;
 	sel = sels[num_sels];
 
 	switch (sel->relation)
 	{
-	  case _HC_RELATION_CHILD :	/* Child (descendent) of previous (E F) */
+	  case _HC_RELATION_CHILD :	// Child (descendent) of previous (E F)
 	      break;
-	  case _HC_RELATION_IMMED_CHILD: /* Immediate child of previous (E > F) */
+	  case _HC_RELATION_IMMED_CHILD: // Immediate child of previous (E > F)
 	      fputs("> ", stdout);
 	      break;
-	  case _HC_RELATION_SIBLING:	/* Sibling of previous (E ~ F) */
+	  case _HC_RELATION_SIBLING:	// Sibling of previous (E ~ F)
 	      fputs("~ ", stdout);
 	      break;
-	  case _HC_RELATION_IMMED_SIBLING: /* Immediate sibling of previous (E + F) */
+	  case _HC_RELATION_IMMED_SIBLING: // Immediate sibling of previous (E + F)
 	      fputs("+ ", stdout);
 	      break;
 	}
@@ -387,9 +387,9 @@ main(int  argc,				/* I - Number of command-line arguments */
 
   if (show_font_cache)
   {
-    size_t	findex,			/* Font index */
-		num_fonts;		/* Number of cached fonts */
-    hc_font_t	*font;			/* Cached font */
+    size_t	findex,			// Font index
+		num_fonts;		// Number of cached fonts
+    hc_font_t	*font;			// Cached font
 
     puts("\nCached Fonts:");
 
@@ -412,14 +412,14 @@ main(int  argc,				/* I - Number of command-line arguments */
 }
 
 
-/*
- * 'error_cb()' - Error callback for HTMLCSS...
- */
+//
+// 'error_cb()' - Error callback for HTMLCSS...
+//
 
-static bool				/* O - `true` to continue */
-error_cb(void       *ctx,		/* I - User data (not used) */
-         const char *message,		/* I - Message string (not used) */
-         int        linenum)		/* I - Line number (not used) */
+static bool				// O - `true` to continue
+error_cb(void       *ctx,		// I - User data (not used)
+         const char *message,		// I - Message string (not used)
+         int        linenum)		// I - Line number (not used)
 {
   (void)ctx;
   (void)message;
@@ -429,17 +429,17 @@ error_cb(void       *ctx,		/* I - User data (not used) */
 }
 
 
-/*
- * 'test_pool_functions()' - Test memory pool functions.
- */
+//
+// 'test_pool_functions()' - Test memory pool functions.
+//
 
-static int				/* I - 1 on success, 0 on failure */
-test_pool_functions(hc_pool_t *pool)	/* I - Memory pool */
+static int				// I - 1 on success, 0 on failure
+test_pool_functions(hc_pool_t *pool)	// I - Memory pool
 {
-  int		i, j;			/* Looping vars */
-  const char	*strings[235],		/* Strings from memory pool */
-		*temp;			/* Temporary string pointer */
-  static const char * const words[235] =/* Test strings */
+  int		i, j;			// Looping vars
+  const char	*strings[235],		// Strings from memory pool
+		*temp;			// Temporary string pointer
+  static const char * const words[235] =// Test strings
   {
     "accordant",
     "actinomere",
@@ -733,19 +733,19 @@ test_pool_functions(hc_pool_t *pool)	/* I - Memory pool */
 }
 
 
-/*
- * 'test_sha3_functions()' - Test SHA3 hash functions...
- */
+//
+// 'test_sha3_functions()' - Test SHA3 hash functions...
+//
 
-static int				/* O - 1 on success, 0 on failure */
+static int				// O - 1 on success, 0 on failure
 test_sha3_functions(void)
 {
-  int		i,			/* Looping var */
-		status = 1;		/* Return status */
-  hc_sha3_t	ctx;			/* Hash context */
-  unsigned char	hash[HC_SHA3_512_SIZE];	/* Hash buffer */
+  int		i,			// Looping var
+		status = 1;		// Return status
+  hc_sha3_t	ctx;			// Hash context
+  unsigned char	hash[HC_SHA3_512_SIZE];	// Hash buffer
   static const unsigned char testin[] =
-  {					/* Test input for hashing */
+  {					// Test input for hashing
     0x3A, 0x3A, 0x81, 0x9C, 0x48, 0xEF, 0xDE, 0x2A,
     0xD9, 0x14, 0xFB, 0xF0, 0x0E, 0x18, 0xAB, 0x6B,
     0xC4, 0xF1, 0x45, 0x13, 0xAB, 0x27, 0xD0, 0xC1,
@@ -780,7 +780,7 @@ test_sha3_functions(void)
     0xE4, 0xA9, 0x2E, 0xCE, 0xEB, 0xAE, 0xB1
   };
   static const unsigned char testhash[] =
-  {					/* Expected SHA3-512 hash */
+  {					// Expected SHA3-512 hash
     0x6E, 0x8B, 0x8B, 0xD1, 0x95, 0xBD, 0xD5, 0x60,
     0x68, 0x9A, 0xF2, 0x34, 0x8B, 0xDC, 0x74, 0xAB,
     0x7C, 0xD0, 0x5E, 0xD8, 0xB9, 0xA5, 0x77, 0x11,

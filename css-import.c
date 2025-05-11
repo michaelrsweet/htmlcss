@@ -1,49 +1,49 @@
-/*
- * CSS import functions for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// CSS import functions for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #  include "css-private.h"
 #  include "file-private.h"
 #  include "default-css.h"
 
 
-/*
- * Local types...
- */
+//
+// Local types...
+//
 
-typedef enum _hc_logop_e		/* Logical operation */
+typedef enum _hc_logop_e		// Logical operation
 {
   _HC_LOGOP_NONE,
   _HC_LOGOP_OR,
   _HC_LOGOP_AND
 } _hc_logop_t;
 
-typedef enum _hc_type_e			/* Token type */
+typedef enum _hc_type_e			// Token type
 {
-  _HC_TYPE_ERROR,			/* Error */
-  _HC_TYPE_RESERVED,			/* Reserved character(s) */
-  _HC_TYPE_STRING,			/* Unquoted string */
-  _HC_TYPE_QSTRING,			/* Quoted string */
-  _HC_TYPE_NUMBER			/* Number */
+  _HC_TYPE_ERROR,			// Error
+  _HC_TYPE_RESERVED,			// Reserved character(s)
+  _HC_TYPE_STRING,			// Unquoted string
+  _HC_TYPE_QSTRING,			// Quoted string
+  _HC_TYPE_NUMBER			// Number
 } _hc_type_t;
 
 
-/*
- * Local globals...
- */
+//
+// Local globals...
+//
 
-static const char * const types[] =	/* Types */
+static const char * const types[] =	// Types
 {
   "ERROR",
   "RESERVED",
@@ -53,9 +53,9 @@ static const char * const types[] =	/* Types */
 };
 
 
-/*
- * Local functions...
- */
+//
+// Local functions...
+//
 
 static void		hc_add_rule(hc_css_t *css, _hc_css_sel_t *sel, hc_dict_t *props);
 static int		hc_eval_media(hc_css_t *css, hc_file_t *file, _hc_type_t *type, char *buffer, size_t bufsize);
@@ -65,21 +65,21 @@ static _hc_css_sel_t	*hc_read_sel(hc_css_t *css, hc_file_t *file, _hc_type_t *ty
 static char		*hc_read_value(hc_file_t *file, char *buffer, size_t bufsize);
 
 
-/*
- * 'hcCSSImport()' - Import CSS definitions from a URL, file, or string.
- */
+//
+// 'hcCSSImport()' - Import CSS definitions from a URL, file, or string.
+//
 
-bool					/* O - `true` on success, `false` on error */
-hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
-            hc_file_t *file)		/* I - File */
+bool					// O - `true` on success, `false` on error
+hcCSSImport(hc_css_t  *css,		// I - Stylesheet
+            hc_file_t *file)		// I - File
 {
-  bool		ret = true;		/* Return value */
-  char		buffer[256];		/* Current value */
-  _hc_type_t	type;			/* Value type */
-  int		skip = 0;		/* Skip current definitions */
-  int		in_media = 0;		/* In a media grouping? */
-  int		num_sels = 0;		/* Number of selectors */
-  _hc_css_sel_t	*sels[1000];		/* Selectors */
+  bool		ret = true;		// Return value
+  char		buffer[256];		// Current value
+  _hc_type_t	type;			// Value type
+  int		skip = 0;		// Skip current definitions
+  int		in_media = 0;		// In a media grouping?
+  int		num_sels = 0;		// Number of selectors
+  _hc_css_sel_t	*sels[1000];		// Selectors
 
 
   _HC_DEBUG("hcCSSImport(css=%p, file=%p)\n", (void *)css, (void *)file);
@@ -104,8 +104,8 @@ hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
 
     if (!strcmp(buffer, "@import"))
     {
-      int	in_url = 0;		/* In a URL? */
-      char	path[256] = "";		/* Path to import */
+      int	in_url = 0;		// In a URL?
+      char	path[256] = "";		// Path to import
 
       while (hc_read(file, &type, buffer, sizeof(buffer)))
       {
@@ -134,7 +134,7 @@ hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
       if (hc_eval_media(css, file, &type, buffer, sizeof(buffer)))
       {
         hc_file_t *impfile = hcFileNewURL(file->pool, path, file->url);
-					/* Import file */
+					// Import file
 
         ret = hcCSSImport(css, impfile);
 
@@ -194,8 +194,8 @@ hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
 
       if (!strcmp(buffer, "{"))
       {
-	int		i;		/* Looping var */
-        hc_dict_t	*props;		/* Properties */
+	int		i;		// Looping var
+        hc_dict_t	*props;		// Properties
 
         if ((props = hc_read_props(css, file, NULL)) != NULL)
         {
@@ -237,17 +237,17 @@ hcCSSImport(hc_css_t  *css,		/* I - Stylesheet */
 }
 
 
-/*
- * 'hcCSSImportDefault()' - Import the default HTML stylesheet.
- */
+//
+// 'hcCSSImportDefault()' - Import the default HTML stylesheet.
+//
 
-bool					/* O - `true` on success, `false` on error */
-hcCSSImportDefault(hc_css_t *css)	/* I - Stylesheet */
+bool					// O - `true` on success, `false` on error
+hcCSSImportDefault(hc_css_t *css)	// I - Stylesheet
 {
   hc_file_t	*file = hcFileNewString(css->pool, default_css);
-					/* String file */
+					// String file
   bool		ret = hcCSSImport(css, file);
-					/* Return value */
+					// Return value
 
   hcFileDelete(file);
 
@@ -255,34 +255,34 @@ hcCSSImportDefault(hc_css_t *css)	/* I - Stylesheet */
 }
 
 
-/*
- * '_hcCSSImportString()' - Import a style attribute string.
- */
+//
+// '_hcCSSImportString()' - Import a style attribute string.
+//
 
 void
-_hcCSSImportString(hc_css_t   *css,	/* I - Stylesheet */
-                   hc_dict_t  *props,	/* I - Property dictionary */
-                   const char *s)	/* I - Style attribute string */
+_hcCSSImportString(hc_css_t   *css,	// I - Stylesheet
+                   hc_dict_t  *props,	// I - Property dictionary
+                   const char *s)	// I - Style attribute string
 {
   hc_file_t	*file = hcFileNewString(css->pool, s);
-					/* String file */
+					// String file
 
   hc_read_props(css, file, props);
   hcFileDelete(file);
 }
 
 
-/*
- * 'hc_add_rule()' - Add a rule set to a stylesheet.
- */
+//
+// 'hc_add_rule()' - Add a rule set to a stylesheet.
+//
 
 static void
-hc_add_rule(hc_css_t      *css,		/* I - Stylesheet */
-	    _hc_css_sel_t *sel,		/* I - Selectors */
-	    hc_dict_t     *props)	/* I - Properties */
+hc_add_rule(hc_css_t      *css,		// I - Stylesheet
+	    _hc_css_sel_t *sel,		// I - Selectors
+	    hc_dict_t     *props)	// I - Properties
 {
-  _hc_rule_t	*rule;			/* New rule */
-  hc_sha3_256_t	hash;			/* Hash */
+  _hc_rule_t	*rule;			// New rule
+  hc_sha3_256_t	hash;			// Hash
 
 
   _hcCSSSelHash(sel, hash);
@@ -295,21 +295,21 @@ hc_add_rule(hc_css_t      *css,		/* I - Stylesheet */
 }
 
 
-/*
- * 'hc_eval_media()' - Read and evaluate a media rule.
- */
+//
+// 'hc_eval_media()' - Read and evaluate a media rule.
+//
 
-static int				/* O - 1 if media rule matches, 0 otherwise */
-hc_eval_media(hc_css_t   *css,		/* I - Stylesheet */
-              hc_file_t  *file,		/* I - File to read from */
-              _hc_type_t *type,		/* O - Token type */
-              char       *buffer,	/* I - Buffer */
-              size_t     bufsize)	/* I - Size of buffer */
+static int				// O - 1 if media rule matches, 0 otherwise
+hc_eval_media(hc_css_t   *css,		// I - Stylesheet
+              hc_file_t  *file,		// I - File to read from
+              _hc_type_t *type,		// O - Token type
+              char       *buffer,	// I - Buffer
+              size_t     bufsize)	// I - Size of buffer
 {
-  int		media_result = -1;	/* Result of evaluation */
-  int		media_current = -1;	/* Result of current expression */
-  _hc_logop_t	logop = _HC_LOGOP_NONE;	/* Logical operation seen, if any */
-  int		invert = 0;		/* Was "not" seen? */
+  int		media_result = -1;	// Result of evaluation
+  int		media_current = -1;	// Result of current expression
+  _hc_logop_t	logop = _HC_LOGOP_NONE;	// Logical operation seen, if any
+  int		invert = 0;		// Was "not" seen?
 
 
   while (hc_read(file, type, buffer, bufsize))
@@ -414,9 +414,9 @@ hc_eval_media(hc_css_t   *css,		/* I - Stylesheet */
     */
 
     if (media_current < 0)
-      media_result = 1;			/* Empty expression */
+      media_result = 1;			// Empty expression
     else
-      media_result = media_current;	/* Single expression */
+      media_result = media_current;	// Single expression
   }
 
   return (media_result);
@@ -433,21 +433,21 @@ hc_eval_media(hc_css_t   *css,		/* I - Stylesheet */
 }
 
 
-/*
- * 'hc_read()' - Read a string from the CSS file.
- */
+//
+// 'hc_read()' - Read a string from the CSS file.
+//
 
-static char *				/* O - String or `NULL` on EOF */
-hc_read(hc_file_t  *file,		/* I - CSS file */
-	_hc_type_t *type,		/* O - String type */
-	char       *buffer,		/* I - Buffer */
-	size_t     bufsize)		/* I - Size of buffer */
+static char *				// O - String or `NULL` on EOF
+hc_read(hc_file_t  *file,		// I - CSS file
+	_hc_type_t *type,		// O - String type
+	char       *buffer,		// I - Buffer
+	size_t     bufsize)		// I - Size of buffer
 {
-  int	ch;				/* Current character */
-  char	*bufptr,			/* Pointer into buffer */
-	*bufend;			/* End of buffer */
+  int	ch;				// Current character
+  char	*bufptr,			// Pointer into buffer
+	*bufend;			// End of buffer
   static const char *reserved = ",:;{}[])";
-					/* Reserved characters */
+					// Reserved characters
 
   bufptr = buffer;
   bufend = buffer + bufsize - 1;
@@ -487,7 +487,7 @@ hc_read(hc_file_t  *file,		/* I - CSS file */
       * Quoted string...
       */
 
-      int quote = ch;			/* Quote character */
+      int quote = ch;			// Quote character
 
       while ((ch = hcFileGetc(file)) != EOF)
       {
@@ -518,7 +518,7 @@ hc_read(hc_file_t  *file,		/* I - CSS file */
 	  * Skip C-style comment...
 	  */
 
-	  int	asterisk = 0;		/* Did we see the closing asterisk? */
+	  int	asterisk = 0;		// Did we see the closing asterisk?
 
 	  bufptr --;
 
@@ -589,20 +589,20 @@ hc_read(hc_file_t  *file,		/* I - CSS file */
 }
 
 
-/*
- * 'hc_read_props()' - Read properties in a group or string.
- */
+//
+// 'hc_read_props()' - Read properties in a group or string.
+//
 
-static hc_dict_t *			/* O - Properties or `NULL` on error */
-hc_read_props(hc_css_t  *css,		/* I - Stylesheet */
-              hc_file_t *file,		/* I - file to read from */
-              hc_dict_t *props)		/* I - Existing properties */
+static hc_dict_t *			// O - Properties or `NULL` on error
+hc_read_props(hc_css_t  *css,		// I - Stylesheet
+              hc_file_t *file,		// I - file to read from
+              hc_dict_t *props)		// I - Existing properties
 {
-  _hc_type_t	type;			/* String type */
-  char		buffer[256],		/* String buffer */
-		name[256],		/* Name string */
-		value[2048];		/* Value string */
-  int		skip_remainder = 0;	/* Skip the remainder? */
+  _hc_type_t	type;			// String type
+  char		buffer[256],		// String buffer
+		name[256],		// Name string
+		value[2048];		// Value string
+  int		skip_remainder = 0;	// Skip the remainder?
 
 
   while (hc_read(file, &type, buffer, sizeof(buffer)))
@@ -656,26 +656,26 @@ hc_read_props(hc_css_t  *css,		/* I - Stylesheet */
 }
 
 
-/*
- * 'hc_read_sel()' - Read a CSS selector.
- *
- * On entry, "type" and "buffer" contain the initial selector string.  On exit
- * they contain the terminating token (typically "," or "{").
- */
+//
+// 'hc_read_sel()' - Read a CSS selector.
+//
+// On entry, "type" and "buffer" contain the initial selector string.  On exit
+// they contain the terminating token (typically "," or "{").
+//
 
-static _hc_css_sel_t *			/* O  - Selector or `NULL` on error */
-hc_read_sel(hc_css_t   *css,		/* I  - Stylesheet */
-	    hc_file_t  *file,		/* I  - File to read from */
-            _hc_type_t *type,		/* IO - String type */
-            char       *buffer,		/* I  - String buffer */
-            size_t     bufsize)		/* I  - Size of string buffer */
+static _hc_css_sel_t *			// O  - Selector or `NULL` on error
+hc_read_sel(hc_css_t   *css,		// I  - Stylesheet
+	    hc_file_t  *file,		// I  - File to read from
+            _hc_type_t *type,		// IO - String type
+            char       *buffer,		// I  - String buffer
+            size_t     bufsize)		// I  - Size of string buffer
 {
-  _hc_css_sel_t *sel = NULL;		/* Current selector */
+  _hc_css_sel_t *sel = NULL;		// Current selector
   _hc_relation_t rel = _HC_RELATION_CHILD;
-					/* Relationship with next selector */
-  char		*ptr,			/* Pointer into buffer/value */
-		name[256],		/* Attribute/pseudo-class name */
-		value[256];		/* Value in selector */
+					// Relationship with next selector
+  char		*ptr,			// Pointer into buffer/value
+		name[256],		// Attribute/pseudo-class name
+		value[256];		// Value in selector
 
 
   do
@@ -750,7 +750,7 @@ hc_read_sel(hc_css_t   *css,		/* I  - Stylesheet */
       * Match element name...
       */
 
-      hc_element_t	element;	/* Element for selector */
+      hc_element_t	element;	// Element for selector
 
       if (!strcmp(buffer, "*"))
         element = HC_ELEMENT_WILDCARD;
@@ -769,7 +769,7 @@ hc_read_sel(hc_css_t   *css,		/* I  - Stylesheet */
       * Match attribute...
       */
 
-      _hc_match_t	mtype;		/* Matching type */
+      _hc_match_t	mtype;		// Matching type
 
       if (!hc_read(file, type, name, sizeof(name)) || *type != _HC_TYPE_STRING)
       {
@@ -884,7 +884,7 @@ hc_read_sel(hc_css_t   *css,		/* I  - Stylesheet */
     _HC_DEBUG("%s:%d: (SELECTOR) %s (%d matching statements)\n", file->url, file->linenum, hcElements[sel->element], (int)sel->num_stmts);
   else
     _HC_DEBUG("%s:%d: (SELECTOR) NULL\n", file->url, file->linenum);
-#endif /* DEBUG */
+#endif // DEBUG
 
   return (sel);
 
@@ -900,20 +900,20 @@ hc_read_sel(hc_css_t   *css,		/* I  - Stylesheet */
 }
 
 
-/*
- * 'hc_read_value()' - Read a value string.
- */
+//
+// 'hc_read_value()' - Read a value string.
+//
 
-static char *				/* O - String or `NULL` on error */
-hc_read_value(hc_file_t *file,		/* I - File to read from */
-              char      *buffer,	/* I - String buffer */
-              size_t    bufsize)	/* I - Size of string buffer */
+static char *				// O - String or `NULL` on error
+hc_read_value(hc_file_t *file,		// I - File to read from
+              char      *buffer,	// I - String buffer
+              size_t    bufsize)	// I - Size of string buffer
 {
-  int	ch,				/* Character from file */
-	paren = 0,			/* Parenthesis */
-	quote = '\0';			/* Quote character (if any) */
-  char	*bufptr = buffer,		/* Pointer into string buffer */
-	*bufend = buffer + bufsize - 1;	/* End of string buffer */
+  int	ch,				// Character from file
+	paren = 0,			// Parenthesis
+	quote = '\0';			// Quote character (if any)
+  char	*bufptr = buffer,		// Pointer into string buffer
+	*bufend = buffer + bufsize - 1;	// End of string buffer
 
 
  /*

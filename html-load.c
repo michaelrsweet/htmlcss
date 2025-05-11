@@ -1,26 +1,26 @@
-/*
- * HTML load functions for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018-2021 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// HTML load functions for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #include "html-private.h"
 #include "file-private.h"
 #include <ctype.h>
 
 
-/*
- * Local macros...
- */
+//
+// Local macros...
+//
 
 #define html_isblock(x)	((x) == HC_ELEMENT_ADDRESS || (x) == HC_ELEMENT_P || (x) == HC_ELEMENT_PRE || ((x) >= HC_ELEMENT_H1 && (x) <= HC_ELEMENT_H6) || (x) == HC_ELEMENT_HR || (x) == HC_ELEMENT_TABLE)
 #define html_isleaf(x)	((x) == HC_ELEMENT_AREA || (x) == HC_ELEMENT_BASE || (x) == HC_ELEMENT_BR || (x) == HC_ELEMENT_COL || (x) == HC_ELEMENT_EMBED || (x) == HC_ELEMENT_HR ||(x) == HC_ELEMENT_IMG || (x) == HC_ELEMENT_INPUT || (x) == HC_ELEMENT_ISINDEX || (x) == HC_ELEMENT_LINK || (x) == HC_ELEMENT_META || (x) == HC_ELEMENT_PARAM || (x) == HC_ELEMENT_SOURCE || (x) == HC_ELEMENT_SPACER || (x) == HC_ELEMENT_TRACK || (x) == HC_ELEMENT_WBR)
@@ -31,9 +31,9 @@
 #define html_istentry(x)	((x) == HC_ELEMENT_TD || (x) == HC_ELEMENT_TH)
 
 
-/*
- * Local functions...
- */
+//
+// Local functions...
+//
 
 static int	html_compare_elements(const char **a, const char **b);
 static int	html_parse_attr(hc_file_t *file, int ch, hc_node_t *node);
@@ -43,14 +43,14 @@ static bool	html_parse_element(hc_file_t *file, int ch, hc_html_t *html, hc_node
 static bool	html_parse_unknown(hc_file_t *file, hc_node_t **parent, const char *unk);
 
 
-/*
- * '_hcElementLookup() - Lookup an element enum from a string.
- */
+//
+// '_hcElementLookup() - Lookup an element enum from a string.
+//
 
-hc_element_t				/* O - Element */
-_hcElementLookup(const char *s)		/* I - String */
+hc_element_t				// O - Element
+_hcElementLookup(const char *s)		// I - String
 {
-  const char	**match;		/* Matching element */
+  const char	**match;		// Matching element
 
 
   match  = bsearch(&s, hcElements + 1, sizeof(hcElements) / sizeof(hcElements[0]) - 1, sizeof(hcElements[0]), (_hc_compare_func_t)html_compare_elements);
@@ -62,20 +62,20 @@ _hcElementLookup(const char *s)		/* I - String */
 }
 
 
-/*
- * 'hcHTMLImport()' - Load a HTML file into a document.
- */
+//
+// 'hcHTMLImport()' - Load a HTML file into a document.
+//
 
-bool					/* O - `true` on success, `false` on error */
-hcHTMLImport(hc_html_t *html,		/* I - HTML document */
-	     hc_file_t *file)		/* I - File to import */
+bool					// O - `true` on success, `false` on error
+hcHTMLImport(hc_html_t *html,		// I - HTML document
+	     hc_file_t *file)		// I - File to import
 {
-  hc_node_t	*parent = NULL;		/* Parent node */
-  bool		status = true;		/* Load status */
-  int		ch;			/* Current character */
-  char		buffer[8192],		/* Temporary buffer */
-		*bufptr,		/* Pointer into buffer */
-		*bufend;		/* End of buffer */
+  hc_node_t	*parent = NULL;		// Parent node
+  bool		status = true;		// Load status
+  int		ch;			// Current character
+  char		buffer[8192],		// Temporary buffer
+		*bufptr,		// Pointer into buffer
+		*bufend;		// End of buffer
 
 
  /*
@@ -221,35 +221,35 @@ hcHTMLImport(hc_html_t *html,		/* I - HTML document */
 }
 
 
-/*
- * 'html_compare_elements()' - Compare two elements...
- */
+//
+// 'html_compare_elements()' - Compare two elements...
+//
 
-static int				/* O - Result of comparison */
-html_compare_elements(const char **a,	/* I - First string */
-                      const char **b)	/* I - Second string */
+static int				// O - Result of comparison
+html_compare_elements(const char **a,	// I - First string
+                      const char **b)	// I - Second string
 {
 #ifdef WIN32
   return (_stricmp(*a, *b));
 #else
   return (strcasecmp(*a, *b));
-#endif /* WIN32 */
+#endif // WIN32
 }
 
 
-/*
- * 'html_parse_attr()' - Parse an attribute.
- */
+//
+// 'html_parse_attr()' - Parse an attribute.
+//
 
-static int				/* O - Character or `EOF` to stop */
-html_parse_attr(hc_file_t *file,	/* I - File to read from */
-                int       ch,		/* I - Initial character */
-                hc_node_t *node)	/* I - HTML element node */
+static int				// O - Character or `EOF` to stop
+html_parse_attr(hc_file_t *file,	// I - File to read from
+                int       ch,		// I - Initial character
+                hc_node_t *node)	// I - HTML element node
 {
-  char	name[256],			/* Name string */
-	value[2048],			/* Value string */
-	*ptr,				/* Pointer into string */
-	*end;				/* End of string */
+  char	name[256],			// Name string
+	value[2048],			// Value string
+	*ptr,				// Pointer into string
+	*end;				// End of string
 
 
  /*
@@ -281,7 +281,7 @@ html_parse_attr(hc_file_t *file,	/* I - File to read from */
 
     if ((ch = hcFileGetc(file)) == '\'' || ch == '\"')
     {
-      int quote = ch;			/* Quote character */
+      int quote = ch;			// Quote character
 
       while ((ch = hcFileGetc(file)) != EOF && ch != quote)
       {
@@ -319,18 +319,18 @@ html_parse_attr(hc_file_t *file,	/* I - File to read from */
 }
 
 
-/*
- * 'html_parse_comment()' - Parse a comment.
- */
+//
+// 'html_parse_comment()' - Parse a comment.
+//
 
-static bool				/* O  - `true` to continue, `false` to stop */
-html_parse_comment(hc_file_t *file,	/* I  - File to read from */
-                   hc_node_t **parent)	/* IO - Parent node */
+static bool				// O  - `true` to continue, `false` to stop
+html_parse_comment(hc_file_t *file,	// I  - File to read from
+                   hc_node_t **parent)	// IO - Parent node
 {
-  int	ch;				/* Current character */
-  char	buffer[8192],			/* String buffer */
-	*bufptr,			/* Pointer into buffer */
-	*bufend;			/* End of buffer */
+  int	ch;				// Current character
+  char	buffer[8192],			// String buffer
+	*bufptr,			// Pointer into buffer
+	*bufend;			// End of buffer
 
 
   bufptr = buffer;
@@ -368,19 +368,19 @@ html_parse_comment(hc_file_t *file,	/* I  - File to read from */
 }
 
 
-/*
- * 'html_parse_doctype()' - Parse a DOCTYPE element.
- */
+//
+// 'html_parse_doctype()' - Parse a DOCTYPE element.
+//
 
-static bool				/* O  - `true` to continue, `false` to stop */
-html_parse_doctype(hc_file_t *file,	/* I  - File to read from */
-                   hc_html_t *html,	/* I  - HTML document */
-		   hc_node_t **parent)	/* IO - Parent node */
+static bool				// O  - `true` to continue, `false` to stop
+html_parse_doctype(hc_file_t *file,	// I  - File to read from
+                   hc_html_t *html,	// I  - HTML document
+		   hc_node_t **parent)	// IO - Parent node
 {
-  int	ch;				/* Character from file */
-  char	buffer[2048],			/* String buffer */
-	*bufptr,			/* Pointer into buffer */
-	*bufend;			/* End of buffer */
+  int	ch;				// Character from file
+  char	buffer[2048],			// String buffer
+	*bufptr,			// Pointer into buffer
+	*bufend;			// End of buffer
 
 
   bufptr = buffer;
@@ -401,7 +401,7 @@ html_parse_doctype(hc_file_t *file,	/* I  - File to read from */
 
     if (ch == '\'' || ch == '\"')
     {
-      int quote = ch;			/* Quote character */
+      int quote = ch;			// Quote character
 
       while ((ch = hcFileGetc(file)) != EOF && ch != quote)
       {
@@ -431,22 +431,22 @@ html_parse_doctype(hc_file_t *file,	/* I  - File to read from */
 }
 
 
-/*
- * 'html_parse_element()' - Parse an element.
- */
+//
+// 'html_parse_element()' - Parse an element.
+//
 
-static bool				/* O  - `true` to continue, `false` to stop */
-html_parse_element(hc_file_t *file,	/* I  - File to read from */
-                   int       ch,	/* I  - Initial character after '<' */
-                   hc_html_t *html,	/* I  - HTML document */
-                   hc_node_t **parent)	/* IO - Parent node */
+static bool				// O  - `true` to continue, `false` to stop
+html_parse_element(hc_file_t *file,	// I  - File to read from
+                   int       ch,	// I  - Initial character after '<'
+                   hc_html_t *html,	// I  - HTML document
+                   hc_node_t **parent)	// IO - Parent node
 {
-  char		buffer[256],		/* String buffer */
-		*bufptr,		/* Pointer into buffer */
-		*bufend;		/* End of buffer */
-  hc_element_t	element;		/* Element index */
-  hc_node_t	*node;			/* New node */
-  bool		close_el = ch == '/';	/* Close element? */
+  char		buffer[256],		// String buffer
+		*bufptr,		// Pointer into buffer
+		*bufend;		// End of buffer
+  hc_element_t	element;		// Element index
+  hc_node_t	*node;			// New node
+  bool		close_el = ch == '/';	// Close element?
 
 
  /*
@@ -535,7 +535,7 @@ html_parse_element(hc_file_t *file,	/* I  - File to read from */
   {
     if (close_el)
     {
-      char	unk[257];		/* Unknown value */
+      char	unk[257];		// Unknown value
 
       snprintf(unk, sizeof(unk), "/%s", buffer);
       return (html_parse_unknown(file, parent, unk));
@@ -685,19 +685,19 @@ html_parse_element(hc_file_t *file,	/* I  - File to read from */
 }
 
 
-/*
- * 'html_parse_unknown()' - Parse an unknown element or processing directive.
- */
+//
+// 'html_parse_unknown()' - Parse an unknown element or processing directive.
+//
 
-static bool				/* O  - `true` to continue, `false` to stop */
-html_parse_unknown(hc_file_t  *file,	/* I  - File to read from */
-                   hc_node_t  **parent,	/* IO - Parent node */
-                   const char *unk)	/* I  - Start of unknown markup */
+static bool				// O  - `true` to continue, `false` to stop
+html_parse_unknown(hc_file_t  *file,	// I  - File to read from
+                   hc_node_t  **parent,	// IO - Parent node
+                   const char *unk)	// I  - Start of unknown markup
 {
-  int	ch;				/* Character from file */
-  char	buffer[2048],			/* String buffer */
-	*bufptr,			/* Pointer into buffer */
-	*bufend;			/* End of buffer */
+  int	ch;				// Character from file
+  char	buffer[2048],			// String buffer
+	*bufptr,			// Pointer into buffer
+	*bufend;			// End of buffer
 
 
   strncpy(buffer, unk, sizeof(buffer) - 1);
@@ -715,7 +715,7 @@ html_parse_unknown(hc_file_t  *file,	/* I  - File to read from */
 
     if (ch == '\'' || ch == '\"')
     {
-      int quote = ch;			/* Quote character */
+      int quote = ch;			// Quote character
 
       while ((ch = hcFileGetc(file)) != EOF && ch != quote)
       {

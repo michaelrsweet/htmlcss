@@ -1,27 +1,27 @@
-/*
- * File handling functions for HTMLCSS library.
- *
- *     https://github.com/michaelrsweet/htmlcss
- *
- * Copyright © 2018-2022 by Michael R Sweet.
- *
- * Licensed under Apache License v2.0.  See the file "LICENSE" for more
- * information.
- */
+//
+// File handling functions for HTMLCSS library.
+//
+//     https://github.com/michaelrsweet/htmlcss
+//
+// Copyright © 2018-2025 by Michael R Sweet.
+//
+// Licensed under Apache License v2.0.  See the file "LICENSE" for more
+// information.
+//
 
-/*
- * Include necessary headers...
- */
+//
+// Include necessary headers...
+//
 
 #include "file-private.h"
 
 
-/*
- * 'hcFileDelete()' - Close a file and free any memory associated with it.
- */
+//
+// 'hcFileDelete()' - Close a file and free any memory associated with it.
+//
 
 void
-hcFileDelete(hc_file_t *file)		/* I - File */
+hcFileDelete(hc_file_t *file)		// I - File
 {
   if (!file)
     return;
@@ -33,21 +33,21 @@ hcFileDelete(hc_file_t *file)		/* I - File */
 }
 
 
-/*
- * '_hcFileError()' - Report an error while reading the specified file.
- */
+//
+// '_hcFileError()' - Report an error while reading the specified file.
+//
 
-bool					/* O - `true` to continue, `false` to stop */
-_hcFileError(hc_file_t  *file,		/* I - File */
-             const char *message,	/* I - Printf-style message */
-             ...)			/* I - Additional arguments as needed */
+bool					// O - `true` to continue, `false` to stop
+_hcFileError(hc_file_t  *file,		// I - File
+             const char *message,	// I - Printf-style message
+             ...)			// I - Additional arguments as needed
 {
-  bool		ret;			/* Return value */
-  char		saniurl[1024],		/* Sanitized URL */
-		*saniptr,		/* Pointer into sanitized URL */
-		temp[1024];		/* Temporary message buffer */
-  const char	*urlptr;		/* Pointer into URL */
-  va_list	ap;			/* Pointer to arguments */
+  bool		ret;			// Return value
+  char		saniurl[1024],		// Sanitized URL
+		*saniptr,		// Pointer into sanitized URL
+		temp[1024];		// Temporary message buffer
+  const char	*urlptr;		// Pointer into URL
+  va_list	ap;			// Pointer to arguments
 
 
   if (file->url)
@@ -84,14 +84,14 @@ _hcFileError(hc_file_t  *file,		/* I - File */
 }
 
 
-/*
- * 'hcFileGetc()' - Get a character from a file.
- */
+//
+// 'hcFileGetc()' - Get a character from a file.
+//
 
-int					/* O - Character or `EOF` */
-hcFileGetc(hc_file_t *file)		/* I - File */
+int					// O - Character or `EOF`
+hcFileGetc(hc_file_t *file)		// I - File
 {
-  int	ch;				/* Current character */
+  int	ch;				// Current character
 
 
   if (file->bufptr)
@@ -111,16 +111,16 @@ hcFileGetc(hc_file_t *file)		/* I - File */
 }
 
 
-/*
- * 'hcFileNewBuffer()' - Create a new file buffer stream.
- */
+//
+// 'hcFileNewBuffer()' - Create a new file buffer stream.
+//
 
-hc_file_t *				/* O - File */
-hcFileNewBuffer(hc_pool_t  *pool,	/* I - Memory pool */
-                const void *buffer,	/* I - Buffer */
-                size_t     bytes)	/* I - Size of buffer */
+hc_file_t *				// O - File
+hcFileNewBuffer(hc_pool_t  *pool,	// I - Memory pool
+                const void *buffer,	// I - Buffer
+                size_t     bytes)	// I - Size of buffer
 {
-  hc_file_t	*file;			/* File */
+  hc_file_t	*file;			// File
 
 
   if ((file = calloc(1, sizeof(hc_file_t))) != NULL)
@@ -136,29 +136,29 @@ hcFileNewBuffer(hc_pool_t  *pool,	/* I - Memory pool */
 }
 
 
-/*
- * 'hcFileNewString()' - Create a new file string stream.
- */
+//
+// 'hcFileNewString()' - Create a new file string stream.
+//
 
-hc_file_t *				/* O - File */
-hcFileNewString(hc_pool_t  *pool,	/* I - Memory pool */
-                const char *s)		/* I - String */
+hc_file_t *				// O - File
+hcFileNewString(hc_pool_t  *pool,	// I - Memory pool
+                const char *s)		// I - String
 {
   return (hcFileNewBuffer(pool, s, strlen(s)));
 }
 
 
-/*
- * 'hcFileNewURL()' - Create a new file URL stream.
- */
+//
+// 'hcFileNewURL()' - Create a new file URL stream.
+//
 
-hc_file_t *				/* O - File */
-hcFileNewURL(hc_pool_t  *pool,		/* I - Memory pool */
-             const char *url,		/* I - URL or filename */
-             const char *baseurl)	/* I - Base URL or `NULL` */
+hc_file_t *				// O - File
+hcFileNewURL(hc_pool_t  *pool,		// I - Memory pool
+             const char *url,		// I - URL or filename
+             const char *baseurl)	// I - Base URL or `NULL`
 {
-  hc_file_t	*file;			/* File */
-  const char	*filename;		/* Local file */
+  hc_file_t	*file;			// File
+  const char	*filename;		// Local file
 
 
   _HC_DEBUG("hcFileNewURL(pool=%p, url=\"%s\", baseurl=\"%s\")\n", (void *)pool, url, baseurl);
@@ -187,16 +187,16 @@ hcFileNewURL(hc_pool_t  *pool,		/* I - Memory pool */
 }
 
 
-/*
- * 'hcFileRead()' - Read bytes from a file.
- */
+//
+// 'hcFileRead()' - Read bytes from a file.
+//
 
-size_t					/* O - Number of bytes read */
-hcFileRead(hc_file_t *file,		/* I - File */
-           void      *buffer,		/* I - Buffer */
-           size_t    bytes)		/* I - Number of bytes to read */
+size_t					// O - Number of bytes read
+hcFileRead(hc_file_t *file,		// I - File
+           void      *buffer,		// I - Buffer
+           size_t    bytes)		// I - Number of bytes to read
 {
-  ssize_t	rbytes;			/* Number of bytes read */
+  ssize_t	rbytes;			// Number of bytes read
 
 
   if (!file || !buffer || bytes == 0)
@@ -222,15 +222,15 @@ hcFileRead(hc_file_t *file,		/* I - File */
 }
 
 
-/*
- * 'hcFileSeek()' - Randomly access data within a file.
- */
+//
+// 'hcFileSeek()' - Randomly access data within a file.
+//
 
-size_t					/* O - New file offset or 0 on error */
-hcFileSeek(hc_file_t *file,		/* I - File */
-           size_t    offset)		/* I - Offset within file */
+size_t					// O - New file offset or 0 on error
+hcFileSeek(hc_file_t *file,		// I - File
+           size_t    offset)		// I - Offset within file
 {
-  ssize_t	soffset;		/* Seek offset */
+  ssize_t	soffset;		// Seek offset
 
 
   if (!file)
@@ -253,13 +253,13 @@ hcFileSeek(hc_file_t *file,		/* I - File */
 }
 
 
-/*
- * 'hcFileUngetc()' - Return a character to a file.
- */
+//
+// 'hcFileUngetc()' - Return a character to a file.
+//
 
 void
-hcFileUngetc(hc_file_t *f,		/* I - File */
-             int       ch)		/* I - Character */
+hcFileUngetc(hc_file_t *f,		// I - File
+             int       ch)		// I - Character
 {
   if (f->bufptr && f->bufptr > f->buffer)
     f->bufptr --;
