@@ -48,12 +48,12 @@ struct _hc_font_info_s			// Font cache information
 // Local functions...
 //
 
-static void	hc_add_font(hc_pool_t *pool, hc_font_t *font, const char *url, int delete_it);
+static void	hc_add_font(hc_pool_t *pool, hc_font_t *font, const char *url, bool delete_it);
 static int	hc_compare_info(_hc_font_info_t *a, _hc_font_info_t *b);
 static void	hc_get_cname(char *cname, size_t cnamesize);
 static void	hc_load_all_fonts(hc_pool_t *pool);
-static int	hc_load_cache(hc_pool_t *pool, const char *cname, struct stat *cinfo);
-static time_t	hc_load_fonts(hc_pool_t *pool, const char *d, int scanonly);
+static bool	hc_load_cache(hc_pool_t *pool, const char *cname, struct stat *cinfo);
+static time_t	hc_load_fonts(hc_pool_t *pool, const char *d, bool scanonly);
 static void	hc_save_cache(hc_pool_t *pool, const char *cname);
 static void	hc_sort_fonts(hc_pool_t *pool);
 
@@ -70,7 +70,7 @@ hcFontAddCached(hc_pool_t  *pool,	// I - Memory pool for cache
   if (!pool || !font)
     return;
 
-  hc_add_font(pool, font, url, 0);
+  hc_add_font(pool, font, url, /*delete_it*/false);
   hc_sort_fonts(pool);
 }
 
@@ -260,7 +260,7 @@ static void
 hc_add_font(hc_pool_t  *pool,		// I - Memory pool
             hc_font_t  *font,		// I - Font
             const char *url,		// I - Filename/URL
-            int        delete_it)	// I - Delete font after adding?
+            bool       delete_it)	// I - Delete font after adding?
 {
   _hc_font_info_t	*info;		// Font information
 
@@ -379,8 +379,10 @@ hc_load_all_fonts(hc_pool_t *pool)	// I - Memory pool
   const char	*home = getenv("HOME");	// Home directory
   char		cname[1024];		// Cache filename
   struct stat	cinfo;			// Cache file information
-  int		rescan = 0;		// Rescan fonts?
+  bool		rescan = false;		// Rescan fonts?
 
+
+  _HC_DEBUG("hc_load_all_fonts(pool=%p)\n", (void *)pool);
 
   // Build a list of font directories...
 #ifdef __APPLE__
@@ -408,19 +410,29 @@ hc_load_all_fonts(hc_pool_t *pool)	// I - Memory pool
   }
 #endif // __APPLE__
 
+#ifdef DEBUG
+  _HC_DEBUG("hc_load_all_fonts: num_dirs=%d\n", num_dirs);
+  for (i = 0; i < num_dirs; i ++)
+    _HC_DEBUG("hc_load_all_fonts: dirs[%d]=\"%s\"\n", i, dirs[i]);
+#endif // DEBUG
+
   // See if we need to re-scan the font directories...
   hc_get_cname(cname, sizeof(cname));
+  _HC_DEBUG("hc_load_all_fonts: cname=\"%s\"\n", cname);
+
   if (stat(cname, &cinfo))
   {
-    rescan = 1;
+    // No cache file...
+    rescan = true;
   }
   else
   {
+    // Compare cache file to age of the newest font...
     for (i = 0; i < num_dirs; i ++)
     {
-      if (hc_load_fonts(pool, dirs[i], 1) > cinfo.st_mtime)
+      if (hc_load_fonts(pool, dirs[i], /*scanonly*/true) > cinfo.st_mtime)
       {
-        rescan = 1;
+        rescan = true;
         break;
       }
     }
@@ -428,13 +440,13 @@ hc_load_all_fonts(hc_pool_t *pool)	// I - Memory pool
 
   // Load the list of system fonts...
   if (!rescan && !hc_load_cache(pool, cname, &cinfo))
-    rescan = 1;
+    rescan = true;
 
   if (rescan)
   {
     // Scan for fonts...
     for (i = 0; i < num_dirs; i ++)
-      hc_load_fonts(pool, dirs[i], 0);
+      hc_load_fonts(pool, dirs[i], /*scanonly*/false);
 
     // Save the cache...
     hc_save_cache(pool, cname);
@@ -442,7 +454,7 @@ hc_load_all_fonts(hc_pool_t *pool)	// I - Memory pool
 
   hc_sort_fonts(pool);
 
-  pool->fonts_loaded = 1;
+  pool->fonts_loaded = true;
 }
 
 
@@ -450,7 +462,7 @@ hc_load_all_fonts(hc_pool_t *pool)	// I - Memory pool
 // 'hc_load_cache()' - Load all fonts from the cache...
 //
 
-static int				// O - 1 on success, 0 on failure
+static bool				// O - `true` on success, `false` on failure
 hc_load_cache(hc_pool_t   *pool,	// I - Memory pool
 	      const char  *cname,	// I - Cache filename
 	      struct stat *cinfo)	// I - Cache information
@@ -465,26 +477,26 @@ hc_load_cache(hc_pool_t   *pool,	// I - Memory pool
   if (((size_t)cinfo->st_size % sizeof(_hc_font_cache_t)) != 0)
   {
     _hcPoolError(pool, 0, "Invalid font cache file '%s'.", cname);
-    return (0);
+    return (false);
   }
 
   num_fonts = (size_t)cinfo->st_size / sizeof(_hc_font_cache_t);
 
   if (num_fonts == 0)
-    return (0);
+    return (false);
 
   if ((cfile = open(cname, O_RDONLY | O_EXCL)) < 0)
   {
     if (errno != ENOENT)
       _hcPoolError(pool, 0, "Unable to open font cache file '%s': %s", cname, strerror(errno));
-    return (0);
+    return (false);
   }
 
   if ((pool->fonts = (_hc_font_info_t *)calloc(num_fonts, sizeof(_hc_font_info_t))) == NULL)
   {
     _hcPoolError(pool, 0, "Unable to allocate font cache: %s", strerror(errno));
     close(cfile);
-    return (0);
+    return (false);
   }
 
   pool->alloc_fonts = pool->num_fonts = num_fonts;
@@ -511,7 +523,7 @@ hc_load_cache(hc_pool_t   *pool,	// I - Memory pool
 
   close(cfile);
 
-  return (1);
+  return (true);
 }
 
 
@@ -522,7 +534,7 @@ hc_load_cache(hc_pool_t   *pool,	// I - Memory pool
 static time_t				// O - Newest mtime
 hc_load_fonts(hc_pool_t  *pool,		// I - Memory pool
               const char *d,		// I - Directory to load
-              int        scanonly)	// I - Just scan directory mtimes?
+              bool       scanonly)	// I - Just scan directory mtimes?
 {
   DIR		*dir;			// Directory pointer
   struct dirent	*dent;			// Directory entry
@@ -552,7 +564,8 @@ hc_load_fonts(hc_pool_t  *pool,		// I - Memory pool
 
     if (S_ISDIR(info.st_mode))
     {
-      hc_load_fonts(pool, filename, scanonly);
+      if ((info.st_mtime = hc_load_fonts(pool, filename, scanonly)) > mtime)
+        mtime = info.st_mtime;
       continue;
     }
 
@@ -580,7 +593,7 @@ hc_load_fonts(hc_pool_t  *pool,		// I - Memory pool
         size_t	num_fonts = hcFontGetNumFonts(font);
 					// Number of fonts
 
-        hc_add_font(pool, font, filename, 1);
+        hc_add_font(pool, font, filename, /*delete_it*/true);
 
 	if (num_fonts > 1)
 	{
@@ -593,7 +606,7 @@ hc_load_fonts(hc_pool_t  *pool,		// I - Memory pool
 	    if ((font = hcFontNew(pool, file, i)) != NULL)
 	    {
 	      if (font->family && font->family[0] != '.')
-		hc_add_font(pool, font, filename, 1);
+		hc_add_font(pool, font, filename, /*delete_it*/true);
 	      else
 	        hcFontDelete(font);
 	    }

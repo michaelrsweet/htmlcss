@@ -14,6 +14,7 @@
 #  include "image.h"
 #  include <ctype.h>
 #  include <math.h>
+#  include <limits.h>
 
 
 //
@@ -2135,6 +2136,7 @@ _hcNodeComputeCSSTextFont(
 
   // Initialize default text values...
   memset(text, 0, sizeof(hc_text_t));
+  memset(&parent_text, 0, sizeof(parent_text));
 
   text->color.alpha = 1.0f;
   text->font_size   = 12.0f;
@@ -2983,7 +2985,10 @@ hc_get_length(hc_pool_t  *pool,		// I - Memory pool
     }
     else if (!strcmp(ptr, "ex") && text)
     {
-      temp *= text->font_size * text->font->x_height / text->font->units;
+      if (text->font)
+        temp *= text->font_size * text->font->x_height / text->font->units;
+      else
+        temp *= text->font_size * 0.6;
     }
     else if (!strcmp(ptr, "in"))
     {
@@ -3294,8 +3299,6 @@ hc_match_rule(hc_node_t  *node,		// I  - HTML node
 
           if (!curnode)
             return (-1);
-
-          score += curscore;
           break;
 
       case _HC_RELATION_IMMED_CHILD :
@@ -3303,8 +3306,6 @@ hc_match_rule(hc_node_t  *node,		// I  - HTML node
 
           if (!curnode || (curscore = hc_match_node(curnode, cursel, NULL)) < 0)
             return (-1);
-
-          score += curscore;
           break;
 
       case _HC_RELATION_SIBLING :
@@ -3313,8 +3314,6 @@ hc_match_rule(hc_node_t  *node,		// I  - HTML node
             if ((curscore = hc_match_node(curnode, cursel, NULL)) < 0)
               return (-1);
 	  }
-
-          score += curscore;
           break;
 
       case _HC_RELATION_IMMED_SIBLING :
@@ -3322,10 +3321,14 @@ hc_match_rule(hc_node_t  *node,		// I  - HTML node
 
           if (!curnode || (curscore = hc_match_node(curnode, cursel, NULL)) < 0)
             return (-1);
-
-          score += curscore;
           break;
     }
+
+    // Add to the total score, checking for overflow...
+    if (score > (INT_MAX - curscore))
+      score = INT_MAX;
+    else
+      score += curscore;
   }
 
   return (score);

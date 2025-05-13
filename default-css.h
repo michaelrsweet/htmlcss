@@ -64,7 +64,7 @@ static const char *default_css =
 ":link, :visited { text-decoration: underline; }\n"
 ":focus          { outline: thin dotted invert; }\n"
 "\n"
-"// Begin bidirectionality settings (do not change)\n"
+"/* Begin bidirectionality settings (do not change) */\n"
 "/*BDO[DIR=\"ltr\"]  { direction: ltr; unicode-bidi: bidi-override; }\n"
 "BDO[DIR=\"rtl\"]  { direction: rtl; unicode-bidi: bidi-override; }*/\n"
 "\n"

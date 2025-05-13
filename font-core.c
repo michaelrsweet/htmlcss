@@ -557,12 +557,18 @@ hcFontNew(hc_pool_t *pool,		// I - Memory pool
   size_t		num_fonts;	// Number of fonts in table
 
 
-  if (read_table(file, idx, &table, &num_fonts))
+  _HC_DEBUG("hcFontNew(pool=%p, file=%p, idx=%lu)\n", (void *)pool, (void *)file, (unsigned long)idx);
+
+  // Range check input...
+  if (!pool || !file)
+    return (NULL);
+
+  if (!read_table(file, idx, &table, &num_fonts))
     return (NULL);
 
   _HC_DEBUG("hcFontNew: num_entries=%d\n", table.num_entries);
 
-  if (read_names(file, &table, &names))
+  if (!read_names(file, &table, &names))
   {
     _hcFileError(file, "Unable to read names from font.");
     goto cleanup;
@@ -800,10 +806,7 @@ copy_name(hc_pool_t       *pool,	// I - String pool
       {
         int ch;				// Current character
 
-       /*
-        * Convert to Unicode...
-        */
-
+        // Convert to Unicode...
         if (bpc == 1)
           ch = *storptr;
 	else if (bpc == 2)
@@ -811,16 +814,10 @@ copy_name(hc_pool_t       *pool,	// I - String pool
 	else
 	  ch = ((storptr[0] & 255) << 24) | ((storptr[1] & 255) << 16) | ((storptr[2] & 255) << 8) | (storptr[3] & 255);
 
-       /*
-        * Convert to UTF-8...
-        */
-
+        // Convert to UTF-8...
         if (ch < 0x80)
         {
-         /*
-          * 1-byte ASCII...
-          */
-
+          // 1-byte ASCII...
 	  if (tempptr < (temp + sizeof(temp) - 1))
 	    *tempptr++ = (char)ch;
 	  else
@@ -828,24 +825,20 @@ copy_name(hc_pool_t       *pool,	// I - String pool
 	}
 	else if (ch < 0x400)
 	{
-	 /*
-	  * 2-byte UTF-8...
-	  */
-
+	  // 2-byte UTF-8...
 	  if (tempptr < (temp + sizeof(temp) - 2))
 	  {
 	    *tempptr++ = (char)(0xc0 | (ch >> 6));
 	    *tempptr++ = (char)(0x80 | (ch & 0x3f));
 	  }
 	  else
+	  {
 	    break;
+	  }
 	}
 	else if (ch < 0x10000)
 	{
-	 /*
-	  * 3-byte UTF-8...
-	  */
-
+	  // 3-byte UTF-8...
 	  if (tempptr < (temp + sizeof(temp) - 3))
 	  {
 	    *tempptr++ = (char)(0xe0 | (ch >> 12));
@@ -853,14 +846,13 @@ copy_name(hc_pool_t       *pool,	// I - String pool
 	    *tempptr++ = (char)(0x80 | (ch & 0x3f));
 	  }
 	  else
+	  {
 	    break;
+	  }
 	}
 	else
 	{
-	 /*
-	  * 4-byte UTF-8...
-	  */
-
+	  // 4-byte UTF-8...
 	  if (tempptr < (temp + sizeof(temp) - 4))
 	  {
 	    *tempptr++ = (char)(0xf0 | (ch >> 18));
@@ -869,7 +861,9 @@ copy_name(hc_pool_t       *pool,	// I - String pool
 	    *tempptr++ = (char)(0x80 | (ch & 0x3f));
 	  }
 	  else
+	  {
 	    break;
+	  }
 	}
       }
 
@@ -881,10 +875,14 @@ copy_name(hc_pool_t       *pool,	// I - String pool
     }
   }
 
+#ifdef DEBUG
   _HC_DEBUG("copy_name: No English name string for %d.\n", name_id);
   for (i = names->num_names, name = names->names; i > 0; i --, name ++)
+  {
     if (name->name_id == name_id)
       _HC_DEBUG("copy_name: Found name_id=%d, platform_id=%d, language_id=%d(0x%04x)\n", name_id, name->platform_id, name->language_id, name->language_id);
+  }
+#endif // DEBUG
 
   return (NULL);
 }
@@ -1375,7 +1373,7 @@ read_head(hc_file_t       *file,	// I - File
   memset(head, 0, sizeof(_hc_off_head_t));
 
   if (seek_table(file, table, _HC_OFF_head, 0) == 0)
-    return (-1);
+    return (false);
 
   /* majorVersion       */read_ushort(file);
   /* minorVersion       */read_ushort(file);
@@ -1392,7 +1390,7 @@ read_head(hc_file_t       *file,	// I - File
   head->yMax            = (short)read_short(file);
   head->macStyle        = (unsigned short)read_ushort(file);
 
-  return (0);
+  return (true);
 }
 
 
@@ -1408,7 +1406,7 @@ read_hhea(hc_file_t       *file,	// I - File
   memset(hhea, 0, sizeof(_hc_off_hhea_t));
 
   if (seek_table(file, table, _HC_OFF_hhea, 0) == 0)
-    return (-1);
+    return (false);
 
   /* majorVersion        */read_ushort(file);
   /* minorVersion        */read_ushort(file);
@@ -1429,7 +1427,7 @@ read_hhea(hc_file_t       *file,	// I - File
   /* metricDataFormat    */read_short(file);
   hhea->numberOfHMetrics = (unsigned short)read_ushort(file);
 
-  return (0);
+  return (true);
 }
 
 
@@ -1477,10 +1475,7 @@ static int				// O - Number of glyphs or -1 on error
 read_maxp(hc_file_t       *file,	// I - File
           _hc_off_table_t *table)	// I - Offset table
 {
- /*
-  * All we care about is the number of glyphs, so get grab that...
-  */
-
+  // All we care about is the number of glyphs, so get grab that...
   if (seek_table(file, table, _HC_OFF_maxp, 4) == 0)
     return (-1);
   else

@@ -195,11 +195,11 @@ doc:
 
 # Run unit tests
 test:		testhtmlcss
-	./testhtmlcss --all --css --font --html testhtmlcss.html >testhtmlcss.log || (cat testhtmlcss.log; exit 1)
+	./testhtmlcss --all --css --font --html testhtmlcss.html >testhtmlcss.log 2>&1 || (cat testhtmlcss.log; exit 1)
 
 
 test-fonts:	testhtmlcss
-	./testhtmlcss --font testsuite/*.ttf testsuite/*.otf
+	./testhtmlcss --font testsuite/Source/*.ttf testsuite/Source/*.otf
 
 
 # Unit test program

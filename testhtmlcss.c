@@ -375,7 +375,7 @@ main(int  argc,				// I - Number of command-line arguments
 		num_fonts;		// Number of cached fonts
     hc_font_t	*font;			// Cached font
 
-    puts("\nCached Fonts:");
+    printf("\nCached Fonts (%lu):\n", (unsigned long)hcFontGetCachedCount(pool));
 
     for (findex = 0, num_fonts = hcFontGetCachedCount(pool); findex < num_fonts; findex ++)
     {

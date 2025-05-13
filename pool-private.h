@@ -32,7 +32,7 @@ struct _hc_pool_s			// Memory pool
   struct lconv	*loc;			// Locale information
   size_t	loc_declen;		// Length of decimal point
 
-  int		fonts_loaded;		// Did we load the fonts?
+  bool		fonts_loaded;		// Did we load the fonts?
   size_t	num_fonts;		// Number of fonts in pool
   size_t	alloc_fonts;		// Allocated size of fonts array
   _hc_font_info_t *fonts;		// Fonts array
