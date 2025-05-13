@@ -225,7 +225,7 @@ main(int  argc,				// I - Number of command-line arguments
 	size_t idx, count = hcNodeAttrGetCount(node);
 	const hc_dict_t *props = hcNodeComputeCSSProperties(node, HC_COMPUTE_BASE);
 
-	printf("<%s", hcElements[element]);
+	printf("<%s", hcElementString(element));
 	for (idx = 0; idx < count; idx ++)
 	{
 	  const char *name, *value = hcNodeAttrGetIndexNameValue(node, idx, &name);
@@ -323,7 +323,7 @@ main(int  argc,				// I - Number of command-line arguments
 	if (sel->element == HC_ELEMENT_WILDCARD)
 	  fputs("*", stdout);
 	else
-	  fputs(hcElements[sel->element], stdout);
+	  fputs(hcElementString(sel->element), stdout);
 
 	for (j = 0, stmt = sel->stmts; j < (int)sel->num_stmts; j ++, stmt ++)
 	{

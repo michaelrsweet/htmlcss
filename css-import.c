@@ -9,10 +9,6 @@
 // information.
 //
 
-//
-// Include necessary headers...
-//
-
 #  include "css-private.h"
 #  include "file-private.h"
 #  include "default-css.h"
@@ -753,8 +749,10 @@ hc_read_sel(hc_css_t   *css,		// I  - Stylesheet
       hc_element_t	element;	// Element for selector
 
       if (!strcmp(buffer, "*"))
+      {
         element = HC_ELEMENT_WILDCARD;
-      else if ((element = _hcElementLookup(buffer)) == HC_ELEMENT_UNKNOWN)
+      }
+      else if ((element = hcElementValue(buffer)) == HC_ELEMENT_UNKNOWN)
       {
 	_hcFileError(file, "Unknown selector '%s'.", buffer);
 	goto error;

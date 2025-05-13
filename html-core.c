@@ -9,10 +9,6 @@
 // information.
 //
 
-//
-// Include necessary headers...
-//
-
 #include "html-private.h"
 #include <stdarg.h>
 
@@ -21,7 +17,7 @@
 // HTML element strings...
 //
 
-const char * const	hcElements[HC_ELEMENT_MAX] =
+static const char * const elements[HC_ELEMENT_MAX] =
 {
   "", // "*"
   "!--",
@@ -159,6 +155,51 @@ const char * const	hcElements[HC_ELEMENT_MAX] =
 
 
 //
+// Local functions...
+//
+
+static int	compare_elements(const char **a, const char **b);
+
+
+//
+// 'hcElementString()' - Return the string associated with an element enum value.
+//
+
+const char *				// O - HTML element string (lowercase)
+hcElementString(hc_element_t e)		// I - HTML element enum
+{
+  // Range check and return the appropriate string...
+  if (e >= HC_ELEMENT_WILDCARD && e < HC_ELEMENT_MAX)
+    return (elements[e]);
+  else
+    return ("(unknown)");
+
+}
+
+
+//
+// 'hcElementValue()' - Return the enum associated with an element string value.
+//
+
+hc_element_t				// O - HTML element enum
+hcElementValue(const char *s)		// I - HTML element string
+{
+  const char	**match;		// Match from bsearch
+
+
+  // Range check input...
+  if (!s || !*s)
+    return (HC_ELEMENT_UNKNOWN);
+
+  // Search for the string...
+  if ((match = (const char **)bsearch(&s, elements, sizeof(elements) / sizeof(elements[0]), sizeof(elements[0]), (int (*)(const void *, const void *))compare_elements)) != NULL)
+    return ((hc_element_t)(match - elements));
+  else
+    return (HC_ELEMENT_UNKNOWN);
+}
+
+
+//
 // 'hcHTMLDelete()' - Free the memory used by a HTML document.
 //
 
@@ -204,4 +245,20 @@ hcHTMLNew(hc_pool_t *pool,		// I - Memory pool
   }
 
   return (html);
+}
+
+
+//
+// 'compare_elements()' - Compare two elements...
+//
+
+static int				// O - Result of comparison
+compare_elements(const char **a,	// I - First string
+		 const char **b)	// I - Second string
+{
+#ifdef WIN32
+  return (_stricmp(*a, *b));
+#else
+  return (strcasecmp(*a, *b));
+#endif // WIN32
 }

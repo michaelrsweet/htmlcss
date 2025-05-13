@@ -166,53 +166,49 @@ typedef struct _hc_html_s hc_html_t;	// HTML document
 
 
 //
-// Globals...
-//
-
-extern const char * const	hcElements[HC_ELEMENT_MAX];
-
-
-//
 // Functions...
 //
 
-extern void		hcHTMLDelete(hc_html_t *html);
-extern hc_node_t	*hcHTMLFindNode(hc_html_t *html, hc_node_t *current, hc_element_t element, const char *id);
-extern hc_css_t		*hcHTMLGetCSS(hc_html_t *html);
-extern const char	*hcHTMLGetDOCTYPE(hc_html_t *html);
-extern hc_node_t	*hcHTMLGetRootNode(hc_html_t *html);
-extern bool		hcHTMLImport(hc_html_t *html, hc_file_t *file);
-extern hc_html_t	*hcHTMLNew(hc_pool_t *pool, hc_css_t *css);
-extern hc_node_t	*hcHTMLNewRootNode(hc_html_t *html, const char *doctype);
-extern void		hcHTMLSetErrorCallback(hc_html_t *html, hc_error_cb_t cb, void *ctx);
-extern void		hcHTMLSetURLCallback(hc_html_t *html, hc_url_cb_t cb, void *ctx);
+extern const char	*hcElementString(hc_element_t e) _HC_PUBLIC;
+extern hc_element_t	hcElementValue(const char *s) _HC_PUBLIC;
 
-extern size_t		hcNodeAttrGetCount(hc_node_t *node);
-extern const char	*hcNodeAttrGetIndexNameValue(hc_node_t *node, size_t idx, const char **name);
-extern const char	*hcNodeAttrGetNameValue(hc_node_t *node, const char *name);
-extern void		hcNodeAttrRemove(hc_node_t *node, const char *name);
-extern void		hcNodeAttrSetNameValue(hc_node_t *node, const char *name, const char *value);
+extern void		hcHTMLDelete(hc_html_t *html) _HC_PUBLIC;
+extern hc_node_t	*hcHTMLFindNode(hc_html_t *html, hc_node_t *current, hc_element_t element, const char *id) _HC_PUBLIC;
+extern hc_css_t		*hcHTMLGetCSS(hc_html_t *html) _HC_PUBLIC;
+extern const char	*hcHTMLGetDOCTYPE(hc_html_t *html) _HC_PUBLIC;
+extern hc_node_t	*hcHTMLGetRootNode(hc_html_t *html) _HC_PUBLIC;
+extern bool		hcHTMLImport(hc_html_t *html, hc_file_t *file) _HC_PUBLIC;
+extern hc_html_t	*hcHTMLNew(hc_pool_t *pool, hc_css_t *css) _HC_PUBLIC;
+extern hc_node_t	*hcHTMLNewRootNode(hc_html_t *html, const char *doctype) _HC_PUBLIC;
+extern void		hcHTMLSetErrorCallback(hc_html_t *html, hc_error_cb_t cb, void *cbdata) _HC_PUBLIC;
+extern void		hcHTMLSetURLCallback(hc_html_t *html, hc_url_cb_t cb, void *cbdata) _HC_PUBLIC;
 
-extern bool		hcNodeComputeCSSBox(hc_node_t *node, hc_compute_t compute, hc_box_t *box);
-extern char		*hcNodeComputeCSSContent(hc_node_t *node, hc_compute_t compute);
-extern hc_display_t	hcNodeComputeCSSDisplay(hc_node_t *node, hc_compute_t compute);
-extern bool		hcNodeComputeCSSMedia(hc_node_t *node, hc_compute_t compute, hc_media_t *media);
-extern const hc_dict_t	*hcNodeComputeCSSProperties(hc_node_t *node, hc_compute_t compute);
-extern bool		hcNodeComputeCSSTable(hc_node_t *node, hc_compute_t compute, hc_table_t *table);
-extern bool		hcNodeComputeCSSText(hc_node_t *node, hc_compute_t compute, hc_text_t *text);
+extern size_t		hcNodeAttrGetCount(hc_node_t *node) _HC_PUBLIC;
+extern const char	*hcNodeAttrGetIndexNameValue(hc_node_t *node, size_t idx, const char **name) _HC_PUBLIC;
+extern const char	*hcNodeAttrGetNameValue(hc_node_t *node, const char *name) _HC_PUBLIC;
+extern void		hcNodeAttrRemove(hc_node_t *node, const char *name) _HC_PUBLIC;
+extern void		hcNodeAttrSetNameValue(hc_node_t *node, const char *name, const char *value) _HC_PUBLIC;
 
-extern void		hcNodeDelete(hc_html_t *html, hc_node_t *node);
-extern const char	*hcNodeGetComment(hc_node_t *node);
-extern hc_element_t	hcNodeGetElement(hc_node_t *node);
-extern hc_node_t	*hcNodeGetFirstChildNode(hc_node_t *node);
-extern hc_node_t	*hcNodeGetLastChildNode(hc_node_t *node);
-extern hc_node_t	*hcNodeGetNextSiblingNode(hc_node_t *node);
-extern hc_node_t	*hcNodeGetParentNode(hc_node_t *node);
-extern hc_node_t	*hcNodeGetPrevSiblingNode(hc_node_t *node);
-extern const char	*hcNodeGetString(hc_node_t *node);
-extern hc_node_t	*hcNodeNewComment(hc_node_t *parent, const char *c);
-extern hc_node_t	*hcNodeNewElement(hc_node_t *parent, hc_element_t element);
-extern hc_node_t	*hcNodeNewString(hc_node_t *parent, const char *s);
+extern bool		hcNodeComputeCSSBox(hc_node_t *node, hc_compute_t compute, hc_box_t *box) _HC_PUBLIC;
+extern char		*hcNodeComputeCSSContent(hc_node_t *node, hc_compute_t compute) _HC_PUBLIC;
+extern hc_display_t	hcNodeComputeCSSDisplay(hc_node_t *node, hc_compute_t compute) _HC_PUBLIC;
+extern bool		hcNodeComputeCSSMedia(hc_node_t *node, hc_compute_t compute, hc_media_t *media) _HC_PUBLIC;
+extern const hc_dict_t	*hcNodeComputeCSSProperties(hc_node_t *node, hc_compute_t compute) _HC_PUBLIC;
+extern bool		hcNodeComputeCSSTable(hc_node_t *node, hc_compute_t compute, hc_table_t *table) _HC_PUBLIC;
+extern bool		hcNodeComputeCSSText(hc_node_t *node, hc_compute_t compute, hc_text_t *text) _HC_PUBLIC;
+
+extern void		hcNodeDelete(hc_html_t *html, hc_node_t *node) _HC_PUBLIC;
+extern const char	*hcNodeGetComment(hc_node_t *node) _HC_PUBLIC;
+extern hc_element_t	hcNodeGetElement(hc_node_t *node) _HC_PUBLIC;
+extern hc_node_t	*hcNodeGetFirstChildNode(hc_node_t *node) _HC_PUBLIC;
+extern hc_node_t	*hcNodeGetLastChildNode(hc_node_t *node) _HC_PUBLIC;
+extern hc_node_t	*hcNodeGetNextSiblingNode(hc_node_t *node) _HC_PUBLIC;
+extern hc_node_t	*hcNodeGetParentNode(hc_node_t *node) _HC_PUBLIC;
+extern hc_node_t	*hcNodeGetPrevSiblingNode(hc_node_t *node) _HC_PUBLIC;
+extern const char	*hcNodeGetString(hc_node_t *node) _HC_PUBLIC;
+extern hc_node_t	*hcNodeNewComment(hc_node_t *parent, const char *c) _HC_PUBLIC;
+extern hc_node_t	*hcNodeNewElement(hc_node_t *parent, hc_element_t element) _HC_PUBLIC;
+extern hc_node_t	*hcNodeNewString(hc_node_t *parent, const char *s) _HC_PUBLIC;
 
 
 #  ifdef __cplusplus

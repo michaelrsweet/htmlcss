@@ -35,31 +35,11 @@
 // Local functions...
 //
 
-static int	html_compare_elements(const char **a, const char **b);
 static int	html_parse_attr(hc_file_t *file, int ch, hc_node_t *node);
 static bool	html_parse_comment(hc_file_t *file, hc_node_t **parent);
 static bool	html_parse_doctype(hc_file_t *file, hc_html_t *html, hc_node_t **parent);
 static bool	html_parse_element(hc_file_t *file, int ch, hc_html_t *html, hc_node_t **parent);
 static bool	html_parse_unknown(hc_file_t *file, hc_node_t **parent, const char *unk);
-
-
-//
-// '_hcElementLookup() - Lookup an element enum from a string.
-//
-
-hc_element_t				// O - Element
-_hcElementLookup(const char *s)		// I - String
-{
-  const char	**match;		// Matching element
-
-
-  match  = bsearch(&s, hcElements + 1, sizeof(hcElements) / sizeof(hcElements[0]) - 1, sizeof(hcElements[0]), (_hc_compare_func_t)html_compare_elements);
-
-  if (match)
-    return ((hc_element_t)(match - hcElements));
-  else
-    return (HC_ELEMENT_UNKNOWN);
-}
 
 
 //
@@ -218,22 +198,6 @@ hcHTMLImport(hc_html_t *html,		// I - HTML document
   }
 
   return (status);
-}
-
-
-//
-// 'html_compare_elements()' - Compare two elements...
-//
-
-static int				// O - Result of comparison
-html_compare_elements(const char **a,	// I - First string
-                      const char **b)	// I - Second string
-{
-#ifdef WIN32
-  return (_stricmp(*a, *b));
-#else
-  return (strcasecmp(*a, *b));
-#endif // WIN32
 }
 
 
@@ -494,7 +458,7 @@ html_parse_element(hc_file_t *file,	// I  - File to read from
 
   if (isspace(ch) || ch == '>' || ch == '/')
   {
-    element = _hcElementLookup(buffer);
+    element = hcElementValue(buffer);
 
     if (element == HC_ELEMENT_UNKNOWN && !_hcFileError(file, "Unknown element '%s'.", buffer))
       return (false);
