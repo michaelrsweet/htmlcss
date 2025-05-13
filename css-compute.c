@@ -9,10 +9,6 @@
 // information.
 //
 
-//
-// Include necessary headers...
-//
-
 #  include "css-private.h"
 #  include "font-private.h"
 #  include "image.h"
@@ -47,10 +43,11 @@ typedef struct _hc_css_match_s		// Matching rule set
 
 static int		hc_compare_matches(_hc_css_match_t *a, _hc_css_match_t *b);
 static const hc_dict_t	*hc_create_props(hc_node_t *node, hc_compute_t compute);
-static bool		hc_get_color(const char *value, hc_color_t *color);
-static float		hc_get_length(const char *value, float max_value, float multiplier, hc_css_t *css, hc_text_t *text);
+static bool		hc_get_color(hc_pool_t *pool, const char *value, hc_color_t *color);
+static float		hc_get_length(hc_pool_t *pool, const char *value, float max_value, float multiplier, hc_css_t *css, hc_text_t *text);
 static int		hc_match_node(hc_node_t *node, _hc_css_sel_t *sel, const char *pseudo_class);
 static int		hc_match_rule(hc_node_t *node, _hc_rule_t *rule, const char *pseudo_class);
+static double		hc_strtod(hc_pool_t *pool, const char *s, char **end);
 
 
 //
@@ -255,7 +252,7 @@ hcNodeComputeCSSBox(
       {
         bg_pos_size[0] = hcPoolGetString(pool, current);
       }
-      else if (!hc_get_color(current, &box->background_color))
+      else if (!hc_get_color(pool, current, &box->background_color))
       {
 	for (i = 0; i < (int)(sizeof(boxes) / sizeof(boxes[0])); i ++)
 	{
@@ -308,7 +305,7 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "background-color")) != NULL)
   {
-    hc_get_color(value, &box->background_color);
+    hc_get_color(pool, value, &box->background_color);
   }
 
   if ((value = hcDictGetKeyValue(props, "background-image")) != NULL)
@@ -448,7 +445,7 @@ hcNodeComputeCSSBox(
       }
       else if (strchr("0123456789-.", bg_pos_size[2][0]))
       {
-        box->background_size.width = hc_get_length(bg_pos_size[2], css->media.size.width, 72.0f / 96.0f, css, &text);
+        box->background_size.width = hc_get_length(pool, bg_pos_size[2], css->media.size.width, 72.0f / 96.0f, css, &text);
 
         if (!bg_pos_size[3])
           box->background_size.height = box->background_size.width * bg_size.height / bg_size.width;
@@ -483,7 +480,7 @@ hcNodeComputeCSSBox(
       }
       else if (strchr("0123456789-.", bg_pos_size[3][0]))
       {
-        box->background_size.height = hc_get_length(bg_pos_size[3], css->media.size.height, 72.0f / 96.0f, css, &text);
+        box->background_size.height = hc_get_length(pool, bg_pos_size[3], css->media.size.height, 72.0f / 96.0f, css, &text);
 
         if (!bg_pos_size[2])
           box->background_size.width = box->background_size.height * bg_size.width / bg_size.height;
@@ -501,7 +498,7 @@ hcNodeComputeCSSBox(
       else if (!strcmp(bg_pos_size[0], "right"))
         box->background_position.left = css->media.size.width - bg_size.width;
       else if (strchr("0123456789-.", bg_pos_size[0][0]))
-        box->background_position.left = hc_get_length(bg_pos_size[0], css->media.size.width - bg_size.width, 72.0f / 96.0f, css, &text);
+        box->background_position.left = hc_get_length(pool, bg_pos_size[0], css->media.size.width - bg_size.width, 72.0f / 96.0f, css, &text);
     }
 
     if (bg_pos_size[1])
@@ -513,7 +510,7 @@ hcNodeComputeCSSBox(
       else if (!strcmp(bg_pos_size[0], "bottom"))
         box->background_position.top = css->media.size.height - bg_size.height;
       else if (strchr("0123456789-.", bg_pos_size[0][0]))
-        box->background_position.top = hc_get_length(bg_pos_size[0], css->media.size.height - bg_size.height, 72.0f / 96.0f, css, &text);
+        box->background_position.top = hc_get_length(pool, bg_pos_size[0], css->media.size.height - bg_size.height, 72.0f / 96.0f, css, &text);
     }
   }
 
@@ -529,7 +526,7 @@ hcNodeComputeCSSBox(
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
-      if (hc_get_color(current, &color))
+      if (hc_get_color(pool, current, &color))
       {
 	box->border.bottom.color = box->border.left.color = box->border.right.color = box->border.top.color = color;
       }
@@ -547,7 +544,7 @@ hcNodeComputeCSSBox(
       }
       else if (strchr("0123456789.", *current))
       {
-	box->border.bottom.width = box->border.left.width = box->border.right.width = box->border.top.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+	box->border.bottom.width = box->border.left.width = box->border.right.width = box->border.top.width = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
       }
       else
       {
@@ -573,7 +570,7 @@ hcNodeComputeCSSBox(
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
-      if (hc_get_color(current, &color))
+      if (hc_get_color(pool, current, &color))
       {
 	box->border.bottom.color = color;
       }
@@ -591,7 +588,7 @@ hcNodeComputeCSSBox(
       }
       else if (strchr("0123456789.", *current))
       {
-	box->border.bottom.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+	box->border.bottom.width = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
       }
       else
       {
@@ -617,7 +614,7 @@ hcNodeComputeCSSBox(
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
-      if (hc_get_color(current, &color))
+      if (hc_get_color(pool, current, &color))
       {
 	box->border.left.color = color;
       }
@@ -635,7 +632,7 @@ hcNodeComputeCSSBox(
       }
       else if (strchr("0123456789.", *current))
       {
-	box->border.left.width = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+	box->border.left.width = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
       }
       else
       {
@@ -661,7 +658,7 @@ hcNodeComputeCSSBox(
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
-      if (hc_get_color(current, &color))
+      if (hc_get_color(pool, current, &color))
       {
 	box->border.right.color = color;
       }
@@ -679,7 +676,7 @@ hcNodeComputeCSSBox(
       }
       else if (strchr("0123456789.", *current))
       {
-	box->border.right.width = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+	box->border.right.width = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
       }
       else
       {
@@ -705,7 +702,7 @@ hcNodeComputeCSSBox(
 
     for (next = temp, current = strsep(&next, " \t"); current; current = strsep(&next, " \t"))
     {
-      if (hc_get_color(current, &color))
+      if (hc_get_color(pool, current, &color))
       {
 	box->border.top.color = color;
       }
@@ -723,7 +720,7 @@ hcNodeComputeCSSBox(
       }
       else if (strchr("0123456789.", *current))
       {
-	box->border.top.width = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+	box->border.top.width = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
       }
       else
       {
@@ -743,7 +740,7 @@ hcNodeComputeCSSBox(
 
   if ((value = hcDictGetKeyValue(props, "border-color")) != NULL)
   {
-    if (hc_get_color(value, &box->border.bottom.color))
+    if (hc_get_color(pool, value, &box->border.bottom.color))
       box->border.left.color = box->border.right.color = box->border.top.color = box->border.bottom.color;
   }
 
@@ -768,20 +765,20 @@ hcNodeComputeCSSBox(
     else if (!strcmp(value, "thick"))
       box->border.bottom.width = box->border.left.width = box->border.right.width = box->border.top.width = 2.0f;
     else if (strchr("0123456789.", *value))
-      box->border.bottom.width = box->border.left.width = box->border.right.width = box->border.top.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+      box->border.bottom.width = box->border.left.width = box->border.right.width = box->border.top.width = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "border-bottom-color")) != NULL)
-    hc_get_color(value, &box->border.bottom.color);
+    hc_get_color(pool, value, &box->border.bottom.color);
 
   if ((value = hcDictGetKeyValue(props, "border-left-color")) != NULL)
-    hc_get_color(value, &box->border.left.color);
+    hc_get_color(pool, value, &box->border.left.color);
 
   if ((value = hcDictGetKeyValue(props, "border-right-color")) != NULL)
-    hc_get_color(value, &box->border.right.color);
+    hc_get_color(pool, value, &box->border.right.color);
 
   if ((value = hcDictGetKeyValue(props, "border-top-color")) != NULL)
-    hc_get_color(value, &box->border.top.color);
+    hc_get_color(pool, value, &box->border.top.color);
 
   if ((value = hcDictGetKeyValue(props, "border-bottom-style")) != NULL)
   {
@@ -840,7 +837,7 @@ hcNodeComputeCSSBox(
     else if (!strcmp(value, "thick"))
       box->border.bottom.width = 2.0f;
     else if (strchr("0123456789.", *value))
-      box->border.bottom.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+      box->border.bottom.width = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "border-left-width")) != NULL)
@@ -852,7 +849,7 @@ hcNodeComputeCSSBox(
     else if (!strcmp(value, "thick"))
       box->border.left.width = 2.0f;
     else if (strchr("0123456789.", *value))
-      box->border.left.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+      box->border.left.width = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "border-right-width")) != NULL)
@@ -864,7 +861,7 @@ hcNodeComputeCSSBox(
     else if (!strcmp(value, "thick"))
       box->border.right.width = 2.0f;
     else if (strchr("0123456789.", *value))
-      box->border.right.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+      box->border.right.width = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "border-top-width")) != NULL)
@@ -876,7 +873,7 @@ hcNodeComputeCSSBox(
     else if (!strcmp(value, "thick"))
       box->border.top.width = 2.0f;
     else if (strchr("0123456789.", *value))
-      box->border.top.width = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+      box->border.top.width = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "border-image")) != NULL)
@@ -898,7 +895,7 @@ hcNodeComputeCSSBox(
       }
       else if (strchr("0123456789.", *current))
       {
-	length = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+	length = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -991,7 +988,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-	length = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+	length = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1058,7 +1055,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-	length = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+	length = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1110,7 +1107,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-	length = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+	length = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1158,7 +1155,7 @@ hcNodeComputeCSSBox(
       }
       else if (strchr("0123456789.", *current))
       {
-        radius = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+        radius = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1224,7 +1221,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-        radius = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+        radius = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1256,7 +1253,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-        radius = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+        radius = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1288,7 +1285,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-        radius = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+        radius = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1320,7 +1317,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-        radius = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+        radius = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1352,7 +1349,7 @@ hcNodeComputeCSSBox(
     {
       if (strchr("0123456789.", *current))
       {
-        spacing = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+        spacing = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1387,11 +1384,11 @@ hcNodeComputeCSSBox(
     {
       if (!strcmp(current, "inset"))
         box->box_shadow.inset = true;
-      else if (hc_get_color(current, &color))
+      else if (hc_get_color(pool, current, &color))
         box->box_shadow.color = color;
       else if (strchr("0123456789.", *current))
       {
-        length = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+        length = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
 
         switch (pos)
         {
@@ -1596,7 +1593,7 @@ hcNodeComputeCSSBox(
 	if (!strcmp(current, "auto"))
 	  values[num_values] = HC_LENGTH_AUTO;
 	else if (strchr("0123456789+-.", *current))
-	  values[num_values] = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+	  values[num_values] = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
 	else
 	  values[num_values] = 0.0f;
       }
@@ -1642,7 +1639,7 @@ hcNodeComputeCSSBox(
     if (!strcmp(value, "auto"))
       box->margin.bottom = HC_LENGTH_AUTO;
     else if (strchr("0123456789+-.", *value))
-      box->margin.bottom = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+      box->margin.bottom = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "margin-left")) != NULL)
@@ -1650,7 +1647,7 @@ hcNodeComputeCSSBox(
     if (!strcmp(value, "auto"))
       box->margin.left = HC_LENGTH_AUTO;
     else if (strchr("0123456789+-.", *value))
-      box->margin.left = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+      box->margin.left = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "margin-right")) != NULL)
@@ -1658,7 +1655,7 @@ hcNodeComputeCSSBox(
     if (!strcmp(value, "auto"))
       box->margin.right = HC_LENGTH_AUTO;
     else if (strchr("0123456789+-.", *value))
-      box->margin.right = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+      box->margin.right = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "margin-top")) != NULL)
@@ -1666,7 +1663,7 @@ hcNodeComputeCSSBox(
     if (!strcmp(value, "auto"))
       box->margin.top = HC_LENGTH_AUTO;
     else if (strchr("0123456789+-.", *value))
-      box->margin.top = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+      box->margin.top = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "padding")) != NULL)
@@ -1682,7 +1679,7 @@ hcNodeComputeCSSBox(
       if (num_values < 4)
       {
 	if (strchr("0123456789+-.", *current))
-	  values[num_values] = hc_get_length(current, box->size.width, 72.0f / 96.0f, css, &text);
+	  values[num_values] = hc_get_length(pool, current, box->size.width, 72.0f / 96.0f, css, &text);
 	else
 	  values[num_values] = 0.0f;
       }
@@ -1726,25 +1723,25 @@ hcNodeComputeCSSBox(
   if ((value = hcDictGetKeyValue(props, "padding-bottom")) != NULL)
   {
     if (strchr("0123456789+-.", *value))
-      box->padding.bottom = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+      box->padding.bottom = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "padding-left")) != NULL)
   {
     if (strchr("0123456789+-.", *value))
-      box->padding.left = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+      box->padding.left = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "padding-right")) != NULL)
   {
     if (strchr("0123456789+-.", *value))
-      box->padding.right = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+      box->padding.right = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   if ((value = hcDictGetKeyValue(props, "padding-top")) != NULL)
   {
     if (strchr("0123456789+-.", *value))
-      box->padding.top = hc_get_length(value, box->size.width, 72.0f / 96.0f, css, &text);
+      box->padding.top = hc_get_length(pool, value, box->size.width, 72.0f / 96.0f, css, &text);
   }
 
   return (true);
@@ -1977,7 +1974,7 @@ hcNodeComputeCSSText(
     if (!strcmp(value, "normal"))
       text->letter_spacing = 0.0f;
     else
-      text->letter_spacing = hc_get_length(value, css->media.size.width, 72.0f / 96.0f, css, text);
+      text->letter_spacing = hc_get_length(pool, value, css->media.size.width, 72.0f / 96.0f, css, text);
   }
 
   if ((value = hcDictGetKeyValue(props, "quotes")) != NULL)
@@ -2060,7 +2057,7 @@ hcNodeComputeCSSText(
   }
 
   if ((value = hcDictGetKeyValue(props, "text-indent")) != NULL)
-    text->text_indent = hc_get_length(value, css->media.size.width, 72.0f / 96.0f, css, text);
+    text->text_indent = hc_get_length(pool, value, css->media.size.width, 72.0f / 96.0f, css, text);
 
   if ((value = hcDictGetKeyValue(props, "text-transform")) != NULL)
   {
@@ -2103,7 +2100,7 @@ hcNodeComputeCSSText(
     if (!strcmp(value, "normal"))
       text->word_spacing = 0.0f;
     else
-      text->word_spacing = hc_get_length(value, css->media.size.width, 72.0f / 96.0f, css, text);
+      text->word_spacing = hc_get_length(pool, value, css->media.size.width, 72.0f / 96.0f, css, text);
   }
 
   return (true);
@@ -2167,7 +2164,7 @@ _hcNodeComputeCSSTextFont(
   css  = node->value.element.html->css;
 
   if ((value = hcDictGetKeyValue(props, "color")) != NULL)
-    hc_get_color(value, &text->color);
+    hc_get_color(pool, value, &text->color);
 
   if ((value = hcDictGetKeyValue(props, "font")) != NULL)
   {
@@ -2301,14 +2298,14 @@ _hcNodeComputeCSSTextFont(
       {
         if (saw_slash)
         {
-          text->line_height = hc_get_length(current, text->font_size, text->font_size, css, text);
+          text->line_height = hc_get_length(pool, current, text->font_size, text->font_size, css, text);
         }
         else
         {
 	  if (!node->parent || !_hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text))
 	    parent_text.font_size = 12.0f;
 
-          text->font_size = hc_get_length(current, parent_text.font_size, 72.0f / 96.0f, css, &parent_text);
+          text->font_size = hc_get_length(pool, current, parent_text.font_size, 72.0f / 96.0f, css, &parent_text);
 	}
       }
       else
@@ -2383,7 +2380,7 @@ _hcNodeComputeCSSTextFont(
       if (!node->parent || !_hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text))
 	parent_text.font_size = 12.0f;
 
-      text->font_size = hc_get_length(value, parent_text.font_size, 72.0f / 96.0f, css, &parent_text);
+      text->font_size = hc_get_length(pool, value, parent_text.font_size, 72.0f / 96.0f, css, &parent_text);
     }
   }
   else if (text->font_size <= 0.0f)
@@ -2394,7 +2391,7 @@ _hcNodeComputeCSSTextFont(
     if (!strcmp(value, "none"))
       text->font_size_adjust = 0.0f;
     else if (strchr("0123456789.", *value))
-      text->font_size_adjust = hc_get_length(value, text->font_size, 72.0f / 96.0f, css, text);
+      text->font_size_adjust = hc_get_length(pool, value, text->font_size, 72.0f / 96.0f, css, text);
   }
 
   if ((value = hcDictGetKeyValue(props, "font-stretch")) != NULL)
@@ -2458,7 +2455,7 @@ _hcNodeComputeCSSTextFont(
     if (!strcmp(value, "normal"))
       text->line_height = text->font_size * 1.2f;
     else if (strchr("0123456789.", *value))
-      text->line_height = hc_get_length(value, text->font_size, text->font_size, css, text);
+      text->line_height = hc_get_length(pool, value, text->font_size, text->font_size, css, text);
   }
   else if (text->line_height <= 0.0f)
     text->line_height = text->font_size * 1.2f;
@@ -2776,7 +2773,8 @@ hc_create_props(hc_node_t    *node,	// I - HTML node
 //
 
 static bool				// O - `true` on success, `false` on failure
-hc_get_color(const char *value,		// I - Color string
+hc_get_color(hc_pool_t  *pool,		// I - Memory pool
+             const char *value,		// I - Color string
              hc_color_t *color)		// O - Color values
 {
   int		i;			// Looping var
@@ -2811,7 +2809,7 @@ hc_get_color(const char *value,		// I - Color string
 
   if (!strncmp(value, "rgb(", 4))
   {
-    rgba.red = (float)strtod(value + 4, &ptr);
+    rgba.red = (float)hc_strtod(pool, value + 4, &ptr);
     if (*ptr == '%')
     {
       ptr ++;
@@ -2824,7 +2822,7 @@ hc_get_color(const char *value,		// I - Color string
     if (*ptr != ',')
       return (false);
 
-    rgba.green = (float)strtod(ptr + 1, &ptr);
+    rgba.green = (float)hc_strtod(pool, ptr + 1, &ptr);
     if (*ptr == '%')
     {
       ptr ++;
@@ -2837,7 +2835,7 @@ hc_get_color(const char *value,		// I - Color string
     if (*ptr != ',')
       return (false);
 
-    rgba.blue = (float)strtod(ptr + 1, &ptr);
+    rgba.blue = (float)hc_strtod(pool, ptr + 1, &ptr);
     if (*ptr == '%')
     {
       ptr ++;
@@ -2857,7 +2855,7 @@ hc_get_color(const char *value,		// I - Color string
   }
   else if (!strncmp(value, "rgba(", 5))
   {
-    rgba.red = (float)strtod(value + 5, &ptr);
+    rgba.red = (float)hc_strtod(pool, value + 5, &ptr);
     if (*ptr == '%')
     {
       ptr ++;
@@ -2870,7 +2868,7 @@ hc_get_color(const char *value,		// I - Color string
     if (*ptr != ',')
       return (false);
 
-    rgba.green = (float)strtod(ptr + 1, &ptr);
+    rgba.green = (float)hc_strtod(pool, ptr + 1, &ptr);
     if (*ptr == '%')
     {
       ptr ++;
@@ -2883,7 +2881,7 @@ hc_get_color(const char *value,		// I - Color string
     if (*ptr != ',')
       return (false);
 
-    rgba.blue = (float)strtod(ptr + 1, &ptr);
+    rgba.blue = (float)hc_strtod(pool, ptr + 1, &ptr);
     if (*ptr == '%')
     {
       ptr ++;
@@ -2895,7 +2893,7 @@ hc_get_color(const char *value,		// I - Color string
     }
     if (*ptr != ',')
       return (false);
-    rgba.alpha = (float)strtod(ptr + 1, &ptr);
+    rgba.alpha = (float)hc_strtod(pool, ptr + 1, &ptr);
     if (*ptr == '%')
     {
       ptr ++;
@@ -2954,22 +2952,27 @@ hc_get_color(const char *value,		// I - Color string
 //
 
 static float				// O - Value in points or 0.0 on error
-hc_get_length(const char *value,	// I - Value string
+hc_get_length(hc_pool_t  *pool,		// I - Memory pool
+              const char *value,	// I - Value string
               float      max_value,	// I - Maximum value for percentages
               float      multiplier,	// I - Multiplier for plain number values
               hc_css_t   *css,		// I - Stylesheet
               hc_text_t  *text)		// I - Text properties
 {
   char		*ptr;			// Pointer to units after value
-  double	temp = strtod(value, &ptr);
+  double	temp = hc_strtod(pool, value, &ptr);
 					// Interim value
 
   if (ptr)
   {
     if (!*ptr)
+    {
       temp *= multiplier;
+    }
     else if (!strcmp(ptr, "%"))
+    {
       temp *= 0.01 * max_value;
+    }
     else if (!strcmp(ptr, "ch") && text)
     {
       hc_rect_t	extents;		// Font extents
@@ -2978,23 +2981,41 @@ hc_get_length(const char *value,	// I - Value string
       temp *= extents.right;
     }
     else if (!strcmp(ptr, "cm"))
+    {
       temp *= 72.0 / 2.54;
+    }
     else if (!strcmp(ptr, "em") && text)
+    {
       temp *= text->font_size;
+    }
     else if (!strcmp(ptr, "ex") && text)
+    {
       temp *= text->font_size * text->font->x_height / text->font->units;
+    }
     else if (!strcmp(ptr, "in"))
+    {
       temp *= 72.0;
+    }
     else if (!strcmp(ptr, "mm"))
+    {
       temp *= 72.0 / 25.4;
+    }
     else if (!strcmp(ptr, "pc"))
+    {
       temp *= 72.0 / 6.0;
+    }
     else if (!strcmp(ptr, "px"))
+    {
       temp *= 72.0 / 96.0;
+    }
     else if (!strcmp(ptr, "Q"))	// Quarter-millimeters
+    {
       temp *= 72.0 / 25.4 / 4.0;
+    }
     else if (!strcmp(ptr, "vh"))
+    {
       temp *= 0.01 * css->media.size.height;
+    }
     else if (!strcmp(ptr, "vmax"))
     {
       if (css->media.size.width > css->media.size.height)
@@ -3010,7 +3031,9 @@ hc_get_length(const char *value,	// I - Value string
         temp *= 0.01 * css->media.size.height;
     }
     else if (!strcmp(ptr, "vw"))
+    {
       temp *= 0.01 * css->media.size.width;
+    }
     else if (strcmp(ptr, "pt"))
     {
       // TODO: Show error
@@ -3327,3 +3350,79 @@ hc_match_rule(hc_node_t  *node,		// I  - HTML node
   return (score);
 }
 
+
+//
+// 'hc_strtod()' - Convert a string to a double without respect to the locale.
+//
+
+static double				// O - Real number
+hc_strtod(hc_pool_t  *pool,		// I - Memory pool
+          const char *buffer,		// I - String
+          char       **bufend)		// O - End of number in string
+{
+  const char	*bufptr;		// Pointer into buffer
+  char		temp[64],		// Temporary buffer
+		*tempptr;		// Pointer into temporary buffer
+
+
+  // See if the locale has a special decimal point string...
+  if (!pool || !pool->loc)
+    return (strtod(buffer, bufend));
+
+  // Copy leading sign, numbers, period, and then numbers...
+  tempptr                = temp;
+  temp[sizeof(temp) - 1] = '\0';
+  bufptr                 = buffer;
+
+  if (*bufptr == '-' || *bufptr == '+')
+    *tempptr++ = *bufptr++;
+
+  while (*bufptr && isdigit(*bufptr & 255))
+  {
+    if (tempptr < (temp + sizeof(temp) - 1))
+    {
+      *tempptr++ = *bufptr++;
+    }
+    else
+    {
+      *bufend = (char *)bufptr;
+      return (0.0);
+    }
+  }
+
+  if (*bufptr == '.')
+  {
+    // Convert decimal point to locale equivalent...
+    bufptr ++;
+
+    if (pool->loc_declen <= (sizeof(temp) - (size_t)(tempptr - temp)))
+    {
+      memcpy(tempptr, pool->loc->decimal_point, pool->loc_declen);
+      tempptr += pool->loc_declen;
+    }
+    else
+    {
+      *bufend = (char *)bufptr;
+      return (0.0);
+    }
+  }
+
+  // Copy any remaining characters...
+  while (*bufptr && isdigit(*bufptr & 255))
+  {
+    if (tempptr < (temp + sizeof(temp) - 1))
+      *tempptr++ = *bufptr++;
+    else
+      break;
+  }
+
+  *bufend = (char *)bufptr;
+
+  if (*bufptr)
+    return (0.0);
+
+  // Nul-terminate the temporary string and convert the string...
+  *tempptr = '\0';
+
+  return (strtod(temp, NULL));
+}

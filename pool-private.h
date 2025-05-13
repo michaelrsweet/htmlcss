@@ -14,6 +14,7 @@
 #  include "common-private.h"
 #  include "dict.h"
 #  include <stdarg.h>
+#  include <locale.h>
 #  ifdef __cplusplus
 extern "C" {
 #  endif // __cplusplus
@@ -28,6 +29,9 @@ typedef struct _hc_font_info_s _hc_font_info_t;
 
 struct _hc_pool_s			// Memory pool
 {
+  struct lconv	*loc;			// Locale information
+  size_t	loc_declen;		// Length of decimal point
+
   int		fonts_loaded;		// Did we load the fonts?
   size_t	num_fonts;		// Number of fonts in pool
   size_t	alloc_fonts;		// Allocated size of fonts array

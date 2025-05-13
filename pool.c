@@ -9,10 +9,6 @@
 // information.
 //
 
-//
-// Include necessary headers...
-//
-
 #include "pool-private.h"
 
 
@@ -260,6 +256,14 @@ hcPoolNew(void)
 
   if (pool)
   {
+    if ((pool->loc = localeconv()) != NULL)
+    {
+      if (!pool->loc->decimal_point || !strcmp(pool->loc->decimal_point, "."))
+	pool->loc = NULL;
+      else
+	pool->loc_declen = strlen(pool->loc->decimal_point);
+    }
+
     pool->error_cb = _hcDefaultErrorCB;
     pool->url_cb   = _hcDefaultURLCB;
   }

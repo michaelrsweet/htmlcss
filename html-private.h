@@ -14,6 +14,7 @@
 #  include "html.h"
 #  include "common-private.h"
 #  include "dict.h"
+#  include "pool-private.h"
 #  ifdef __cplusplus
 extern "C" {
 #  endif // __cplusplus
