@@ -35,6 +35,7 @@
 //
 
 #include "common-private.h"
+#include <stdint.h>
 #include "sha3.h"
 
 
@@ -46,11 +47,11 @@
 
 #ifndef LITTLE_ENDIAN
 #  ifdef _WIN32
-#    define LITTLE_ENDIAN 1	// Windows is always little-endian
+#    define LITTLE_ENDIAN 1		// Windows is always little-endian
 #  elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#    define LITTLE_ENDIAN 1	// GCC/Clang preprocessor check
+#    define LITTLE_ENDIAN 1		// GCC/Clang preprocessor check
 #  else
-#    define LITTLE_ENDIAN 0	// Otherwise don't assume little-endian
+#    define LITTLE_ENDIAN 0		// Otherwise don't assume little-endian
 #  endif // _WIN32
 #endif // !LITTLE_ENDIAN
 
@@ -59,9 +60,7 @@
 // Local types...
 //
 
-typedef unsigned char UINT8;		// @private@
-typedef unsigned long long int UINT64;	// @private@
-typedef UINT64 tKeccakLane;		// @private@
+typedef uint64_t tKeccakLane;		// @private@
 
 
 //
@@ -148,14 +147,14 @@ hcSHA3Update(hc_sha3_t  *ctx,		// I - Hash context
 // On a LE platform, this can be greatly simplified using a cast.
 //
 
-static UINT64
-load64(const UINT8 *x)
+static uint64_t				// O - 64-bit integer value
+load64(const uint8_t *x)		// I - Value buffer
 {
-  int i;
-  UINT64 u=0;
+  int		i;			// Looping var
+  uint64_t	u = 0;			// 64-bit value
 
 
-  for (i=7; i>=0; --i)
+  for (i = 7; i >= 0; i --)
   {
     u <<= 8;
     u |= x[i];
@@ -171,12 +170,13 @@ load64(const UINT8 *x)
 //
 
 static void
-store64(UINT8 *x, UINT64 u)
+store64(uint8_t  *x,			// I - Value buffer
+        uint64_t u)			// I - 64-bit integer value to store
 {
-  unsigned int i;
+  unsigned int i;			// Looping var
 
 
-  for (i=0; i<8; ++i)
+  for (i = 0; i < 8; i ++)
   {
     x[i] = u;
     u >>= 8;
@@ -191,11 +191,12 @@ store64(UINT8 *x, UINT64 u)
 //
 
 static void
-xor64(UINT8 *x, UINT64 u)
+xor64(uint8_t  *x,			// I - Value buffer
+      uint64_t u)			// I - 64-bit integer value to XOR
 {
-  unsigned int i;
+  unsigned int i;			// Looping var
 
-  for (i=0; i<8; ++i)
+  for (i = 0; i < 8; i ++)
   {
     x[i] ^= u;
     u >>= 8;
@@ -204,8 +205,12 @@ xor64(UINT8 *x, UINT64 u)
 #endif // !LITTLE_ENDIAN
 
 
+//
+// Helper macros...
+//
+
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define ROL64(a, offset) ((((UINT64)a) << offset) ^ (((UINT64)a) >> (64-offset)))
+#define ROL64(a, offset) ((((uint64_t)a) << offset) ^ (((uint64_t)a) >> (64-offset)))
 #define i(x, y) ((x)+5*(y))
 
 #if LITTLE_ENDIAN
@@ -213,34 +218,37 @@ xor64(UINT8 *x, UINT64 u)
 #  define writeLane(x, y, lane)   (((tKeccakLane*)state)[i(x, y)]) = (lane)
 #  define XORLane(x, y, lane)     (((tKeccakLane*)state)[i(x, y)]) ^= (lane)
 #else
-#  define readLane(x, y)          load64((UINT8*)state+sizeof(tKeccakLane)*i(x, y))
-#  define writeLane(x, y, lane)   store64((UINT8*)state+sizeof(tKeccakLane)*i(x, y), lane)
-#  define XORLane(x, y, lane)     xor64((UINT8*)state+sizeof(tKeccakLane)*i(x, y), lane)
+#  define readLane(x, y)          load64((uint8_t*)state+sizeof(tKeccakLane)*i(x, y))
+#  define writeLane(x, y, lane)   store64((uint8_t*)state+sizeof(tKeccakLane)*i(x, y), lane)
+#  define XORLane(x, y, lane)     xor64((uint8_t*)state+sizeof(tKeccakLane)*i(x, y), lane)
 #endif
+
 
 //
 // 'LFSR86540()' - Compute the linear feedback shift register (LFSR) used to
 //                 define the round constants (see [Keccak Reference, Section
 //                 1.2]).
 //
-static int
-LFSR86540(UINT8 *LFSR)
+
+static int				// O - Feedback result
+LFSR86540(uint8_t *LFSR)		// I - Shift register
 {
-  int result = ((*LFSR) & 0x01) != 0;
+  int result = ((*LFSR) & 0x01) != 0;	// Feedback result
 
 
   if (((*LFSR) & 0x80) != 0)
   {
     // Primitive polynomial over GF(2): x^8+x^6+x^5+x^4+1
-    (*LFSR) = (UINT8)(((*LFSR) << 1) ^ 0x71);
+    (*LFSR) = (uint8_t)(((*LFSR) << 1) ^ 0x71);
   }
   else
   {
     (*LFSR) <<= 1;
   }
 
-  return result;
+  return (result);
 }
+
 
 //
 // 'KeccakF1600_StatePermute()' - Compute the Keccak-f[1600] permutation on the
@@ -248,24 +256,26 @@ LFSR86540(UINT8 *LFSR)
 //
 
 static void
-KeccakF1600_StatePermute(void *state)
+KeccakF1600_StatePermute(void *state)	// I - State
 {
-  unsigned int round, x, y, j, t;
-  UINT8 LFSRstate = 0x01;
+  unsigned int round, x, y, j, t;	// Looping var
+  uint8_t LFSRstate = 0x01;		// Shift register
 
 
-  for (round=0; round<24; round++)
+  for (round = 0; round < 24; round ++)
   {
     {   // === θ step (see [Keccak Reference, Section 2.3.2]) ===
       tKeccakLane C[5], D;
 
       // Compute the parity of the columns
-      for (x=0; x<5; x++)
+      for (x = 0; x < 5; x ++)
 	C[x] = readLane(x, 0) ^ readLane(x, 1) ^ readLane(x, 2) ^ readLane(x, 3) ^ readLane(x, 4);
-      for (x=0; x<5; x++)
+
+      for (x = 0; x < 5; x ++)
       {
 	// Compute the θ effect for a given column
 	D = C[(x+4)%5] ^ ROL64(C[(x+1)%5], 1);
+
 	// Add the θ effect to the whole column
 	for (y=0; y<5; y++)
 	  XORLane(x, y, D);
@@ -274,16 +284,20 @@ KeccakF1600_StatePermute(void *state)
 
     {   // === ρ and π steps (see [Keccak Reference, Sections 2.3.3 and 2.3.4]) ===
       tKeccakLane current, temp;
+
       // Start at coordinates (1 0)
       x = 1; y = 0;
       current = readLane(x, y);
+
       // Iterate over ((0 1)(2 3))^t * (1 0) for 0 ≤ t ≤ 23
-      for (t=0; t<24; t++)
+      for (t = 0; t < 24; t ++)
       {
 	// Compute the rotation constant r = (t+1)(t+2)/2
 	unsigned int r = ((t+1)*(t+2)/2)%64;
+
 	// Compute ((0 1)(2 3)) * (x y)
 	unsigned int Y = (2*x+3*y)%5; x = y; y = Y;
+
 	// Swap current and state(x,y), and rotate
 	temp = readLane(x, y);
 	writeLane(x, y, ROL64(current, r));
@@ -293,21 +307,24 @@ KeccakF1600_StatePermute(void *state)
 
     {   // === χ step (see [Keccak Reference, Section 2.3.1]) ===
       tKeccakLane temp[5];
-      for (y=0; y<5; y++)
+
+      for (y = 0; y < 5; y ++)
       {
 	// Take a copy of the plane
-	for (x=0; x<5; x++)
+	for (x = 0; x < 5; x ++)
 	  temp[x] = readLane(x, y);
+
 	// Compute χ on the plane
-	for (x=0; x<5; x++)
+	for (x = 0; x < 5; x ++)
 	  writeLane(x, y, temp[x] ^((~temp[(x+1)%5]) & temp[(x+2)%5]));
       }
     }
 
     {   // === ι step (see [Keccak Reference, Section 2.3.5]) ===
-      for (j=0; j<7; j++)
+      for (j = 0; j < 7; j ++)
       {
 	unsigned int bitPosition = (1<<j)-1; //2^j-1
+
 	if (LFSR86540(&LFSRstate))
 	  XORLane(0, 0, (tKeccakLane)1<<bitPosition);
       }
