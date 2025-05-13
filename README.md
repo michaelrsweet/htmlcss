@@ -48,7 +48,11 @@ compliant `make` program.
 Building
 --------
 
-Run `make` to build the library and unit test program.
+Run `configure` and `make` to build the library and unit test program:
+
+    ./configure
+    make
+    make test
 
 
 Installing
