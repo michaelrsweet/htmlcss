@@ -83,15 +83,24 @@ extern void		hcFontAddCached(hc_pool_t *pool, hc_font_t *font, const char *url);
 extern int		hcFontComputeExtents(const hc_font_t *font, float size, const char *s, hc_rect_t *extents);
 extern void		hcFontDelete(hc_font_t *font);
 extern hc_font_t	*hcFontFindCached(hc_pool_t *pool, const char *family, hc_font_stretch_t stretch, hc_font_style_t style, hc_font_variant_t variant, hc_font_weight_t weight);
+extern int		hcFontGetAscent(hc_font_t *font);
+extern hc_rect_t	*hcFontGetBounds(hc_font_t *font, hc_rect_t *bounds);
 extern hc_font_t	*hcFontGetCached(hc_pool_t *pool, size_t idx);
 extern size_t		hcFontGetCachedCount(hc_pool_t *pool);
+extern int		hcFontGetCapHeight(hc_font_t *font);
+extern const int	*hcFontGetCMap(hc_font_t *font, size_t *num_cmap);
 extern const char	*hcFontGetCopyright(hc_font_t *font);
+extern int		hcFontGetDescent(hc_font_t *font);
+extern hc_rect_t	*hcFontGetExtents(hc_font_t *font, float size, const char *s, hc_rect_t *extents);
 extern const char	*hcFontGetFamily(hc_font_t *font);
 extern size_t		hcFontGetNumFonts(hc_font_t *font);
 extern const char	*hcFontGetPostScriptName(hc_font_t *font);
 extern hc_font_style_t	hcFontGetStyle(hc_font_t *font);
 extern const char	*hcFontGetVersion(hc_font_t *font);
 extern hc_font_weight_t	hcFontGetWeight(hc_font_t *font);
+extern int		hcFontGetWidth(hc_font_t *font, int ch);
+extern int		hcFontGetXHeight(hc_font_t *font);
+extern bool		hcFontIsFixedPitch(hc_font_t *font);
 extern hc_font_t	*hcFontNew(hc_pool_t *pool, hc_file_t *file, size_t idx);
 
 

@@ -136,19 +136,19 @@ typedef struct _hc_off_hhea_s		// Horizontal header
 typedef struct _hc_off_os_2_s		// OS/2 information
 {
   unsigned short	usWeightClass,	// Font weight
+			usWidthClass,	// Font weight
 			fsType;		// Type bits
   short			sTypoAscender,	// Ascender
 			sTypoDescender,	// Descender
+			sxHeight,	// xHeight
 			sCapHeight;	// CapHeight
 } _hc_off_os_2_t;
 
-#define _HC_OFF_fsType_	0x
-#define _HC_OFF_fsType_	0x
-#define _HC_OFF_fsType_	0x
-#define _HC_OFF_fsType_	0x
-#define _HC_OFF_fsType_	0x
-#define _HC_OFF_fsType_	0x
-#define _HC_OFF_fsType_	0x
+typedef struct _hc_off_post_s		// PostScript information
+{
+  float		italicAngle;		// Italic angle
+  unsigned	isFixedPitch;		// Fixed-width font?
+} _hc_off_post_t;
 
 
 //
@@ -157,15 +157,15 @@ typedef struct _hc_off_os_2_s		// OS/2 information
 
 static const char *copy_name(hc_pool_t *pool, _hc_off_names_t *names, unsigned name_id);
 static int	read_cmap(hc_file_t *file, _hc_off_table_t *table, int **cmap);
-static int	read_head(hc_file_t *file, _hc_off_table_t *table, _hc_off_head_t *head);
-static int	read_hhea(hc_file_t *file, _hc_off_table_t *table, _hc_off_hhea_t *hhea);
+static bool	read_head(hc_file_t *file, _hc_off_table_t *table, _hc_off_head_t *head);
+static bool	read_hhea(hc_file_t *file, _hc_off_table_t *table, _hc_off_hhea_t *hhea);
 static _hc_font_metric_t *read_hmtx(hc_file_t *file, _hc_off_table_t *table, _hc_off_hhea_t *hhea);
 static int	read_maxp(hc_file_t *file, _hc_off_table_t *table);
-static int	read_names(hc_file_t *file, _hc_off_table_t *table, _hc_off_names_t *names);
-static int	read_os_2(hc_file_t *file, _hc_off_table_t *table, _hc_off_os_2_t *os_2);
-static float	read_post(hc_file_t *file, _hc_off_table_t *table);
+static bool	read_names(hc_file_t *file, _hc_off_table_t *table, _hc_off_names_t *names);
+static bool	read_os_2(hc_file_t *file, _hc_off_table_t *table, _hc_off_os_2_t *os_2);
+static bool	read_post(hc_file_t *file, _hc_off_table_t *table, _hc_off_post_t *post);
 static int	read_short(hc_file_t *file);
-static int	read_table(hc_file_t *file, size_t idx, _hc_off_table_t *table, size_t *num_fonts);
+static bool	read_table(hc_file_t *file, size_t idx, _hc_off_table_t *table, size_t *num_fonts);
 static unsigned	read_ulong(hc_file_t *file);
 static int	read_ushort(hc_file_t *file);
 static unsigned	seek_table(hc_file_t *file, _hc_off_table_t *table, unsigned tag, unsigned offset);
@@ -184,10 +184,86 @@ hcFontDelete(hc_font_t *font)		// I - Font object
   if (!font)
     return;
 
+  free(font->cmap);
+
   for (i = 0; i < 256; i ++)
     free(font->widths[i]);
 
   free(font);
+}
+
+
+//
+// 'hcFontGetAscent()' - Get the maximum height of non-accented characters.
+//
+
+int					// O - Ascent in 1000ths
+hcFontGetAscent(hc_font_t *font)	// I - Font
+{
+  return (font ? (int)(1000 * font->ascent / font->units) : 0);
+}
+
+
+//
+// 'hcFontGetBounds()' - Get the bounds of all characters in a font.
+//
+// This function gets the bounds of all characters in a font.  The "bounds"
+// argument is a pointer to a `hc_rect_t` structure that will be filled with
+// the limits for characters in the font scaled to a 1000x1000 unit square.
+//
+
+hc_rect_t *				// O - Bounds or `NULL` on error
+hcFontGetBounds(hc_font_t *font,	// I - Font
+                hc_rect_t *bounds)	// I - Bounds buffer
+{
+  // Range check input...
+  if (!font || !bounds)
+  {
+    if (bounds)
+      memset(bounds, 0, sizeof(hc_rect_t));
+
+    return (NULL);
+  }
+
+  bounds->left   = 1000.0f * font->x_min / font->units;
+  bounds->right  = 1000.0f * font->x_max / font->units;
+  bounds->bottom = 1000.0f * font->y_min / font->units;
+  bounds->top    = 1000.0f * font->y_max / font->units;
+
+  return (bounds);
+}
+
+
+//
+// 'hcFontGetCapHeight()' - Get the height of capital letters.
+//
+
+int					// O - Capital letter height in 1000ths
+hcFontGetCapHeight(hc_font_t *font)	// I - Font
+{
+  return (font ? (int)(1000 * font->cap_height / font->units) : 0);
+}
+
+
+//
+// 'hcFontGetCMap()' - Get the Unicode to glyph mapping table.
+//
+
+const int *				// O - CMap table
+hcFontGetCMap(hc_font_t *font,		// I - Font
+              size_t    *num_cmap)	// O - Number of entries in table
+{
+  // Range check input...
+  if (!font || !num_cmap)
+  {
+    if (num_cmap)
+      *num_cmap = 0;
+
+    return (NULL);
+  }
+
+  *num_cmap = font->num_cmap;
+  return (font->cmap);
 }
 
 
@@ -203,6 +279,119 @@ hcFontGetCopyright(hc_font_t *font)	// I - Font object
 
 
 //
+// 'hcFontGetDescent()' - Get the maximum depth of non-accented characters.
+//
+
+int					// O - Descent in 1000ths
+hcFontGetDescent(hc_font_t *font)	// I - Font
+{
+  return (font ? (int)(1000 * font->descent / font->units) : 0);
+}
+
+
+//
+// 'hcFontGetExtents()' - Get the extents of a UTF-8 string.
+//
+// This function computes the extents of the UTF-8 string "s" when rendered
+// using the specified font "font" and size "size".  The "extents" argument is
+// a pointer to a `hc_rect_t` structure that is filled with the extents of a
+// simple rendering of the string with no kerning or rewriting applied.  The
+// values are scaled using the specified font size.
+//
+
+hc_rect_t *				// O - Pointer to extents or `NULL` on error
+hcFontGetExtents(
+    hc_font_t  *font,			// I - Font
+    float      size,			// I - Font size
+    const char *s,			// I - String
+    hc_rect_t  *extents)		// O - Extents of the string
+{
+  bool		first = true;		// First character?
+  int		ch,			// Current character
+		width = 0;		// Width
+  _hc_font_metric_t *widths;		// Widths
+
+
+  _HC_DEBUG("hcFontGetExtents(font=%p, size=%.2f, s=\"%s\", extents=%p)\n", (void *)font, size, s, (void *)extents);
+
+  // Make sure extents is zeroed out...
+  if (extents)
+    memset(extents, 0, sizeof(hc_rect_t));
+
+  // Range check input...
+  if (!font || size <= 0.0f || !s || !extents)
+    return (NULL);
+
+  // Loop through the string...
+  while (*s)
+  {
+    // Get the next Unicode character...
+    if ((*s & 0xe0) == 0xc0 && (s[1] & 0xc0) == 0x80)
+    {
+      // Two byte UTF-8
+      ch = ((*s & 0x1f) << 6) | (s[1] & 0x3f);
+      s += 2;
+    }
+    else if ((*s & 0xf0) == 0xe0 && (s[1] & 0xc0) == 0x80 && (s[2] & 0xc0) == 0x80)
+    {
+      // Three byte UTF-8
+      ch = ((*s & 0x0f) << 12) | ((s[1] & 0x3f) << 6) | (s[2] & 0x3f);
+      s += 3;
+    }
+    else if ((*s & 0xf8) == 0xf0 && (s[1] & 0xc0) == 0x80 && (s[2] & 0xc0) == 0x80 && (s[3] & 0xc0) == 0x80)
+    {
+      // Four byte UTF-8
+      ch = ((*s & 0x07) << 18) | ((s[1] & 0x3f) << 12) | ((s[2] & 0x3f) << 6) | (s[3] & 0x3f);
+      s += 4;
+    }
+    else if (*s & 0x80)
+    {
+      // Invalid UTF-8
+      _hcPoolError(font->pool, 0, "Invalid UTF-8 sequence starting with 0x%02X.", *s & 255);
+      return (NULL);
+    }
+    else
+    {
+      // ASCII...
+      ch = *s++;
+    }
+
+    // Find its width...
+    if ((widths = font->widths[ch / 256]) != NULL)
+    {
+      if (first)
+      {
+        extents->left = -widths[ch & 255].left_bearing / font->units;
+        first         = false;
+      }
+
+      width += widths[ch & 255].width;
+    }
+    else if ((widths = font->widths[0]) != NULL)
+    {
+      // Use the ".notdef" (0) glyph width...
+      if (first)
+      {
+        extents->left = -widths[0].left_bearing / font->units;
+        first         = false;
+      }
+
+      width += widths[0].width;
+    }
+  }
+
+  // Calculate the bounding box for the text and return...
+  _HC_DEBUG("hcFontGetExtents: width=%d\n", width);
+
+  extents->bottom = size * font->y_min / font->units;
+  extents->right  = size * width / font->units + extents->left;
+  extents->top    = size * font->y_max / font->units;
+
+  return (extents);
+}
+
+
+//
 // 'hcFontGetFamily()' - Get the family name of a font.
 //
 
@@ -210,6 +399,39 @@ const char *				// O - Family name
 hcFontGetFamily(hc_font_t *font)	// I - Font object
 {
   return (font ? font->family : NULL);
+}
+
+
+//
+// 'hcFontGetItalicAngle()' - Get the italic angle.
+//
+
+float					// O - Angle in degrees
+hcFontGetItalicAngle(hc_font_t *font)	// I - Font
+{
+  return (font ? font->italic_angle : 0.0f);
+}
+
+
+//
+// 'hcFontGetMaxChar()' - Get the last character in the font.
+//
+
+int					// O - Last character in font
+hcFontGetMaxChar(hc_font_t *font)	// I - Font
+{
+  return (font ? font->max_char : 0);
+}
+
+
+//
+// 'hcFontGetMinChar()' - Get the first character in the font.
+//
+
+int					// O - First character in font
+hcFontGetMinChar(hc_font_t *font)	// I - Font
+{
+  return (font ? font->min_char : 0);
 }
 
 
@@ -270,6 +492,52 @@ hcFontGetWeight(hc_font_t *font)	// I - Font object
 
 
 //
+// 'hcFontGetWidth()' - Get the width of a single character.
+//
+
+int					// O - Width in 1000ths
+hcFontGetWidth(hc_font_t *font,		// I - Font
+               int       ch)		// I - Unicode character
+{
+  int	bin =  ch >> 8;			// Bin in widths array
+
+
+  // Range check input...
+  if (!font || ch < ' ' || ch == 0x7f)
+    return (0);
+
+  if (font->widths[bin])
+    return ((int)(1000.0f * font->widths[bin][ch & 255].width / font->units));
+  else if (font->widths[0])		// .notdef
+    return ((int)(1000.0f * font->widths[0][0].width / font->units));
+  else
+    return (0);
+}
+
+
+//
+// 'hcFontGetXHeight()' - Get the height of lowercase letters.
+//
+
+int					// O - Lowercase letter height in 1000ths
+hcFontGetXHeight(hc_font_t *font)	// I - Font
+{
+  return (font ? (int)(1000 * font->x_height / font->units) : 0);
+}
+
+
+//
+// 'hcFontIsFixedPitch()' - Determine whether a font is fixedpitch.
+//
+
+bool					// O - `true` if fixed pitch, `false` otherwise
+hcFontIsFixedPitch(hc_font_t *font)	// I - Font
+{
+  return (font ? font->is_fixed : false);
+}
+
+
+//
 // 'hcFontNew()' - Create a new font object for the named font family.
 //
 
@@ -289,6 +557,7 @@ hcFontNew(hc_pool_t *pool,		// I - Memory pool
   _hc_off_head_t	head;		// head table
   _hc_off_hhea_t	hhea;		// hhea table
   _hc_off_os_2_t	os_2;		// OS/2 table
+  _hc_off_post_t	post;		// PostScript table
   size_t		num_fonts;	// Number of fonts in table
 
 
@@ -317,7 +586,12 @@ hcFontNew(hc_pool_t *pool,		// I - Memory pool
   font->family          = copy_name(pool, &names, _HC_OFF_FontFamily);
   font->postscript_name = copy_name(pool, &names, _HC_OFF_PostScriptName);
   font->version         = copy_name(pool, &names, _HC_OFF_FontVersion);
-  font->italic_angle    = read_post(file, &table);
+
+  if (read_post(file, &table, &post))
+  {
+    font->italic_angle = post.italicAngle;
+    font->is_fixed     = post.isFixedPitch != 0;
+  }
 
   _HC_DEBUG("hcFontNew: family=\"%s\"\n", font->family);
 
@@ -330,7 +604,7 @@ hcFontNew(hc_pool_t *pool,		// I - Memory pool
     goto cleanup;
   }
 
-  if (read_head(file, &table, &head) < 0)
+  if (!read_head(file, &table, &head))
   {
     _hcFileError(file, "Unable to read head table from font.");
     hcFontDelete(font);
@@ -353,9 +627,11 @@ hcFontNew(hc_pool_t *pool,		// I - Memory pool
       font->style = HC_FONT_STYLE_ITALIC;
   }
   else
+  {
     font->style = HC_FONT_STYLE_NORMAL;
+  }
 
-  if (read_hhea(file, &table, &hhea) < 0)
+  if (!read_hhea(file, &table, &hhea))
   {
     _hcFileError(file, "Unable to read hhea table from font.");
     hcFontDelete(font);
@@ -398,23 +674,43 @@ hcFontNew(hc_pool_t *pool,		// I - Memory pool
     goto cleanup;
   }
 
-  if (read_os_2(file, &table, &os_2) >= 0)
+  if (read_os_2(file, &table, &os_2))
   {
+    // Copy key values from OS/2 table...
+    static const hc_font_stretch_t stretches[] =
+    {
+      HC_FONT_STRETCH_ULTRA_CONDENSED,	// ultra-condensed
+      HC_FONT_STRETCH_EXTRA_CONDENSED,	// extra-condensed
+      HC_FONT_STRETCH_CONDENSED,	// condensed
+      HC_FONT_STRETCH_SEMI_CONDENSED,	// semi-condensed
+      HC_FONT_STRETCH_NORMAL,		// normal
+      HC_FONT_STRETCH_SEMI_EXPANDED,	// semi-expanded
+      HC_FONT_STRETCH_EXPANDED,		// expanded
+      HC_FONT_STRETCH_EXTRA_EXPANDED,	// extra-expanded
+      HC_FONT_STRETCH_ULTRA_EXPANDED	// ultra-expanded
+    };
+
+    if (os_2.usWidthClass >= 1 && os_2.usWidthClass <= (int)(sizeof(stretches) / sizeof(stretches[0])))
+      font->stretch = stretches[os_2.usWidthClass - 1];
+
     font->weight     = (short)os_2.usWeightClass;
     font->cap_height = os_2.sCapHeight;
+    font->x_height   = os_2.sxHeight;
   }
   else
   {
     _HC_DEBUG("hcFontNew: Unable to read OS/2 table.\n");
-    font->weight     = 400;
-    font->cap_height = font->ascent;
+    font->weight = 400;
   }
 
-  font->italic_angle = read_post(file, &table);
+  if (font->cap_height == 0)
+    font->cap_height = font->ascent;
 
- /*
-  * Build sparse widths table...
-  */
+  if (font->x_height == 0)
+    font->x_height = 3 * font->ascent / 5;
+
+  // Build sparse widths table...
+  font->min_char = -1;
 
   for (i = 0; i < num_cmap; i ++)
   {
@@ -423,10 +719,18 @@ hcFontNew(hc_pool_t *pool,		// I - Memory pool
       int	bin = i / 256,		// Sub-array bin
 		glyph = cmap[i];	// Glyph index
 
+      // Update min/max...
+      if (font->min_char < 0)
+        font->min_char = (int)i;
 
+      font->max_char = (int)i;
+
+      // Allocate a sub-array as needed...
       if (!font->widths[bin])
         font->widths[bin] = (_hc_font_metric_t *)calloc(256, sizeof(_hc_font_metric_t));
 
+      // Copy the width of the specified glyph or the last one if we are past
+      // the end of the table...
       if (glyph >= hhea.numberOfHMetrics)
 	font->widths[bin][i & 255] = widths[hhea.numberOfHMetrics - 1];
       else
@@ -434,10 +738,7 @@ hcFontNew(hc_pool_t *pool,		// I - Memory pool
     }
   }
 
- /*
-  * Cleanup and return the font...
-  */
-
+  // Cleanup and return the font...
   cleanup:
 
   free(table.entries);
@@ -605,8 +906,8 @@ read_cmap(hc_file_t       *file,	// I - File
   unsigned	length;			// Length of cmap table
   int		i,			// Looping var
 		temp,			// Temporary value
-		num_tables,		// Number of cmap tables
 		num_cmap = 0,		// Number of cmap entries
+		num_tables,		// Number of cmap tables
 		platform_id,		// Platform identifier (Windows or Mac)
 		encoding_id,		// Encoding identifier (varies)
 		cformat;		// Formap of cmap data
@@ -614,57 +915,11 @@ read_cmap(hc_file_t       *file,	// I - File
 		coffset = 0,		// Offset to cmap data
 		roman_offset = 0;	// MacRoman offset
   int		*cmapptr;		// Pointer into cmap
-#if 0
-  const int	*unimap = NULL;		// Unicode character map, if any
-  static const int romanmap[256] =	// MacRoman to Unicode map
-  {
-    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-        0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-    0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-        0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
-    0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
-        0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F,
-    0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
-        0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
-    0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
-        0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F,
-    0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,
-        0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F,
-    0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,
-        0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,
-    0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77,
-        0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F,
-    0xC4, 0xC5, 0xC7, 0xC9, 0xD1, 0xD6, 0xDC, 0xE1,
-        0xE0, 0xE2, 0xE4, 0xE3, 0xE5, 0xE7, 0xE9, 0xE8,
-    0xEA, 0xEB, 0xED, 0xEC, 0xEE, 0xEF, 0xF1, 0xF3,
-        0xF2, 0xF4, 0xF6, 0xF5, 0xFA, 0xF9, 0xFB, 0xFC,
-    0x2020, 0xB0, 0xA2, 0xA3, 0xA7, 0x2022, 0xB6, 0xDF,
-        0xAE, 0xA9, 0x2122, 0xB4, 0xA8, 0x2260, 0xC6, 0xD8,
-    0x221E, 0xB1, 0x2264, 0x2265, 0xA5, 0xB5, 0x2202, 0x2211,
-        0x220F, 0x3C0, 0x222B, 0xAA, 0xBA, 0x3A9, 0xE6, 0xF8,
-    0xBF, 0xA1, 0xAC, 0x221A, 0x192, 0x2248, 0x2206, 0xAB,
-        0xBB, 0x2026, 0xA0, 0xC0, 0xC3, 0xD5, 0x152, 0x153,
-    0x2013, 0x2014, 0x201C, 0x201D, 0x2018, 0x2019, 0xF7, 0x25CA,
-        0xFF, 0x178, 0x2044, 0x20AC, 0x2039, 0x203A, 0xFB01, 0xFB02,
-    0x2021, 0xB7, 0x201A, 0x201E, 0x2030, 0xC2, 0xCA, 0xC1,
-        0xCB, 0xC8, 0xCD, 0xCE, 0xCF, 0xCC, 0xD3, 0xD4,
-    0xF8FF, 0xD2, 0xDA, 0xDB, 0xD9, 0x131, 0x2C6, 0x2DC,
-        0xAF, 0x2D8, 0x2D9, 0x2DA, 0xB8, 0x2DD, 0x2DB, 0x2C7
-  };
-#endif // 0
 
 
-  *cmap = NULL;
-
- /*
-  * Find the cmap table...
-  */
-
+  // Find the cmap table...
   if (seek_table(file, table, _HC_OFF_cmap, 0) == 0)
-  {
-    _hcFileError(file, "Missing cmap table.");
     return (-1);
-  }
 
   if ((temp = read_ushort(file)) != 0)
   {
@@ -680,6 +935,7 @@ read_cmap(hc_file_t       *file,	// I - File
 
   _HC_DEBUG("read_cmap: num_tables=%d\n", num_tables);
 
+  // Find a Unicode table we can use...
   for (i = 0; i < num_tables; i ++)
   {
     platform_id = read_ushort(file);
@@ -710,10 +966,7 @@ read_cmap(hc_file_t       *file,	// I - File
   }
 
   if ((length = seek_table(file, table, _HC_OFF_cmap, coffset)) == 0)
-  {
-    _hcFileError(file, "Unable to read cmap table at offset %u.", coffset);
     return (-1);
-  }
 
   if ((cformat = read_ushort(file)) < 0)
   {
@@ -727,40 +980,53 @@ read_cmap(hc_file_t       *file,	// I - File
   {
     case 0 :
         {
-         /*
-          * Format 0: Byte encoding table.
-          *
-          * This is a simple 8-bit mapping.
-          */
+          // Format 0: Byte encoding table.
+          //
+          // This is a simple 8-bit mapping.
+          size_t	j;		// Looping var
+          unsigned char bmap[256];	// Byte map buffer
 
-	  if ((clength = (unsigned)read_ushort(file)) == (unsigned)-1)
+	  if ((unsigned)read_ushort(file) == (unsigned)-1)
 	  {
 	    _hcFileError(file, "Unable to read cmap table length at offset %u.", coffset);
 	    return (-1);
 	  }
 
-	  _HC_DEBUG("read_cmap: clength=%u\n", clength);
+          /* language = */ read_ushort(file);
 
-          // language = read_ushort(file);
+          if (length > (256 + 6))
+          {
+	    _hcFileError(file, "Bad cmap table length at offset %u.", coffset);
+	    return (-1);
+          }
 
-	  num_cmap = (int)length - 6;;
-	  cmapptr  = *cmap = (int *)malloc((size_t)num_cmap * sizeof(int));
+	  num_cmap = length - 6;
 
-          for (i = 0; i < num_cmap; i ++)
-            *cmapptr++ = hcFileGetc(file);
+	  if ((*cmap = (int *)malloc(num_cmap * sizeof(int))) == NULL)
+	  {
+	    _hcFileError(file, "Unable to allocate cmap table.");
+	    return (-1);
+	  }
+
+          if (hcFileRead(file, bmap, num_cmap) != num_cmap)
+          {
+	    _hcFileError(file, "Unable to read cmap table length at offset %u.", coffset);
+	    return (-1);
+          }
+
+	  // Copy into the actual cmap table...
+	  for (j = 0; j < num_cmap; j ++)
+	    *cmap[j] = bmap[j];
         }
         break;
 
     case 4 :
         {
-         /*
-          * Format 4: Segment mapping to delta values.
-          *
-          * This is an overly complicated linear way of encoding a sparse
-          * mapping table.  And it uses 1-based indexing with modulo
-          * arithmetic...
-          */
-
+          // Format 4: Segment mapping to delta values.
+          //
+          // This is an overly complicated linear way of encoding a sparse
+          // mapping table.  And it uses 1-based indexing with modulo
+          // arithmetic...
           int		ch,		// Current character
 			seg,		// Current segment
 			glyph,		// Current glyph
@@ -771,10 +1037,7 @@ read_cmap(hc_file_t       *file,	// I - File
 			*segment;	// This segment
 
 
-         /*
-          * Read the table...
-          */
-
+          // Read the table...
 	  if ((clength = (unsigned)read_ushort(file)) == (unsigned)-1)
 	  {
 	    _hcFileError(file, "Unable to read cmap table length at offset %u.", coffset);
@@ -783,11 +1046,11 @@ read_cmap(hc_file_t       *file,	// I - File
 
 	  _HC_DEBUG("read_cmap: clength=%u\n", clength);
 
-          // language =       read_ushort(file);
+          /* language = */       read_ushort(file);
           segCount             = read_ushort(file) / 2;
-	  // searchRange =    read_ushort(file);
-	  // entrySelectoed = read_ushort(file);
-	  // rangeShift =     read_ushort(file);
+	  /* searchRange = */    read_ushort(file);
+	  /* entrySelectoed = */ read_ushort(file);
+	  /* rangeShift = */     read_ushort(file);
 
           _HC_DEBUG("read_cmap: segCount=%d\n", segCount);
 
@@ -801,12 +1064,20 @@ read_cmap(hc_file_t       *file,	// I - File
           segments        = (_hc_off_cmap4_t *)calloc((size_t)segCount, sizeof(_hc_off_cmap4_t));
           glyphIdArray    = (int *)calloc((size_t)numGlyphIdArray, sizeof(int));
 
+          if (!segments || !glyphIdArray)
+          {
+            _hcFileError(file, "Unable to allocate memory for cmap.");
+            free(segments);
+            free(glyphIdArray);
+            return (-1);
+	  }
+
           _HC_DEBUG("read_cmap: numGlyphIdArray=%d\n", numGlyphIdArray);
 
           for (i = 0; i < segCount; i ++)
             segments[i].endCode = (unsigned short)read_ushort(file);
 
-	  // reservedPad = read_ushort(file);
+	  /* reservedPad = */ read_ushort(file);
 
           for (i = 0; i < segCount; i ++)
             segments[i].startCode = (unsigned short)read_ushort(file);
@@ -820,66 +1091,78 @@ read_cmap(hc_file_t       *file,	// I - File
           for (i = 0; i < numGlyphIdArray; i ++)
             glyphIdArray[i] = read_ushort(file);
 
-#ifdef DEBUG
-          for (i = 0; i < segCount; i ++)
-            _HC_DEBUG("read_cmap: segment[%d].startCode=%d, endCode=%d, idDelta=%d, idRangeOffset=%d\n", i, segments[i].startCode, segments[i].endCode, segments[i].idDelta, segments[i].idRangeOffset);
+          for (i = 0, segment = segments; i < segCount; i ++, segment ++)
+          {
+            _HC_DEBUG("read_cmap: segment[%d].startCode=%d, endCode=%d, idDelta=%d, idRangeOffset=%d\n", i, segment->startCode, segment->endCode, segment->idDelta, segment->idRangeOffset);
 
+            if (segment->startCode > segment->endCode)
+            {
+	      _hcFileError(file, "Bad cmap table segment %u to %u.", segments->startCode, segment->endCode);
+	      free(segments);
+	      free(glyphIdArray);
+	      return (-1);
+            }
+
+            // Based on the end code of the segment table, allocate space for the
+            // uncompressed cmap table...
+            if (segment->endCode >= num_cmap)
+	      num_cmap = segment->endCode + 1;
+          }
+
+#ifdef DEBUG
           for (i = 0; i < numGlyphIdArray; i ++)
             _HC_DEBUG("read_cmap: glyphIdArray[%d]=%d\n", i, glyphIdArray[i]);
-#endif // DEBUG
+#endif /* DEBUG */
 
-         /*
-          * Based on the end code of the segent table, allocate space for the
-          * uncompressed cmap table...
-          */
+	  if (num_cmap == 0 || num_cmap > _HC_FONT_MAX_CHAR)
+	  {
+	    _hcFileError(file, "Invalid cmap table with %u characters.", (unsigned)num_cmap);
+	    free(segments);
+	    free(glyphIdArray);
+	    return (-1);
+	  }
 
-          segCount --;			// Last segment is not used (sigh)
+	  *cmap = cmapptr = (int *)malloc(num_cmap * sizeof(int));
 
-	  num_cmap = segments[segCount - 1].endCode + 1;
-	  cmapptr  = *cmap = (int *)malloc((size_t)num_cmap * sizeof(int));
+	  if (!*cmap)
+          {
+            _hcFileError(file, "Unable to allocate memory for cmap.");
+            free(segments);
+            free(glyphIdArray);
+            return (-1);
+	  }
 
-          memset(cmapptr, -1, (size_t)num_cmap * sizeof(int));
+          memset(cmapptr, -1, num_cmap * sizeof(int));
 
-         /*
-          * Now loop through the segments and assign glyph indices from the
-          * array...
-          */
-
+          // Now loop through the segments and assign glyph indices from the
+          // array...
           for (seg = segCount, segment = segments; seg > 0; seg --, segment ++)
           {
             for (ch = segment->startCode; ch <= segment->endCode; ch ++)
             {
               if (segment->idRangeOffset)
               {
-               /*
-                * Use an "obscure indexing trick" (words from the spec, not
-                * mine) to look up the glyph index...
-                */
+                // Use an "obscure indexing trick" (words from the spec, not
+                // mine) to look up the glyph index...
+                temp = (int)(segment->idRangeOffset / 2 - segCount + (ch - segment->startCode) + (segment - segments));
 
-                int temp = segment->idRangeOffset / 2 + ch - segment->startCode + seg - segCount - 1;
-
-                if (temp < 0 || temp >= numGlyphIdArray || !glyphIdArray[temp])
+                _HC_DEBUG("read_cmap: ch=%d, temp=%d\n", ch, temp);
+                if (temp < 0 || temp >= numGlyphIdArray)
                   glyph = -1;
 		else
-		  glyph = ((glyphIdArray[temp] + segment->idDelta) & 65535) - 1;
+		  glyph = (glyphIdArray[temp] + segment->idDelta) & 65535;
               }
               else
               {
-               /*
-                * Just use idDelta to compute a glyph index...
-                */
-
-                glyph = ((ch + segment->idDelta) & 65535) - 1;
+                // Just use idDelta to compute a glyph index...
+                glyph = (ch + segment->idDelta) & 65535;
 	      }
 
 	      cmapptr[ch] = glyph;
             }
 	  }
 
-         /*
-          * Free the segment data...
-          */
-
+          // Free the segment data...
 	  free(segments);
 	  free(glyphIdArray);
         }
@@ -887,24 +1170,17 @@ read_cmap(hc_file_t       *file,	// I - File
 
     case 12 :
 	{
-	 /*
-	  * Format 12: Segmented coverage
-	  *
-	  * A simple sparse linear segment mapping format.
-	  */
-
+	  // Format 12: Segmented coverage
+	  //
+	  // A simple sparse linear segment mapping format.
 	  unsigned	ch,		// Current character
 			gidx,		// Current group
 			nGroups;	// Number of groups
 	  _hc_off_cmap12_t *groups,	// Groups
 			*group;		// This group
 
-
-	 /*
-	  * Read the table...
-	  */
-
-          // reserved read_ushort(file);
+	  // Read the table...
+          /* reserved */ read_ushort(file);
 
 	  if (read_ulong(file) == 0)
 	  {
@@ -912,12 +1188,22 @@ read_cmap(hc_file_t       *file,	// I - File
 	    return (-1);
 	  }
 
-	  // language = read_ulong(file);
+	  /* language = */ read_ulong(file);
 	  nGroups        = read_ulong(file);
 
 	  _HC_DEBUG("read_cmap: nGroups=%u\n", nGroups);
 
-	  groups = (_hc_off_cmap12_t *)calloc(nGroups, sizeof(_hc_off_cmap12_t));
+	  if (nGroups > _HC_FONT_MAX_GROUPS)
+	  {
+	    _hcFileError(file, "Invalid cmap table with %u groups.", nGroups);
+	    return (-1);
+	  }
+
+	  if ((groups = (_hc_off_cmap12_t *)calloc(nGroups, sizeof(_hc_off_cmap12_t))) == NULL)
+          {
+            _hcFileError(file, "Unable to allocate memory for cmap.");
+            return (-1);
+	  }
 
 	  for (gidx = 0, group = groups, num_cmap = 0; gidx < nGroups; gidx ++, group ++)
 	  {
@@ -926,60 +1212,66 @@ read_cmap(hc_file_t       *file,	// I - File
 	    group->startGlyphID  = read_ulong(file);
 	    _HC_DEBUG("read_cmap: [%u] startCharCode=%u, endCharCode=%u, startGlyphID=%u\n", gidx, group->startCharCode, group->endCharCode, group->startGlyphID);
 
-            if (group->endCharCode >= (unsigned)num_cmap)
-              num_cmap = (int)group->endCharCode + 1;
+            if (group->startCharCode > group->endCharCode || group->startCharCode >= _HC_FONT_MAX_CHAR || group->endCharCode >= _HC_FONT_MAX_CHAR)
+            {
+	      _hcFileError(file, "Bad cmap table segment %u to %u.", group->startCharCode, group->endCharCode);
+	      free(groups);
+	      return (-1);
+            }
+
+            if (group->endCharCode >= num_cmap)
+              num_cmap = group->endCharCode + 1;
 	  }
 
-	 /*
-	  * Based on the end code of the segent table, allocate space for the
-	  * uncompressed cmap table...
-	  */
-
+	  // Based on the end code of the segent table, allocate space for the
+	  // uncompressed cmap table...
           _HC_DEBUG("read_cmap: num_cmap=%u\n", (unsigned)num_cmap);
-	  cmapptr = *cmap = (int *)malloc((size_t)num_cmap * sizeof(int));
 
-	  memset(cmapptr, -1, (size_t)num_cmap * sizeof(int));
+	  if (num_cmap == 0 || num_cmap > _HC_FONT_MAX_CHAR)
+	  {
+	    _hcFileError(file, "Invalid cmap table with %u characters.", (unsigned)num_cmap);
+	    free(groups);
+	    return (-1);
+	  }
 
-	 /*
-	  * Now loop through the groups and assign glyph indices from the
-	  * array...
-	  */
+	  *cmap = cmapptr = (int *)malloc(num_cmap * sizeof(int));
 
+	  if (!*cmap)
+          {
+            _hcFileError(file, "Unable to allocate memory for cmap.");
+            free(groups);
+            return (-1);
+	  }
+
+	  memset(cmapptr, -1, num_cmap * sizeof(int));
+
+	  // Now loop through the groups and assign glyph indices from the
+	  // array...
 	  for (gidx = 0, group = groups; gidx < nGroups; gidx ++, group ++)
 	  {
-            for (ch = group->startCharCode; ch <= group->endCharCode && ch < _HC_FONT_MAX_CHAR; ch ++)
+            for (ch = group->startCharCode; ch <= group->endCharCode && ch < num_cmap; ch ++)
               cmapptr[ch] = (int)(group->startGlyphID + ch - group->startCharCode);
           }
 
-	 /*
-	  * Free the group data...
-	  */
-
+	  // Free the group data...
 	  free(groups);
 	}
         break;
 
     case 13 :
 	{
-	 /*
-	  * Format 13: Many-to-one range mappings
-	  *
-	  * Typically used for fonts of last resort where multiple characters
-	  * map to the same glyph.
-	  */
-
+	  // Format 13: Many-to-one range mappings
+	  //
+	  // Typically used for fonts of last resort where multiple characters
+	  // map to the same glyph.
 	  unsigned	ch,		// Current character
 			gidx,		// Current group
 			nGroups;	// Number of groups
 	  _hc_off_cmap13_t *groups,	// Groups
 			*group;		// This group
 
-
-	 /*
-	  * Read the table...
-	  */
-
-          // reserved read_ushort(file);
+	  // Read the table...
+          /* reserved */ read_ushort(file);
 
 	  if (read_ulong(file) == 0)
 	  {
@@ -987,12 +1279,22 @@ read_cmap(hc_file_t       *file,	// I - File
 	    return (-1);
 	  }
 
-	  // language = read_ulong(file);
+	  /* language = */ read_ulong(file);
 	  nGroups        = read_ulong(file);
 
 	  _HC_DEBUG("read_cmap: nGroups=%u\n", nGroups);
 
-	  groups = (_hc_off_cmap13_t *)calloc(nGroups, sizeof(_hc_off_cmap13_t));
+	  if (nGroups > _HC_FONT_MAX_GROUPS)
+	  {
+	    _hcFileError(file, "Invalid cmap table with %u groups.", nGroups);
+	    return (-1);
+	  }
+
+	  if ((groups = (_hc_off_cmap13_t *)calloc(nGroups, sizeof(_hc_off_cmap13_t))) == NULL)
+	  {
+	    _hcFileError(file, "Unable to allocate memory for cmap.");
+	    return (-1);
+	  }
 
 	  for (gidx = 0, group = groups, num_cmap = 0; gidx < nGroups; gidx ++, group ++)
 	  {
@@ -1001,35 +1303,48 @@ read_cmap(hc_file_t       *file,	// I - File
 	    group->glyphID       = read_ulong(file);
 	    _HC_DEBUG("read_cmap: [%u] startCharCode=%u, endCharCode=%u, glyphID=%u\n", gidx, group->startCharCode, group->endCharCode, group->glyphID);
 
-            if (group->endCharCode >= (unsigned)num_cmap)
-              num_cmap = (int)group->endCharCode + 1;
+            if (group->startCharCode > group->endCharCode || group->startCharCode >= _HC_FONT_MAX_CHAR || group->endCharCode >= _HC_FONT_MAX_CHAR)
+            {
+	      _hcFileError(file, "Bad cmap table segment %u to %u.", group->startCharCode, group->endCharCode);
+	      free(groups);
+	      return (-1);
+            }
+
+            if (group->endCharCode >= num_cmap)
+              num_cmap = group->endCharCode + 1;
 	  }
 
-	 /*
-	  * Based on the end code of the segent table, allocate space for the
-	  * uncompressed cmap table...
-	  */
-
+	  // Based on the end code of the segent table, allocate space for the
+	  // uncompressed cmap table...
           _HC_DEBUG("read_cmap: num_cmap=%u\n", (unsigned)num_cmap);
-	  cmapptr = *cmap = (int *)malloc((size_t)num_cmap * sizeof(int));
 
-	  memset(cmapptr, -1, (size_t)num_cmap * sizeof(int));
+	  if (num_cmap == 0 || num_cmap > _HC_FONT_MAX_CHAR)
+	  {
+	    _hcFileError(file, "Invalid cmap table with %u characters.", (unsigned)num_cmap);
+	    free(groups);
+	    return (-1);
+	  }
 
-	 /*
-	  * Now loop through the groups and assign glyph indices from the
-	  * array...
-	  */
+	  *cmap = cmapptr = (int *)malloc(num_cmap * sizeof(int));
 
+	  if (!*cmap)
+	  {
+	    _hcFileError(file, "Unable to allocate cmap.");
+	    free(groups);
+	    return (-1);
+	  }
+
+	  memset(cmapptr, -1, num_cmap * sizeof(int));
+
+	  // Now loop through the groups and assign glyph indices from the
+	  // array...
 	  for (gidx = 0, group = groups; gidx < nGroups; gidx ++, group ++)
 	  {
-            for (ch = group->startCharCode; ch <= group->endCharCode && ch < _HC_FONT_MAX_CHAR; ch ++)
+            for (ch = group->startCharCode; ch <= group->endCharCode && ch < num_cmap; ch ++)
               cmapptr[ch] = (int)group->glyphID;
           }
 
-	 /*
-	  * Free the group data...
-	  */
-
+	  // Free the group data...
 	  free(groups);
 	}
         break;
@@ -1042,8 +1357,10 @@ read_cmap(hc_file_t       *file,	// I - File
 #ifdef DEBUG
   cmapptr = *cmap;
   for (i = 0; i < num_cmap && i < 127; i ++)
+  {
     if (cmapptr[i] >= 0)
       _HC_DEBUG("read_cmap; cmap[%d]=%d\n", i, cmapptr[i]);
+  }
 #endif // DEBUG
 
   return (num_cmap);
@@ -1054,7 +1371,7 @@ read_cmap(hc_file_t       *file,	// I - File
 // 'read_head()' - Read the head table.
 //
 
-static int				// O - 0 on success, -1 on error
+static bool				// O - `true` on success, `false` on error
 read_head(hc_file_t       *file,	// I - File
           _hc_off_table_t *table,	// I - Offset table
           _hc_off_head_t  *head)	// O - head table data
@@ -1064,20 +1381,20 @@ read_head(hc_file_t       *file,	// I - File
   if (seek_table(file, table, _HC_OFF_head, 0) == 0)
     return (-1);
 
-  // majorVersion       read_ushort(file);
-  // minorVersion       read_ushort(file);
-  // fontRevision       read_ulong(file);
-  // checkSumAdjustment read_ulong(file);
-  // magicNumber        read_ulong(file);
-  // flags              read_ushort(file);
-  head->unitsPerEm       = (unsigned short)read_ushort(file);
-  // created            read_ulong(file); read_ulong(file);
-  // modified           read_ulong(file); read_ulong(file);
-  head->xMin             = (short)read_short(file);
-  head->yMin             = (short)read_short(file);
-  head->xMax             = (short)read_short(file);
-  head->yMax             = (short)read_short(file);
-  head->macStyle         = (unsigned short)read_ushort(file);
+  /* majorVersion       */read_ushort(file);
+  /* minorVersion       */read_ushort(file);
+  /* fontRevision       */read_ulong(file);
+  /* checkSumAdjustment */read_ulong(file);
+  /* magicNumber        */read_ulong(file);
+  /* flags              */read_ushort(file);
+  head->unitsPerEm      = (unsigned short)read_ushort(file);
+  /* created            */read_ulong(file); read_ulong(file);
+  /* modified           */read_ulong(file); read_ulong(file);
+  head->xMin            = (short)read_short(file);
+  head->yMin            = (short)read_short(file);
+  head->xMax            = (short)read_short(file);
+  head->yMax            = (short)read_short(file);
+  head->macStyle        = (unsigned short)read_ushort(file);
 
   return (0);
 }
@@ -1087,7 +1404,7 @@ read_head(hc_file_t       *file,	// I - File
 // 'read_hhea()' - Read the hhea table.
 //
 
-static int				// O - 0 on success, -1 on error
+static bool				// O - `true` on success, `false` on error
 read_hhea(hc_file_t       *file,	// I - File
           _hc_off_table_t *table,	// I - Offset table
           _hc_off_hhea_t  *hhea)	// O - hhea table data
@@ -1097,24 +1414,24 @@ read_hhea(hc_file_t       *file,	// I - File
   if (seek_table(file, table, _HC_OFF_hhea, 0) == 0)
     return (-1);
 
-  // majorVersion        read_ushort(file);
-  // minorVersion        read_ushort(file);
-  hhea->ascender          = (short)read_short(file);
-  hhea->descender         = (short)read_short(file);
-  // lineGap             read_short(file);
-  // advanceWidthMax     read_ushort(file);
-  // minLeftSideBearing  read_short(file);
-  // minRightSideBearing read_short(file);
-  // mMaxExtent          read_short(file);
-  // caretSlopeRise      read_short(file);
-  // caretSlopeRun       read_short(file);
-  // caretOffset         read_short(file);
-  // (reserved)          read_short(file);
-  // (reserved)          read_short(file);
-  // (reserved)          read_short(file);
-  // (reserved)          read_short(file);
-  // metricDataFormat    read_short(file);
-  hhea->numberOfHMetrics  = (unsigned short)read_ushort(file);
+  /* majorVersion        */read_ushort(file);
+  /* minorVersion        */read_ushort(file);
+  hhea->ascender         = (short)read_short(file);
+  hhea->descender        = (short)read_short(file);
+  /* lineGap             */read_short(file);
+  /* advanceWidthMax     */read_ushort(file);
+  /* minLeftSideBearing  */read_short(file);
+  /* minRightSideBearing */read_short(file);
+  /* mMaxExtent          */read_short(file);
+  /* caretSlopeRise      */read_short(file);
+  /* caretSlopeRun       */read_short(file);
+  /* caretOffset         */read_short(file);
+  /* (reserved)          */read_short(file);
+  /* (reserved)          */read_short(file);
+  /* (reserved)          */read_short(file);
+  /* (reserved)          */read_short(file);
+  /* metricDataFormat    */read_short(file);
+  hhea->numberOfHMetrics = (unsigned short)read_ushort(file);
 
   return (0);
 }
@@ -1179,7 +1496,7 @@ read_maxp(hc_file_t       *file,	// I - File
 // 'read_names()' - Read the name strings from a font.
 //
 
-static int				// O - 0 on success, -1 on error
+static bool				// O - `true` on success, `false` on error
 read_names(hc_file_t       *file,	// I - File
            _hc_off_table_t *table,	// I - Offset table
            _hc_off_names_t *names)	// O - Names
@@ -1193,30 +1510,27 @@ read_names(hc_file_t       *file,	// I - File
 
   memset(names, 0, sizeof(_hc_off_names_t));
 
- /*
-  * Find the name table...
-  */
-
+  // Find the name table...
   if ((length = seek_table(file, table, _HC_OFF_name, 0)) == 0)
-    return (-1);
+    return (false);
 
   if ((format = read_ushort(file)) < 0 || format > 1)
-    return (-1);
+    return (false);
 
   _HC_DEBUG("read_names: format=%d\n", format);
 
   if ((names->num_names = read_ushort(file)) < 1)
-    return (-1);
+    return (false);
 
   if ((names->names = (_hc_off_name_t *)calloc((size_t)names->num_names, sizeof(_hc_off_name_t))) == NULL)
-    return (-1);
+    return (false);
 
   if ((offset = read_ushort(file)) < 0 || (unsigned)offset >= length)
-    return (-1);
+    return (false);
 
   names->storage_size = length - (unsigned)offset;
   if ((names->storage = malloc(names->storage_size)) == NULL)
-    return (-1);
+    return (false);
   memset(names->storage, 'A', names->storage_size);
 
   for (i = names->num_names, name = names->names; i > 0; i --, name ++)
@@ -1233,10 +1547,7 @@ read_names(hc_file_t       *file,	// I - File
 
   if (format == 1)
   {
-   /*
-    * Skip language_id table...
-    */
-
+    // Skip language_id table...
     int count = read_ushort(file);	// Number of language IDs
 
     _HC_DEBUG("read_names: Skipping language_id table...\n");
@@ -1251,7 +1562,7 @@ read_names(hc_file_t       *file,	// I - File
 
   hcFileRead(file, names->storage, length - (unsigned)offset);
 
-  return (0);
+  return (true);
 }
 
 
@@ -1259,13 +1570,13 @@ read_names(hc_file_t       *file,	// I - File
 // 'read_os_2()' - Read the OS/2 table.
 //
 
-static int				// O - 0 on success, -1 on error
+static bool				// O - `true` on success, `false` on error
 read_os_2(hc_file_t       *file,	// I - File
           _hc_off_table_t *table,	// I - Offset table
           _hc_off_os_2_t  *os_2)	// O - OS/2 table
 {
   int		version;		// OS/2 table version
-//  unsigned char	panose[10];		// panose value
+  unsigned char	panose[10];		// panose value
 
 
   memset(os_2, 0, sizeof(_hc_off_os_2_t));
@@ -1275,53 +1586,55 @@ read_os_2(hc_file_t       *file,	// I - File
   */
 
   if (seek_table(file, table, _HC_OFF_OS_2, 0) == 0)
-    return (-1);
+    return (false);
 
   if ((version = read_ushort(file)) < 0)
-    return (-1);
+    return (false);
 
   _HC_DEBUG("read_names: version=%d\n", version);
 
-  // xAvgCharWidth       read_short(file);
+  /* xAvgCharWidth */       read_short(file);
   os_2->usWeightClass     = (unsigned short)read_ushort(file);
-  // usWidthClass        read_ushort(file);
+  os_2->usWidthClass      = (unsigned short)read_ushort(file);
   os_2->fsType            = (unsigned short)read_ushort(file);
-  // ySubscriptXSize     read_short(file);
-  // ySubscriptYSize     read_short(file);
-  // ySubscriptXOffset   read_short(file);
-  // ySubscriptYOffset   read_short(file);
-  // ySuperscriptXSize   read_short(file);
-  // ySuperscriptYSize   read_short(file);
-  // ySuperscriptXOffset read_short(file);
-  // ySuperscriptYOffset read_short(file);
-  // yStrikeoutSize      read_short(file);
-  // yStrikeoutOffset    read_short(file);
-  // sFamilyClass        read_short(file);
-  // panose[10]          hcFileRead(file, panose, sizeof(panose));
-  // ulUnicodeRange1     read_ulong(file);
-  // ulUnicodeRange2     read_ulong(file);
-  // ulUnicodeRange3     read_ulong(file);
-  // ulUnicodeRange4     read_ulong(file);
-  // achVendID           read_ulong(file); read_ulong(file);
+  /* ySubscriptXSize */     read_short(file);
+  /* ySubscriptYSize */     read_short(file);
+  /* ySubscriptXOffset */   read_short(file);
+  /* ySubscriptYOffset */   read_short(file);
+  /* ySuperscriptXSize */   read_short(file);
+  /* ySuperscriptYSize */   read_short(file);
+  /* ySuperscriptXOffset */ read_short(file);
+  /* ySuperscriptYOffset */ read_short(file);
+  /* yStrikeoutSize */      read_short(file);
+  /* yStrikeoutOffset */    read_short(file);
+  /* sFamilyClass */        read_short(file);
+  /* panose[10] */
+  if (hcFileRead(file, panose, sizeof(panose)) != sizeof(panose))
+    return (false);
+  /* ulUnicodeRange1 */     read_ulong(file);
+  /* ulUnicodeRange2 */     read_ulong(file);
+  /* ulUnicodeRange3 */     read_ulong(file);
+  /* ulUnicodeRange4 */     read_ulong(file);
+  /* achVendID */           read_ulong(file); read_ulong(file);
                             read_ulong(file); read_ulong(file);
-  // fsSelection         read_ushort(file);
-  // usFirstCharIndex    read_ushort(file);
-  // usLastCharIndex     read_ushort(file);
+  /* fsSelection */         read_ushort(file);
+  /* usFirstCharIndex */    read_ushort(file);
+  /* usLastCharIndex */     read_ushort(file);
   os_2->sTypoAscender     = (short)read_short(file);
   os_2->sTypoDescender    = (short)read_short(file);
-  // sTypoLineGap        read_short(file);
-  // usWinAscent         read_ushort(file);
-  // usWinDescent        read_ushort(file);
+  /* sTypoLineGap */        read_short(file);
+  /* usWinAscent */         read_ushort(file);
+  /* usWinDescent */        read_ushort(file);
 
   if (version >= 4)
   {
-    // ulCodePageRange1  read_ulong(file);
-    // ulCodePageRange2  read_ulong(file);
-    // sxHeight          read_short(file);
+    /* ulCodePageRange1 */  read_ulong(file);
+    /* ulCodePageRange2 */  read_ulong(file);
+    os_2->sxHeight        = (short)read_short(file);
     os_2->sCapHeight      = (short)read_short(file);
   }
 
-  return (0);
+  return (true);
 }
 
 
@@ -1329,16 +1642,23 @@ read_os_2(hc_file_t       *file,	// I - File
 // 'read_post()' - Read the italicAngle value from the post table.
 //
 
-static float				// O - italicAngle value or 0.0
+static bool				// O - `true` on success, `false` on error
 read_post(hc_file_t       *file,	// I - File
-          _hc_off_table_t *table)	// I - Offset table
+          _hc_off_table_t *table,	// I - Offset table
+          _hc_off_post_t  *post)	// I - PostScript table
 {
+  memset(post, 0, sizeof(_hc_off_post_t));
+
   if (seek_table(file, table, _HC_OFF_post, 0) == 0)
-    return (0.0f);
+    return (false);
 
-  // version read_ulong(file);
+  /* version            = */read_ulong(file);
+  post->italicAngle     = (int)read_ulong(file) / 65536.0f;
+  /* underlinePosition  = */read_ushort(file);
+  /* underlineThickness = */read_ushort(file);
+  post->isFixedPitch    = read_ulong(file);
 
-  return ((int)read_ulong(file) / 65536.0f);
+  return (true);
 }
 
 
@@ -1365,7 +1685,7 @@ read_short(hc_file_t *file)		// i - File to read from
 // 'read_table()' - Read an OFF/TTF offset table.
 //
 
-static int				// O - 0 on success, EOF on failure
+static bool				// O - `true` on success, `false` on error
 read_table(hc_file_t       *file,	// I - File
            size_t          idx,		// I - Font number within collection
            _hc_off_table_t *table,	// O - Offset table
@@ -1394,7 +1714,7 @@ read_table(hc_file_t       *file,	// I - File
   if ((temp = read_ulong(file)) != 0x10000 && temp != 0x4f54544f && temp != 0x74746366)
   {
     _hcFileError(file, "Invalid font file.");
-    return (-1);
+    return (false);
   }
 
   if (temp == 0x74746366)
@@ -1410,7 +1730,7 @@ read_table(hc_file_t       *file,	// I - File
     if ((temp = read_ulong(file)) != 0x10000 && temp != 0x20000)
     {
       _hcFileError(file, "Unsupported font collection version %f.", temp / 65536.0);
-      return (-1);
+      return (false);
     }
 
     _HC_DEBUG("read_table: Collection version=%f\n", temp / 65536.0);
@@ -1419,7 +1739,7 @@ read_table(hc_file_t       *file,	// I - File
     if ((temp = read_ulong(file)) == 0)
     {
       _hcFileError(file, "No fonts in collection.");
-      return (-1);
+      return (false);
     }
 
     *num_fonts = (size_t)temp;
@@ -1427,7 +1747,7 @@ read_table(hc_file_t       *file,	// I - File
     _HC_DEBUG("read_table: numFonts=%u\n", temp);
 
     if (idx >= *num_fonts)
-      return (-1);
+      return (false);
 
     // OffsetTable
     temp = read_ulong(file);
@@ -1448,7 +1768,7 @@ read_table(hc_file_t       *file,	// I - File
   if ((table->num_entries = read_ushort(file)) <= 0)
   {
     _hcFileError(file, "Unable to read font tables.");
-    return (-1);
+    return (false);
   }
 
   _HC_DEBUG("read_table: num_entries=%u\n", (unsigned)table->num_entries);
@@ -1457,21 +1777,21 @@ read_table(hc_file_t       *file,	// I - File
   if (read_ushort(file) < 0)
   {
     _hcFileError(file, "Unable to read font tables.");
-    return (-1);
+    return (false);
   }
 
   // entrySelector
   if (read_ushort(file) < 0)
   {
     _hcFileError(file, "Unable to read font tables.");
-    return (-1);
+    return (false);
   }
 
   // rangeShift
   if (read_ushort(file) < 0)
   {
     _hcFileError(file, "Unable to read font tables.");
-    return (-1);
+    return (false);
   }
 
  /*
@@ -1481,7 +1801,7 @@ read_table(hc_file_t       *file,	// I - File
   if ((table->entries = calloc((size_t)table->num_entries, sizeof(_hc_off_dir_t))) == NULL)
   {
     _hcFileError(file, "Unable to allocate memory for font tables.");
-    return (-1);
+    return (false);
   }
 
   for (i = table->num_entries, current = table->entries; i > 0; i --, current ++)
@@ -1494,7 +1814,7 @@ read_table(hc_file_t       *file,	// I - File
     _HC_DEBUG("read_table: [%d] tag='%c%c%c%c' checksum=%u offset=%u length=%u\n", i, (current->tag >> 24) & 255, (current->tag >> 16) & 255, (current->tag >> 8) & 255, current->tag & 255, current->checksum, current->offset, current->length);
   }
 
-  return (0);
+  return (true);
 }
 
 

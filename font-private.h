@@ -23,6 +23,8 @@ extern "C" {
 //
 
 #  define _HC_FONT_MAX_CHAR	262144
+#  define _HC_FONT_MAX_GROUPS	65536	// Maximum number of sub-groups
+#  define _HC_FONT_MAX_NAMES	16777216// Maximum size of names table we support
 
 
 //
@@ -45,6 +47,11 @@ struct _hc_font_s
   const char		*postscript_name;
 					// PostScript name string
   const char		*version;	// Font version string
+  bool			is_fixed;	// Is this a fixed-width font?
+  int			max_char,	// Last character in font
+			min_char;	// First character in font
+  size_t		num_cmap;	// Number of entries in glyph map
+  int			*cmap;		// Unicode character to glyph map
   _hc_font_metric_t	*widths[_HC_FONT_MAX_CHAR / 256];
 					// Character metrics (sparse array)
   float			units;		// Width units
@@ -58,6 +65,7 @@ struct _hc_font_s
 			y_min,
 			weight;		// Font weight
   float			italic_angle;	// Angle of italic text
+  hc_font_stretch_t	stretch;	// Font stretch value
   hc_font_style_t	style;		// Font style
 };
 
