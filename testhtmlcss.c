@@ -57,10 +57,7 @@ main(int  argc,				// I - Number of command-line arguments
 		show_html = 0;		// Show HTML?
 
 
- /*
-  * Initialize memory pool, stylesheet, and HTML document objects...
-  */
-
+  // Initialize memory pool, stylesheet, and HTML document objects...
   pool = hcPoolNew();
   hcPoolSetErrorCallback(pool, error_cb, NULL);
 
@@ -69,10 +66,7 @@ main(int  argc,				// I - Number of command-line arguments
 
   html = hcHTMLNew(pool, css);
 
- /*
-  * Parse command-line...
-  */
-
+  // Parse command-line...
   for (i = 1; i < argc; i ++)
   {
     if (!strcmp(argv[i], "--all"))
@@ -171,17 +165,11 @@ main(int  argc,				// I - Number of command-line arguments
 
   if (test_all || argc == 1)
   {
-   /*
-    * Test hash functions...
-    */
-
+    // Test hash functions...
     if (!test_sha3_functions())
       return (1);
 
-   /*
-    * Test string pool functions...
-    */
-
+    // Test string pool functions...
     if (!test_pool_functions(pool))
       return (1);
   }

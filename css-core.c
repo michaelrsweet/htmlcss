@@ -47,11 +47,8 @@ hcCSSNew(hc_pool_t *pool)		// I - Memory pool
 
   if (css)
   {
-   /*
-    * Set defaults based on "universal" size (intersection of US Letter and ISO A4) at
-    * 128ppi.
-    */
-
+    // Set defaults based on "universal" size (intersection of US Letter and
+    // ISO A4) at 128ppi.
     css->pool = pool;
 
     hcCSSSetMedia(css, "print", 24, 8, 1058.27f, 1408.0f);

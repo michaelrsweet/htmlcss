@@ -54,19 +54,13 @@ hcHTMLImport(hc_html_t *html,		// I - HTML document
 		*bufend;		// End of buffer
 
 
- /*
-  * Range check input...
-  */
-
+  // Range check input...
   if (!html || html->root || !file)
     return (false);
 
 //  f.parent       = NULL;
 
- /*
-  * Parse file...
-  */
-
+  // Parse file...
   bufptr = buffer;
   bufend = buffer + sizeof(buffer) - 1;
 
@@ -74,20 +68,14 @@ hcHTMLImport(hc_html_t *html,		// I - HTML document
   {
     if (ch == '<')
     {
-     /*
-      * Read a HTML element...
-      */
-
+      // Read a HTML element...
       ch = hcFileGetc(file);
 
       if (isspace(ch) || ch == '=' || ch == '<')
       {
-       /*
-        * Sigh...  "<" followed by anything but an element name is invalid HTML,
-        * but many pages are still broken.  Log it and abort if the error
-        * callback says to...
-	*/
-
+        // Sigh...  "<" followed by anything but an element name is invalid
+        // HTML, but many pages are still broken.  Log it and abort if the error
+        // callback says to...
         if (!_hcFileError(file, "Unquoted '<'."))
         {
           status = false;
@@ -96,10 +84,7 @@ hcHTMLImport(hc_html_t *html,		// I - HTML document
 
         if (bufptr >= (bufend - 1))
         {
-	 /*
-	  * Add text string...
-	  */
-
+	  // Add text string...
 	  if (parent)
 	  {
 	    *bufptr = '\0';
@@ -123,17 +108,11 @@ hcHTMLImport(hc_html_t *html,		// I - HTML document
       }
       else
       {
-       /*
-        * Got the first character of an element name, add any pending text and
-        * then parse the element...
-        */
-
+        // Got the first character of an element name, add any pending text and
+        // then parse the element...
 	if (bufptr > buffer)
 	{
-	 /*
-	  * Add text string...
-	  */
-
+	  // Add text string...
 	  if (parent)
 	  {
 	    *bufptr = '\0';
@@ -177,10 +156,7 @@ hcHTMLImport(hc_html_t *html,		// I - HTML document
 
   if (bufptr > buffer)
   {
-   /*
-    * Add trailing text string...
-    */
-
+    // Add trailing text string...
     if (parent)
     {
       *bufptr = '\0';
@@ -212,10 +188,7 @@ html_parse_attr(hc_file_t *file,	// I - File to read from
 	*end;				// End of string
 
 
- /*
-  * Read name...
-  */
-
+  // Read name...
   ptr = name;
   end = name + sizeof(name) - 1;
 
@@ -232,10 +205,7 @@ html_parse_attr(hc_file_t *file,	// I - File to read from
 
   if (ch == '=')
   {
-   /*
-    * Read value...
-    */
-
+    // Read value...
     ptr = value;
     end = value + sizeof(value) - 1;
 
@@ -268,10 +238,7 @@ html_parse_attr(hc_file_t *file,	// I - File to read from
   }
   else if (ch != EOF)
   {
-   /*
-    * Add "name=name"...
-    */
-
+    // Add "name=name"...
     hcNodeAttrSetNameValue(node, name, name);
   }
 
@@ -300,10 +267,7 @@ html_parse_comment(hc_file_t *file,	// I  - File to read from
   {
     if (ch == '>' && bufptr > (buffer + 1) && bufptr[-1] == '-' && bufptr[-2] == '-')
     {
-     /*
-      * End of comment...
-      */
-
+      // End of comment...
       bufptr -= 2;
       break;
     }
@@ -409,10 +373,7 @@ html_parse_element(hc_file_t *file,	// I  - File to read from
   bool		close_el = ch == '/';	// Close element?
 
 
- /*
-  * Read the element name...
-  */
-
+  // Read the element name...
   bufptr = buffer;
   bufend = buffer + sizeof(buffer) - 1;
   if (!close_el)
@@ -431,10 +392,7 @@ html_parse_element(hc_file_t *file,	// I  - File to read from
 
     if ((bufptr - buffer) == 3 && !memcmp(buffer, "!--", 3))
     {
-     /*
-      * Comment without whitespace, pretend we got some...
-      */
-
+      // Comment without whitespace, pretend we got some...
       ch = ' ';
       break;
     }
@@ -448,10 +406,7 @@ html_parse_element(hc_file_t *file,	// I  - File to read from
 
   *bufptr = '\0';
 
- /*
-  * Convert the name to an enum...
-  */
-
+  // Convert the name to an enum...
   if (isspace(ch) || ch == '>' || ch == '/')
   {
     element = hcElementValue(buffer);
@@ -465,10 +420,7 @@ html_parse_element(hc_file_t *file,	// I  - File to read from
     element = HC_ELEMENT_UNKNOWN;
   }
 
- /*
-  * Parse unknown, comment, and doctype elements accordingly...
-  */
-
+  // Parse unknown, comment, and doctype elements accordingly...
   if (element == HC_ELEMENT_DOCTYPE)
   {
     if (close_el)
@@ -510,16 +462,10 @@ html_parse_element(hc_file_t *file,	// I  - File to read from
     return (html_parse_comment(file, parent));
   }
 
- /*
-  * Otherwise add the element (or close it) in the right place...
-  */
-
+  // Otherwise add the element (or close it) in the right place...
   if (close_el)
   {
-   /*
-    * Close the specified element...
-    */
-
+    // Close the specified element...
     if (ch != '>' && !_hcFileError(file, "Invalid </%s> element.", buffer))
       return (false);
 
@@ -537,11 +483,8 @@ html_parse_element(hc_file_t *file,	// I  - File to read from
     return (true);
   }
 
- /*
-  * HTML doesn't enforce strict open/close markup semantics, so allow <p>, <li>,
-  * etc. to close out like markup...
-  */
-
+  // HTML doesn't enforce strict open/close markup semantics, so allow <p>,
+  // <li>, etc. to close out like markup...
   if (html_issuper(element))
   {
     for (node = *parent; node; node = node->parent)
@@ -614,10 +557,7 @@ html_parse_element(hc_file_t *file,	// I  - File to read from
   }
   else
   {
-   /*
-    * No new parent...
-    */
-
+    // No new parent...
     node = NULL;
   }
 

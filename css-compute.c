@@ -156,10 +156,7 @@ hcNodeComputeCSSBox(
 
   _hcNodeComputeCSSTextFont(node, props, &text);
 
- /*
-  * Size constraint values...
-  */
-
+  // Size constraint values...
 #if 0
   if ((value = hcDictGetKeyValue(props, "min-width")) != NULL)
   {
@@ -178,10 +175,7 @@ hcNodeComputeCSSBox(
   }
 #endif // 0
 
- /*
-  * Background values (just a single background image is currently supported)
-  */
-
+  // Background values (just a single background image is currently supported)
   if ((value = hcDictGetKeyValue(props, "background")) != NULL)
   {
     char	*temp = strdup(value),	// Temporary copy of value
@@ -514,10 +508,7 @@ hcNodeComputeCSSBox(
     }
   }
 
- /*
-  * Border values...
-  */
-
+  // Border values...
   if ((value = hcDictGetKeyValue(props, "border")) != NULL)
   {
     char	*temp = strdup(value),	// Temporary copy of value
@@ -1987,10 +1978,7 @@ hcNodeComputeCSSText(
 
     for (current = temp; *current && quotes_pos < 4; current = next)
     {
-     /*
-      * Extract one value...
-      */
-
+      // Extract one value...
       while (isspace(*current & 255) && *current)
         current ++;
 
@@ -2000,7 +1988,9 @@ hcNodeComputeCSSText(
       for (next = current; *next; next ++)
       {
         if (isspace(*next & 255))
+        {
           break;
+	}
 	else if (*next == '\'' || *next == '\"')
 	{
 	  int quote = *next++;
@@ -2143,20 +2133,14 @@ _hcNodeComputeCSSTextFont(
   };
 
 
- /*
-  * Initialize default text values...
-  */
-
+  // Initialize default text values...
   memset(text, 0, sizeof(hc_text_t));
 
   text->color.alpha = 1.0f;
   text->font_size   = 12.0f;
   text->font_weight = HC_FONT_WEIGHT_400;
 
- /*
-  * Return if there is no node...
-  */
-
+  // Return if there is no node...
   if (!node)
     return (false);
 
@@ -2177,10 +2161,7 @@ _hcNodeComputeCSSTextFont(
 
     for (current = temp; *current; current = next)
     {
-     /*
-      * Extract one value...
-      */
-
+      // Extract one value...
       bool saw_comma = false;		// Saw a comma?
 
       while (isspace(*current & 255) && *current)
@@ -2192,9 +2173,13 @@ _hcNodeComputeCSSTextFont(
       for (next = current; *next; next ++)
       {
         if (isspace(*next & 255) && !saw_comma)
+        {
           break;
+	}
 	else if (*next == ',')
+	{
 	  saw_comma = true;
+	}
 	else if (*next == '/')
 	{
 	  if (next == current)
@@ -2215,22 +2200,25 @@ _hcNodeComputeCSSTextFont(
 	      break;
 	    }
 	    else
+	    {
 	      next ++;
+	    }
 	  }
 	}
 	else
+	{
 	  saw_comma = false;
+	}
       }
 
       sep   = *next;
       *next = '\0';
 
-     /*
-      * Decode...
-      */
-
+      // Decode...
       if (*current == '\"' || *current == '\'' || !strcmp(current, "cursive") || !strcmp(current, "fantasy") || !strcmp(current, "monospace") || !strcmp(current, "sans-serif") || !strcmp(current, "serif"))
+      {
         text->font_family = hcPoolGetString(pool, current);
+      }
       else if (!strcmp(current, "normal"))
       {
         if (font_pos == 0)
@@ -2245,9 +2233,13 @@ _hcNodeComputeCSSTextFont(
           text->line_height = text->font_size * 1.2f;
       }
       else if (!strcmp(current, "small-caps"))
+      {
         text->font_variant = HC_FONT_VARIANT_SMALL_CAPS;
+      }
       else if (!strcmp(current, "bold"))
+      {
 	text->font_weight = HC_FONT_WEIGHT_700;
+      }
       else if (!strcmp(current, "bolder"))
       {
         if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text) && (parent_text.font_weight + 300) < HC_FONT_WEIGHT_900)
@@ -2263,13 +2255,21 @@ _hcNodeComputeCSSTextFont(
 	  text->font_weight = HC_FONT_WEIGHT_100;
       }
       else if (*current >= '1' && *current <= '9' && current[1] == '0' && current[2] == '0' && !current[3])
+      {
 	text->font_weight = (hc_font_weight_t)atoi(current);
+      }
       else if (!strcmp(current, "xx-small"))
+      {
 	text->font_size = 7.0f;
+      }
       else if (!strcmp(current, "x-small"))
+      {
 	text->font_size = 9.0f;
+      }
       else if (!strcmp(current, "small"))
+      {
 	text->font_size = 10.0f;
+      }
       else if (!strcmp(current, "smaller"))
       {
         if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text))
@@ -2278,9 +2278,13 @@ _hcNodeComputeCSSTextFont(
 	  text->font_size = 10.0f;
       }
       else if (!strcmp(current, "medium"))
+      {
 	text->font_size = 12.0f;
+      }
       else if (!strcmp(current, "large"))
+      {
 	text->font_size = 14.0f;
+      }
       else if (!strcmp(current, "larger"))
       {
         if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text))
@@ -2289,11 +2293,17 @@ _hcNodeComputeCSSTextFont(
 	  text->font_size = 14.0f;
       }
       else if (!strcmp(current, "x-large"))
+      {
 	text->font_size = 18.0f;
+      }
       else if (!strcmp(current, "xx-large"))
+      {
 	text->font_size = 24.0f;
+      }
       else if (!strcmp(current, "/"))
+      {
         saw_slash = true;
+      }
       else if (strchr("0123456789.", *current))
       {
         if (saw_slash)
@@ -2329,10 +2339,7 @@ _hcNodeComputeCSSTextFont(
 	}
       }
 
-     /*
-      * Restore the separator character...
-      */
-
+      // Restore the separator character...
       *next = sep;
       font_pos ++;
     }
@@ -2348,11 +2355,17 @@ _hcNodeComputeCSSTextFont(
   if ((value = hcDictGetKeyValue(props, "font-size")) != NULL)
   {
     if (!strcmp(value, "xx-small"))
+    {
       text->font_size = 7.0f;
+    }
     else if (!strcmp(value, "x-small"))
+    {
       text->font_size = 9.0f;
+    }
     else if (!strcmp(value, "small"))
+    {
       text->font_size = 10.0f;
+    }
     else if (!strcmp(value, "smaller"))
     {
       if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text))
@@ -2361,9 +2374,13 @@ _hcNodeComputeCSSTextFont(
 	text->font_size = 10.0f;
     }
     else if (!strcmp(value, "medium"))
+    {
       text->font_size = 12.0f;
+    }
     else if (!strcmp(value, "large"))
+    {
       text->font_size = 14.0f;
+    }
     else if (!strcmp(value, "larger"))
     {
       if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text))
@@ -2372,9 +2389,13 @@ _hcNodeComputeCSSTextFont(
 	text->font_size = 14.0f;
     }
     else if (!strcmp(value, "x-large"))
+    {
       text->font_size = 18.0f;
+    }
     else if (!strcmp(value, "xx-large"))
+    {
       text->font_size = 24.0f;
+    }
     else if (strchr("0123456789.", *value))
     {
       if (!node->parent || !_hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text))
@@ -2384,7 +2405,9 @@ _hcNodeComputeCSSTextFont(
     }
   }
   else if (text->font_size <= 0.0f)
+  {
     text->font_size = 12.0f;
+  }
 
   if ((value = hcDictGetKeyValue(props, "font-size-adjust")) != NULL)
   {
@@ -2460,10 +2483,7 @@ _hcNodeComputeCSSTextFont(
   else if (text->line_height <= 0.0f)
     text->line_height = text->font_size * 1.2f;
 
- /*
-  * Lookup font...
-  */
-
+  // Lookup font...
   if (text->font_family)
   {
     char	*temp = strdup(text->font_family),
@@ -2473,20 +2493,14 @@ _hcNodeComputeCSSTextFont(
 
     for (current = temp; *current && !text->font; current = next)
     {
-     /*
-      * Skip leading whitespace and commas...
-      */
-
+      // Skip leading whitespace and commas...
       while (*current && (isspace(*current & 255) || *current == ','))
         current ++;
 
       if (!*current)
         break;
 
-     /*
-      * Extract a family name...
-      */
-
+      // Extract a family name...
       if (*current == '\'' || *current == '\"')
       {
         char	quote = *current++;	// Quote character
@@ -2618,10 +2632,7 @@ hc_create_props(hc_node_t    *node,	// I - HTML node
   };
 
 
- /*
-  * Collect all of the matching properties...
-  */
-
+  // Collect all of the matching properties...
   css = node->value.element.html->css;
 
   for (i = 0, rulecol = css->rules + HC_ELEMENT_WILDCARD; i < rulecol->num_rules; i ++)
@@ -2680,23 +2691,14 @@ hc_create_props(hc_node_t    *node,	// I - HTML node
     }
   }
 
- /*
-  * If we have no matches, return NULL...
-  */
-
+  // If we have no matches, return NULL...
   if (num_matches == 0)
     return (NULL);
 
- /*
-  * Sort matches...
-  */
-
+  // Sort matches...
   qsort(matches, num_matches, sizeof(_hc_css_match_t), (_hc_compare_func_t)hc_compare_matches);
 
- /*
-  * Build properties from attributes...
-  */
-
+  // Build properties from attributes...
   props = hcDictNew(css->pool);
 
   for (i = 0; i < (sizeof(attrs) / sizeof(attrs[0])); i ++)
@@ -2716,11 +2718,8 @@ hc_create_props(hc_node_t    *node,	// I - HTML node
   if ((value = hcNodeAttrGetNameValue(node, "style")) != NULL)
     _hcCSSImportString(css, props, value);
 
- /*
-  * Hash the match to see if we have already calculated this set of
-  * properties...
-  */
-
+  // Hash the match to see if we have already calculated this set of
+  // properties...
   hcSHA3Init(&ctx);
   for (i = num_matches, match = matches; i > 0; i --, match ++)
     hcSHA3Update(&ctx, match->rule->hash, sizeof(match->rule->hash));
@@ -2740,10 +2739,7 @@ hc_create_props(hc_node_t    *node,	// I - HTML node
     return (rule->props);
   }
 
- /*
-  * No match, so synthesize the properties and add it...
-  */
-
+  // No match, so synthesize the properties and add it...
   for (i = num_matches, match = matches; i > 0; i --, match ++)
   {
     hc_dict_t *dict = match->rule->props;
@@ -2757,10 +2753,7 @@ hc_create_props(hc_node_t    *node,	// I - HTML node
     }
   }
 
- /*
-  * Add a rule with this new hash...
-  */
-
+  // Add a rule with this new hash...
   rule = _hcRuleNew(css, hash, NULL, props);
   _hcRuleColAdd(css, &css->all_rules, rule);
 
@@ -3150,18 +3143,15 @@ hc_match_node(
 	  }
 	  else
 	  {
-	   /*
-	    * Test various pseudo-classes that match based on context.
-	    *
-	    * TODO: Add support for :first-of-type pseudo-class.
-	    * TODO: Add support for :lang(l) pseudo-class.
-	    * TODO: Add support for :last-of-type pseudo-class.
-	    * TODO: Add support for :nth-last-child(n) pseudo-class.
-	    * TODO: Add support for :nth-of-type(n) pseudo-class.
-	    * TODO: Add support for :nth-last-of-type(n) pseudo-class.
-	    * TODO: Add support for :only-of-type pseudo-class.
-	    */
-
+	    // Test various pseudo-classes that match based on context.
+	    //
+	    // TODO: Add support for :first-of-type pseudo-class.
+	    // TODO: Add support for :lang(l) pseudo-class.
+	    // TODO: Add support for :last-of-type pseudo-class.
+	    // TODO: Add support for :nth-last-child(n) pseudo-class.
+	    // TODO: Add support for :nth-of-type(n) pseudo-class.
+	    // TODO: Add support for :nth-last-of-type(n) pseudo-class.
+	    // TODO: Add support for :only-of-type pseudo-class.
 	    int node_matches = 0;	// Does this node match?
 
 	    if (node->element == HC_ELEMENT_A && hcNodeAttrGetNameValue(node, "href") && !strcmp(stmt->name, "link"))
@@ -3198,29 +3188,20 @@ hc_match_node(
 	    }
 	    else if (!strcmp(stmt->name, "nth-child"))
 	    {
-	     /*
-	      * :nth-child(even)
-	      * :nth-child(odd)
-	      * :nth-child(NUMBER)
-	      * :nth-child(MULTn)
-	      * :nth-child(MULTn+OFFSET)
-	      * :nth-child(MULTn-OFFSET)
-	      */
-
+	      // :nth-child(even)
+	      // :nth-child(odd)
+	      // :nth-child(NUMBER)
+	      // :nth-child(MULTn)
+	      // :nth-child(MULTn+OFFSET)
+	      // :nth-child(MULTn-OFFSET)
               long	n = 1;		// Child number
               hc_node_t	*curnode;	// Current node
 
-	     /*
-	      * Calculate the child number...
-	      */
-
+	      // Calculate the child number...
               for (curnode = node; curnode->prev_sibling; curnode = curnode->prev_sibling)
                 n ++;
 
-             /*
-              * Compare child number to value...
-              */
-
+              // Compare child number to value...
               if (!strcmp(stmt->value, "even"))
               {
                 node_matches = ((n & 1) == 0);

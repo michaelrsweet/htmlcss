@@ -102,12 +102,9 @@ hcFontFindCached(
   if (!pool || !family)
     return (NULL);
 
- /*
-  * Map generic font famlilies to real fonts...
-  *
-  * TODO: Provide config options for generic font families...
-  */
-
+  // Map generic font famlilies to real fonts...
+  //
+  // TODO: Provide config options for generic font families...
   if (!strcasecmp(family, "cursive"))
     family = "Zapfino";
   else if (!strcasecmp(family, "fantasy"))
@@ -385,10 +382,7 @@ hc_load_all_fonts(hc_pool_t *pool)	// I - Memory pool
   int		rescan = 0;		// Rescan fonts?
 
 
- /*
-  * Build a list of font directories...
-  */
-
+  // Build a list of font directories...
 #ifdef __APPLE__
   dirs[num_dirs ++] = "/System/Library/Fonts";
   dirs[num_dirs ++] = "/Library/Fonts";
@@ -414,10 +408,7 @@ hc_load_all_fonts(hc_pool_t *pool)	// I - Memory pool
   }
 #endif // __APPLE__
 
- /*
-  * See if we need to re-scan the font directories...
-  */
-
+  // See if we need to re-scan the font directories...
   hc_get_cname(cname, sizeof(cname));
   if (stat(cname, &cinfo))
   {
@@ -435,26 +426,17 @@ hc_load_all_fonts(hc_pool_t *pool)	// I - Memory pool
     }
   }
 
- /*
-  * Load the list of system fonts...
-  */
-
+  // Load the list of system fonts...
   if (!rescan && !hc_load_cache(pool, cname, &cinfo))
     rescan = 1;
 
   if (rescan)
   {
-   /*
-    * Scan for fonts...
-    */
-
+    // Scan for fonts...
     for (i = 0; i < num_dirs; i ++)
       hc_load_fonts(pool, dirs[i], 0);
 
-   /*
-    * Save the cache...
-    */
-
+    // Save the cache...
     hc_save_cache(pool, cname);
   }
 
@@ -589,11 +571,8 @@ hc_load_fonts(hc_pool_t  *pool,		// I - Memory pool
     {
       if (!font->family || font->family[0] == '.')
       {
-       /*
-        * Ignore fonts starting with a "." since (on macOS at least) these are
-        * hidden system fonts...
-        */
-
+        // Ignore fonts starting with a "." since (on macOS at least) these are
+        // hidden system fonts...
         hcFontDelete(font);
       }
       else
@@ -683,17 +662,11 @@ hc_sort_fonts(hc_pool_t *pool)		// I - Memory pool
   _hc_font_info_t	*info;		// Current font info
 
 
- /*
-  * First sort the fonts...
-  */
-
+  // First sort the fonts...
   if (pool->num_fonts > 1)
     qsort(pool->fonts, pool->num_fonts, sizeof(_hc_font_info_t), (_hc_compare_func_t)hc_compare_info);
 
- /*
-  * Then index the fonts based on the initial character...
-  */
-
+  // Then index the fonts based on the initial character...
   for (i = 0; i < 256; i ++)
     pool->font_index[i] = pool->num_fonts;
 

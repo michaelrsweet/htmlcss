@@ -80,20 +80,14 @@ hcCSSImport(hc_css_t  *css,		// I - Stylesheet
 
   _HC_DEBUG("hcCSSImport(css=%p, file=%p)\n", (void *)css, (void *)file);
 
- /*
-  * Range check input...
-  */
-
+  // Range check input...
   if (!css || !file)
   {
     errno = EINVAL;
     return (false);
   }
 
- /*
-  * Read CSS...
-  */
-
+  // Read CSS...
   while (hc_read(file, &type, buffer, sizeof(buffer)))
   {
     _HC_DEBUG("%s:%d: %s %s\n", file->url, file->linenum, types[type], buffer);
@@ -316,10 +310,7 @@ hc_eval_media(hc_css_t   *css,		// I - Stylesheet
         break;
       else if (!strcmp(buffer, "("))
       {
-       /*
-        * Skip subexpression...
-        */
-
+        // Skip subexpression...
 	while (hc_read(file, type, buffer, bufsize))
 	{
 	  if (*type == _HC_TYPE_RESERVED && !strcmp(buffer, ")"))
@@ -338,10 +329,7 @@ hc_eval_media(hc_css_t   *css,		// I - Stylesheet
       }
       else if (!strcmp(buffer, ","))
       {
-       /*
-        * Separate expression...
-        */
-
+        // Separate expression...
         if (media_current > 0 || media_result < 0)
           media_result = media_current;
 
@@ -404,11 +392,8 @@ hc_eval_media(hc_css_t   *css,		// I - Stylesheet
 
   if (media_result < 0)
   {
-   /*
-    * Assign the overall result to the current result.  If the expression is empty,
-    * evaluate to true...
-    */
-
+    // Assign the overall result to the current result.  If the expression is
+    // empty, evaluate to true...
     if (media_current < 0)
       media_result = 1;			// Empty expression
     else
@@ -417,10 +402,7 @@ hc_eval_media(hc_css_t   *css,		// I - Stylesheet
 
   return (media_result);
 
- /*
-  * If we get here we got something unexpected in the media matching expression...
-  */
-
+  // If we get here we got something unexpected in the media matching expression...
   unexpected:
 
   _hcFileError(file, "Unexpected token \"%s\" seen.", buffer);
@@ -462,10 +444,7 @@ hc_read(hc_file_t  *file,		// I - CSS file
 
     if (strchr(reserved, ch))
     {
-     /*
-      * Single character token...
-      */
-
+      // Single character token...
       *bufptr++ = (char)ch;
       *type     = _HC_TYPE_RESERVED;
 
@@ -479,10 +458,7 @@ hc_read(hc_file_t  *file,		// I - CSS file
     }
     else if (ch == '\'' || ch == '\"')
     {
-     /*
-      * Quoted string...
-      */
-
+      // Quoted string...
       int quote = ch;			// Quote character
 
       while ((ch = hcFileGetc(file)) != EOF)
@@ -500,20 +476,16 @@ hc_read(hc_file_t  *file,		// I - CSS file
     }
     else
     {
-     /*
-      * Identifier or number...
-      */
-
+      // Identifier or number...
       do
       {
 	if (isspace(ch & 255) || strchr(reserved, ch))
+	{
 	  break;
+	}
 	else if (ch == '*' && bufptr > buffer && bufptr[-1] == '/')
 	{
-	 /*
-	  * Skip C-style comment...
-	  */
-
+	  // Skip C-style comment...
 	  int	asterisk = 0;		// Did we see the closing asterisk?
 
 	  bufptr --;
@@ -535,29 +507,27 @@ hc_read(hc_file_t  *file,		// I - CSS file
 	  }
 	}
 	else if (bufptr < bufend)
+	{
 	  *bufptr++ = (char)ch;
+	}
 	else
+	{
 	  break;
+	}
 
 	if (ch == '(' || (ch == '-' && (bufptr - buffer) == 4 && !memcmp(buffer, "<!--", 4)) || (ch == '>' && (bufptr - buffer) == 3 && !memcmp(buffer, "-->", 3)))
 	  break;
 
         if (ch == '=')
         {
-         /*
-          * Comparison operator or FOO=...
-          */
-
+          // Comparison operator or FOO=...
           if ((bufptr - buffer) == 1 || ((bufptr - buffer) == 2 && strchr("<>*^$|-", buffer[0])))
           {
             *type = _HC_TYPE_RESERVED;
             break;
           }
 
-         /*
-          * Return FOO and save "=" for later...
-          */
-
+          // Return FOO and save "=" for later...
           hcFileUngetc(file, '=');
           bufptr --;
           break;
@@ -680,10 +650,7 @@ hc_read_sel(hc_css_t   *css,		// I  - Stylesheet
 
     if (!strcmp(buffer, ":"))
     {
-     /*
-      * Match pseudo-class...
-      */
-
+      // Match pseudo-class...
       if (!hc_read(file, type, name, sizeof(name)) || *type != _HC_TYPE_STRING)
       {
         _hcFileError(file, "Missing/bad pseudo-class.");
@@ -693,10 +660,7 @@ hc_read_sel(hc_css_t   *css,		// I  - Stylesheet
       ptr = name + strlen(name) - 1;
       if (ptr > name && *ptr == '(')
       {
-       /*
-        * :NAME(VALUE) syntax...
-        */
-
+        // :NAME(VALUE) syntax...
         *ptr = '\0';
         if (!hc_read(file, type, value, sizeof(value)) || *type != _HC_TYPE_STRING)
         {
@@ -720,10 +684,7 @@ hc_read_sel(hc_css_t   *css,		// I  - Stylesheet
     }
     else if (buffer[0] == '.')
     {
-     /*
-      * Match class name...
-      */
-
+      // Match class name...
       if (!sel)
         sel = _hcCSSSelNew(css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
 
@@ -731,10 +692,7 @@ hc_read_sel(hc_css_t   *css,		// I  - Stylesheet
     }
     else if (buffer[0] == '#')
     {
-     /*
-      * Match ID string...
-      */
-
+      // Match ID string...
       if (!sel)
         sel = _hcCSSSelNew(css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
 
@@ -742,10 +700,7 @@ hc_read_sel(hc_css_t   *css,		// I  - Stylesheet
     }
     else if (*type == _HC_TYPE_STRING)
     {
-     /*
-      * Match element name...
-      */
-
+      // Match element name...
       hc_element_t	element;	// Element for selector
 
       if (!strcmp(buffer, "*"))
@@ -763,10 +718,7 @@ hc_read_sel(hc_css_t   *css,		// I  - Stylesheet
     }
     else if (!strcmp(buffer, "["))
     {
-     /*
-      * Match attribute...
-      */
-
+      // Match attribute...
       _hc_match_t	mtype;		// Matching type
 
       if (!hc_read(file, type, name, sizeof(name)) || *type != _HC_TYPE_STRING)
@@ -805,10 +757,7 @@ hc_read_sel(hc_css_t   *css,		// I  - Stylesheet
 
       if (mtype == _HC_MATCH_ATTR_EXIST)
       {
-       /*
-        * No value to match...
-        */
-
+        // No value to match...
 	if (!sel)
 	  sel = _hcCSSSelNew(css, NULL, HC_ELEMENT_WILDCARD, _HC_RELATION_CHILD);
 
@@ -816,10 +765,7 @@ hc_read_sel(hc_css_t   *css,		// I  - Stylesheet
       }
       else
       {
-       /*
-        * Get value...
-        */
-
+        // Get value...
 	_HC_DEBUG("%s:%d: (SELECTOR) Operator '%s'.\n", file->url, file->linenum, buffer);
 
 	if (!hc_read(file, type, value, sizeof(value)) || *type != _HC_TYPE_QSTRING)
@@ -844,30 +790,23 @@ hc_read_sel(hc_css_t   *css,		// I  - Stylesheet
     }
     else if (!strcmp(buffer, ">") && sel)
     {
-     /*
-      * Match immediate child...
-      */
-
+      // Match immediate child...
       rel = _HC_RELATION_IMMED_CHILD;
     }
     else if (!strcmp(buffer, "+") && sel)
     {
-     /*
-      * Match immediate sibling...
-      */
-
+      // Match immediate sibling...
       rel = _HC_RELATION_IMMED_SIBLING;
     }
     else if (!strcmp(buffer, "~") && sel)
     {
-     /*
-      * Match (subsequent) sibling...
-      */
-
+      // Match (subsequent) sibling...
       rel = _HC_RELATION_SIBLING;
     }
     else if (!strcmp(buffer, "{") || !strcmp(buffer, ","))
+    {
       break;
+    }
     else
     {
       _hcFileError(file, "Unknown selector '%s'.", buffer);
@@ -886,10 +825,7 @@ hc_read_sel(hc_css_t   *css,		// I  - Stylesheet
 
   return (sel);
 
- /*
-  * If we get here there was a hard error...
-  */
-
+  // If we get here there was a hard error...
   error:
 
   _hcCSSSelDelete(sel);
@@ -914,13 +850,12 @@ hc_read_value(hc_file_t *file,		// I - File to read from
 	*bufend = buffer + bufsize - 1;	// End of string buffer
 
 
- /*
-  * Skip leading whitespace...
-  */
-
+  // Skip leading whitespace...
   while ((ch = hcFileGetc(file)) != EOF)
+  {
     if (!isspace(ch & 255) || ch == ';' || ch == '}')
       break;
+  }
 
   do
   {
@@ -934,9 +869,13 @@ hc_read_value(hc_file_t *file,		// I - File to read from
       *bufptr++ = (char)ch;
 
     if (ch == '(')
+    {
       paren ++;
+    }
     else if (ch == ')')
+    {
       paren --;
+    }
     else if (ch == '\\')
     {
       if ((ch = hcFileGetc(file)) != EOF)
@@ -946,16 +885,17 @@ hc_read_value(hc_file_t *file,		// I - File to read from
       }
     }
     else if (ch == quote)
+    {
       quote = '\0';
+    }
     else if (ch == '\"' || ch == '\'')
+    {
       quote = ch;
+    }
   }
   while ((ch = hcFileGetc(file)) != EOF);
 
- /*
-  * Remove trailing whitespace...
-  */
-
+  // Remove trailing whitespace...
   while (bufptr > buffer && isspace(bufptr[-1] & 255))
     bufptr --;
 

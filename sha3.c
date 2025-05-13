@@ -240,10 +240,7 @@ LFSR86540(UINT8 *LFSR)
 
   if (((*LFSR) & 0x80) != 0)
   {
-   /*
-    * Primitive polynomial over GF(2): x^8+x^6+x^5+x^4+1
-    */
-
+    // Primitive polynomial over GF(2): x^8+x^6+x^5+x^4+1
     (*LFSR) = (UINT8)(((*LFSR) << 1) ^ 0x71);
   }
   else
