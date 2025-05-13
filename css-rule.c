@@ -9,10 +9,6 @@
 // information.
 //
 
-//
-// Include necessary headers...
-//
-
 #  include "css-private.h"
 #  include "pool-private.h"
 

@@ -9,10 +9,6 @@
 // information.
 //
 
-//
-// Include necessary headers...
-//
-
 #include "html-private.h"
 #include "file-private.h"
 #include <ctype.h>

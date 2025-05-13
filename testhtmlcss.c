@@ -13,10 +13,6 @@
 //   ./testhtmlcss [--all] [--css] [--font] [--html] [files]
 //
 
-//
-// Include necessary headers...
-//
-
 #include "htmlcss.h"
 #include "css-private.h"
 #include "image.h"

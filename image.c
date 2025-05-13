@@ -13,10 +13,6 @@
 // information.
 //
 
-//
-// Include necessary headers...
-//
-
 #include "image.h"
 #include "common-private.h"
 
