@@ -879,7 +879,7 @@ hc_read_sel(hc_css_t   *css,		// I  - Stylesheet
 
 #ifdef DEBUG
   if (sel)
-    _HC_DEBUG("%s:%d: (SELECTOR) %s (%d matching statements)\n", file->url, file->linenum, hcElements[sel->element], (int)sel->num_stmts);
+    _HC_DEBUG("%s:%d: (SELECTOR) %s (%d matching statements)\n", file->url, file->linenum, hcElementString(sel->element), (int)sel->num_stmts);
   else
     _HC_DEBUG("%s:%d: (SELECTOR) NULL\n", file->url, file->linenum);
 #endif // DEBUG
