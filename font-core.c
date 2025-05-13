@@ -1265,7 +1265,7 @@ read_os_2(hc_file_t       *file,	// I - File
           _hc_off_os_2_t  *os_2)	// O - OS/2 table
 {
   int		version;		// OS/2 table version
-  unsigned char	panose[10];		// panose value
+//  unsigned char	panose[10];		// panose value
 
 
   memset(os_2, 0, sizeof(_hc_off_os_2_t));
