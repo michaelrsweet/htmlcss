@@ -5,6 +5,34 @@ This file describes how security issues are reported and handled, and what the
 expectations are for security issues reported to this project.
 
 
+What is a Security Bug?
+-----------------------
+
+Not every bug is a security bug.
+
+Certain bugs that might be considered security bugs in a program, such as bugs
+that lead to a Denial of Service, are *not* considered security bugs simply
+because this project *does not provide a service*.  Some might argue that, "my
+server uses this library and the bug in this library causes a denial of service
+for my server", however it is the responsibility of the *server* to protect
+against DoS attacks, not a subordinate library, because only the server knows
+what is an appropriate use of memory, CPU, time, and other resources.
+
+Similarly, bugs caused by incorrect API usage such as passing `NULL` pointers
+where such pointers are not allowed, passing the wrong kinds of pointers or
+objects to an API, or using a private API are not security bugs because they
+are not caused by an attacker but by the developer.
+
+Finally, bugs that only exist in unreleased (non-production) or inactive code
+are not security bugs because they do not affect ordinary users.  See the
+[Supported Versions](#supported-versions) section below for more information
+about what versions of the project are covered by this security policy.
+
+If the bug you've found falls into one of these three categories, please report
+the bug as an the ordinary project issue at
+<https://github.com/michaelrsweet/htmlcss/issues>.
+
+
 Reporting a Security Bug
 ------------------------
 
@@ -12,11 +40,6 @@ For the purposes of this project, a security bug is a software defect that
 allows a *local or remote user* to gain unauthorized access or privileges on the
 host computer.  Such defects should be reported to the project security advisory
 page at <https://github.com/michaelrsweet/htmlcss/security/advisories>.
-
-> *Note:* If you've found a software defect that allows a *program* to gain
-> unauthorized access or privileges on the host computer or causes the program
-> to crash, that defect should be reported as an ordinary project issue at
-> <https://github.com/michaelrsweet/htmlcss/issues>.
 
 
 Responsible Disclosure

@@ -1,7 +1,7 @@
 dnl
 dnl Configuration script for HTMLCSS
 dnl
-dnl Copyright © 2025 by Michael R Sweet
+dnl Copyright © 2025-2026 by Michael R Sweet
 dnl
 dnl Licensed under Apache License v2.0.  See the file "LICENSE" for more
 dnl information.
@@ -94,11 +94,32 @@ AC_PATH_TOOL([PKGCONFIG], [pkg-config])
 PKGCONFIG_CFLAGS="-I\${includedir}"
 PKGCONFIG_LIBS="-L\${libdir} -lhtmlcss"
 PKGCONFIG_LIBS_PRIVATE="-lm"
-PKGCONFIG_REQUIRES="zlib"
+PKGCONFIG_REQUIRES=""
+PKGCONFIG_REQUIRES_PRIVATE="ttf"
 AC_SUBST([PKGCONFIG_CFLAGS])
 AC_SUBST([PKGCONFIG_LIBS])
 AC_SUBST([PKGCONFIG_LIBS_PRIVATE])
 AC_SUBST([PKGCONFIG_REQUIRES])
+AC_SUBST([PKGCONFIG_REQUIRES_PRIVATE])
+
+
+dnl TTF library for font support...
+AC_MSG_CHECKING([for ttf library])
+AS_IF([$PKGCONFIG --exists ttf], [
+    # Use installed TTF library...
+    AC_MSG_RESULT([yes])
+    CPPFLAGS="$CPPFLAGS $($PKGCONFIG --cflags ttf)"
+    TTFDIR=""
+    LIBS="$($PKGCONFIG --libs ttf) $LIBS"
+], [
+    # Use embedded TTF library...
+    AC_MSG_RESULT([no, using embedded version])
+    CPPFLAGS="$CPPFLAGS -Ittf"
+    TTFDIR="ttf"
+    LIBS="-Lttf \`PKG_CONFIG_PATH=ttf $PKGCONFIG --libs ttf\` $LIBS"
+    AC_CONFIG_SUBDIRS([ttf])
+])
+AC_SUBST([TTFDIR])
 
 
 dnl ZLIB
@@ -107,6 +128,7 @@ AS_IF([$PKGCONFIG --exists zlib], [
     AC_MSG_RESULT([yes])
     CPPFLAGS="$($PKGCONFIG --cflags zlib) $CPPFLAGS"
     LIBS="$($PKGCONFIG --libs zlib) $LIBS"
+    PKGCONFIG_REQUIRES_PRIVATE="$PKGCONFIG_REQUIRES_PRIVATE, zlib"
 ],[
     AC_MSG_RESULT([no])
     AC_CHECK_HEADER([zlib.h])
@@ -116,7 +138,6 @@ AS_IF([$PKGCONFIG --exists zlib], [
 	AC_MSG_ERROR([Sorry, this software requires zlib 1.1 or higher.])
     ])
 
-    PKGCONFIG_REQUIRES=""
     PKGCONFIG_LIBS_PRIVATE="-lz $PKGCONFIG_LIBS_PRIVATE"
 ])
 
@@ -142,6 +163,8 @@ AS_IF([test x$enable_shared = xyes], [
     LIBHTMLCSS_STATIC=""
     PKGCONFIG_LIBS="$PKGCONFIG_LIBS $PKGCONFIG_LIBS_PRIVATE"
     PKGCONFIG_LIBS_PRIVATE=""
+    PKGCONFIG_REQUIRES="$PKGCONFIG_REQUIRES_PRIVATE"
+    PKGCONFIG_REQUIRES_PRIVATE=""
 ])
 
 AC_SUBST([LIBHTMLCSS])

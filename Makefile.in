@@ -143,16 +143,31 @@ DOCSOURCES =	\
 
 
 # Make everything
-all:		$(TARGETS)
+all:
+	if test "x$(TTFDIR)" != x; then \
+		echo Making all in $(TTFDIR)...; \
+		(cd $(TTFDIR); $(MAKE) $(MFLAGS) all); \
+	fi
+	echo Making $(TARGETS)...
+	$(MAKE) $(MFLAGS) $(TARGETS)
 
 
 # Clean everything
 clean:
+	if test "x$(TTFDIR)" != x; then \
+		echo Cleaing all in $(TTFDIR)...; \
+		(cd $(TTFDIR); $(MAKE) $(MFLAGS) clean; \
+	fi
+	echo Cleaning...
 	rm -f $(TARGETS) $(OBJS)
 
 
 # Install everything
-install:	$(TARGETS)
+install:	all
+	if test "x$(TTFDIR)" != x; then \
+		echo Installing all in $(TTFDIR)...; \
+		(cd $(TTFDIR); $(MAKE) $(MFLAGS) install; \
+	fi
 	echo Installing header files to $(BUILDROOT)$(includedir)...
 	$(INSTALL) -d -m 755 $(BUILDROOT)$(includedir)
 	for file in $(PUBHEADERS); do \
@@ -190,20 +205,24 @@ install:	$(TARGETS)
 
 # Make documentation
 doc:
+	echo Generating documentation...
 	codedoc $(DOCFLAGS) $(DOCSOURCES) >htmlcss.html
 
 
 # Run unit tests
 test:		testhtmlcss
-	./testhtmlcss --all --css --font --html testhtmlcss.html >testhtmlcss.log 2>&1 || (cat testhtmlcss.log; exit 1)
+	echo Running unit tests...
+	./testhtmlcss --all --css --font --html testhtmlcss.html 2>testhtmlcss.log
 
 
 test-fonts:	testhtmlcss
-	./testhtmlcss --font testsuite/Source/*.ttf testsuite/Source/*.otf
+	echo Running font tests...
+	./testhtmlcss --font testsuite/Source/*.ttf testsuite/Source/*.otf 2>testhtmlcss.log
 
 
 # Unit test program
 testhtmlcss:	testhtmlcss.o libhtmlcss.a
+	echo Linking $@...
 	$(CC) $(LDFLAGS) -o testhtmlcss testhtmlcss.o libhtmlcss.a $(LIBS)
 
 
@@ -241,6 +260,7 @@ htmlcss1.def: $(LIBOBJS) Makefile
 css-import.o:	default-css.h
 
 default-css.h:	default.css Makefile
+	echo Generating $@...
 	echo "static const char *default_css =" >default-css.h
 	sed -e '1,$$s/\\/\\\\/g' -e '1,$$s/"/\\"/g' <default.css | awk '{print "\"" $$0 "\\n\""}' >>default-css.h
 	echo ";" >>default-css.h
@@ -250,11 +270,13 @@ $(OBJS):	Makefile $(PUBHEADERS) $(PRIVHEADERS)
 
 # Scan code with the Clang static analyzer <https://clang-analyzer.llvm.org>
 clang:
+	echo Scanning with clang...
 	clang $(CPPFLAGS) -DDEBUG -Werror --analyze $(LIBOBJS:.o=.c)
 	rm -rf $(LIBOBJS:.o=.plist)
 
 
 # Scan the code using Cppcheck <http://cppcheck.sourceforge.net>
 cppcheck:
+	echo Scanning with cppcheck...
 	cppcheck --template=gcc --suppress=cert-API01-C --suppress=cert-EXP05-C --suppress=cert-INT31-c --suppress=cert-MSC24-C --suppress=cert-STR05-C $(CPPFLAGS) $(LIBOBJS:.o=.c) 2>cppcheck.log
 	@test -s cppcheck.log && (echo ""; echo "Errors detected:"; echo ""; cat cppcheck.log; exit 1) || exit 0

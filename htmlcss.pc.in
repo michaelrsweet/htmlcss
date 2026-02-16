@@ -3,11 +3,12 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: pdfio
-Description: PDF read/write library
-Version: @PDFIO_VERSION@
-URL: https://www.msweet.org/pdfio
+Name: htmlcss
+Description: HTML/CSS read/write library
+Version: @HTMLCSS_VERSION@
+URL: https://www.msweet.org/htmlcss/
 Cflags: @PKGCONFIG_CFLAGS@
 Libs: @PKGCONFIG_LIBS@
 Libs.private: @PKGCONFIG_LIBS_PRIVATE@
 Requires: @PKGCONFIG_REQUIRES@
+Requires.private: @PKGCONFIG_REQUIRES_PRIVATE@
