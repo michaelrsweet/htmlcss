@@ -3,7 +3,7 @@
 //
 //     https://github.com/michaelrsweet/htmlcss
 //
-// Copyright © 2018-2025 by Michael R Sweet.
+// Copyright © 2018-2026 by Michael R Sweet.
 //
 // Licensed under Apache License v2.0.  See the file "LICENSE" for more
 // information.

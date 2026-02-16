@@ -3,7 +3,7 @@
 //
 //     https://github.com/michaelrsweet/htmlcss
 //
-// Copyright © 2018-2025 by Michael R Sweet.
+// Copyright © 2018-2026 by Michael R Sweet.
 //
 // Licensed under Apache License v2.0.  See the file "LICENSE" for more
 // information.
@@ -17,6 +17,7 @@
 //
 
 static int	compare_strings(char **a, char **b);
+static void	ttf_error_cb(hc_pool_t *pool, const char *message);
 
 
 //
@@ -28,8 +29,7 @@ hcPoolDelete(hc_pool_t *pool)	// I - Memory pool
 {
   if (pool)
   {
-    if (pool->num_fonts > 0)
-      _hcPoolDeleteFonts(pool);
+    ttfCacheDelete(pool->fonts);
 
     if (pool->num_strings > 0)
     {
@@ -249,7 +249,7 @@ hcPoolGetURL(hc_pool_t  *pool,		// I - Memory pool
 //
 
 hc_pool_t *			// O - New memory pool
-hcPoolNew(void)
+hcPoolNew(const char *appname)	// I - Application name
 {
   hc_pool_t *pool = (hc_pool_t *)calloc(1, sizeof(hc_pool_t));
 				// New memory pool
@@ -262,6 +262,12 @@ hcPoolNew(void)
 	pool->loc = NULL;
       else
 	pool->loc_declen = strlen(pool->loc->decimal_point);
+    }
+
+    if ((pool->fonts = ttfCacheCreate(appname, (ttf_err_cb_t)ttf_error_cb, pool)) == NULL)
+    {
+      free(pool);
+      return (NULL);
     }
 
     pool->error_cb = _hcDefaultErrorCB;
@@ -326,4 +332,16 @@ compare_strings(char **a,		// I - First string
                 char **b)		// I - Second string
 {
   return (strcmp(*a, *b));
+}
+
+
+//
+// 'ttf_error_cb()' - Relay TTF error messages to the pool.
+//
+
+static void
+ttf_error_cb(hc_pool_t  *pool,		// I - Memory pool
+             const char *message)	// I - Error message
+{
+  (pool->error_cb)(pool->error_ctx, message, 0);
 }

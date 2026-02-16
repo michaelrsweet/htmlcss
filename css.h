@@ -3,7 +3,7 @@
 //
 //     https://github.com/michaelrsweet/htmlcss
 //
-// Copyright © 2018-2025 by Michael R Sweet.
+// Copyright © 2018-2026 by Michael R Sweet.
 //
 // Licensed under Apache License v2.0.  See the file "LICENSE" for more
 // information.
@@ -13,7 +13,7 @@
 #  define HTMLCSS_CSS_H
 #  include "dict.h"
 #  include "file.h"
-#  include "font.h"
+#  include <ttf.h>
 #  ifdef __cplusplus
 extern "C" {
 #  endif // __cplusplus
@@ -134,6 +134,12 @@ typedef enum
   HC_FLOAT_RIGHT
 } hc_float_t;
 
+typedef enum				// Font variant
+{
+  HC_FONT_VARIANT_NORMAL,		// Normal font
+  HC_FONT_VARIANT_SMALL_CAPS		// Font whose lowercase letters are small capitals
+} hc_font_variant_t;
+
 typedef enum
 {
   HC_LIST_STYLE_POSITION_INSIDE,
@@ -227,33 +233,25 @@ typedef struct hc_point_s		// Point/coordinate
   float			top;		// Vertical position
 } hc_point_t;
 
+typedef struct hc_rect_s		// Rectangle
+{
+  float			left;		// Left offset
+  float			top;		// Top offset
+  float			right;		// Right offset
+  float			bottom;		// Bottom offset
+} hc_rect_t;
+
 typedef struct hc_size_s		// Point/coordinate
 {
   float			width;		// Width
   float			height;		// Height
 } hc_size_t;
 
-typedef struct hc_border_props_s	// CSS border properties
-{
-  hc_color_t		color;		// Border color
-  hc_border_style_t	style;		// Border style
-  float			width;		// Border width
-} hc_border_props_t;
-
-typedef struct hc_box_shadow_s		// Box shadow values
-{
-  float			horizontal_offset;
-  float			vertical_offset;
-  float			blur_radius;
-  float			spread_distance;
-  hc_color_t		color;
-  bool			inset;
-} hc_box_shadow_t;
 
 // Higher-level types */
 
 
-typedef enum				// What to compute
+typedef enum hc_compute_e		// What to compute
 {
   HC_COMPUTE_BASE,			// Base content
   HC_COMPUTE_BEFORE,			// Content before element
@@ -261,6 +259,13 @@ typedef enum				// What to compute
   HC_COMPUTE_FIRST_LINE,		// First line of block
   HC_COMPUTE_FIRST_LETTER		// First letter of block
 } hc_compute_t;
+
+typedef struct hc_border_props_s	// CSS border properties
+{
+  hc_color_t		color;		// Border color
+  hc_border_style_t	style;		// Border style
+  float			width;		// Border width
+} hc_border_props_t;
 
 typedef struct hc_border_s		// All CSS border properties
 {
@@ -277,6 +282,16 @@ typedef struct hc_border_radius_s	// CSS border-xxx-radius properties
   hc_size_t		top_left;	// Top-left border radius
   hc_size_t		top_right;	// Top-right border radius
 } hc_border_radius_t;
+
+typedef struct hc_box_shadow_s		// Box shadow values
+{
+  float			horizontal_offset;
+  float			vertical_offset;
+  float			blur_radius;
+  float			spread_distance;
+  hc_color_t		color;
+  bool			inset;
+} hc_box_shadow_t;
 
 typedef struct hc_box_s			// CSS box properties
 {
@@ -341,14 +356,14 @@ typedef struct hc_text_s		// CSS text properties
 {
   hc_color_t		color;
   hc_direction_t	direction;
-  hc_font_t		*font;		// Loaded font
+  ttf_t			*font;		// Loaded font
   const char		*font_family;
   float			font_size;
   float			font_size_adjust;
-  hc_font_stretch_t	font_stretch;
-  hc_font_style_t	font_style;
+  ttf_stretch_t		font_stretch;
+  ttf_style_t		font_style;
   hc_font_variant_t	font_variant;
-  hc_font_weight_t	font_weight;
+  ttf_weight_t		font_weight;
   float			letter_spacing;
   float			line_height;
   const char		*quotes[4];

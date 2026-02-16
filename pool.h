@@ -35,7 +35,7 @@ extern void		hcPoolDelete(hc_pool_t *pool);
 extern const char	*hcPoolGetLastError(hc_pool_t *pool);
 extern const char	*hcPoolGetString(hc_pool_t *pool, const char *s);
 extern const char	*hcPoolGetURL(hc_pool_t *pool, const char *url, const char *baseurl);
-extern hc_pool_t	*hcPoolNew(void);
+extern hc_pool_t	*hcPoolNew(const char *appname);
 extern void		hcPoolSetErrorCallback(hc_pool_t *pool, hc_error_cb_t cb, void *ctx);
 extern void		hcPoolSetURLCallback(hc_pool_t *pool, hc_url_cb_t cb, void *ctx);
 

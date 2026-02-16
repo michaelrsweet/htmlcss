@@ -3,7 +3,7 @@
 //
 //     https://github.com/michaelrsweet/htmlcss
 //
-// Copyright © 2018-2025 by Michael R Sweet.
+// Copyright © 2018-2026 by Michael R Sweet.
 //
 // Licensed under Apache License v2.0.  See the file "LICENSE" for more
 // information.
@@ -41,7 +41,7 @@ main(int  argc,				// I - Number of command-line arguments
   hc_pool_t	*pool;			// Memory pool
   hc_css_t	*css;			// Stylesheet
   hc_html_t	*html;			// HTML document
-  hc_font_t	*font;			// Font
+  ttf_t	*font;			// Font
   hc_node_t	*node,			// Current node
 		*next;			// Next node
   int		level;			// Indentation level
@@ -58,7 +58,7 @@ main(int  argc,				// I - Number of command-line arguments
 
 
   // Initialize memory pool, stylesheet, and HTML document objects...
-  pool = hcPoolNew();
+  pool = hcPoolNew("testhtmlcss");
   hcPoolSetErrorCallback(pool, error_cb, NULL);
 
   css = hcCSSNew(pool);
@@ -104,40 +104,36 @@ main(int  argc,				// I - Number of command-line arguments
     {
       show_font_cache = 0;
 
-      if ((font = hcFontNew(pool, file, 0)) != NULL)
+      if ((font = ttfCreate(argv[i], 0, /*err_cb*/NULL, /*err_cbdata*/NULL)) != NULL)
       {
-        hc_rect_t	extents;	// Extents of text
+        ttf_rect_t	extents;	// Extents of text
 
-        printf("%s:\n    numFonts=%u\n    copyright=\"%s\"\n    family=\"%s\"\n    postscript_name=\"%s\"\n    version=\"%s\"\n    style=%d\n    weight=%d\n", argv[i], (unsigned)hcFontGetNumFonts(font), hcFontGetCopyright(font), hcFontGetFamily(font), hcFontGetPostScriptName(font), hcFontGetVersion(font), (int)hcFontGetStyle(font), hcFontGetWeight(font));
+        printf("%s:\n    numFonts=%u\n    copyright=\"%s\"\n    family=\"%s\"\n    postscript_name=\"%s\"\n    version=\"%s\"\n    style=%d\n    weight=%d\n", argv[i], (unsigned)ttfGetNumFonts(font), ttfGetCopyright(font), ttfGetFamily(font), ttfGetPostScriptName(font), ttfGetVersion(font), (int)ttfGetStyle(font), ttfGetWeight(font));
 
-        hcFontComputeExtents(font, 10.0f, "Hello, world!", &extents);
+        ttfGetExtents(font, 10.0f, "Hello, world!", &extents);
         printf("    extents of \"Hello, world!\"=[%.3f %.3f %.3f %.3f]\n", extents.left, extents.bottom, extents.right, extents.top);
 
-        hcFontComputeExtents(font, 10.0f, "0123456789", &extents);
+        ttfGetExtents(font, 10.0f, "0123456789", &extents);
         printf("    extents of \"0123456789\"=[%.3f %.3f %.3f %.3f]\n", extents.left, extents.bottom, extents.right, extents.top);
 
-        if (hcFontGetNumFonts(font) > 1)
+        if (ttfGetNumFonts(font) > 1)
         {
           size_t	i;		// Looping var
-          hc_font_t	*fontn;		// Nth font
+          ttf_t		*fontn;		// Nth font
 
-          for (i = 1; i < hcFontGetNumFonts(font); i ++)
+          for (i = 1; i < ttfGetNumFonts(font); i ++)
           {
-            hcFileSeek(file, 0);
-
-            if ((fontn = hcFontNew(pool, file, i)) != NULL)
-	      printf("    postscript_name%d=\"%s\"\n    style%d=%d\n    weight%d=%d\n", (int)i, hcFontGetPostScriptName(fontn), (int)i, (int)hcFontGetStyle(fontn), (int)i, hcFontGetWeight(fontn));
+            if ((fontn = ttfCreate(argv[i], i, /*err_cb*/NULL, /*err_cbdata*/NULL)) != NULL)
+	      printf("    postscript_name%d=\"%s\"\n    style%d=%d\n    weight%d=%d\n", (int)i, ttfGetPostScriptName(fontn), (int)i, (int)ttfGetStyle(fontn), (int)i, ttfGetWeight(fontn));
             else
               printf("    UNABLE TO LOAD FONT #%d\n", (int)i);
 
-            hcFontDelete(fontn);
+            ttfDelete(fontn);
           }
         }
 
-        hcFontDelete(font);
+        ttfDelete(font);
       }
-      else
-        puts(hcPoolGetLastError(pool));
     }
     else if (!strcmp(ext, ".gif") || !strcmp(ext, ".jpg") || !strcmp(ext, ".jpeg") || !strcmp(ext, ".png") || !strcmp(ext, ".svg") || !strcmp(ext, ".svgz"))
     {
@@ -230,7 +226,7 @@ main(int  argc,				// I - Number of command-line arguments
 	  static const char * const variants[] = { "normal", "small-caps" };
 
 	  fputs("} {", stdout);
-	  printf(" font=%p(%s)", (void *)textinfo.font, hcFontGetPostScriptName(textinfo.font));
+	  printf(" font=%p(%s)", (void *)textinfo.font, ttfGetPostScriptName(textinfo.font));
 	  printf(" font-family: %s;", textinfo.font_family);
 	  printf(" font-size: %.1f;", textinfo.font_size);
 	  printf(" font-stretch: %s;", stretches[textinfo.font_stretch]);
@@ -373,17 +369,17 @@ main(int  argc,				// I - Number of command-line arguments
   {
     size_t	findex,			// Font index
 		num_fonts;		// Number of cached fonts
-    hc_font_t	*font;			// Cached font
+    ttf_t	*font;			// Cached font
 
-    printf("\nCached Fonts (%lu):\n", (unsigned long)hcFontGetCachedCount(pool));
+    printf("\nCached Fonts (%lu):\n", (unsigned long)ttfCacheGetNumFonts(pool->fonts));
 
-    for (findex = 0, num_fonts = hcFontGetCachedCount(pool); findex < num_fonts; findex ++)
+    for (findex = 0, num_fonts = ttfCacheGetNumFonts(pool->fonts); findex < num_fonts; findex ++)
     {
-      if ((font = hcFontGetCached(pool, findex)) != NULL)
+      if ((font = ttfCacheGetFont(pool->fonts, findex)) != NULL)
       {
-        hc_font_style_t style = hcFontGetStyle(font);
+        ttf_style_t style = ttfGetStyle(font);
 
-        printf("  \"%s\" (%s) %s %d\n", hcFontGetFamily(font), hcFontGetPostScriptName(font), style == HC_FONT_STYLE_NORMAL ? "normal" : style == HC_FONT_STYLE_ITALIC ? "italic" : "oblique", hcFontGetWeight(font));
+        printf("  \"%s\" (%s) %s %d\n", ttfGetFamily(font), ttfGetPostScriptName(font), style == TTF_STYLE_NORMAL ? "normal" : style == TTF_STYLE_ITALIC ? "italic" : "oblique", ttfGetWeight(font));
       }
     }
   }

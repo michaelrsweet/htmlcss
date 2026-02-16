@@ -3,14 +3,13 @@
 //
 //     https://github.com/michaelrsweet/htmlcss
 //
-// Copyright © 2018-2025 by Michael R Sweet.
+// Copyright © 2018-2026 by Michael R Sweet.
 //
 // Licensed under Apache License v2.0.  See the file "LICENSE" for more
 // information.
 //
 
 #  include "css-private.h"
-#  include "font-private.h"
 #  include "image.h"
 #  include <ctype.h>
 #  include <math.h>
@@ -2140,7 +2139,7 @@ _hcNodeComputeCSSTextFont(
 
   text->color.alpha = 1.0f;
   text->font_size   = 12.0f;
-  text->font_weight = HC_FONT_WEIGHT_400;
+  text->font_weight = TTF_WEIGHT_400;
 
   // Return if there is no node...
   if (!node)
@@ -2224,13 +2223,13 @@ _hcNodeComputeCSSTextFont(
       else if (!strcmp(current, "normal"))
       {
         if (font_pos == 0)
-          text->font_style = HC_FONT_STYLE_NORMAL;
+          text->font_style = TTF_STYLE_NORMAL;
 	else if (font_pos == 1)
           text->font_variant = HC_FONT_VARIANT_NORMAL;
 	else if (font_pos == 2)
-          text->font_weight = HC_FONT_WEIGHT_400;
+          text->font_weight = TTF_WEIGHT_400;
 	else if (font_pos == 3)
-          text->font_stretch = HC_FONT_STRETCH_NORMAL;
+          text->font_stretch = TTF_STRETCH_NORMAL;
 	else
           text->line_height = text->font_size * 1.2f;
       }
@@ -2240,25 +2239,25 @@ _hcNodeComputeCSSTextFont(
       }
       else if (!strcmp(current, "bold"))
       {
-	text->font_weight = HC_FONT_WEIGHT_700;
+	text->font_weight = TTF_WEIGHT_700;
       }
       else if (!strcmp(current, "bolder"))
       {
-        if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text) && (parent_text.font_weight + 300) < HC_FONT_WEIGHT_900)
-          text->font_weight = (hc_font_weight_t)(parent_text.font_weight + 300);
+        if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text) && (parent_text.font_weight + 300) < TTF_WEIGHT_900)
+          text->font_weight = (ttf_weight_t)(parent_text.font_weight + 300);
 	else
-	  text->font_weight = HC_FONT_WEIGHT_900;
+	  text->font_weight = TTF_WEIGHT_900;
       }
       else if (!strcmp(current, "lighter"))
       {
-        if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text) && (parent_text.font_weight - 300) > HC_FONT_WEIGHT_100)
-          text->font_weight = (hc_font_weight_t)(parent_text.font_weight - 300);
+        if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text) && (parent_text.font_weight - 300) > TTF_WEIGHT_100)
+          text->font_weight = (ttf_weight_t)(parent_text.font_weight - 300);
 	else
-	  text->font_weight = HC_FONT_WEIGHT_100;
+	  text->font_weight = TTF_WEIGHT_100;
       }
       else if (*current >= '1' && *current <= '9' && current[1] == '0' && current[2] == '0' && !current[3])
       {
-	text->font_weight = (hc_font_weight_t)atoi(current);
+	text->font_weight = (ttf_weight_t)atoi(current);
       }
       else if (!strcmp(current, "xx-small"))
       {
@@ -2326,7 +2325,7 @@ _hcNodeComputeCSSTextFont(
 	{
 	  if (!strcmp(current, stretches[i]))
 	  {
-	    text->font_stretch = (hc_font_stretch_t)i;
+	    text->font_stretch = (ttf_stretch_t)i;
 	    break;
 	  }
 	}
@@ -2335,7 +2334,7 @@ _hcNodeComputeCSSTextFont(
 	{
 	  if (!strcmp(current, styles[i]))
 	  {
-	    text->font_style = (hc_font_style_t)i;
+	    text->font_style = (ttf_style_t)i;
 	    break;
 	  }
 	}
@@ -2425,7 +2424,7 @@ _hcNodeComputeCSSTextFont(
     {
       if (!strcmp(value, stretches[i]))
       {
-        text->font_stretch = (hc_font_stretch_t)i;
+        text->font_stretch = (ttf_stretch_t)i;
         break;
       }
     }
@@ -2437,7 +2436,7 @@ _hcNodeComputeCSSTextFont(
     {
       if (!strcmp(value, styles[i]))
       {
-        text->font_style = (hc_font_style_t)i;
+        text->font_style = (ttf_style_t)i;
         break;
       }
     }
@@ -2454,25 +2453,25 @@ _hcNodeComputeCSSTextFont(
   if ((value = hcDictGetKeyValue(props, "font-weight")) != NULL)
   {
     if (!strcmp(value, "normal"))
-      text->font_weight = HC_FONT_WEIGHT_400;
+      text->font_weight = TTF_WEIGHT_400;
     else if (!strcmp(value, "bold"))
-      text->font_weight = HC_FONT_WEIGHT_700;
+      text->font_weight = TTF_WEIGHT_700;
     else if (!strcmp(value, "bolder"))
     {
-      if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text) && (parent_text.font_weight + 300) < HC_FONT_WEIGHT_900)
-	text->font_weight = (hc_font_weight_t)(parent_text.font_weight + 300);
+      if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text) && (parent_text.font_weight + 300) < TTF_WEIGHT_900)
+	text->font_weight = (ttf_weight_t)(parent_text.font_weight + 300);
       else
-	text->font_weight = HC_FONT_WEIGHT_900;
+	text->font_weight = TTF_WEIGHT_900;
     }
     else if (!strcmp(value, "lighter"))
     {
-      if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text) && (parent_text.font_weight - 300) > HC_FONT_WEIGHT_100)
-	text->font_weight = (hc_font_weight_t)(parent_text.font_weight - 300);
+      if (node->parent && _hcNodeComputeCSSTextFont(node->parent, node->parent->value.element.base_props, &parent_text) && (parent_text.font_weight - 300) > TTF_WEIGHT_100)
+	text->font_weight = (ttf_weight_t)(parent_text.font_weight - 300);
       else
-	text->font_weight = HC_FONT_WEIGHT_100;
+	text->font_weight = TTF_WEIGHT_100;
     }
     else if (*value >= '1' && *value <= '9' && value[1] == '0' && value[2] == '0' && !value[3])
-      text->font_weight = (hc_font_weight_t)atoi(value);
+      text->font_weight = (ttf_weight_t)atoi(value);
   }
 
   if ((value = hcDictGetKeyValue(props, "line-height")) != NULL)
@@ -2521,7 +2520,7 @@ _hcNodeComputeCSSTextFont(
       if (*next)
 	*next++ = '\0';
 
-      text->font = hcFontFindCached(pool, current, text->font_stretch, text->font_style, text->font_variant, text->font_weight);
+      text->font = ttfCacheFind(pool->fonts, current, text->font_style, text->font_weight, text->font_stretch);
     }
 
     free(temp);
@@ -2970,9 +2969,9 @@ hc_get_length(hc_pool_t  *pool,		// I - Memory pool
     }
     else if (!strcmp(ptr, "ch") && text)
     {
-      hc_rect_t	extents;		// Font extents
+      ttf_rect_t	extents;	// Font extents
 
-      hcFontComputeExtents(text->font, text->font_size, "0", &extents);
+      ttfGetExtents(text->font, text->font_size, "0", &extents);
       temp *= extents.right;
     }
     else if (!strcmp(ptr, "cm"))
@@ -2986,7 +2985,7 @@ hc_get_length(hc_pool_t  *pool,		// I - Memory pool
     else if (!strcmp(ptr, "ex") && text)
     {
       if (text->font)
-        temp *= text->font_size * text->font->x_height / text->font->units;
+        temp *= text->font_size * ttfGetXHeight(text->font) / 1000.0;
       else
         temp *= text->font_size * 0.6;
     }
