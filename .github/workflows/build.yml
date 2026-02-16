@@ -16,7 +16,9 @@ jobs:
 
     steps:
     - name: Checkout HTMLCSS sources
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
+      with:
+        submodules: recursive
     - name: Update Build Environment
       run: sudo apt-get update --fix-missing -y
     - name: Install Prerequisites
@@ -40,7 +42,9 @@ jobs:
 
     steps:
     - name: Checkout HTMLCSS sources
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
+      with:
+        submodules: recursive
     - name: Configure HTMLCSS
       run: ./configure --enable-debug --enable-sanitizer --enable-maintainer
     - name: Make HTMLCSS
@@ -57,10 +61,13 @@ jobs:
 #   runs-on: windows-latest
 #
 #    steps:
-#    - uses: actions/checkout@v2
-#    - name: setup-msbuild
+#    - name: Checkout HTMLCSS sources
+#      uses: actions/checkout@v6
+#      with:
+#        submodules: recursive
+#    - name: Setup msbuild
 #      uses: microsoft/setup-msbuild@v1.0.2
-#    - name: nuget restore
+#    - name: Install NuGet prerequisites
 #      run: nuget restore pdfio.sln
-#    - name: msbuild
-#      run: msbuild pdfio.sln
+#    - name: Make HTMLCSS
+#      run: msbuild htmlcss.sln
