@@ -42,6 +42,7 @@ RANLIB		=	@RANLIB@
 RM		=	@RM@ -f
 RMDIR		=	@RMDIR@
 SHELL		=	/bin/sh
+TTFDIR		=	@TTFDIR@
 WARNINGS	=	@WARNINGS@
 
 
